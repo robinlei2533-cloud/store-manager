@@ -1,0 +1,31 @@
+/* 全局样式 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 低库存行高亮 */
+.row-danger {
+  background-color: #fff1f0 !important;
+}
+.row-danger:hover > td {
+  background-color: #ffccc7 !important;
+}
+.row-warning {
+  background-color: #fffbe6 !important;
+}
+.row-warning:hover > td {
+  background-color: #fff1b8 !important;
+}
+
+/* 登录页全屏 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
