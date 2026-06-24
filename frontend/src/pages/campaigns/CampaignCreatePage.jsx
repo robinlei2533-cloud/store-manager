@@ -36,7 +36,7 @@ const CampaignCreatePage = () => {
       if (id) await updateCampaign(id, data);
       else await createCampaign(data);
       message.success(id ? 'Campaign updated' : 'Campaign created');
-      navigate('/campaigns');
+      navigate('/app/campaigns');
     } catch (err) { message.error(err.message || 'Failed'); }
     finally { setSubmitting(false); }
   };
@@ -45,7 +45,7 @@ const CampaignCreatePage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
+      <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
       <Card title={id ? 'Edit Campaign' : 'New Campaign'}>
         <Form form={form} layout="vertical" style={{ maxWidth: 700 }}>
           <Form.Item name="name" label="Campaign Name" rules={[{ required: true, message: 'Required' }]}><Input placeholder="e.g. Summer Promotion" /></Form.Item>
@@ -71,7 +71,7 @@ const CampaignCreatePage = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" size="large" loading={submitting} onClick={handleSubmit}>{id ? 'Update' : 'Create'} Campaign</Button>
-            <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/campaigns')}>Cancel</Button>
+            <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/app/campaigns')}>Cancel</Button>
           </Form.Item>
         </Form>
       </Card>

@@ -14,17 +14,13 @@ const useAuthStore = create((set, get) => ({
   setProfile: (profile) => set({ profile }),
   setLoading: (loading) => set({ loading }),
 
-  // 本地模式：模拟登录
   signInLocal: async (email, password) => {
-    // 本地模式下，用种子数据中的 profiles 模拟登录
     if (localDb.needsInit()) {
       localDb.init(seedData);
     }
     const profiles = localDb.all('profiles');
-    // 简单匹配：取第一个 admin 或根据 email 前缀匹配
     let profile = profiles.find((p) => email && p.name && p.name.includes(email.split('@')[0]));
     if (!profile) {
-      // 默认登录为管理员
       profile = profiles.find((p) => p.role === 'admin') || profiles[0];
     }
     if (profile) {
@@ -32,16 +28,45 @@ const useAuthStore = create((set, get) => ({
       set({ user, profile, isAuthenticated: true });
       return { user, profile };
     }
-    throw new Error('登录失败，请检查账号');
+    throw new Error('Login failed');
   },
 
-  // Supabase 模式登录
   signInSupabase: async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (data.user) {
       set({ user: data.user, isAuthenticated: true });
-      await get().fetchProfile(data.user.id);
+      // Fetch profile with error handling — don't hang if it fails
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+        if (!profileError && profileData) {
+          set({ profile: profileData });
+        } else {
+          // Profile might not exist yet — create a fallback profile
+          const fallbackProfile = {
+            id: data.user.id,
+            role: 'admin',
+            name: data.user.email?.split('@')[0] || 'User',
+            phone: '',
+            avatar: '',
+          };
+          set({ profile: fallbackProfile });
+        }
+      } catch (err) {
+        // If profile fetch fails, use fallback so UI doesn't hang
+        const fallbackProfile = {
+          id: data.user.id,
+          role: 'admin',
+          name: data.user.email?.split('@')[0] || 'User',
+          phone: '',
+          avatar: '',
+        };
+        set({ profile: fallbackProfile });
+      }
     }
     return data;
   },
@@ -55,7 +80,6 @@ const useAuthStore = create((set, get) => ({
 
   signUp: async (email, password, metadata) => {
     if (IS_LOCAL_MODE) {
-      // 本地模式注册：添加到 profiles
       if (localDb.needsInit()) {
         localDb.init(seedData);
       }
@@ -78,7 +102,7 @@ const useAuthStore = create((set, get) => ({
 
   signOut: async () => {
     if (!IS_LOCAL_MODE) {
-      await supabase.auth.signOut();
+      try { await supabase.auth.signOut(); } catch {}
     }
     set({ user: null, profile: null, isAuthenticated: false });
   },
@@ -86,7 +110,6 @@ const useAuthStore = create((set, get) => ({
   initialize: async () => {
     set({ loading: true });
     if (IS_LOCAL_MODE) {
-      // 本地模式：检查 localStorage 是否已有登录状态
       const savedProfileId = localStorage.getItem('store_manager_current_user');
       if (savedProfileId && localDb.needsInit()) {
         localDb.init(seedData);
@@ -101,19 +124,27 @@ const useAuthStore = create((set, get) => ({
       return;
     }
 
-    // Supabase 模式
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.user) {
-      set({ user: data.session.user, isAuthenticated: true });
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.session.user.id)
-        .single();
-      if (profileData) {
-        set({ profile: profileData });
+    // Supabase mode
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        set({ user: data.session.user, isAuthenticated: true });
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.session.user.id)
+            .single();
+          if (profileData) {
+            set({ profile: profileData });
+          } else {
+            set({ profile: { id: data.session.user.id, role: 'admin', name: data.session.user.email?.split('@')[0] || 'User' } });
+          }
+        } catch {
+          set({ profile: { id: data.session.user.id, role: 'admin', name: data.session.user.email?.split('@')[0] || 'User' } });
+        }
       }
-    }
+    } catch {}
     set({ loading: false });
   },
 }));

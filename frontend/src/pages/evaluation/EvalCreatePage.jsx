@@ -51,7 +51,7 @@ const EvalCreatePage = () => {
       if (id) await updateEvaluation(id, data);
       else await createEvaluation(data);
       message.success(id ? 'Evaluation updated' : 'Evaluation created');
-      navigate('/evaluation');
+      navigate('/app/evaluation');
     } catch (err) { message.error(err.message || 'Failed'); }
     finally { setSubmitting(false); }
   };
@@ -60,7 +60,7 @@ const EvalCreatePage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
+      <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
       <Card title={id ? 'Edit Evaluation' : 'New Evaluation'}>
         <Form form={form} layout="vertical">
           <Form.Item name="store_id" label="Store" rules={[{ required: true, message: 'Please select a store' }]}>
@@ -91,7 +91,7 @@ const EvalCreatePage = () => {
 
         <Form.Item name="notes" label="Notes"><Input.TextArea rows={3} placeholder="Evaluation notes..." /></Form.Item>
         <Button type="primary" size="large" loading={submitting} onClick={handleSubmit}>{id ? 'Update' : 'Create'} Evaluation</Button>
-        <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/evaluation')}>Cancel</Button>
+        <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/app/evaluation')}>Cancel</Button>
       </Card>
     </div>
   );

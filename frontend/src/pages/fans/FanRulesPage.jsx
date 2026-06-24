@@ -47,7 +47,7 @@ const FanRulesPage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
+      <Button type="link" onClick={() => navigate('/app/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
       <Card title="Points Rules" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true); }}>Add Rule</Button>} style={{ marginBottom: 16 }}>
         {rulesLoading ? <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div> : <Table columns={ruleColumns} dataSource={rules} rowKey="id" pagination={false} size="small" />}
       </Card>

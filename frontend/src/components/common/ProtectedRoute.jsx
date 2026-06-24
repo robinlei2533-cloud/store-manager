@@ -15,13 +15,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
   if (requiredRole && profile) {
     const roleHierarchy = { admin: 4, manager: 3, rep: 2, fan: 1 };
     if ((roleHierarchy[profile.role] || 0) < (roleHierarchy[requiredRole] || 0)) {
-      return <Navigate to="/dashboard" replace />;
+      // Fans go to fan-center, staff go to admin dashboard
+      if (profile.role === 'fan') {
+        return <Navigate to="/fan-center" replace />;
+      }
+      return <Navigate to="/app/dashboard" replace />;
     }
   }
 

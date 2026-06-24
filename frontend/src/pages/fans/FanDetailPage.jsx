@@ -29,7 +29,7 @@ const FanDetailPage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
+      <Button type="link" onClick={() => navigate('/app/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
       <Card title="Fan Detail">
         <Descriptions column={2} bordered>
           <Descriptions.Item label="Name">{fan?.profiles?.name || `Fan #${fan?.id?.slice(0, 6)}`}</Descriptions.Item>

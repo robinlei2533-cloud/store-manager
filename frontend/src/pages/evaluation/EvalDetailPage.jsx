@@ -33,7 +33,7 @@ const EvalDetailPage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Evaluations</Button>
+      <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Evaluations</Button>
       <Card title={`Evaluation: ${evalData.stores?.name || ''}`}>
         <Descriptions column={3} bordered style={{ marginBottom: 24 }}>
           <Descriptions.Item label="Store">{evalData.stores?.name}</Descriptions.Item>

@@ -120,10 +120,10 @@ const StoreListPage = () => {
     <Card title="Store Management" extra={
       <Space>
         <Button icon={<ImportOutlined />} onClick={() => setImportModalOpen(true)}>Import</Button>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/stores/create')}>Add Store</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/stores/create')}>Add Store</Button>
       </Space>
     }>
-      <Space style={{ marginBottom: 16 }}>
+      <Space wrap style={{ marginBottom: 16 }}>
         <Input placeholder="Search store name" prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} allowClear style={{ width: 240 }} />
         <Select placeholder="Store Level" value={level} onChange={setLevel} allowClear style={{ width: 140 }} options={STORE_LEVELS} />
       </Space>

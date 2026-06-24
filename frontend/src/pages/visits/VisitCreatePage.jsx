@@ -85,7 +85,7 @@ const VisitCreatePage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/visits/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Visits</Button>
+      <Button type="link" onClick={() => navigate('/app/visits/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Visits</Button>
       <Card title={id ? 'Edit Visit' : 'New Visit'}>
         <Form form={form} layout="vertical">
           <Form.Item name="store_id" label="Store" rules={[{ required: true, message: 'Please select a store' }]}>
@@ -136,7 +136,7 @@ const VisitCreatePage = () => {
 
         <div style={{ marginTop: 24 }}>
           <Button type="primary" size="large" loading={submitting} onClick={handleSubmit}>{id ? 'Update Visit' : 'Create Visit'}</Button>
-          <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/visits/list')}>Cancel</Button>
+          <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/app/visits/list')}>Cancel</Button>
         </div>
       </Card>
     </div>

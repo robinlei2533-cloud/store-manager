@@ -5,7 +5,7 @@
 
 const DB_PREFIX = 'store_manager_db_';
 const VERSION_KEY = 'store_manager_version';
-const CURRENT_VERSION = '2.0';
+const CURRENT_VERSION = '5.1';
 
 // 表结构定义
 const TABLE_NAMES = [
@@ -28,6 +28,13 @@ const TABLE_NAMES = [
   'campaign_tasks',
   'campaign_reports',
   'qr_codes',
+  'scan_records',
+  'fan_checkins',
+  'lottery_records',
+  'mall_redemptions',
+  'community_posts',
+  'community_comments',
+  'store_tasks',
   'scan_records',
 ];
 

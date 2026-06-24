@@ -43,7 +43,7 @@ const CampaignDetailPage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
+      <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
       <Card title={campaign.name} extra={<Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>}>
         <Descriptions column={3} bordered>
           <Descriptions.Item label="Type">{campaign.type}</Descriptions.Item>

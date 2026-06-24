@@ -18,7 +18,7 @@ const StoreCreatePage = () => {
         form.setFieldsValue(data);
       }).catch(() => {
         message.error('Store not found');
-        navigate('/stores/list');
+        navigate('/app/stores/list');
       }).finally(() => setLoading(false));
     }
   }, [id]);
@@ -33,7 +33,7 @@ const StoreCreatePage = () => {
         await createStore(values);
         message.success('Store created');
       }
-      navigate('/stores/list');
+      navigate('/app/stores/list');
     } catch (err) {
       message.error(err.message || 'Operation failed');
     } finally {
@@ -61,7 +61,7 @@ const StoreCreatePage = () => {
         <Form.Item name="phone" label="Phone"><Input placeholder="e.g. 13800000000" /></Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={submitting}>{id ? 'Update' : 'Create'}</Button>
-          <Button style={{ marginLeft: 8 }} onClick={() => navigate('/stores/list')}>Cancel</Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => navigate('/app/stores/list')}>Cancel</Button>
         </Form.Item>
       </Form>
     </Card>

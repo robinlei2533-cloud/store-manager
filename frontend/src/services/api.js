@@ -299,6 +299,26 @@ export async function getMaterialStocks() {
   return data;
 }
 
+export async function updateMaterialStock(materialId, qty, safetyStock) {
+  ensureLocalInit();
+  if (USE_LOCAL) {
+    const stocks = localDb.find('material_stocks', (s) => s.material_id === materialId);
+    if (stocks.length > 0) {
+      return localDb.update('material_stocks', stocks[0].id, { qty, safety_stock: safetyStock });
+    } else {
+      return localDb.insert('material_stocks', { material_id: materialId, warehouse: 'Default', qty, safety_stock: safetyStock });
+    }
+  }
+  const { data, error } = await supabase
+    .from('material_stocks')
+    .update({ qty, safety_stock: safetyStock })
+    .eq('material_id', materialId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function createInbound(record) {
   ensureLocalInit();
   if (USE_LOCAL) {

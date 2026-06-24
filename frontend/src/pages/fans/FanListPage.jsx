@@ -24,7 +24,7 @@ const FanListPage = () => {
   ];
 
   return (
-    <Card title="Fan Operations" extra={<Button icon={<SettingOutlined />} onClick={() => navigate('/fans/rules')}>Rules</Button>}>
+    <Card title="Fan Operations" extra={<Button icon={<SettingOutlined />} onClick={() => navigate('/app/fans/rules')}>Rules</Button>}>
       <Space style={{ marginBottom: 16 }}>
         <Select placeholder="Level" value={level} onChange={setLevel} allowClear style={{ width: 150 }} options={FAN_LEVELS.map(f => ({ label: f.label, value: f.value }))} />
       </Space>

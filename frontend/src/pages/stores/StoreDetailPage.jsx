@@ -22,7 +22,7 @@ const StoreDetailPage = () => {
 
   return (
     <div>
-      <Button type="link" onClick={() => navigate('/stores/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Stores</Button>
+      <Button type="link" onClick={() => navigate('/app/stores/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Stores</Button>
       <Card title={store?.name || 'Store Detail'}>
         <Tabs items={[
           { key: 'info', label: 'Store Info', children: (

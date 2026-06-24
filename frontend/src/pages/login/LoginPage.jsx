@@ -18,7 +18,7 @@ const LoginPage = () => {
   const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
-    if (user && !loading) navigate('/dashboard', { replace: true });
+    if (user && !loading) navigate('/app/dashboard', { replace: true });
   }, [user, loading, navigate]);
 
   if (loading) return null;
@@ -31,7 +31,7 @@ const LoginPage = () => {
         localStorage.setItem('store_manager_current_user', result.profile.id);
       }
       message.success('Login successful');
-      navigate('/dashboard', { replace: true });
+      navigate('/app/dashboard', { replace: true });
     } catch (err) {
       message.error(err.message || 'Login failed');
     } finally {

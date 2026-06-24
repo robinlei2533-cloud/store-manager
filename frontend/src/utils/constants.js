@@ -19,11 +19,20 @@ export const hasPermission = (profile, requiredRole) => {
   return (roleHierarchy[profile.role] || 0) >= (roleHierarchy[requiredRole] || 0);
 };
 
+// Store levels - now includes S tier
 export const STORE_LEVELS = [
+  { label: 'Level S (VIP)', value: 'S' },
   { label: 'Level A', value: 'A' },
   { label: 'Level B', value: 'B' },
   { label: 'Level C', value: 'C' },
 ];
+
+export const STORE_LEVEL_COLORS = {
+  S: 'purple',
+  A: 'red',
+  B: 'blue',
+  C: 'default',
+};
 
 export const PHOTO_TYPES = [
   { label: 'Shelf Display', value: 'shelf' },
@@ -38,12 +47,13 @@ export const VISIT_STATUS = {
   CANCELLED: 'cancelled',
 };
 
+// Fan levels - L1 to L5 naming
 export const FAN_LEVELS = [
-  { label: 'Bronze', value: 'bronze', color: '#CD7F32' },
-  { label: 'Silver', value: 'silver', color: '#C0C0C0' },
-  { label: 'Gold', value: 'gold', color: '#FFD700' },
-  { label: 'Platinum', value: 'platinum', color: '#E5E4E2' },
-  { label: 'Diamond', value: 'diamond', color: '#B9F2FF' },
+  { label: 'L1 Bronze', value: 'bronze', color: '#CD7F32', min_points: 0 },
+  { label: 'L2 Silver', value: 'silver', color: '#C0C0C0', min_points: 100 },
+  { label: 'L3 Gold', value: 'gold', color: '#FFD700', min_points: 500 },
+  { label: 'L4 Platinum', value: 'platinum', color: '#E5E4E2', min_points: 2000 },
+  { label: 'L5 Diamond', value: 'diamond', color: '#B9F2FF', min_points: 5000 },
 ];
 
 export const OUTBOUND_STATUS = {
@@ -65,7 +75,7 @@ export const EVAL_DIMENSIONS = [
 
 // Campaign types
 export const CAMPAIGN_TYPES = [
-  'Promotion', 'New Product Launch', 'Holiday Marketing', 'Brand Promotion', 'Store Expansion'
+  'Promotion', 'New Product Launch', 'Holiday Marketing', 'Brand Promotion', 'Store Expansion', 'Community Event'
 ];
 
 // Campaign status
@@ -75,3 +85,25 @@ export const CAMPAIGN_STATUS = {
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
 };
+
+// Lottery prize tiers
+export const LOTTERY_PRIZES = [
+  { id: 'grand', label: 'Grand Prize', points: 500, probability: 0.01, icon: '🏆' },
+  { id: 'first', label: 'First Prize', points: 200, probability: 0.05, icon: '🥇' },
+  { id: 'second', label: 'Second Prize', points: 100, probability: 0.10, icon: '🥈' },
+  { id: 'third', label: 'Third Prize', points: 50, probability: 0.20, icon: '🥉' },
+  { id: 'consolation', label: 'Consolation', points: 10, probability: 0.30, icon: '🎁' },
+  { id: 'none', label: 'Try Again', points: 0, probability: 0.34, icon: '❌' },
+];
+
+// Points mall items
+export const MALL_ITEMS = [
+  { id: 'mall-001', name: 'UWELL G4 Device', points_cost: 800, image: '', stock: 50, category: 'Device' },
+  { id: 'mall-002', name: 'UWELL KOKO Device', points_cost: 500, image: '', stock: 80, category: 'Device' },
+  { id: 'mall-003', name: 'UWELL Pod Pack (3pcs)', points_cost: 150, image: '', stock: 200, category: 'Pod' },
+  { id: 'mall-004', name: 'UWELL T-Shirt', points_cost: 300, image: '', stock: 100, category: 'Merch' },
+  { id: 'mall-005', name: 'UWELL Cap', points_cost: 200, image: '', stock: 150, category: 'Merch' },
+  { id: 'mall-006', name: 'UWEL Store Coupon 50SR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
+  { id: 'mall-007', name: 'UWELL VIP Badge', points_cost: 1000, image: '', stock: 20, category: 'VIP' },
+  { id: 'mall-008', name: 'UWELL Lighter', points_cost: 80, image: '', stock: 300, category: 'Merch' },
+];

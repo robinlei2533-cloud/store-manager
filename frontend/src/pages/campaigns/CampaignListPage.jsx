@@ -18,7 +18,7 @@ const CampaignListPage = () => {
 
   return (
     <div>
-      <Card title="Campaign Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/campaigns/create')}>New Campaign</Button>} style={{ marginBottom: 16 }}>
+      <Card title="Campaign Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/campaigns/create')}>New Campaign</Button>} style={{ marginBottom: 16 }}>
         <Tabs activeKey={statusFilter || 'all'} onChange={(k) => setStatusFilter(k === 'all' ? undefined : k)} items={[
           { key: 'all', label: 'All' }, { key: 'planned', label: 'Planned' }, { key: 'ongoing', label: 'Ongoing' }, { key: 'completed', label: 'Completed' },
         ]} />

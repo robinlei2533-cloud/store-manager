@@ -34,8 +34,8 @@ const VisitListPage = () => {
   ];
 
   return (
-    <Card title="Visit Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/visits/create')}>New Visit</Button>}>
-      <Space style={{ marginBottom: 16 }}>
+    <Card title="Visit Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/visits/create')}>New Visit</Button>}>
+      <Space wrap style={{ marginBottom: 16 }}>
         <RangePicker value={dateRange} onChange={setDateRange} />
         <Select placeholder="Status" value={status} onChange={setStatus} allowClear style={{ width: 140 }} options={[
           { label: 'Draft', value: 'draft' }, { label: 'Completed', value: 'completed' }, { label: 'Cancelled', value: 'cancelled' },
