@@ -1,0 +1,545 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UWELL · 粉丝俱乐部</title>
+<style>
+/* ============ Reset & Base ============ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;
+background:#0a0a0f;color:#fff;overflow-x:hidden;min-height:100vh;width:100vw;
+-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale
+}
+
+/* ============ Background Layers ============ */
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:radial-gradient(ellipse at 50% 0%,#1a1a2e 0%,#0a0a0f 60%,#000 100%)}
+.st{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;animation:tw 4s ease-in-out infinite alternate}
+.st::after{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,0.35),transparent),radial-gradient(1px 1px at 30% 50%,rgba(255,255,255,0.25),transparent),radial-gradient(1.5px 1.5px at 50% 10%,rgba(255,255,255,0.45),transparent),radial-gradient(1px 1px at 70% 30%,rgba(255,255,255,0.25),transparent),radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,0.35),transparent),radial-gradient(1.5px 1.5px at 15% 80%,rgba(255,255,255,0.25),transparent);background-size:200px 200px}
+@keyframes tw{0%{opacity:0.3}100%{opacity:1}}
+.am{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+.am>div{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:of 8s ease-in-out infinite alternate}
+.am>div:nth-child(1){width:400px;height:400px;background:radial-gradient(circle,#ff6b35,#e63946);top:-10%;left:-5%;animation-duration:10s}
+.am>div:nth-child(2){width:350px;height:350px;background:radial-gradient(circle,#457bff,#6c5ce7);top:40%;right:-8%;animation-duration:12s;animation-delay:-3s}
+.am>div:nth-child(3){width:300px;height:300px;background:radial-gradient(circle,#00d2ff,#00b894);bottom:15%;left:20%;animation-duration:9s;animation-delay:-5s}
+@keyframes of{0%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-20px) scale(1.1)}100%{transform:translate(-20px,15px) scale(0.9)}}
+.gl{position:fixed;top:0;left:0;width:100%;height:100%;z-index:3;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.015) 2px,rgba(0,0,0,0.015) 4px)}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%}#pc{z-index:1}#gc{z-index:2;pointer-events:none}
+.pz{position:fixed;bottom:0;left:0;width:100%;height:20vh;z-index:8;pointer-events:none;overflow:hidden}
+
+/* ============ Header ============ */
+.hd{
+position:fixed;top:0;left:0;width:100%;z-index:50;
+display:flex;justify-content:space-between;align-items:center;
+padding:16px 32px;
+background:linear-gradient(180deg,rgba(10,10,15,0.8) 0%,transparent 100%);
+-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)
+}
+.hd .lg{display:flex;align-items:center;gap:10px}
+.hd .lg .lt{font-size:22px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#fff 30%,#ff6b35 70%,#457bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hd .lg .dot{width:6px;height:6px;border-radius:50%;background:#ff6b35;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
+
+/* ---- Settings Dropdown ---- */
+.settings-wrap{position:relative}
+.settings-btn{
+width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
+background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-size:18px;
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+transition:all .3s;user-select:none
+}
+.settings-btn:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;transform:rotate(30deg)}
+.settings-btn.open{transform:rotate(60deg);color:#ff6b35;border-color:#ff6b3544}
+
+.settings-dropdown{
+position:absolute;top:calc(100% + 8px);right:0;min-width:200px;
+background:rgba(20,20,30,0.95);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.08);border-radius:14px;
+padding:6px;opacity:0;transform:translateY(-8px) scale(0.95);pointer-events:none;
+transition:all .3s cubic-bezier(0.34,1.56,0.64,1);z-index:100;
+box-shadow:0 20px 60px rgba(0,0,0,0.5)
+}
+.settings-dropdown.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.settings-dropdown .item{
+display:flex;align-items:center;gap:10px;
+padding:10px 14px;border-radius:10px;
+color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;letter-spacing:0.5px;
+cursor:pointer;transition:all .2s;text-decoration:none
+}
+.settings-dropdown .item:hover{background:rgba(255,255,255,0.06);color:#fff}
+.settings-dropdown .item .icon{font-size:16px;width:28px;text-align:center}
+.settings-dropdown .divider{height:1px;background:rgba(255,255,255,0.06);margin:4px 8px}
+
+/* ============ Main Layout ============ */
+.main-wrap{position:relative;z-index:20;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:100px 20px 140px}
+
+/* ============ Hero / Login Section ============ */
+.hero-section{
+display:flex;align-items:center;justify-content:center;gap:60px;
+width:100%;max-width:1100px;min-height:80vh;padding:60px 0 40px
+}
+.hero-left{flex:1;max-width:480px}
+.hero-right{flex:1;max-width:400px}
+
+.hero-badge{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 14px;border-radius:20px;
+background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);
+font-size:11px;font-weight:700;letter-spacing:2px;color:#ff6b35;text-transform:uppercase;
+margin-bottom:20px
+}
+.hero-title{
+font-size:48px;font-weight:900;line-height:1.15;letter-spacing:-1px;
+margin-bottom:16px
+}
+.hero-title .grad{background:linear-gradient(135deg,#fff 30%,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-title .grad2{background:linear-gradient(135deg,#457bff,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:rgba(255,255,255,0.35);font-size:15px;line-height:1.7;margin-bottom:28px}
+.hero-features{display:flex;gap:20px;flex-wrap:wrap}
+.hero-features .feat{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.5);font-weight:500}
+.hero-features .feat .dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#ff6b35,#e63946)}
+
+/* ---- Login Card ---- */
+.lc{
+background:rgba(255,255,255,0.04);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.08);border-radius:20px;
+padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,0.4)
+}
+.lc .bar{width:50px;height:3px;background:linear-gradient(90deg,#ff6b35,#457bff);border-radius:2px;margin:0 auto 18px}
+.lc .lt{text-align:center;margin-bottom:24px}
+.lc .lt h2{font-size:20px;font-weight:800;letter-spacing:2px;color:#fff;margin-bottom:4px}
+.lc .lt p{color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:1px}
+.fg{margin-bottom:14px}
+.fg input{
+width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.1);border-radius:10px;
+color:#fff;font-size:14px;outline:none;transition:all .3s
+}
+.fg input:focus{border-color:#ff6b35;background:rgba(255,107,53,0.06);box-shadow:0 0 0 3px rgba(255,107,53,0.1)}
+.fg input::placeholder{color:rgba(255,255,255,0.18)}
+.fo{display:flex;justify-content:space-between;align-items:center;margin:16px 0 20px}
+.fo label{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.3);font-size:12px;cursor:pointer}
+.fo a{color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;cursor:pointer;transition:color .3s}
+.fo a:hover{color:#457bff}
+.btn{
+width:100%;padding:13px;border:none;border-radius:10px;
+background:linear-gradient(135deg,#ff6b35,#e63946);
+color:#fff;font-size:14px;font-weight:700;letter-spacing:2px;
+cursor:pointer;transition:all .3s;position:relative;overflow:hidden
+}
+.btn::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left .5s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(230,57,70,0.3)}
+.btn:hover::after{left:100%}
+.rl{text-align:center;margin-top:14px}
+.rl a{color:rgba(255,255,255,0.3);font-size:12px;cursor:pointer;text-decoration:none;transition:color .3s}
+.rl a:hover{color:#457bff}
+.rl a em{color:#ff6b35;font-style:normal;font-weight:600}
+
+/* ============ Product Showcase ============ */
+.showcase{width:100%;max-width:1200px;margin:20px auto 0;padding:0 20px}
+.showcase-header{text-align:center;margin-bottom:36px}
+.showcase-header .tag{
+display:inline-flex;align-items:center;gap:6px;
+padding:4px 14px;border-radius:20px;
+background:rgba(69,123,255,0.08);border:1px solid rgba(69,123,255,0.15);
+font-size:10px;font-weight:700;letter-spacing:2px;color:#457bff;text-transform:uppercase;
+margin-bottom:12px
+}
+.showcase-header h2{font-size:28px;font-weight:900;letter-spacing:1px;margin-bottom:8px}
+.showcase-header h2 span{background:linear-gradient(135deg,#fff,#ff6b35 60%,#457bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.showcase-header p{color:rgba(255,255,255,0.3);font-size:13px;letter-spacing:1px}
+
+.showcase-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+gap:20px;
+}
+
+.prod-card{
+position:relative;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);
+border-radius:18px;padding:24px 20px 20px;
+overflow:hidden;cursor:pointer;
+transition:all .6s cubic-bezier(0.34,1.56,0.64,1);
+opacity:0;transform:translateY(50px) scale(0.92);
+}
+.prod-card.visible{opacity:1;transform:translateY(0) scale(1)}
+.prod-card:hover{
+background:rgba(255,255,255,0.07);
+border-color:rgba(255,255,255,0.14);
+transform:translateY(-8px) scale(1.02);
+box-shadow:0 24px 60px rgba(0,0,0,0.5)
+}
+.prod-card .glow-bg{
+position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+border-radius:50%;opacity:0.06;transition:opacity .5s;pointer-events:none
+}
+.prod-card:hover .glow-bg{opacity:0.18}
+
+.prod-card .img-wrap{
+width:100%;height:150px;
+display:flex;align-items:center;justify-content:center;
+margin-bottom:16px;position:relative;z-index:1
+}
+.prod-card .img-wrap img{
+max-width:90%;max-height:100%;
+object-fit:contain;
+filter:drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+transition:transform .6s cubic-bezier(0.34,1.56,0.64,1)
+}
+.prod-card:hover .img-wrap img{transform:scale(1.12) translateY(-4px)}
+
+.prod-card .info{position:relative;z-index:1}
+.prod-card .info .name{font-size:17px;font-weight:800;letter-spacing:0.5px;margin-bottom:2px}
+.prod-card .info .series{font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-bottom:8px}
+.prod-card .info .badge{
+display:inline-block;font-size:9px;padding:2px 10px;border-radius:20px;
+background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);
+letter-spacing:1px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08)
+}
+.prod-card .info .desc{font-size:12px;color:rgba(255,255,255,0.3);line-height:1.6}
+
+/* ============ Product Modal ============ */
+.prod-modal-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;
+z-index:200;
+background:rgba(0,0,0,0.7);
+-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+display:none;align-items:center;justify-content:center;
+padding:20px
+}
+.prod-modal-overlay.open{display:flex}
+.prod-modal{
+background:rgba(20,20,30,0.95);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:24px;padding:36px;
+max-width:520px;width:100%;
+position:relative;
+animation:modalIn .45s cubic-bezier(0.34,1.56,0.64,1)
+}
+@keyframes modalIn{0%{opacity:0;transform:scale(0.8) translateY(30px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.prod-modal .close{
+position:absolute;top:14px;right:14px;width:32px;height:32px;
+border-radius:50%;border:none;
+background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);
+font-size:16px;cursor:pointer;display:flex;
+align-items:center;justify-content:center;
+transition:all .3s
+}
+.prod-modal .close:hover{background:rgba(255,107,53,0.2);color:#ff6b35;transform:rotate(90deg)}
+.prod-modal .modal-img{width:100%;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.prod-modal .modal-img img{max-width:90%;max-height:100%;object-fit:contain;filter:drop-shadow(0 12px 32px rgba(0,0,0,0.5))}
+.prod-modal h2{font-size:24px;font-weight:900;letter-spacing:1px;margin-bottom:4px}
+.prod-modal .modal-series{font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-bottom:12px}
+.prod-modal .modal-desc{color:rgba(255,255,255,0.45);font-size:13px;line-height:1.8;margin-bottom:20px}
+.prod-modal .modal-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod-modal .modal-specs .spec{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px}
+.prod-modal .modal-specs .spec .label{font-size:9px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.prod-modal .modal-specs .spec .value{font-size:13px;font-weight:600}
+
+/* ============ Footer ============ */
+.footer{width:100%;text-align:center;padding:40px 20px;margin-top:40px;position:relative;z-index:20}
+.footer p{color:rgba(255,255,255,0.12);font-size:11px;letter-spacing:1px}
+
+/* ============ Responsive ============ */
+@media(max-width:900px){
+.hero-section{flex-direction:column;gap:40px;min-height:auto;padding:40px 0}
+.hero-left,.hero-right{max-width:100%;width:100%}
+.hero-title{font-size:36px}
+.showcase-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+}
+@media(max-width:550px){
+.hd{padding:12px 16px}
+.hd .lg .lt{font-size:18px}
+.hero-title{font-size:28px}
+.hero-features{gap:12px}
+.hero-features .feat{font-size:12px}
+.lc{padding:24px 18px}
+.showcase-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.prod-card{padding:16px 14px}
+.prod-card .img-wrap{height:100px}
+.main-wrap{padding:80px 12px 100px}
+}
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="st"></div>
+<div class="bg"></div>
+<div class="am"><div></div><div></div><div></div></div>
+<div class="gl"></div>
+<canvas id="pc"></canvas>
+<canvas id="gc"></canvas>
+
+<!-- Product drop zone -->
+<div class="pz" id="pz"></div>
+
+<!-- ============ Header ============ -->
+<header class="hd">
+  <div class="lg">
+    <span class="lt">UWELL</span>
+    <span class="dot"></span>
+  </div>
+  <div class="settings-wrap">
+    <button class="settings-btn" id="settingsBtn" aria-label="设置">⚙</button>
+    <div class="settings-dropdown" id="settingsDropdown">
+      <a class="item" id="headerOwner"><span class="icon">🏪</span>店主进入</a>
+      <div class="divider"></div>
+      <a class="item" id="headerAdmin"><span class="icon">🔒</span>管理员</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ Main Content ============ -->
+<div class="main-wrap">
+
+  <!-- Hero Section: Copy + Login -->
+  <div class="hero-section">
+    <div class="hero-left">
+      <div class="hero-badge">✦ 2026 粉丝俱乐部</div>
+      <h1 class="hero-title">
+        <span class="grad">加入 UWELL</span><br>
+        <span class="grad2">粉丝俱乐部</span>
+      </h1>
+      <p class="hero-sub">
+        签到累积积分、扫码认证产品、解锁会员等级、<br>
+        兑换专属好礼 — 和全球 UWELL 粉丝一起探索更纯粹的体验。
+      </p>
+      <div class="hero-features">
+        <div class="feat"><span class="dot"></span>每日签到</div>
+        <div class="feat"><span class="dot"></span>扫码积分</div>
+        <div class="feat"><span class="dot"></span>积分商城</div>
+        <div class="feat"><span class="dot"></span>会员等级</div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="lc">
+        <div class="bar"></div>
+        <div class="lt">
+          <h2>粉丝登录</h2>
+          <p>使用邮箱快速加入</p>
+        </div>
+        <div class="fg">
+          <input type="email" id="un" placeholder="邮箱地址" autocomplete="email">
+        </div>
+        <div class="fg">
+          <input type="password" id="pw" placeholder="密码" autocomplete="current-password">
+        </div>
+        <div class="fo">
+          <label><input type="checkbox" checked> 记住我</label>
+          <a href="#">忘记密码?</a>
+        </div>
+        <button class="btn" id="loginBtn">登 录</button>
+        <div class="rl">
+          <a href="#">还没有账号？<em>立即注册</em></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Product Showcase ============ -->
+  <div class="showcase" id="showcase">
+    <div class="showcase-header">
+      <div class="tag">✦ 产品家族</div>
+      <h2><span>探索 UWELL 明星产品</span></h2>
+      <p>从经典到旗舰，总有一款适合你</p>
+    </div>
+    <div class="showcase-grid" id="productGrid"></div>
+  </div>
+
+  <div class="footer">
+    <p>UWELL FAN CLUB · 2026</p>
+  </div>
+</div>
+
+<!-- ============ Product Detail Modal ============ -->
+<div class="prod-modal-overlay" id="prodModal">
+  <div class="prod-modal">
+    <button class="close" id="modalClose">✕</button>
+    <div class="modal-img"><img id="modalImg" src="" alt=""></div>
+    <h2 id="modalTitle"></h2>
+    <div class="modal-series" id="modalSeries"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-specs" id="modalSpecs"></div>
+  </div>
+</div>
+
+<!-- ============ JavaScript ============ -->
+<script>
+// Product Data
+var PD=[
+{n:"CALIBURN AIR",c:"#ff6b35",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
+{n:"CALIBURN G5",c:"#457bff",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
+{n:"G5 KOKO",c:"#6c5ce7",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
+{n:"G5 LITE SE",c:"#00b894",t:"Lite 系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
+{n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite 系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
+{n:"Caliburn",c:"#e17055",t:"经典系列",i:"https://files.myuwell.com/uwell/ow-product-ip/caliburn-20240627113220107.webp"},
+{n:"Crown",c:"#fdcb6e",t:"大烟雾系列",i:"https://files.myuwell.com/uwell/ow-product-ip/CROWN-20240627113158744.webp"},
+{n:"Havok",c:"#00cec9",t:"大烟雾系列",i:"https://files.myuwell.com/uwell/ow-product-ip/havok-20240522105356154.png"},
+{n:"200-X100",c:"#a29bfe",t:"专业系列",i:"https://files.myuwell.com/uwell/ow-product-ip/200-X100-20251024143003969.png"},
+{n:"E-MLOCK2",c:"#ffeaa7",t:"智能系列",i:"https://files.myuwell.com/uwell/ow-product-ip/E-MLOCK2-20250106151611228.png"},
+{n:"IP3",c:"#fab1a0",t:"三防系列",i:"https://files.myuwell.com/uwell/ow-product-ip/ip3-20240523142405908.png"},
+{n:"IP2",c:"#81ecec",t:"三防系列",i:"https://files.myuwell.com/uwell/ow-product-ip/ip2-20240523142323960.png"}
+];
+
+var PROD_INFO = {
+  "CALIBURN AIR":{desc:"极致纤薄的气流感应电子烟，专为追求便携与口感的用户打造。极速响应、不漏油、零按键操作。",specs:[["型号","CALIBURN AIR"],["烟弹容量","2.0ml"],["电池","400mAh"],["材质","锌合金+PC"],["特色","气流感应"]],icon:"⚡"},
+  "CALIBURN G5":{desc:"UWELL 第五代 CALIBURN 旗舰系列，融合创新网芯技术与人体工学设计，带来层次丰富的口感体验。",specs:[["型号","CALIBURN G5"],["烟弹容量","2.5ml"],["电池","520mAh"],["输出功率","15-25W"],["线圈","0.6/0.8Ω"]],icon:"🔥"},
+  "G5 KOKO":{desc:"G5 家族紧凑版本，保留旗舰口感的同时更加小巧便携。多彩配色，随时随地展现个性。",specs:[["型号","G5 KOKO"],["烟弹容量","2.0ml"],["电池","450mAh"],["材质","航空铝"],["配色","5色可选"]],icon:"💜"},
+  "G5 LITE SE":{desc:"G5 Lite SE 入门级优选，继承 G5 核心科技，价格更亲民。适合首次尝试电子烟的用户。",specs:[["型号","G5 LITE SE"],["烟弹容量","2.0ml"],["电池","380mAh"],["特色","性价比之选"],["线圈","1.2Ω"]],icon:"🌿"},
+  "G5 LITE KOKO":{desc:"时尚紧凑的轻量级选择，兼具 G5 系列口感特点。女性用户首选，轻巧随行。",specs:[["型号","G5 LITE KOKO"],["烟弹容量","1.8ml"],["电池","350mAh"],["配色","5种可选"],["重量","32g"]],icon:"🌸"},
+  "Caliburn":{desc:"UWELL 经典传奇之作，开创 CALIBURN 时代。全球销量领先的开放式电子烟，经久不衰。",specs:[["型号","Caliburn OG"],["烟弹容量","2.0ml"],["电池","520mAh"],["线圈","1.4Ω"],["材质","锌合金"]],icon:"🏆"},
+  "Crown":{desc:"王者之作，Crown 系列为追求极致大烟雾与浓郁口感的进阶玩家打造。",specs:[["型号","Crown"],["功率","60-80W"],["烟油容量","3.5ml"],["线圈","0.2/0.4Ω"],["材质","不锈钢"]],icon:"👑"},
+  "Havok":{desc:"Havok 系列颠覆性设计，未来感造型搭配澎湃性能。大烟雾爱好者的不二之选。",specs:[["型号","Havok"],["功率","80-100W"],["烟油容量","4.0ml"],["特色","可调气流"],["材质","合金"]],icon:"💥"},
+  "200-X100":{desc:"专业级大烟雾主机，双电 200W 输出。配备智能温控系统，满足高阶玩家的所有需求。",specs:[["型号","200-X100"],["功率","5-200W"],["电池","双18650"],["芯片","智能温控"],["屏幕","1.3寸彩屏"]],icon:"🚀"},
+  "E-MLOCK2":{desc:"智能电子锁系统，专为未成年保护设计。为零售商和家长提供安心保障。",specs:[["型号","E-MLOCK2"],["类型","智能锁"],["兼容","多系列"],["认证","CE/RoHS"],["功能","指纹+APP"]],icon:"🔐"},
+  "IP3":{desc:"IP3 系列三防设计（防水/防尘/防摔），适合户外场景和严苛环境使用。",specs:[["型号","IP3"],["防护","IP67"],["电池","内置2000mAh"],["特色","三防机身"],["功率","50W"]],icon:"🛡️"},
+  "IP2":{desc:"IP2 系列经典三防机型，可靠耐用。军工级防护标准，全天候无忧使用。",specs:[["型号","IP2"],["防护","IP65"],["电池","内置1500mAh"],["适用","全天候"],["功率","40W"]],icon:"💪"}
+};
+
+// ============ Build Product Cards ============
+(function(){
+  var grid = document.getElementById('productGrid');
+  PD.forEach(function(p, idx){
+    var info = PROD_INFO[p.n] || {desc:"UWELL 优质产品",specs:[["品牌","UWELL"],["系列",p.n]],icon:"✨"};
+    var card = document.createElement('div');
+    card.className = 'prod-card';
+    card.style.transitionDelay = (idx * 0.05) + 's';
+    card.innerHTML =
+      '<div class="glow-bg" style="background:radial-gradient(circle,'+p.c+',transparent 70%)"></div>'+
+      '<div class="img-wrap"><img src="'+p.i+'" alt="'+p.n+'" loading="lazy" onerror="this.style.display=\'none\'"></div>'+
+      '<div class="info">'+
+        '<div class="name" style="color:'+p.c+'">'+info.icon+' '+p.n+'</div>'+
+        '<div class="series">'+p.t+'</div>'+
+        '<span class="badge" style="border-color:'+p.c+'22;color:'+p.c+'77">✦ 查看详情</span>'+
+        '<div class="desc">'+info.desc.substring(0,50)+'…</div>'+
+      '</div>';
+    card.addEventListener('click',function(){localStorage.setItem('fan_logged_in','true');window.location.href='/#/fan-center';});
+    grid.appendChild(card);
+  });
+  // Staggered entrance
+  setTimeout(function(){
+    var cards = document.querySelectorAll('.prod-card');
+    cards.forEach(function(c,i){
+      setTimeout(function(){c.classList.add('visible');}, i * 80);
+    });
+  }, 600);
+})();
+
+// ============ Settings Dropdown ============
+(function(){
+  var btn = document.getElementById('settingsBtn');
+  var dd = document.getElementById('settingsDropdown');
+  btn.addEventListener('click',function(e){e.preventDefault();localStorage.setItem('fan_logged_in','true');window.location.href='/#/store-owner';});
+  document.addEventListener('click',function(){
+    dd.classList.remove('open');
+    btn.classList.remove('open');
+  });
+  dd.addEventListener('click',function(e){e.stopPropagation();});
+})();
+
+// ============ Modal ============
+function openModal(p, info){
+  document.getElementById('modalImg').src = p.i;
+  document.getElementById('modalTitle').textContent = info.icon + ' ' + p.n;
+  document.getElementById('modalTitle').style.color = p.c;
+  document.getElementById('modalSeries').textContent = p.t + ' · ' + info.specs[1][1];
+  document.getElementById('modalDesc').textContent = info.desc;
+  var html = '';
+  info.specs.forEach(function(s){ html += '<div class="spec"><div class="label">'+s[0]+'</div><div class="value">'+s[1]+'</div></div>'; });
+  document.getElementById('modalSpecs').innerHTML = html;
+  document.getElementById('prodModal').classList.add('open');
+}
+document.getElementById('modalClose').addEventListener('click',function(){document.getElementById('prodModal').classList.remove('open');});
+document.getElementById('prodModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+// ============ Entry Buttons ============
+document.getElementById('headerOwner').addEventListener('click',function(e){
+  e.preventDefault();
+  alert('🏪 店主入口即将开放\n\n店主功能包括：查看门店评分、扫码积分、物料申请、门店资料确认等。');
+});
+document.getElementById('headerAdmin').addEventListener('click',function(e){
+  e.preventDefault();
+  window.location.href = '/#/admin';
+});
+document.getElementById('loginBtn').addEventListener('click',function(){
+  var email = document.getElementById("un").value || "fan@uwell.com";
+  var name = email.split("@")[0] || "Fan";
+  var fanId = "fan-" + Date.now();
+  localStorage.setItem("store_manager_current_user", fanId);
+  window.location.href = "/#/fan-center";
+  // In production: handle actual auth
+});
+
+// ============ Product Drop Physics ============
+(function(){
+var SZ=50;
+function mb(p){
+  var e=document.createElement('div');
+  e.style.cssText='position:absolute;width:'+SZ+'px;height:'+SZ+'px;border-radius:8px;background:linear-gradient(135deg,'+p.c+','+p.c+'88);border:1px solid '+p.c+'44;box-shadow:0 0 20px '+p.c+'44,inset 0 0 20px rgba(255,255,255,0.1);opacity:0.7';
+  var inner=document.createElement('div');
+  inner.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:16px;border-radius:4px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.15)';
+  e.appendChild(inner);
+  var dot=document.createElement('div');
+  dot.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.3)';
+  inner.appendChild(dot);
+  document.getElementById('pz').appendChild(e);
+  return e;
+}
+function Bl(e,p){
+  this.e=e;this.x=Math.random()*(window.innerWidth-SZ);this.y=-SZ;
+  this.vx=(Math.random()-0.5)*5;this.vy=-(12+Math.random()*8);
+  this.g=0.35;this.b=0.6;
+  this.gy=window.innerHeight-window.innerHeight*0.2+5;
+  this.alive=true;this.age=0;this.ma=700+Math.random()*400;this.rot=Math.random()*360;
+}
+Bl.prototype.upd=function(){
+  if(!this.alive)return;
+  this.age++;this.vy+=this.g;this.x+=this.vx;this.y+=this.vy;this.rot+=1.5;
+  if(this.y>=this.gy){this.y=this.gy;this.vy=-this.vy*this.b;this.vx*=0.9;if(Math.abs(this.vy)<0.3)this.vy=0}
+  if(this.x<0||this.x>window.innerWidth-SZ){this.vx=-this.vx*0.7;this.x=Math.max(0,Math.min(this.x,window.innerWidth-SZ))}
+  this.vx+=(Math.random()-0.5)*0.03;this.vx=Math.max(-3,Math.min(3,this.vx));
+  var h=this.gy-this.y,s=1+Math.max(0,h/300)*0.4;
+  this.e.style.transform="translate("+this.x+"px,"+this.y+"px) rotate("+this.rot+"deg) scale("+Math.min(s,1.6)+")";
+  if(this.age>this.ma-100)this.e.style.opacity=(this.ma-this.age)/100;
+  if(this.age>this.ma||this.y>window.innerHeight+50){this.alive=false;this.e.remove()}
+};
+function sp(){
+  var a=PD.slice().sort(function(){return Math.random()-0.5}),n=7+Math.floor(Math.random()*2);
+  for(var i=0;i<n;i++){(function(idx){
+    setTimeout(function(){
+      if(bs.filter(function(b){return b.alive}).length>=25)return;
+      var e=mb(a[idx]);e.style.opacity="0";
+      var b=new Bl(e,a[idx]);
+      b.x=Math.random()*(window.innerWidth-SZ);b.vy=-(9+Math.random()*8);b.vx=(Math.random()-0.5)*5;
+      var f=0;var t=setInterval(function(){f+=0.05;e.style.opacity=Math.min(f,1);if(f>=1)clearInterval(t)},16);
+      bs.push(b);
+    },idx*250)
+  })(i)}}
+var bs=[];
+setTimeout(sp,500);
+setInterval(function(){for(var i=bs.length-1;i>=0;i--)if(!bs[i].alive)bs.splice(i,1);sp()},3500);
+!function an(){for(var i=0;i<bs.length;i++)bs[i].upd();requestAnimationFrame(an)}();
+window.addEventListener("resize",function(){for(var i=0;i<bs.length;i++)bs[i].gy=window.innerHeight-window.innerHeight*0.2+5})})();
+
+// ============ Particle Canvas ============
+(function(){var c=document.getElementById("pc"),x=c.getContext("2d"),W,H;function rs(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}rs();window.addEventListener("resize",rs);var ps=[],N=110,CS=["rgba(255,107,53,","rgba(69,123,255,","rgba(108,92,231,","rgba(0,206,201,","rgba(253,121,168,","rgba(255,255,255,"];
+for(var i=0;i<N;i++){ps.push({x:Math.random()*W,y:Math.random()*H,s:1.8+Math.random()*3.2,vx:(Math.random()-0.5)*0.6,vy:(Math.random()-0.5)*0.6,o:0.2+Math.random()*0.4,ci:Math.floor(Math.random()*CS.length),ps:0.01+Math.random()*0.02})}
+var ms=null;document.addEventListener("mousemove",function(e){ms={x:e.clientX,y:e.clientY}});document.addEventListener("mouseleave",function(){ms=null});document.addEventListener("touchmove",function(e){var t=e.touches[0];ms={x:t.clientX,y:t.clientY}},{passive:true});document.addEventListener("touchend",function(){ms=null});
+var tt=0;!function an(){tt+=0.016;x.clearRect(0,0,W,H);for(var i=0;i<ps.length;i++){var p=ps[i];if(ms){var dx=p.x-ms.x,dy=p.y-ms.y,d=Math.sqrt(dx*dx+dy*dy);if(d<150){var f=(150-d)/150*0.8;p.vx+=(dx/d||0)*f;p.vy+=(dy/d||0)*f}}p.x+=p.vx;p.y+=p.vy;p.vx*=0.97;p.vy*=0.97;if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;var op=p.o*(0.5+0.5*Math.sin(tt*p.ps));x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fillStyle=CS[p.ci]+op+")";x.fill();x.beginPath();x.arc(p.x,p.y,p.s*3,0,Math.PI*2);x.fillStyle=CS[p.ci]+(op*0.08)+")";x.fill();for(var j=i+1;j<ps.length;j++){var p2=ps[j],dx2=p.x-p2.x,dy2=p.y-p2.y,d2=Math.sqrt(dx2*dx2+dy2*dy2);if(d2<100){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p2.x,p2.y);x.strokeStyle="rgba(255,255,255,"+((1-d2/100)*0.12)+")";x.lineWidth=0.5;x.stroke()}}if(ms){var dx3=p.x-ms.x,dy3=p.y-ms.y,d3=Math.sqrt(dx3*dx3+dy3*dy3);if(d3<100){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(ms.x,ms.y);x.strokeStyle="rgba(255,107,53,"+((1-d3/100)*0.2)+")";x.lineWidth=1;x.stroke()}}}requestAnimationFrame(an)}()})();
+
+// ============ Glow Canvas ============
+(function(){var c=document.getElementById("gc"),x=c.getContext("2d"),W,H;function rs(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}rs();window.addEventListener("resize",rs);var ms={x:W/2,y:H/2,a:false};document.addEventListener("mousemove",function(e){ms.x=e.clientX;ms.y=e.clientY;ms.a=true});document.addEventListener("mouseleave",function(){ms.a=false});document.addEventListener("touchmove",function(e){var t=e.touches[0];ms.x=t.clientX;ms.y=t.clientY;ms.a=true},{passive:true});document.addEventListener("touchend",function(){ms.a=false});
+!function an(){x.clearRect(0,0,W,H);if(ms.a){var g=x.createRadialGradient(ms.x,ms.y,0,ms.x,ms.y,300);g.addColorStop(0,"rgba(255,107,53,0.08)");g.addColorStop(0.4,"rgba(69,123,255,0.04)");g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,W,H)}[[W*0.15,H*0.3,250,"rgba(255,107,53,0.04)"],[W*0.85,H*0.4,200,"rgba(69,123,255,0.04)"],[W*0.5,H*0.7,180,"rgba(0,206,201,0.03)"]].forEach(function(o){var g=x.createRadialGradient(o[0],o[1],0,o[0],o[1],o[2]);g.addColorStop(0,o[3]);g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(o[0]-o[2],o[1]-o[2],o[2]*2,o[2]*2)});requestAnimationFrame(an)}()})();
+
+// Enter key
+document.addEventListener("keydown",function(e){if(e.key==="Enter"){var a=document.activeElement;if(a&&(a.id==="un"||a.id==="pw"))document.getElementById("loginBtn").click()}});
+</script>
+</body>
+</html>
+
