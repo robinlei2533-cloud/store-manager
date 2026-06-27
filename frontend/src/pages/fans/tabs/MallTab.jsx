@@ -1,6 +1,6 @@
 import useLanguageStore from '../../../stores/languageStore';
 import React, { useState } from 'react';
-import { message, Button, Card, Tag, Space, Row, Col, Empty } from 'antd';
+import { message, Button, Card, Tag, Space, Row, Col, Empty, Statistic } from 'antd';
 import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';

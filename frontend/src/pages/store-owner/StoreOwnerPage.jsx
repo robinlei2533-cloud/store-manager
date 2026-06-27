@@ -2,7 +2,7 @@ import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, Avatar, message, Table, Tabs, Modal, Empty } from 'antd';
+import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, message, Table, Tabs, Modal, Empty, Input, InputNumber, Select } from 'antd';
 import {
   ShopOutlined, ScanOutlined, StarOutlined, TeamOutlined, CrownOutlined,
   ArrowLeftOutlined, GiftOutlined, ThunderboltOutlined, QrcodeOutlined,
@@ -25,7 +25,8 @@ const StoreOwnerPage = () => {
   const [allCampaigns, setAllCampaigns] = useState([]);
   const [claimedCampaigns, setClaimedCampaigns] = useState([]);
   const [reviewModal, setReviewModal] = useState({ open: false, claim: null });
-  const [reviewForm, setReviewForm] = useState({ materials_used: 0, effect: 'good', feedback: '' });
+  const [reviewForm, setReviewForm] = useState({ materials_used: 0, effect: 'good', feedback: '' })
+  const [storeMaterials, setStoreMaterials] = useState([]);
 
   useEffect(() => {
     if (localDb.needsInit()) localDb.init(seedData);
@@ -41,6 +42,9 @@ const StoreOwnerPage = () => {
       setFans(storeFans);
       setScans(storeScans.slice(0, 20));
       setAllCampaigns(allCampaignsData);
+      const storeMats = localDb.all('materials');
+      setStoreMaterials(storeMats || []);
+
       setStats({
         fanCount: storeFans.length,
         totalPoints: storeFans.reduce((s, f) => s + (f.points || 0), 0),
@@ -254,14 +258,14 @@ const StoreOwnerPage = () => {
     const available = storeMaterials.slice(0, maxItems);
 
     return (
-      <Card title={"Materials (Level " + store.level + ")"} size="small" style={{borderRadius:12}}>
+      <Card title={"物料 (Level " + store.level + ")"} size="small" style={{borderRadius:12}}>
         {available.length === 0 ? (
           <Empty description="No materials" />
         ) : (
           <Row gutter={[12,12]}>
             {available.map((m) => (
               <Col span={12} key={m.id}>
-                <Card size="small" hoverable style={{borderRadius:10,background:"#1a1a25",border:"1px solid #2a2a35"}}>
+                <Card size="small" hoverable style={{borderRadius:10,background:'linear-gradient(135deg, #1a1a25 0%, #1a1525 100%)',border:'1px solid rgba(255,215,0,0.08)'}}>
                   <GiftOutlined style={{color:"#FFD700",fontSize:20,marginBottom:8}} />
                   <div style={{fontSize:14,fontWeight:600,marginBottom:4}}>{m.name}</div>
                   <Tag style={{fontSize:10}}>{m.category}</Tag>
@@ -291,19 +295,20 @@ const StoreOwnerPage = () => {
   };
 
   const tabItems = [
-    { key: 'dashboard', label: 'Dashboard', children: <Dashboard /> },
-    { key: 'campaigns', label: 'Campaigns', children: <CampaignsTab /> },
-    { key: 'materials', label: "Materials (" + storeMaterials.length + ")", children: <MaterialsTab /> },
+    { key: 'dashboard', label: <span>店铺总览</span>, children: <Dashboard /> },
+    { key: 'campaigns', label: <span>品牌活动</span>, children: <CampaignsTab /> },
+    { key: 'materials', label: "物料 (" + storeMaterials.length + ")", children: <MaterialsTab /> },
     { key: 'fans', label: `Fans (${stats.fanCount})`, children: <FansTab /> },
     { key: 'scans', label: `Scans (${stats.scanCount})`, children: <ScansTab /> },
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', paddingBottom: 24 }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', paddingBottom: 24, position: 'relative' }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a0f 50%, #2a2a0f 100%)',
-        padding: '20px 16px', color: '#fff',
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a0f 50%, #2a1f05 100%)',
+        padding: '24px 20px', color: '#fff', position: 'relative', overflow: 'hidden',
+        borderBottom: '1px solid rgba(255,215,0,0.08)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
           <Button type="text" icon={<ArrowLeftOutlined style={{ color: '#fff', fontSize: 20 }} />}
@@ -311,10 +316,10 @@ const StoreOwnerPage = () => {
           <LanguageSwitcher inline />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 20, fontWeight: 700 }}><ShopOutlined /> {store.name}</div>
-            <Tag color="blue" style={{ marginTop: 4 }}>Level {store.level || 'N/A'}</Tag>
+            <Tag color="gold" style={{ marginTop: 4, borderRadius: 6 }}>Level {store.level || 'N/A'}</Tag>
           </div>
           <Button size="small" style={{ borderRadius: 8, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff' }}
-            icon={<CrownOutlined />} onClick={() => window.location.href='/fan-app.html#/fan-center'}>粉丝</Button>
+            icon={<CrownOutlined />} onClick={() => window.location.href='/fan-app.html#/fan-center'}>粉丝首页</Button>
         </div>
       </div>
 

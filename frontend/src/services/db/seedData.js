@@ -378,11 +378,11 @@ export const seedData = {
 
   // ============ 活动复盘报告 ============
   campaign_claims: [
-    { id: "cc-001", store_id: "s-real-001", campaign_id: "camp-001", status: "completed", materials_used: 25, effect: "good", feedback: "Customer engagement increased significantly", claimed_at: daysAgo(30), reviewed_at: daysAgo(28) },
-    { id: "cc-002", store_id: "s-real-005", campaign_id: "camp-003", status: "pending", materials_used: 0, effect: "pending", feedback: "", claimed_at: daysAgo(5), reviewed_at: null },
-    { id: "cc-003", store_id: "s-real-012", campaign_id: "camp-002", status: "in_progress", materials_used: 10, effect: "good", feedback: "Products are selling well", claimed_at: daysAgo(15), reviewed_at: null },
-    { id: "cc-004", store_id: "s-real-020", campaign_id: "camp-004", status: "completed", materials_used: 50, effect: "great", feedback: "Best campaign so far, sold out in 3 days", claimed_at: daysAgo(45), reviewed_at: daysAgo(42) },
-    { id: "cc-005", store_id: "s-real-008", campaign_id: "camp-001", status: "cancelled", materials_used: 0, effect: "none", feedback: "Store declined participation", claimed_at: daysAgo(20), reviewed_at: daysAgo(18) },
+    { id: "cc-001", store_id: "s-real-001", campaign_id: "ca-real-001", status: "completed", materials_used: 25, effect: "good", feedback: "Customer engagement increased significantly", claimed_at: daysAgo(30), reviewed_at: daysAgo(28) },
+    { id: "cc-002", store_id: "s-real-005", campaign_id: "ca-real-002", status: "pending", materials_used: 0, effect: "pending", feedback: "", claimed_at: daysAgo(5), reviewed_at: null },
+    { id: "cc-003", store_id: "s-real-012", campaign_id: "ca-real-002", status: "in_progress", materials_used: 10, effect: "good", feedback: "Products are selling well", claimed_at: daysAgo(15), reviewed_at: null },
+    { id: "cc-004", store_id: "s-real-020", campaign_id: "ca-real-003", status: "completed", materials_used: 50, effect: "great", feedback: "Best campaign so far, sold out in 3 days", claimed_at: daysAgo(45), reviewed_at: daysAgo(42) },
+    { id: "cc-005", store_id: "s-real-008", campaign_id: "ca-real-001", status: "cancelled", materials_used: 0, effect: "none", feedback: "Store declined participation", claimed_at: daysAgo(20), reviewed_at: daysAgo(18) },
   ],
   campaign_reports: [
     {

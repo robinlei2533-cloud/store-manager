@@ -122,5 +122,5 @@ export async function getScanTrend(days = 30) {
   return [];
 }
 
-// 瀵煎嚭妯″紡鍒ゆ柇
+// 
 export const IS_LOCAL_MODE = USE_LOCAL;

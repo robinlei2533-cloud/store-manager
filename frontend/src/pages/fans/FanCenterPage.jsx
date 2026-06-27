@@ -94,12 +94,15 @@ const FanCenterPage = () => {
   const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: 24 }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', paddingBottom: 24, position: 'relative' }}>
+      {/* Decorative glow */}
+      <div style={{position:'fixed',top:'-20%',right:'-10%',width:500,height:500,borderRadius:'50%',background:'radial-gradient(circle,rgba(212,168,0,0.06) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
+      <div style={{position:'fixed',bottom:'-10%',left:'-5%',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
       {/* Top Bar */}
       <div style={{
         background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a0f 50%, #2a2a0f 100%)',
         padding: '16px 20px', color: '#fff', position: 'sticky', top: 0, zIndex: 100,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.15)', borderBottom: '1px solid rgba(255,215,0,0.08)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 600, margin: '0 auto' }}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -111,27 +114,27 @@ const FanCenterPage = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#FFD700' }}>{currentFan.points} pts <span style={{fontSize:11,fontWeight:400,color:"rgba(255,215,0,0.6)"}}>pts</span></div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#FFD700' }}>{currentFan.points} <span style={{fontSize:11,fontWeight:400,color:"rgba(255,215,0,0.6)"}}>pts</span></div>
               <Tag color={levelInfo.color} style={{ fontSize: 10, margin: 0 }}>{levelInfo.label}</Tag>
             </div>
             <Dropdown menu={{
               items: [
-                { key: 'owner', icon: <ShopOutlined />, label: 'Store Portal' },
-                { key: 'admin', icon: <SettingOutlined />, label: 'Admin' },
+                { key: 'owner', icon: <ShopOutlined />, label: '门店入口' },
+                { key: '管理后台', icon: <SettingOutlined />, label: '管理后台' },
                 { type: 'divider' },
                 { key: 'lang_zh', icon: <span role='img'>🇨🇳</span>, label: '中文' },
                 { key: 'lang_en', icon: <span role='img'>🇬🇧</span>, label: 'English' },
                 { key: 'lang_ar', icon: <span role='img'>🇸🇦</span>, label: 'العربية' },
                 { type: 'divider' },
-                { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
+                { key: '退出登录', icon: <LogoutOutlined />, label: '退出登录', danger: true },
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
-                else if (key === 'admin') window.location.href = '/index.html#/admin';
+                else if (key === '管理后台') window.location.href = '/index.html#/admin';
                 else if (key === 'lang_zh') setLang('zh');
                 else if (key === 'lang_en') setLang('en');
                 else if (key === 'lang_ar') setLang('ar');
-                else if (key === 'logout') handleLogout();
+                else if (key === '退出登录') handleLogout();
               },
             }} placement="bottomRight">
               <Button type="text" size="small" icon={<SettingOutlined style={{ color: 'rgba(255,255,255,0.5)' }} />} />
@@ -150,27 +153,27 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>Check-in</span>,
+              label: <span>📅 签到</span>,
               children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
-              label: <span>Scan</span>,
+              label: <span>📱 扫码</span>,
               children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
-              label: <span>Rewards</span>,
+              label: <span>🎁 积分商城</span>,
               children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
-              label: <span>Invite</span>,
+              label: <span>📤 邀请好友</span>,
               children: <InviteTab fan={currentFan} />,
             },
             {
               key: 'community',
-              label: <span>Community</span>,
+              label: <span>💬 社区</span>,
               children: <CommunityTab fan={currentFan} />,
             },
             {

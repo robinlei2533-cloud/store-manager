@@ -98,7 +98,7 @@ export async function scanQrCode(qrCodeId) {
 
     return { success: true, points: qr.points, fan: result, product: localDb.findById('products', qr.product_id) };
   }
-  // Supabase 妯″紡閫氳繃 RPC 璋冪敤
+  // Supabase 閫氳繃 RPC 璋冪敤
   const { data, error } = await supabase.rpc('scan_qr_code', { qr_id: qrCodeId });
   if (error) throw error;
   return data;

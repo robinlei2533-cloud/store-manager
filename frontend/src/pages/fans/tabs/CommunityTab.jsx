@@ -4,13 +4,13 @@ import { message, Card, Button, Input, List, Typography, Avatar, Empty, Space } 
 import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 const { TextArea } = Input;
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 const CommunityTab = ({ fan }) => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [likedPosts, setLikedPosts] = useState(new Set());
 
-  const [initialized, setInitialized] = useState(false);
+  
   useEffect(() => {
     // Seed some posts if empty
     if (localDb.count('community_posts') === 0) {

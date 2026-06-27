@@ -123,7 +123,7 @@ export async function uploadVisitPhoto(visitId, file, photoType) {
   ensureLocalInit();
 
   if (USE_LOCAL) {
-    // 鏈湴妯″紡锛氱敤 FileReader 杞?base64 瀛樺偍鎴栫敤 URL.createObjectURL
+    // 鏈湴锛氱敤 FileReader 杞?base64 瀛樺偍鎴栫敤 URL.createObjectURL
     const photoUrl = URL.createObjectURL(file);
     return localDb.insert('visit_photos', {
       visit_id: visitId,
