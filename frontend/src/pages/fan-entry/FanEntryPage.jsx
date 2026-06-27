@@ -280,9 +280,7 @@ const FanEntryPage = () => {
   const { t } = useLanguageStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [langDropdownOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-    const [modalOpen, setModalOpen] = useState(false);
+      const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
   const [visibleCards, setVisibleCards] = useState(false);
   const gridRef = useRef(null);
@@ -344,7 +342,7 @@ const FanEntryPage = () => {
           {/* Settings */}
           <div style={{ position:'relative' }}>
             <button
-              onClick={() => { setSettingsOpen(!settingsOpen); if(langDropdownOpen) setLangDropdownOpen(false); }}
+              onClick={() => { setSettingsOpen(!settingsOpen); }}
               style={{
                 width:38, height:38, borderRadius:10, border:'1px solid rgba(255,255,255,0.1)',
                 background: 'rgba(255,255,255,0.04)', color: settingsOpen ? '#FFD700' : 'rgba(255,255,255,0.5)',
@@ -379,40 +377,7 @@ const FanEntryPage = () => {
               </div>
             )}
           </div>
-          LanguageSwitcher
-          <div style={{ position:'relative' }}>
-            <button
-              onClick={() => { setLangDropdownOpen(!langDropdownOpen); if(settingsOpen) setSettingsOpen(false); }}
-              style={{
-                width:38, height:38, borderRadius:10, border:'1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.5)',
-                fontSize:11, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-                letterSpacing: '0.5px', transition:'all .3s',
-              }}
-            >{currentLang}</button>
-            {langDropdownOpen && (
-              <div style={{
-                position:'absolute', top:'calc(100% + 8px)', right:0, minWidth:160,
-                background:'rgba(20,20,30,0.95)', WebkitBackdropFilter:'blur(20px)', backdropFilter:'blur(20px)',
-                border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, padding:6, zIndex:100,
-                boxShadow:'0 20px 60px rgba(0,0,0,0.5)',
-              }}>
-                {[
-                  { lang: 'en', label: 'English', flag: '🇺🇸' },
-                  { lang: 'zh', label: '中文', flag: '🇨🇳' },
-                  { lang: 'ar', label: 'العربية', flag: '🇸🇦' },
-                ].map(item => (
-                  <div key={item.lang} onClick={() => { setCurrentLang(item.flag + ' ' + item.label.split(' ').pop()); setLangDropdownOpen(false); }}
-                    style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer' }}
-                    onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
-                    onMouseLeave={e => e.target.style.background='transparent'}>
-                    <span>{item.flag}</span> {item.label}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-        </div>
       </header>
 
       {/* Main Content */}
