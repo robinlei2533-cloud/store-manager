@@ -1,10 +1,15 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+﻿import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useLanguageStore from '../../stores/languageStore';
 import useAuthStore from '../../stores/authStore';
 import localDb from '../../services/db/localDb';
 import seedData from '../../services/db/seedData';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
+import { motion } from "framer-motion";
+import Galaxy from "../../components/effects/Galaxy";
+import CircularGallery from "../../components/effects/CircularGallery";
+import ClickSpark from "../../components/effects/ClickSpark";
+import Counter from "../../components/effects/Counter";
 import { Spin, message } from 'antd';
 
 // ============ Product Data (from fan-entry.html) ============
@@ -361,6 +366,7 @@ const FanEntryPage = () => {
       <AuroraCanvas />
       <ParticleCanvas />
       <MeteorShower />
+      <Galaxy color="#FFD700" speed={0.15} opacity={0.2} />
       <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:3, pointerEvents:'none',
         background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px)' }} />
 
@@ -373,11 +379,11 @@ const FanEntryPage = () => {
         WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)',
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <span style={{
+          <motion.span initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} style={{
             fontSize:22, fontWeight:900, letterSpacing:3,
             background: 'linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623)',
             WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
-          }}>UWELL</span>
+          }}>UWELL</motion.span>
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -431,18 +437,18 @@ const FanEntryPage = () => {
             <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:20, background:'rgba(255,215,0,0.12)', border:'1px solid rgba(255,215,0,0.25)', fontSize:11, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:20 }}>
               ✦ 2026 粉丝俱乐部
             </div>
-            <h1 style={{ fontSize:48, fontWeight:900, lineHeight:1.15, letterSpacing:-1, marginBottom:16 }}>
+            <motion.h1 initial={{ filter: "blur(10px)", opacity: 0, y: 20 }} animate={{ filter: "blur(0px)", opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} style={{ fontSize:48, fontWeight:900, lineHeight:1.15, letterSpacing:-1, marginBottom:16 }}>
               <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>加入 UWELL</span><br />
               <span style={{ background:'linear-gradient(135deg,#457bff,#6c5ce7)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>粉丝俱乐部</span>
-            </h1>
+            </motion.h1>
             <p style={{ color:'rgba(255,255,255,0.35)', fontSize:15, lineHeight:1.7, marginBottom:28 }}>
               签到累积积分、扫码认证产品、解锁会员等级、兑换专属好礼 — 和全球 UWELL 粉丝一起探索更纯粹的体验。
             </p>
             <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
-              {['每日签到','扫码积分','积分商城','会员等级'].map(f => (
-                <div key={f} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:500 }}>
+              {[{label:'每日签到',value:1280,suffix:'+'},{label:'扫码积分',value:8560,suffix:'+'},{label:'积分商城',value:520,suffix:'件'},{label:'会员等级',value:6,suffix:'级'}].map(f => (
+                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:500 }}>
                   <span style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#FFD700,#F5A623)' }} />
-                  {f}
+                  <Counter from={0} to={f.value} suffix={f.suffix} duration={2} />
                 </div>
               ))}
             </div>
@@ -478,7 +484,7 @@ const FanEntryPage = () => {
                 background:'linear-gradient(135deg,#FFD700,#F5A623)',
                 color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
                 cursor:'pointer', transition:'all .3s', position:'relative', overflow:'hidden',
-              }}>SIGN IN</button>
+              }}><ClickSpark sparkColor="#FFD700" sparkSize={12} sparkRadius={20} sparkCount={12}>SIGN IN</ClickSpark></button>
               )}
               {mode === 'register' && (
                 <>
@@ -528,56 +534,35 @@ const FanEntryPage = () => {
           </div>
         </div>
 
-        {/* Product Showcase */}
-        <div style={{ width:'100%', maxWidth:1200, margin:'20px auto 0', padding:'0 20px' }}>
-          <div style={{ textAlign:'center', marginBottom:36 }}>
+        {/* Product Showcase — 3D Circular Gallery */}
+        <div style={{ width:'100%', padding:'0 20px', marginTop:40 }}>
+          <div style={{ textAlign:'center', marginBottom:24 }}>
             <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 14px', borderRadius:20, background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.15)', fontSize:10, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:12 }}>✦ 产品家族</div>
             <h2 style={{ fontSize:28, fontWeight:900, letterSpacing:1, marginBottom:8 }}>
               <span style={{ background:'linear-gradient(135deg,#fff,#FFD700 60%,#F5A623)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>探索 UWELL 明星产品</span>
             </h2>
-            <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>从经典到旗舰，总有一款适合你</p>
+            <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>滚动浏览 · 点击查看详情</p>
           </div>
-          <div ref={gridRef} style={{
-            display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:16,
-          }}>
-            {PD.map((p, idx) => {
-              const info = PROD_INFO[p.n] || { desc: 'UWELL 优质产品', icon: '✨' };
-              return (
-                <div key={p.n} onClick={() => openModal(p, info)} style={{
-                  position:'relative', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)',
-                  borderRadius:16, padding:'24px 20px 20px', overflow:'hidden', cursor:'pointer',
-                  transition:'all .6s cubic-bezier(0.34,1.56,0.64,1)',
-                  opacity: visibleCards ? 1 : 0, transform: visibleCards ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.92)',
-                  transitionDelay: (idx * 0.06) + 's',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'; e.currentTarget.style.borderColor = 'rgba(255,215,0,0.2)'; e.currentTarget.style.boxShadow = '0 24px 60px rgba(0,0,0,0.5)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.boxShadow = 'none'; }}
-                >
-                  <div style={{
-                    position:'absolute', top:'-50%', left:'-50%', width:'200%', height:'200%',
-                    borderRadius:'50%', opacity:0.06, transition:'opacity .5s', pointerEvents:'none',
-                    background: 'radial-gradient(circle,'+p.c+',transparent 70%)',
-                  }} />
-                  <div style={{ width:'100%', height:150, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16, position:'relative', zIndex:1 }}>
-                    <img src={p.i} alt={p.n} loading="lazy"
-                      style={{ maxWidth:'90%', maxHeight:'100%', objectFit:'contain', filter:'drop-shadow(0 8px 24px rgba(0,0,0,0.6))', transition:'transform .6s cubic-bezier(0.34,1.56,0.64,1)' }}
-                      onMouseEnter={e => e.target.style.transform = 'scale(1.12) translateY(-4px)'}
-                      onMouseLeave={e => e.target.style.transform = 'scale(1) translateY(0)'}
-                    />
-                  </div>
-                  <div style={{ position:'relative', zIndex:1 }}>
-                    <div style={{ fontSize:17, fontWeight:800, letterSpacing:'0.5px', marginBottom:2, color: p.c }}>{info.icon} {p.n}</div>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', letterSpacing:1, marginBottom:8 }}>{p.t}</div>
-                    <div style={{ fontSize:9, padding:'2px 10px', borderRadius:20, background:'rgba(255,255,255,0.05)', color:'rgba(255,255,255,0.35)', letterSpacing:1, marginBottom:8, border:'1px solid rgba(255,255,255,0.08)', display:'inline-block' }}>✦ 查看详情</div>
-                    <div style={{ fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.6 }}>{info.desc.substring(0, 50)}…</div>
-                  </div>
-                </div>
-              );
-            })}
+          <div style={{ width:'100%', height:420, position:'relative' }}>
+            <CircularGallery
+              items={PD.map(p => ({ image: p.i, text: p.n }))}
+              bend={2}
+              textColor="#FFD700"
+              borderRadius={0.08}
+              font="bold 16px Inter"
+            />
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, display:'flex', justifyContent:'center', gap:8, flexWrap:'wrap', padding:'12px 16px' }}>
+              {PD.map(p => (
+                <span key={p.n} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: 'UWELL 优质产品', icon: '✨' })}
+                  style={{ fontSize:10, padding:'3px 10px', borderRadius:12, background:'rgba(255,215,0,0.1)', border:'1px solid rgba(255,215,0,0.2)', color:'#FFD700', cursor:'pointer', transition:'all .2s' }}>
+                  {p.n}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Footer */}        {/* Footer */}
         <div style={{ width:'100%', textAlign:'center', padding:'40px 20px', marginTop:40 }}>
           <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>UWELL FAN CLUB · 2026</p>
         </div>

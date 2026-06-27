@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import { Layout, Menu, Button, Avatar, Dropdown, Spin, Tag, theme, Grid, Drawer } from 'antd';
 import {
@@ -18,6 +18,8 @@ import {
   MenuOutlined,
   ApartmentOutlined,
 } from '@ant-design/icons';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import useAuthStore from '../../stores/authStore';
 import useLanguageStore from '../../stores/languageStore';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
@@ -35,9 +37,20 @@ const AppLayout = () => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const contentRef = useRef(null);
 
   if (!profile) {
-    return (
+    // Animate content on route change
+  useGSAP(() => {
+    gsap.from(contentRef.current, {
+      opacity: 0,
+      y: 20,
+      duration: 0.5,
+      ease: 'power3.out',
+    });
+  }, { dependencies: [location.pathname], scope: contentRef });
+
+  return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Spin size="large" />
       </div>
@@ -136,6 +149,11 @@ const AppLayout = () => {
     return keys;
   };
 
+  // Animate brand block entrance
+  useGSAP(() => {
+    gsap.from('.brand-block', { opacity: 0, y: -10, duration: 0.6, ease: 'power3.out' });
+  }, []);
+
   const brandBlock = (
     <div style={{
       height: 76,
@@ -164,6 +182,16 @@ const AppLayout = () => {
       style={{ borderRight: 0, marginTop: 8, padding: '0 8px' }}
     />
   );
+
+  // Animate content on route change
+  useGSAP(() => {
+    gsap.from(contentRef.current, {
+      opacity: 0,
+      y: 20,
+      duration: 0.5,
+      ease: 'power3.out',
+    });
+  }, { dependencies: [location.pathname], scope: contentRef });
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -222,7 +250,7 @@ const AppLayout = () => {
             </Button>
           </Dropdown></div>
         </Header>
-        <Content style={{
+        <Content ref={contentRef} style={{
           margin: isMobile ? 8 : 20,
           padding: isMobile ? 12 : 24,
           background: token.colorBgContainer,

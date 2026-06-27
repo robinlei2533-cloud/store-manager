@@ -1,5 +1,9 @@
 import useLanguageStore from '../../stores/languageStore';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+gsap.registerPlugin(useGSAP);
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
 import {
@@ -18,8 +22,56 @@ import {
 } from '../../services/api';
 
 const { Title, Text } = Typography;
-const COLORS = ['#1890ff', '#52c41a', '#faad14', '#ff4d4f', '#722ed1'];
-const LEVEL_COLORS = { A: '#52c41a', B: '#1890ff', C: '#faad14' };
+const COLORS = ['#FFD700', '#D4A800', '#F5A623', '#B8860B', '#8B7500'];
+const LEVEL_COLORS = { S: '#FFD700', A: '#D4A800', B: '#B8860B', C: '#8B7500', platinum: '#FFD700', gold: '#D4A800', silver: '#B8860B', bronze: '#8B7500' };
+
+const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
+  const cardRef = useRef(null);
+  const { t } = useLanguageStore();
+  const [animatedValue, setAnimatedValue] = useState(0);
+  
+  useGSAP(() => {
+    gsap.from(cardRef.current, {
+      opacity: 0,
+      y: 30,
+      scale: 0.95,
+      duration: 0.6,
+      delay: delay * 0.1,
+      ease: 'power3.out',
+      clearProps: 'all',
+    });
+  }, { scope: cardRef });
+  
+  useEffect(() => {
+    if (!value) return;
+    const start = performance.now();
+    const duration = 1200;
+    const numValue = parseInt(value) || 0;
+    const animate = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedValue(Math.round(numValue * eased));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [value]);
+
+  return (
+    <div ref={cardRef} className="liquid-glass" style={{
+      padding: '18px 16px',
+      borderRadius: 16,
+      textAlign: 'center',
+      border: '1px solid rgba(255,215,0,0.08)',
+    }}>
+      <div style={{ fontSize: 22, color, marginBottom: 6, opacity: 0.8 }}>{icon}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>
+        {typeof value === 'number' ? animatedValue.toLocaleString() : value}
+      </div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontWeight: 500 }}>{label}</div>
+    </div>
+  );
+};
 
 const DashboardPage = () => {
   const profile = useAuthStore((s) => s.profile);
@@ -74,15 +126,13 @@ const DashboardPage = () => {
         <Alert type="info" message="Local Demo Mode" description="Data is stored in your browser. Configure Supabase to enable cloud mode with multi-user collaboration." showIcon style={{ marginBottom: 16 }} />
       )}
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Total Stores" value={stats?.storeCount || 0} prefix={<ShopOutlined />} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Total Visits" value={stats?.visitCount || 0} prefix={<CameraOutlined />} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Today's Visits" value={stats?.todayVisits || 0} prefix={<ClockCircleOutlined />} valueStyle={{ color: '#52c41a' }} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Total Fans" value={stats?.fanCount || 0} prefix={<TeamOutlined />} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Total Scans" value={stats?.scanCount || 0} prefix={<QrcodeOutlined />} valueStyle={{ color: '#722ed1' }} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Active Campaigns" value={stats?.ongoingCampaignCount || 0} prefix={<ThunderboltOutlined />} valueStyle={{ color: '#faad14' }} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Material Types" value={stats?.materialCount || 0} prefix={<InboxOutlined />} loading={statsLoading} /></Card></Col>
-        <Col xs={12} sm={8} lg={3}><Card size="small"><Statistic title="Low Stock Alerts" value={stats?.lowStockCount || 0} prefix={<WarningOutlined />} valueStyle={{ color: stats?.lowStockCount > 0 ? '#ff4d4f' : '#52c41a' }} loading={statsLoading} /></Card></Col>
+            <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label="Store" value={stats?.storeCount || 0} color="#FFD700" delay={0} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label="Visits" value={stats?.totalVisits || 0} color="#D4A800" delay={1} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label="Fans" value={stats?.totalFans || 0} color="#F5A623" delay={2} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label="Campaigns" value={stats?.activeCampaigns || 0} color="#FFD700" delay={3} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label="Scans" value={stats?.todayScans || 0} color="#D4A800" delay={4} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label="Low Stock" value={stats?.lowStockCount || 0} color={stats?.lowStockCount > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
