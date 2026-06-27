@@ -1,4 +1,4 @@
-import useLanguageStore from '../../stores/languageStore';
+﻿import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
@@ -44,7 +44,7 @@ const FanCenterPage = () => {
   if (localDb.needsInit()) { localDb.init(seedData); }
 
   // Auto-find fan from localStorage user session
-  if (!currentFan) {
+  if (!resolvedFan) {
     const savedFanId = localStorage.getItem("store_manager_current_user");
     if (savedFanId) {
       const savedFan = localDb.findById("fans", savedFanId);
@@ -53,7 +53,7 @@ const FanCenterPage = () => {
   }
 
   // Final fallback: use first seed fan
-  if (!currentFan) {
+  if (!resolvedFan) {
     const allFans = localDb.all("fans");
     if (allFans.length > 0) {
       currentFan = allFans[0];
@@ -78,18 +78,18 @@ const FanCenterPage = () => {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><Spin size="large" /></div>;
   }
 
-  if (!currentFan) {
+  if (!resolvedFan) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <Card style={{ textAlign: 'center', maxWidth: 400, borderRadius: 16 }}>
-          <Empty description="No fan profile found. Please contact support." />
-          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>Back to Home</Button>
+          <Empty description={t("fan_no_profile")} />
+          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>{t('fan_back_home')}</Button>
         </Card>
       </div>
     );
   }
 
-  const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
+  const levelInfo = FAN_LEVELS.find((l) => l.value === resolvedFan.level) || FAN_LEVELS[0];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: 24 }}>
@@ -108,15 +108,15 @@ const FanCenterPage = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#faad14' }}>{currentFan.points} pts</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#faad14' }}>{resolvedFan.points} pts</div>
               <Tag color={levelInfo.color} style={{ fontSize: 10, margin: 0 }}>{levelInfo.label}</Tag>
             </div>
             <Dropdown menu={{
               items: [
-                { key: 'owner', icon: <ShopOutlined />, label: 'Store Owner Portal' },
-                { key: 'admin', icon: <SettingOutlined />, label: 'Admin Login' },
+                { key: 'owner', icon: <ShopOutlined />, label: t('fan_owner_portal') },
+                { key: 'admin', icon: <SettingOutlined />, label: t('fan_admin_login') },
                 { type: 'divider' },
-                { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
+                { key: 'logout', icon: <LogoutOutlined />, label: t('fan_logout'), danger: true },
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = '/#/store-owner';
@@ -140,32 +140,32 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>📅 Check-in</span>,
-              children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
+              label: <span>📅 {t('fan_tab_checkin')}</span>,
+              children: <CheckInTab fan={resolvedFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
-              label: <span>📱 Scan</span>,
-              children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
+              label: <span>📱 {t('fan_tab_scan')}</span>,
+              children: <ScanTab fan={resolvedFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
-              label: <span>🎁 Rewards</span>,
-              children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
+              label: <span>🎁 {t('fan_tab_mall')}</span>,
+              children: <MallTab fan={resolvedFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
-              label: <span>👥 Invite</span>,
-              children: <InviteTab fan={currentFan} />,
+              label: <span>👥 {t('fan_tab_invite')}</span>,
+              children: <InviteTab fan={resolvedFan} />,
             },
             {
               key: 'community',
-              label: <span>💬 Community</span>,
-              children: <CommunityTab fan={currentFan} />,
+              label: <span>💬 {t('fan_tab_community')}</span>,
+              children: <CommunityTab fan={resolvedFan} />,
             },
             {
               key: 'help',
-              label: <span>❓ Help</span>,
+              label: <span>❓ {t('fan_tab_help')}</span>,
               children: <HowItWorksTab />,
             },
           ]}
@@ -176,6 +176,7 @@ const FanCenterPage = () => {
 };
 
 export default FanCenterPage;
+
 
 
 

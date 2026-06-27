@@ -10,9 +10,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: undefined,
-        inlineDynamicImports: true,
+        codeSplitting: false,
       },
     },
     chunkSizeWarningLimit: 4000,
   },
 })
+
