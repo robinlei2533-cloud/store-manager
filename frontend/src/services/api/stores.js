@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 闂ㄥ簵 ============
+// ============ STORES ============
 
 export async function getStores(filters = {}) {
   ensureLocalInit();

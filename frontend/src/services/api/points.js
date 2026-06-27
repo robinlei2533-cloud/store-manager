@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
-// ============ Shared Helpers ============
+// ============ POINTS ============
 const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
@@ -13,7 +13,7 @@ function ensureLocalInit() {
   }
 }
 
-// ============ Enrich helpers ============
+// ============ POINTS ============
 function enrichVisit(visit) {
   const store = localDb.findById('stores', visit.store_id);
   const rep = localDb.findById('profiles', visit.rep_id);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 绉垎瑙勫垯 ============
+// ============ POINTS ============
 
 export async function getPointsRules() {
   ensureLocalInit();

@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
-// ============ Shared Helpers ============
+// ============ QRCODES ============
 const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
@@ -13,7 +13,7 @@ function ensureLocalInit() {
   }
 }
 
-// ============ Enrich helpers ============
+// ============ QRCODES ============
 function enrichVisit(visit) {
   const store = localDb.findById('stores', visit.store_id);
   const rep = localDb.findById('profiles', visit.rep_id);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 鎵爜绉垎 ============
+// ============ QRCODES ============
 
 export async function getQrCodes(filters = {}) {
   ensureLocalInit();
@@ -77,14 +77,14 @@ export async function scanQrCode(qrCodeId) {
     const qr = localDb.findById('qr_codes', qrCodeId);
     if (!qr || !qr.is_active) throw new Error('QR code invalid or disabled');
 
-    // 鑾峰彇闂ㄥ簵瀵瑰簲鐨勭矇涓?
+    // Get store fans
     const fan = localDb.find('fans', (f) => f.store_id === qr.store_id)[0];
     if (!fan) throw new Error('No fan account for this store');
 
     // 澧炲姞鎵爜娆℃暟
     localDb.update('qr_codes', qrCodeId, { scan_count: qr.scan_count + 1 });
 
-    // 璁板綍鎵爜
+    // Record scan
     localDb.insert('scan_records', {
       qr_code_id: qrCodeId,
       fan_id: fan.id,
@@ -93,7 +93,7 @@ export async function scanQrCode(qrCodeId) {
       points_earned: qr.points,
     });
 
-    // 澧炲姞绉垎
+    // Add points
     const result = await addFanPoints(fan.id, qr.points, 'earn', '鎵爜绉垎', `娑堣垂鑰呮壂鐮?${qr.code}`);
 
     return { success: true, points: qr.points, fan: result, product: localDb.findById('products', qr.product_id) };

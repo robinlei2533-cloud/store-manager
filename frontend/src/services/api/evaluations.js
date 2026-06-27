@@ -5,7 +5,7 @@ import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
-// ============ Shared Helpers ============
+// ============ EVALUATIONS ============
 const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
@@ -13,7 +13,7 @@ function ensureLocalInit() {
   }
 }
 
-// ============ Enrich helpers ============
+// ============ EVALUATIONS ============
 function enrichVisit(visit) {
   const store = localDb.findById('stores', visit.store_id);
   const rep = localDb.findById('profiles', visit.rep_id);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 搴楅摵璇勪及 ============
+// ============ EVALUATIONS ============
 
 export async function getEvaluations(filters = {}) {
   ensureLocalInit();
@@ -68,7 +68,7 @@ export async function getEvaluationById(id) {
 
 export async function createEvaluation(evalData) {
   ensureLocalInit();
-  // 璁＄畻鎬诲垎鍜屾帹鑽愮瓑绾?
+  // Calculate total score and recommend level
   const total = evalData.score_sales + evalData.score_display + evalData.score_location +
     evalData.score_cooperation + evalData.score_expansion + evalData.score_appearance;
   const avg = total / 6;
@@ -80,7 +80,7 @@ export async function createEvaluation(evalData) {
 
   if (USE_LOCAL) {
     const result = localDb.insert('store_evaluations', record);
-    // 鍚屾鏇存柊闂ㄥ簵绛夌骇
+    // Sync store level
     localDb.update('stores', evalData.store_id, { level });
     return result;
   }
