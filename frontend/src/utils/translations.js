@@ -1,4 +1,4 @@
-// ============ UWELL CRM 多语言翻译系统 ============
+﻿// ============ UWELL CRM 多语言翻译系统 ============
 const zh = {
   // Global
   app_title: 'UWELL 增长运营平台',
@@ -386,7 +386,40 @@ const en = {
   community_comment: 'Comment',
   community_like: 'Like',
   community_share: 'Share',
+
+  // Fan Entry Page - Additional
+  fan_entry_tag: '✦ 2026 Fan Club',
+  fan_entry_join: 'Join UWELL',
+  fan_entry_club: 'Fan Club',
+  fan_entry_desc: 'Check in daily, scan products, unlock membership tiers, redeem exclusive rewards - explore with UWELL fans worldwide.',
+  fan_entry_daily_checkin: 'Daily Check-in',
+  fan_entry_scan_points: 'Scan Points',
+  fan_entry_rewards_mall: 'Rewards Mall',
+  fan_entry_member_levels: 'Member Levels',
+  fan_entry_login_title: 'Fan Login',
+  fan_entry_login_subtitle: 'Quick access with email',
+  fan_entry_placeholder_email: 'Email address',
+  fan_entry_placeholder_password: 'Password',
+  fan_entry_remember: 'Remember me',
+  fan_entry_forgot: 'Forgot password?',
+  fan_entry_no_account: 'No account?',
+  fan_entry_register_now: 'Register Now',
+  fan_entry_have_account: 'Already have account?',
+  fan_entry_sign_in: 'Sign In',
+  fan_entry_register_title: 'Fan Registration',
+  fan_entry_placeholder_name: 'Name *',
+  fan_entry_placeholder_phone: 'Phone (optional)',
+  fan_entry_scroll_browse: 'Scroll · Tap for details',
+  fan_entry_footer: 'UWELL FAN CLUB · 2026',
+  fan_entry_signin_btn: 'SIGN IN',
+  fan_entry_register_btn: 'REGISTER',
+  fan_entry_registering: 'Registering...',
+  fan_entry_login_success: 'Welcome back!',
+  fan_entry_register_success: 'Welcome to UWELL Fan Club!',
+  fan_entry_fill_fields: 'Please fill in name, email and password',
 };
+
+
 
 const ar = {
   app_title: 'منصة نمو عمليات UWELL',
@@ -440,8 +473,6 @@ const ar = {
   logout: 'تسجيل خروج',
   profile: 'الملف الشخصي',
 
-  fan_entry_title: 'اكتشف عالم UWELL',
-  fan_entry_subtitle: 'انضم لنادي المعجبين، اكتشف أحدث المنتجات والعروض الحصرية',
   fan_enter_btn: 'دخول مركز المعجبين',
   fan_register: 'تسجيل كمعجب',
   fan_login: 'تسجيل دخول المعجبين',

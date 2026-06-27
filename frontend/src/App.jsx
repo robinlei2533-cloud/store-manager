@@ -1,4 +1,4 @@
-import useLanguageStore from './stores/languageStore';
+﻿import useLanguageStore from './stores/languageStore';
 import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
@@ -6,6 +6,8 @@ import LanguageSwitcher from './components/common/LanguageSwitcher';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import enUS from 'antd/locale/en_US';
+import arEG from 'antd/locale/ar_EG';
 
 import AppLayout from './components/layout/AppLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -94,10 +96,11 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const { lang } = useLanguageStore();
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider
-        locale={zhCN}
+        locale={lang === 'ar' ? arEG : lang === 'zh' ? zhCN : enUS}
         theme={{
           token: {
             colorPrimary: '#FFD700',
@@ -120,7 +123,7 @@ const App = () => {
         <AntApp>
           <ErrorBoundary>
             <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0f"}}><Spin size="large" /></div>}>
-            <LanguageSwitcher />
+              <div style={{position:'relative'}}><LanguageSwitcher inline={true} /></div>
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

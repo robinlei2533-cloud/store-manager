@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { TRANSLATIONS, LANGUAGES } from '../utils/translations';
 
 const getInitialLang = () => {
@@ -6,7 +6,7 @@ const getInitialLang = () => {
     const saved = localStorage.getItem('uwell_lang');
     if (saved && LANGUAGES.find(l => l.code === saved)) return saved;
   } catch(e) {}
-  return 'en';
+  return 'en'; // Default to Chinese
 };
 
 const useLanguageStore = create((set, get) => ({
@@ -15,10 +15,10 @@ const useLanguageStore = create((set, get) => ({
     try { localStorage.setItem('uwell_lang', code); } catch(e) {}
     set({ lang: code });
   },
-  t: (key, fallback) => {
+  t: (key) => {
     const { lang } = get();
-    const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
-    return dict[key] || TRANSLATIONS.en[key] || TRANSLATIONS.zh[key] || fallback || key;
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.zh;
+    return dict[key] || TRANSLATIONS.zh[key] || key;
   },
 }));
 
