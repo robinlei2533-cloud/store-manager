@@ -16,6 +16,7 @@
     "@vis.gl/react-google-maps": "^1.8.3",
     "antd": "^6.4.4",
     "dayjs": "^1.11.21",
+    "leaflet": "^1.9.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router": "7.18.0",

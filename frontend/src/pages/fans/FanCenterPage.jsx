@@ -1,4 +1,4 @@
-import useLanguageStore from '../../stores/languageStore';
+﻿import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
@@ -24,6 +24,7 @@ import MallTab from './tabs/MallTab';
 import InviteTab from './tabs/InviteTab';
 import CommunityTab from './tabs/CommunityTab';
 import HowItWorksTab from './tabs/HowItWorksTab';
+import MapTab from './tabs/MapTab';
 // ============ Main Fan Center Page ============
 const FanCenterPage = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const FanCenterPage = () => {
     queryFn: () => getFans({}),
   });
 
-  // Find current fan 鈥?match by user ID or fall back to first fan
+  // Find current fan 閳?match by user ID or fall back to first fan
   let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
 
   // Ensure DB is initialized
@@ -140,32 +141,32 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>馃搮 Check-in</span>,
+              label: <span>棣冩惍 Check-in</span>,
               children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
-              label: <span>馃摫 Scan</span>,
+              label: <span>棣冩懌 Scan</span>,
               children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
-              label: <span>馃巵 Rewards</span>,
+              label: <span>棣冨返 Rewards</span>,
               children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
-              label: <span>馃懃 Invite</span>,
+              label: <span>棣冩噧 Invite</span>,
               children: <InviteTab fan={currentFan} />,
             },
             {
               key: 'community',
-              label: <span>馃挰 Community</span>,
+              label: <span>棣冩尠 Community</span>,
               children: <CommunityTab fan={currentFan} />,
             },
             {
               key: 'help',
-              label: <span>鉂?Help</span>,
+              label: <span>閴?Help</span>,
               children: <HowItWorksTab />,
             },
           ]}
