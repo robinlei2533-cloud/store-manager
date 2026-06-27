@@ -15,8 +15,8 @@ const CommunityTab = ({ fan }) => {
     // Seed some posts if empty
     if (localDb.count('community_posts') === 0) {
       const seedPosts = [
-        { id: 'fp-001', author_name: 'Ahmed K.', content: 'Just got my G4 PRO! The flavor is incredible 🔥', category: 'Discussion', likes: 12, created_at: new Date(Date.now() - 86400000).toISOString() },
-        { id: 'fp-002', author_name: 'Saud M.', content: 'Redeemed a UWELL cap from the mall with my points! Love this club ⚡', category: 'Share', likes: 8, created_at: new Date(Date.now() - 172800000).toISOString() },
+        { id: 'fp-001', author_name: 'Ahmed K.', content: 'Just got my G4 PRO! The flavor is incredible!', category: 'Discussion', likes: 12, created_at: new Date(Date.now() - 86400000).toISOString() },
+        { id: 'fp-002', author_name: 'Saud M.', content: 'Redeemed a UWELL cap from the mall with my points! Love this club!', category: 'Share', likes: 8, created_at: new Date(Date.now() - 172800000).toISOString() },
         { id: 'fp-003', author_name: 'Faisal R.', content: 'Which is better: G4 or G5? Thinking about upgrading', category: 'Question', likes: 5, created_at: new Date(Date.now() - 259200000).toISOString() },
       ];
       seedPosts.forEach((p) => localDb.insert('community_posts', p));
