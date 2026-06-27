@@ -27,6 +27,7 @@ const TABLE_NAMES = [
   'campaigns',
   'campaign_tasks',
   'campaign_reports',
+  'campaign_claims',
   'qr_codes',
   'scan_records',
   'fan_checkins',
