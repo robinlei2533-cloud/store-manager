@@ -281,6 +281,7 @@ const MeteorShower = () => {
 const FanEntryPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguageStore();
+  const { signInLocal } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
       const [modalOpen, setModalOpen] = useState(false);
@@ -295,12 +296,12 @@ const FanEntryPage = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const handleLogin = useCallback(() => {
+  const handleLogin = useCallback(async () => {
     const userEmail = email || 'fan@uwell.com';
-    const fanId = 'fan-' + Date.now();
-    localStorage.setItem('store_manager_current_user', fanId);
+    try { await signInLocal(email || 'fan@uwell.com', 'fan'); } catch(e) {}
+    localStorage.setItem('store_manager_current_user', 'f-002');
     navigate('/fan-center', { replace: true });
-  }, [email, navigate]);
+  }, [email, navigate, signInLocal]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') handleLogin();
