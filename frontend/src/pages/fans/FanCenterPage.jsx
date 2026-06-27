@@ -1,4 +1,4 @@
-import useLanguageStore from '../../stores/languageStore';
+﻿import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
@@ -84,8 +84,8 @@ const FanCenterPage = () => {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <Card style={{ textAlign: 'center', maxWidth: 400, borderRadius: 16 }}>
-          <Empty description="No fan profile found. Please contact support." />
-          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>Back to Home</Button>
+          <Empty description={t('no_data')} />
+          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>{t('back')}</Button>
         </Card>
       </div>
     );
@@ -110,7 +110,7 @@ const FanCenterPage = () => {
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <Avatar size={36} icon={<UserOutlined />} style={{background:'#FFD700',color:'#0a0a0f',border:'2px solid rgba(255,215,0,0.3)'}} />
             <div>
-              <div style={{fontSize:13,fontWeight:600}}>{currentFan.name || 'Fan'}</div>
+              <div style={{fontSize:13,fontWeight:600}}>{currentFan.name || t('fan_profile')}</div>
               <div style={{fontSize:10,color:'rgba(255,255,255,0.5)'}}>{currentFan.phone || '---'}</div>
             </div>
           </div>
@@ -121,14 +121,14 @@ const FanCenterPage = () => {
             </div>
             <Dropdown menu={{
               items: [
-                { key: 'owner', icon: <ShopOutlined />, label: '门店入口' },
-                { key: 'admin', icon: <SettingOutlined />, label: '管理后台' },
+                { key: 'owner', icon: <ShopOutlined />, label: t('settings_store') },
+                { key: 'admin', icon: <SettingOutlined />, label: t('settings_admin') },
                 { type: 'divider' },
                 { key: 'lang_zh', icon: <span role='img'>🇨🇳</span>, label: '中文' },
                 { key: 'lang_en', icon: <span role='img'>🇬🇧</span>, label: 'English' },
                 { key: 'lang_ar', icon: <span role='img'>🇸🇦</span>, label: 'العربية' },
                 { type: 'divider' },
-                { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', danger: true },
+                { key: 'logout', icon: <LogoutOutlined />, label: t('logout'), danger: true },
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
@@ -155,32 +155,32 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>📅 签到</span>,
+              label: <span>{t('fan_check_in')}</span>,
               children: <div className="fc-tab-content"><CheckInTab fan={currentFan} onPointsChange={handlePointsChange} /></div>,
             },
             {
               key: 'scan',
-              label: <span>📱 扫码</span>,
+              label: <span>{t('fan_scan')}</span>,
               children: <div className="fc-tab-content"><ScanTab fan={currentFan} onPointsChange={handlePointsChange} /></div>,
             },
             {
               key: 'mall',
-              label: <span>🎁 积分商城</span>,
+              label: <span>{t('fan_products')}</span>,
               children: <div className="fc-tab-content"><MallTab fan={currentFan} onPointsChange={handlePointsChange} /></div>,
             },
             {
               key: 'invite',
-              label: <span>📤 邀请好友</span>,
+              label: <span>{t('fan_invite')}</span>,
               children: <div className="fc-tab-content"><InviteTab fan={currentFan} /></div>,
             },
             {
               key: 'community',
-              label: <span>💬 社区</span>,
+              label: <span>{t('fan_community')}</span>,
               children: <div className="fc-tab-content"><CommunityTab fan={currentFan} /></div>,
             },
             {
               key: 'campaigns',
-              label: <span>🔥 Activities</span>,
+              label: <span>{t('fan_activities')}</span>,
               children: <div className="fc-tab-content"><CampaignTab fan={currentFan} /></div>,
             },
             {
@@ -190,7 +190,7 @@ const FanCenterPage = () => {
             },
             {
               key: 'help',
-              label: <span>Help</span>,
+              label: <span>{t('fan_help')}</span>,
               children: <div className="fc-tab-content"><HowItWorksTab /></div>,
             },
           ]}
@@ -201,6 +201,7 @@ const FanCenterPage = () => {
 };
 
 export default FanCenterPage;
+
 
 
 

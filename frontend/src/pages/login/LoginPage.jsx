@@ -35,7 +35,7 @@ const LoginPage = () => {
       message.success('Login successful');
       navigate('/app/dashboard', { replace: true });
     } catch (err) {
-      message.error(err.message || 'Login failed, please check credentials');
+      message.error(err.message || t('admin_login_error'));
     } finally {
       setSubmitting(false);
     }
@@ -70,7 +70,7 @@ const LoginPage = () => {
           <div className="login-icon">
             <SafetyCertificateOutlined />
           </div>
-          <Title level={3} style={{ margin: 0 }}>管理端登录</Title>
+          <Title level={3} style={{ margin: 0 }}>{t('admin_login')}</Title>
           <Text type="secondary">运营人员、业务代表和管理员使用</Text>
         </div>
 
@@ -86,13 +86,13 @@ const LoginPage = () => {
 
         <Form form={loginForm} layout="vertical" onFinish={handleLogin} size="large" autoComplete="off">
           <Form.Item name="email" rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" />
+            <Input prefix={<MailOutlined />} placeholder={t("admin_email")} />
           </Form.Item>
           <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password prefix={<LockOutlined />} placeholder={t("admin_password")} />
           </Form.Item>
           <Form.Item style={{ marginBottom: 12 }}>
-            <Button type="primary" htmlType="submit" loading={submitting} block style={{ height: 44 }}>登录后台</Button>
+            <Button type="primary" htmlType="submit" loading={submitting} block style={{ height: 44 }}>{t("admin_login_btn")}</Button>
           </Form.Item>
         </Form>
 
@@ -106,7 +106,7 @@ const LoginPage = () => {
             <Input prefix={<UserOutlined />} placeholder="姓名" />
           </Form.Item>
           <Form.Item name="email" rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" />
+            <Input prefix={<MailOutlined />} placeholder={t("admin_email")} />
           </Form.Item>
           <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }, { min: 6, message: '至少 6 位字符' }]}>
             <Input.Password prefix={<LockOutlined />} placeholder="密码，至少 6 位" />
