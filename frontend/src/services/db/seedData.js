@@ -239,14 +239,14 @@ export const seedData = {
 
   // ============ 粉丝档案 ============
   fans: [
-    { id: 'f-001', store_id: 's-001', user_id: 'u-rep1', level: 'gold', points: 580, total_contribution: 580, created_at: daysAgo(70), updated_at: daysAgo(1) },
-    { id: 'f-002', store_id: 's-002', user_id: null, level: 'platinum', points: 2300, total_contribution: 2300, created_at: daysAgo(65), updated_at: daysAgo(2) },
-    { id: 'f-003', store_id: 's-003', user_id: null, level: 'silver', points: 150, total_contribution: 150, created_at: daysAgo(55), updated_at: daysAgo(5) },
-    { id: 'f-004', store_id: 's-004', user_id: null, level: 'gold', points: 520, total_contribution: 520, created_at: daysAgo(45), updated_at: daysAgo(3) },
-    { id: 'f-005', store_id: 's-005', user_id: null, level: 'bronze', points: 30, total_contribution: 30, created_at: daysAgo(35), updated_at: daysAgo(10) },
-    { id: 'f-006', store_id: 's-006', user_id: null, level: 'silver', points: 120, total_contribution: 120, created_at: daysAgo(25), updated_at: daysAgo(4) },
-    { id: 'f-007', store_id: 's-007', user_id: null, level: 'diamond', points: 5200, total_contribution: 5200, created_at: daysAgo(20), updated_at: daysAgo(1) },
-    { id: 'f-008', store_id: 's-008', user_id: null, level: 'bronze', points: 15, total_contribution: 15, created_at: daysAgo(15), updated_at: daysAgo(15) },
+    { id: 'f-001', store_id: 's-001', user_id: 'u-rep1', name: 'Ahmed', phone: '+966501234001', level: 'gold', points: 580, total_contribution: 580, created_at: daysAgo(70), updated_at: daysAgo(1) },
+    { id: 'f-002', store_id: 's-002', user_id: null, name: 'Fatima', phone: '+966551234002', level: 'platinum', points: 2300, total_contribution: 2300, created_at: daysAgo(65), updated_at: daysAgo(2) },
+    { id: 'f-003', store_id: 's-003', user_id: null, name: 'Mohammed', phone: '+966501234003', level: 'silver', points: 150, total_contribution: 150, created_at: daysAgo(55), updated_at: daysAgo(5) },
+    { id: 'f-004', store_id: 's-004', user_id: null, name: 'Layla', phone: '+966541234004', level: 'gold', points: 520, total_contribution: 520, created_at: daysAgo(45), updated_at: daysAgo(3) },
+    { id: 'f-005', store_id: 's-005', user_id: null, name: 'Omar', phone: '+966531234005', level: 'bronze', points: 30, total_contribution: 30, created_at: daysAgo(35), updated_at: daysAgo(10) },
+    { id: 'f-006', store_id: 's-006', user_id: null, name: 'Aisha', phone: '+966561234006', level: 'silver', points: 120, total_contribution: 120, created_at: daysAgo(25), updated_at: daysAgo(4) },
+    { id: 'f-007', store_id: 's-007', user_id: null, name: 'Khalid', phone: '+966551234007', level: 'diamond', points: 5200, total_contribution: 5200, created_at: daysAgo(20), updated_at: daysAgo(1) },
+    { id: 'f-008', store_id: 's-008', user_id: null, name: 'Noor', phone: '+966501234008', level: 'bronze', points: 15, total_contribution: 15, created_at: daysAgo(15), updated_at: daysAgo(15) },
   ],
 
   // ============ 积分流水 ============
