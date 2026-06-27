@@ -19,6 +19,8 @@ import {
   ApartmentOutlined,
 } from '@ant-design/icons';
 import useAuthStore from '../../stores/authStore';
+import useLanguageStore from '../../stores/languageStore';
+import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { ROLES, ROLE_NAMES } from '../../utils/constants';
 import { IS_LOCAL_MODE } from '../../services/api';
 
@@ -28,6 +30,7 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, signOut } = useAuthStore();
+  const { t } = useLanguageStore();
   const { token } = theme.useToken();
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;

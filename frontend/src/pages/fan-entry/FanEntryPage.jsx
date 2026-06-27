@@ -1,5 +1,7 @@
 ﻿import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
+import useLanguageStore from '../../stores/languageStore';
+import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { Spin } from 'antd';
 
 // ============ Product Data (from fan-entry.html) ============
@@ -275,12 +277,12 @@ const MeteorShower = () => {
 // ============ Main Component ============
 const FanEntryPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [langDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('🇺🇸 EN');
-  const [modalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
   const [visibleCards, setVisibleCards] = useState(false);
   const gridRef = useRef(null);
@@ -377,7 +379,7 @@ const FanEntryPage = () => {
               </div>
             )}
           </div>
-          {/* Language */}
+          LanguageSwitcher
           <div style={{ position:'relative' }}>
             <button
               onClick={() => { setLangDropdownOpen(!langDropdownOpen); if(settingsOpen) setSettingsOpen(false); }}
