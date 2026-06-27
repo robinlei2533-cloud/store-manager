@@ -1,21 +1,16 @@
-import useLanguageStore from '../../stores/languageStore';
 ﻿import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import { Spin } from 'antd';
 
 const FanEntryRedirect = () => {
-  const navigate = useNavigate();
-  const { t } = useLanguageStore();
-
   useEffect(() => {
     const savedProfileId = localStorage.getItem('store_manager_current_user');
     const fanLoggedIn = localStorage.getItem('fan_logged_in');
     if (savedProfileId || fanLoggedIn) {
-      navigate('/fan-center', { replace: true });
+      window.location.href = 'fan-app.html#/fan-center';
     } else {
-      navigate('/fan-entry', { replace: true });
+      window.location.href = 'fan-app.html#/fan-entry';
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <div style={{
@@ -31,4 +26,3 @@ const FanEntryRedirect = () => {
 };
 
 export default FanEntryRedirect;
-

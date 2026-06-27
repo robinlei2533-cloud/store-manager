@@ -358,13 +358,13 @@ const FanEntryPage = () => {
                 border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, padding:6, zIndex:100,
                 boxShadow:'0 20px 60px rgba(0,0,0,0.5)',
               }}>
-                <div onClick={() => navigate('/store-owner')} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
+                <div onClick={() => window.location.href='store-app.html#/store-owner'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
                   <span style={{fontSize:16,width:28,textAlign:'center'}}>🏪</span> 门店进入
                 </div>
                 <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
-                <div onClick={() => navigate('/admin')} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
+                <div onClick={() => window.location.href='./#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
                   <span style={{fontSize:16,width:28,textAlign:"center"}}>🔐</span> 管理后台 Panel
