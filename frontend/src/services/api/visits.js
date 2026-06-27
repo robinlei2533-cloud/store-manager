@@ -1,4 +1,4 @@
-// Domain: visits
+﻿// Domain: visits
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 拜访 ============
+// ============ 鎷滆 ============
 
 export async function getVisits(filters = {}) {
   ensureLocalInit();
@@ -83,7 +83,7 @@ export async function updateVisit(id, visit) {
   return data;
 }
 
-// ============ 动销数据 ============
+// ============ 鍔ㄩ攢鏁版嵁 ============
 
 export async function getVisitSales(visitId) {
   ensureLocalInit();
@@ -109,7 +109,7 @@ export async function upsertVisitSales(salesData) {
   return data;
 }
 
-// ============ 拜访照片 ============
+// ============ 鎷滆鐓х墖 ============
 
 export async function getVisitPhotos(visitId) {
   ensureLocalInit();
@@ -123,7 +123,7 @@ export async function uploadVisitPhoto(visitId, file, photoType) {
   ensureLocalInit();
 
   if (USE_LOCAL) {
-    // 本地模式：用 FileReader 转 base64 存储或用 URL.createObjectURL
+    // 鏈湴妯″紡锛氱敤 FileReader 杞?base64 瀛樺偍鎴栫敤 URL.createObjectURL
     const photoUrl = URL.createObjectURL(file);
     return localDb.insert('visit_photos', {
       visit_id: visitId,

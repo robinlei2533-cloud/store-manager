@@ -1,4 +1,4 @@
-// Domain: fans
+﻿// Domain: fans
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 粉丝 ============
+// ============ 绮変笣 ============
 
 export async function getFans(filters = {}) {
   ensureLocalInit();
@@ -74,7 +74,7 @@ export async function addFanPoints(fanId, points, type, source, description) {
     const fan = localDb.findById('fans', fanId);
     if (fan) {
       const newPoints = fan.points + points;
-      // 自动升级
+      // 鑷姩鍗囩骇
       const rules = localDb.all('fan_level_rules').sort((a, b) => b.min_points - a.min_points);
       const newLevel = rules.find((r) => newPoints >= r.min_points);
       localDb.update('fans', fanId, {

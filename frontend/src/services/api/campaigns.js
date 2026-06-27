@@ -1,4 +1,4 @@
-// Domain: campaigns
+﻿// Domain: campaigns
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 活动管理 ============
+// ============ 娲诲姩绠＄悊 ============
 
 export async function getCampaigns(filters = {}) {
   ensureLocalInit();

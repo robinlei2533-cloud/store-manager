@@ -1,4 +1,4 @@
-// Domain: dashboard
+﻿// Domain: dashboard
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 数据看盘 ============
+// ============ 鏁版嵁鐪嬬洏 ============
 
 export async function getDashboardStats() {
   ensureLocalInit();
@@ -122,5 +122,5 @@ export async function getScanTrend(days = 30) {
   return [];
 }
 
-// 导出模式判断
+// 瀵煎嚭妯″紡鍒ゆ柇
 export const IS_LOCAL_MODE = USE_LOCAL;

@@ -1,4 +1,4 @@
-// Domain: evaluations
+﻿// Domain: evaluations
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 店铺评估 ============
+// ============ 搴楅摵璇勪及 ============
 
 export async function getEvaluations(filters = {}) {
   ensureLocalInit();
@@ -68,7 +68,7 @@ export async function getEvaluationById(id) {
 
 export async function createEvaluation(evalData) {
   ensureLocalInit();
-  // 计算总分和推荐等级
+  // 璁＄畻鎬诲垎鍜屾帹鑽愮瓑绾?
   const total = evalData.score_sales + evalData.score_display + evalData.score_location +
     evalData.score_cooperation + evalData.score_expansion + evalData.score_appearance;
   const avg = total / 6;
@@ -80,7 +80,7 @@ export async function createEvaluation(evalData) {
 
   if (USE_LOCAL) {
     const result = localDb.insert('store_evaluations', record);
-    // 同步更新门店等级
+    // 鍚屾鏇存柊闂ㄥ簵绛夌骇
     localDb.update('stores', evalData.store_id, { level });
     return result;
   }

@@ -1,4 +1,4 @@
-// Domain: qrcodes
+﻿// Domain: qrcodes
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 扫码积分 ============
+// ============ 鎵爜绉垎 ============
 
 export async function getQrCodes(filters = {}) {
   ensureLocalInit();
@@ -75,16 +75,16 @@ export async function scanQrCode(qrCodeId) {
   ensureLocalInit();
   if (USE_LOCAL) {
     const qr = localDb.findById('qr_codes', qrCodeId);
-    if (!qr || !qr.is_active) throw new Error('二维码无效或已停用');
+    if (!qr || !qr.is_active) throw new Error('QR code invalid or disabled');
 
-    // 获取门店对应的粉丝
+    // 鑾峰彇闂ㄥ簵瀵瑰簲鐨勭矇涓?
     const fan = localDb.find('fans', (f) => f.store_id === qr.store_id)[0];
-    if (!fan) throw new Error('该门店暂无粉丝账户');
+    if (!fan) throw new Error('No fan account for this store');
 
-    // 增加扫码次数
+    // 澧炲姞鎵爜娆℃暟
     localDb.update('qr_codes', qrCodeId, { scan_count: qr.scan_count + 1 });
 
-    // 记录扫码
+    // 璁板綍鎵爜
     localDb.insert('scan_records', {
       qr_code_id: qrCodeId,
       fan_id: fan.id,
@@ -93,12 +93,12 @@ export async function scanQrCode(qrCodeId) {
       points_earned: qr.points,
     });
 
-    // 增加积分
-    const result = await addFanPoints(fan.id, qr.points, 'earn', '扫码积分', `消费者扫码 ${qr.code}`);
+    // 澧炲姞绉垎
+    const result = await addFanPoints(fan.id, qr.points, 'earn', '鎵爜绉垎', `娑堣垂鑰呮壂鐮?${qr.code}`);
 
     return { success: true, points: qr.points, fan: result, product: localDb.findById('products', qr.product_id) };
   }
-  // Supabase 模式通过 RPC 调用
+  // Supabase 妯″紡閫氳繃 RPC 璋冪敤
   const { data, error } = await supabase.rpc('scan_qr_code', { qr_id: qrCodeId });
   if (error) throw error;
   return data;

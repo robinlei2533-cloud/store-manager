@@ -1,4 +1,4 @@
-// Domain: materials
+﻿// Domain: materials
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -6,7 +6,7 @@ import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
 // ============ Shared Helpers ============
-const USE_LOCAL = !import.meta.env.VITE_SUPABASE_URL;
+const USE_LOCAL = true;
 function ensureLocalInit() {
   if (USE_LOCAL && localDb.needsInit()) {
     localDb.init(seedData);
@@ -29,7 +29,7 @@ function enrichMaterialStock(stock) {
   return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
 }
 
-// ============ 物料 ============
+// ============ 鐗╂枡 ============
 
 export async function getMaterials() {
   ensureLocalInit();
@@ -43,7 +43,7 @@ export async function createMaterial(material) {
   ensureLocalInit();
   if (USE_LOCAL) {
     const m = localDb.insert('materials', material);
-    localDb.insert('material_stocks', { material_id: m.id, warehouse: '默认仓库', qty: 0, safety_stock: 10 });
+    localDb.insert('material_stocks', { material_id: m.id, warehouse: '榛樿浠撳簱', qty: 0, safety_stock: 10 });
     return m;
   }
   const { data, error } = await supabase.from('materials').insert(material).select().single();
@@ -101,12 +101,12 @@ export async function createInbound(record) {
   ensureLocalInit();
   if (USE_LOCAL) {
     const inbound = localDb.insert('material_inbound', record);
-    // 自动增加库存
+    // 鑷姩澧炲姞搴撳瓨
     const stocks = localDb.find('material_stocks', (s) => s.material_id === record.material_id);
     if (stocks.length > 0) {
       localDb.update('material_stocks', stocks[0].id, { qty: stocks[0].qty + record.qty });
     } else {
-      localDb.insert('material_stocks', { material_id: record.material_id, warehouse: '默认仓库', qty: record.qty, safety_stock: 10 });
+      localDb.insert('material_stocks', { material_id: record.material_id, warehouse: '榛樿浠撳簱', qty: record.qty, safety_stock: 10 });
     }
     return inbound;
   }
@@ -166,7 +166,7 @@ export async function updateOutboundStatus(id, status) {
   ensureLocalInit();
   if (USE_LOCAL) {
     const record = localDb.findById('material_outbound', id);
-    // 审批通过时扣减库存
+    // 瀹℃壒閫氳繃鏃舵墸鍑忓簱瀛?
     if (status === 'approved' && record.status === 'pending') {
       const stocks = localDb.find('material_stocks', (s) => s.material_id === record.material_id);
       if (stocks.length > 0) {
