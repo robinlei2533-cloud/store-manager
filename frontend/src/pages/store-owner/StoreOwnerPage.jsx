@@ -298,8 +298,8 @@ const StoreOwnerPage = () => {
     { key: 'dashboard', label: <span>店铺总览</span>, children: <Dashboard /> },
     { key: 'campaigns', label: <span>品牌活动</span>, children: <CampaignsTab /> },
     { key: 'materials', label: "物料 (" + storeMaterials.length + ")", children: <MaterialsTab /> },
-    { key: 'fans', label: `Fans (${stats.fanCount})`, children: <FansTab /> },
-    { key: 'scans', label: `Scans (${stats.scanCount})`, children: <ScansTab /> },
+    { key: 'fans', label: `粉丝 (${stats.fanCount})`, children: <FansTab /> },
+    { key: 'scans', label: `扫码 (${stats.scanCount})`, children: <ScansTab /> },
   ];
 
   return (
