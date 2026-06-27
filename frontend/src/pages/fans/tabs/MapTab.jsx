@@ -7,11 +7,12 @@ import 'leaflet/dist/leaflet.css';
 const { Text } = Typography;
 
 const LVL = {
-  A: { label: 'Platinum', icon: '\uD83D\uDC8E', color: '#E5E4E2', mark: '#FFD700' },
-  B: { label: 'Gold', icon: '\uD83E\uDD47', color: '#FFD700', mark: '#FFA500' },
-  C: { label: 'Silver', icon: '\uD83E\uDD48', color: '#C0C0C0', mark: '#A9A9A9' },
+  S: { label: 'Platinum', icon: '👑', mark: '#B9F2FF' },
+  A: { label: 'Gold', icon: '🥇', mark: '#FFD700' },
+  B: { label: 'Silver', icon: '🥈', mark: '#C0C0C0' },
+  C: { label: 'Bronze', icon: '⚪', mark: '#CD7F32' },
 };
-const LVL_KEYS = ['A', 'B', 'C'];
+const LVL_KEYS = ['S', 'A', 'B', 'C'];
 
 function makePopup(store) {
   const lv = store.level || 'C';
@@ -153,7 +154,7 @@ const MapTab = ({ fan }) => {
               color: filter === k ? '#000' : LVL[k].mark,
               fontWeight: 600,
             }}>
-            {LVL[k].icon} {LVL[k].label} ({counts[k] || 0})
+            {k} {LVL[k].label} ({counts[k] || 0})
           </Button>
         ))}
       </div>
