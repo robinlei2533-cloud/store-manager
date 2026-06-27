@@ -1,3 +1,61 @@
+/* UWELL Brand Tokens */
+:root {
+  --uwell-gold: #FFD700;
+  --uwell-gold-light: #FFF3B0;
+  --uwell-gold-dark: #D4A800;
+  --uwell-bg-dark: #0a0a0f;
+  --uwell-bg-card: #12121a;
+  --uwell-text-primary: #e5e5e5;
+  --uwell-border: rgba(255,215,0,0.15);
+  --uwell-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --uwell-radius: 10px;
+  --uwell-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth scrolling for entire app */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,215,0,0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,215,0,0.4);
+}
+
+/* Global focus styles */
+*:focus-visible {
+  outline: 2px solid var(--uwell-gold) !important;
+  outline-offset: 2px;
+}
+
+/* Ant Design overrides for gold theme */
+.ant-btn-primary {
+  box-shadow: 0 2px 8px rgba(255,215,0,0.25) !important;
+}
+.ant-btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(255,215,0,0.35) !important;
+}
+
+/* Card hover effect */
+.ant-card {
+  transition: var(--uwell-transition) !important;
+}
+.ant-card:hover {
+  box-shadow: var(--uwell-shadow) !important;
+}
+
+
 /* Global styles */
 body {
   margin: 0;
