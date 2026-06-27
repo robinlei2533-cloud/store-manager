@@ -10,6 +10,7 @@ import seedData from '../db/seedData';
 let _useLocal = !(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL);
 
 export function getUseLocal() { return _useLocal; }
+export const USE_LOCAL = _useLocal;
 export function setLocalMode(v) { _useLocal = v; }
 
 export function ensureLocalInit() {

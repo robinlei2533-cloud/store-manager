@@ -100,8 +100,8 @@ const App = () => {
         locale={zhCN}
         theme={{
           token: {
-            colorPrimary: '#D4A800',
-            colorInfo: '#D4A800',
+            colorPrimary: '#FFD700',
+            colorInfo: '#FFD700',
             colorSuccess: '#16a34a',
             colorWarning: '#f59e0b',
             colorError: '#dc2626',

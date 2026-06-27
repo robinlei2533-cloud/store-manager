@@ -22,8 +22,8 @@ import {
 } from '../../services/api';
 
 const { Title, Text } = Typography;
-const COLORS = ['#FFD700', '#D4A800', '#F5A623', '#B8860B', '#8B7500'];
-const LEVEL_COLORS = { S: '#FFD700', A: '#D4A800', B: '#B8860B', C: '#8B7500', platinum: '#FFD700', gold: '#D4A800', silver: '#B8860B', bronze: '#8B7500' };
+const COLORS = ['#FFD700', '#FFD700', '#F5A623', '#D4A800', '#8B7500'];
+const LEVEL_COLORS = { S: '#FFD700', A: '#FFD700', B: '#B8860B', C: '#8B7500', platinum: '#FFD700', gold: '#FFD700', silver: '#B8860B', bronze: '#8B7500' };
 
 const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
   const cardRef = useRef(null);
@@ -128,10 +128,10 @@ const DashboardPage = () => {
 
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
         <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label="Store" value={stats?.storeCount || 0} color="#FFD700" delay={0} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label="Visits" value={stats?.totalVisits || 0} color="#D4A800" delay={1} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label="Visits" value={stats?.totalVisits || 0} color="#FFD700" delay={1} /></Col>
         <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label="Fans" value={stats?.totalFans || 0} color="#F5A623" delay={2} /></Col>
         <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label="Campaigns" value={stats?.activeCampaigns || 0} color="#FFD700" delay={3} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label="Scans" value={stats?.todayScans || 0} color="#D4A800" delay={4} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label="Scans" value={stats?.todayScans || 0} color="#FFD700" delay={4} /></Col>
         <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label="Low Stock" value={stats?.lowStockCount || 0} color={stats?.lowStockCount > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
       </Row>
 

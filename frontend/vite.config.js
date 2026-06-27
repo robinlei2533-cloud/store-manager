@@ -15,9 +15,16 @@ export default defineConfig({
         store: resolve(__dirname, 'store-app.html'),
       },
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-core';
+          if (id.includes('node_modules/antd') || id.includes('node_modules/@ant-design')) return 'vendor-antd';
+          if (id.includes('node_modules/zustand') || id.includes('node_modules/@tanstack')) return 'vendor-state';
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'vendor-charts';
+          if (id.includes('node_modules/ogl')) return 'vendor-effects';
+          if (id.includes('localDb') || id.includes('seedData')) return 'database';
+        },
       },
     },
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 500,
   },
 })

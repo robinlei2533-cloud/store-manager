@@ -7,19 +7,19 @@ const LANGUAGES = [
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
 ];
 
-const LanguageSwitcher = ({ position, top = 16, right = 16, zIndex = 1000, inline = false }) => {
+const LanguageSwitcher = ({ position, top = 16, right = 16, zIndex = 1000, inline = false, style, showCurrent = false }) => {
   const { lang, setLang, t } = useLanguageStore();
   const [open, setOpen] = useState(false);
 
   const current = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
 
   return (
-    <div style={{ position: inline ? 'relative' : (position || 'fixed'), top: inline ? undefined : top, right: inline ? undefined : right, zIndex, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+    <div style={{ ...(style || {}), position: inline ? 'relative' : (position || 'fixed'), top: inline ? undefined : top, right: inline ? undefined : right, zIndex, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
       <button
         onClick={() => setOpen(!open)}
         title={t('settings_language')}
         style={{
-          width: 40, height: 40, borderRadius: 10,
+          width: showCurrent ? "auto" : 40, height: 40, borderRadius: 10, padding: showCurrent ? "0 16px" : "0", gap: 6,
           border: open ? '1px solid rgba(255,215,0,0.4)' : '1px solid rgba(255,255,255,0.1)',
           background: open ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.04)',
           color: open ? '#FFD700' : 'rgba(255,255,255,0.6)',
@@ -30,7 +30,7 @@ const LanguageSwitcher = ({ position, top = 16, right = 16, zIndex = 1000, inlin
         onMouseEnter={e => { if (!open) e.target.style.background = 'rgba(255,255,255,0.08)'; }}
         onMouseLeave={e => { if (!open) e.target.style.background = 'rgba(255,255,255,0.04)'; }}
       >
-        {current.flag}
+        {current.flag} {showCurrent ? current.label : null}
       </button>
       {open && (
         <div style={{

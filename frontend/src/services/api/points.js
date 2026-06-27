@@ -4,15 +4,9 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
+import { USE_LOCAL, ensureLocalInit } from './helpers';
 
 // ============ POINTS ============
-const USE_LOCAL = !(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL);
-function ensureLocalInit() {
-  if (USE_LOCAL && localDb.needsInit()) {
-    localDb.init(seedData);
-  }
-}
-
 // ============ POINTS ============
 function enrichVisit(visit) {
   const store = localDb.findById('stores', visit.store_id);

@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Tag, Button, Modal, Form, Input, InputNumber, DatePicker, Select, Space, Spin, Empty, Row, Col, Statistic, message, Popconfirm } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import localDb from '../../services/db/localDb';
 import { getCampaignById, createCampaignTask, updateCampaignTask, deleteCampaignTask, createCampaignReport, updateCampaignReport } from '../../services/api';
 
 const { TextArea } = Input;
@@ -20,15 +19,10 @@ const CampaignDetailPage = () => {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskForm] = Form.useForm();
-  const [claims, setClaims] = useState([]);
-  const [allStores, setAllStores] = useState([]);
   const [reportForm] = Form.useForm();
 
   const { data: campaign, isLoading } = useQuery({ queryKey: ['campaign', id], queryFn: () => getCampaignById(id), enabled: !!id });
 
-  const campaignClaims = (localDb.all('campaign_claims') || []).filter(c => c.campaign_id === id);
-  const storeList = localDb.all('stores') || [];
-  useEffect(() => { setClaims(campaignClaims); setAllStores(storeList); }, []);
   const taskMut = useMutation({ mutationFn: ({ data, taskId }) => taskId ? updateCampaignTask(taskId, data) : createCampaignTask(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task saved'); setTaskModalOpen(false); taskForm.resetFields(); setEditingTask(null); } });
   const deleteTaskMut = useMutation({ mutationFn: deleteCampaignTask, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task deleted'); } });
   const reportMut = useMutation({ mutationFn: ({ data, reportId }) => reportId ? updateCampaignReport(reportId, data) : createCampaignReport(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Report saved'); setReportModalOpen(false); } });
@@ -78,20 +72,6 @@ const CampaignDetailPage = () => {
               <Button type="primary" style={{ marginBottom: 16 }} onClick={() => { setEditingTask(null); taskForm.resetFields(); setTaskModalOpen(true); }}>Add Task</Button>
               <Table columns={taskColumns} dataSource={campaign.tasks || []} rowKey="id" pagination={false} size="small" locale={{ emptyText: 'No tasks' }} />
             </div>
-          )},
-          { key: 'claims', label: 'Claims (' + claims.length + ')', children: (
-            <Table dataSource={claims} rowKey='id' size='small' pagination={false}
-              columns={[
-                { title: 'Store', key: 'store', render: (_, r) => {
-                  const st = allStores.find(s => s.id === r.store_id);
-                  return st?.name || r.store_id;
-                }},
-                { title: 'Status', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'completed' ? 'success' : s === 'in_progress' ? 'processing' : 'default'}>{s}</Tag> },
-                { title: 'Used', dataIndex: 'materials_used', key: 'mat', render: (v) => v || 0 },
-                { title: 'Effect', dataIndex: 'effect', key: 'effect' },
-                { title: 'Claimed', dataIndex: 'claimed_at', key: 'date', render: (d) => d ? new Date(d).toLocaleDateString() : '-' },
-              ]}
-            />
           )},
           { key: 'report', label: 'Review Report', children: campaign.report ? (
             <div>

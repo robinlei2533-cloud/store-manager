@@ -1,15 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UWELL CRM — 运营管理平台</title>
     <meta name="theme-color" content="#0a0a0f" />
+    <meta name="description" content="UWELL 中东非市场增长运营系统 — 粉丝/门店/物料/活动管理" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #0a0a0f; color: #e5e5e5; }
-      
-      /* ===== Liquid-Glass Design System ===== */
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { background:#0a0a0f; color:#e5e5e5; font-family:"Inter",-apple-system,sans-serif; }
+      #root { min-height:100vh; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
+    </style>
+    <style>
       .liquid-glass {
         background: rgba(255,255,255,0.03);
         background-blend-mode: luminosity;
@@ -51,32 +58,24 @@
         mask-composite: exclude;
         pointer-events: none;
       }
-      .glass-card {
-        background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-      }
-      .gold-glow {
-        box-shadow: 0 0 20px rgba(255,215,0,0.08), 0 0 60px rgba(255,215,0,0.04);
-      }
-      .gold-text {
-        background: linear-gradient(135deg, #FFD700 0%, #F5A623 50%, #D4A800 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: 0.01ms !important; }
-      }
+      .font-heading { font-family: 'Instrument Serif', serif; font-style: italic; }
+      .font-body { font-family: 'Barlow', sans-serif; }
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
     </style>
-    <title>UWELL CRM — Growth Operations Platform</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <script type="module" src="./src/main.jsx"></script>
+  <canvas id="bg-particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
+<script>
+(function(){var c=document.getElementById("bg-particles");if(!c)return;var x=c.getContext("2d"),W,H;
+var resize=function(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
+resize();window.addEventListener("resize",resize);
+var N=60,ps=[];for(var i=0;i<N;i++){ps.push({x:Math.random()*W*1.2-W*0.1,y:Math.random()*H*1.2-H*0.1,s:1+Math.random()*2.5,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,o:0.15+Math.random()*0.3})}
+function anim(){x.clearRect(0,0,W,H);for(var i=0;i<ps.length;i++){var p=ps[i];p.x+=p.vx;p.y+=p.vy;p.vx*=0.98;p.vy*=0.98;if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fillStyle="rgba(255,215,0,"+p.o+")";x.fill();for(var j=i+1;j<ps.length;j++){var p2=ps[j],dx=p.x-p2.x,dy=p.y-p2.y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p2.x,p2.y);x.strokeStyle="rgba(255,215,0,"+((1-d/80)*0.08)+")";x.lineWidth=0.5;x.stroke()}}}requestAnimationFrame(anim)}
+anim();})();
+</script>
+</body>
 </html>
-

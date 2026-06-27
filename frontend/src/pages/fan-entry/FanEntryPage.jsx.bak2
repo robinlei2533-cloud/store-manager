@@ -11,24 +11,20 @@ import CircularGallery from "../../components/effects/CircularGallery";
 import ClickSpark from "../../components/effects/ClickSpark";
 import Counter from "../../components/effects/Counter";
 import { Spin, message } from 'antd';
-import gsap from 'gsap';
 
 // ============ Product Data (from fan-entry.html) ============
 const PD = [
-  {n:"CALIBURN AIR",c:"#ff6b35",t:"Flagship Series",i:"/images/caliburnair.svg"},
-  {n:"CALIBURN G5",c:"#457bff",t:"Flagship Series",i:"/images/caliburng5.svg"},
-  {n:"G5 KOKO",c:"#6c5ce7",t:"Flagship Series",i:"/images/g5koko.svg"},
-  {n:"G5 LITE SE",c:"#00b894",t:"Lite Series",i:"/images/g5litese.svg"},
-  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite Series",i:"/images/g5litekoko.svg"},
-  {n:"G4 PRO",c:"#a29bfe",t:"Professional Series",i:"/images/g4pro.svg"},
-  {n:"G4 CLASSIC",c:"#fdcb6e",t:"Classic Series",i:"/images/g4classic.svg"},
-  {n:"G4 PRO KOKO",c:"#e17055",t:"KOKO Series",i:"/images/g4prokoko.svg"},
-  {n:"G4 MINI",c:"#00cec9",t:"Mini Series",i:"/images/g4mini.svg"},
-  {n:"G3 PRO",c:"#fd79a8",t:"Professional Series",i:"/images/g3pro.svg"},
-  {n:"G3 PRO KOKO",c:"#6c5ce7",t:"KOKO Series",i:"/images/g3prokoko.svg"},
-  {n:"Caliburn OG",c:"#e17055",t:"Classic Series",i:"/images/caliburnog.svg"},
-  {n:"Crown",c:"#fdcb6e",t:"Pod Series",i:"/images/crown.svg"},
-  {n:"Havok",c:"#00cec9",t:"Pod Series",i:"/images/havok.svg"},
+  {n:"CALIBURN AIR",c:"#ff6b35",t:"Flagship Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
+  {n:"CALIBURN G5",c:"#457bff",t:"Flagship Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
+  {n:"G5 KOKO",c:"#6c5ce7",t:"Flagship Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
+  {n:"G5 LITE SE",c:"#00b894",t:"Lite Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
+  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
+  {n:"Caliburn",c:"#e17055",t:"Classic Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/caliburn-20240627113220107.webp"},
+  {n:"Crown",c:"#fdcb6e",t:"Pod Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/CROWN-20240627113158744.webp"},
+  {n:"Havok",c:"#00cec9",t:"Pod Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/havok-20240522105356154.png"},
+  {n:"200-X100",c:"#a29bfe",t:"Professional Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/200X-20240522105129735.png"},
+  {n:"Conjure",c:"#fd79a8",t:"Professional Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/conjure-20240522105509254.png"},
+  {n:"Atop Flow",c:"#00b894",t:"Professional Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/atop-flow-20240627113127696.webp"},
 ];
 const PROD_INFO = {
   "CALIBURN AIR":{desc:"Ultra-slim airflow sensor pod",specs:[["Model","CALIBURN AIR"],["Pod Capacity","2.0ml"],["Battery","400mAh"]],icon:"⚡"},
@@ -286,50 +282,6 @@ const MeteorShower = () => {
   return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:2, pointerEvents:'none' }} />;
 };
 
-
-// ============ Shader/Raster Overlay ============
-const ShaderOverlay = () => {
-  const ref = React.useRef(null);
-  React.useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    let W, H, t = 0, id;
-    const resize = () => { W = c.width = window.innerWidth; H = c.height = window.innerHeight; };
-    resize();
-    window.addEventListener("resize", resize);
-    const draw = () => {
-      t += 0.015;
-      ctx.clearRect(0, 0, W, H);
-      const g = ctx.createRadialGradient(W/2+Math.sin(t)*120, H/2+Math.cos(t*0.7)*80, 0, W/2, H/2, Math.max(W,H)*0.7);
-      g.addColorStop(0, "rgba(255,215,0,0.05)");
-      g.addColorStop(0.4, "rgba(255,165,0,0.025)");
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = "rgba(255,215,0,0.012)";
-      ctx.lineWidth = 1.5;
-      for (let i = 0; i < 10; i++) {
-        const y = (H/10)*i + Math.sin(t*0.8+i*1.2)*25;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        for (let x = 0; x < W; x += 4) ctx.lineTo(x, y + Math.sin(x*0.01+t*2.5+i)*2.5);
-        ctx.stroke();
-      }
-      const img = ctx.getImageData(0, 0, W, H);
-      for (let i = 0; i < img.data.length; i += 6) {
-        const n = (Math.random()-0.5)*10;
-        img.data[i] += n; img.data[i+1] += n; img.data[i+2] += n;
-      }
-      ctx.putImageData(img, 0, 0);
-      id = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
-  }, []);
-  return React.createElement("canvas", { ref, style: {position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:1,pointerEvents:"none",opacity:0.7} });
-};
-
 // ============ Main Component ============
 const FanEntryPage = () => {
   const navigate = useNavigate();
@@ -348,39 +300,7 @@ const FanEntryPage = () => {
   const [regPhone, setRegPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const gridRef = useRef(null);
-  const stripRef = useRef(null);
-  
-  // Auto-scroll product strip
-  useEffect(() => {
-    const strip = stripRef.current;
-    if (!strip) return;
-    let scrollPos = 0;
-    let rafId;
-    const step = () => {
-      scrollPos += 0.5;
-      const max = strip.scrollWidth - strip.clientWidth;
-      if (scrollPos >= max) scrollPos = 0;
-      strip.scrollLeft = scrollPos;
-      rafId = requestAnimationFrame(step);
-    };
-    rafId = requestAnimationFrame(step);
-    const pause = () => cancelAnimationFrame(rafId);
-    const resume = () => { rafId = requestAnimationFrame(step); };
-    strip.addEventListener("mouseenter", pause);
-    strip.addEventListener("mouseleave", resume);
-    return () => {
-      cancelAnimationFrame(rafId);
-      strip.removeEventListener("mouseenter", pause);
-      strip.removeEventListener("mouseleave", resume);
-    };
-  }, []);
 
-  // GSAP entrance animation for header
-  useEffect(() => {
-    gsap.from('.fe-hero-title', { opacity: 0, y: 40, duration: 1, ease: 'power3.out', delay: 0.3 });
-    gsap.from('.fe-hero-sub', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out', delay: 0.6 });
-    gsap.from('.fe-login-form', { opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: 0.9 });
-  }, []);
   // Staggered product card entrance
   useEffect(() => {
     const t = setTimeout(() => setVisibleCards(true), 600);
@@ -435,16 +355,15 @@ const FanEntryPage = () => {
   };
 
   return (
-  <div style={{
+    <div style={{
       fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif",
-      background: COLORS.dark, color: '#fff', overflowX: 'hidden', overflowY: 'auto', minHeight: '100vh', width: '100vw',
+      background: COLORS.dark, color: '#fff', overflowX: 'hidden', minHeight: '100vh', width: '100vw',
       WebkitFontSmoothing: 'antialiased',
     }}>
       {/* Background layers */}
       <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0,
         background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%)' }} />
       <AuroraCanvas />
-      <ShaderOverlay />
       <ParticleCanvas />
       <MeteorShower />
       <Galaxy color="#FFD700" speed={0.15} opacity={0.2} />
@@ -455,7 +374,7 @@ const FanEntryPage = () => {
       <header style={{
         position:'fixed', top:0, left:0, width:'100%', zIndex:50,
         display:'flex', justifyContent:'space-between', alignItems:'center',
-        padding:'14px 28px',
+        padding:'16px 32px',
         background: 'linear-gradient(180deg, rgba(10,10,15,0.8) 0%, transparent 100%)',
         WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)',
       }}>
@@ -468,7 +387,7 @@ const FanEntryPage = () => {
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <LanguageSwitcher inline={true} />
+            <LanguageSwitcher inline />
           {/* Settings */}
           <div style={{ position:'relative' }}>
             <button
@@ -511,14 +430,14 @@ const FanEntryPage = () => {
       </header>
 
       {/* Main Content */}
-      <div style={{ position:'relative', zIndex:20, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'100px 20px 240px' }}>
+      <div style={{ position:'relative', zIndex:20, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'100px 20px 140px' }}>
         {/* Hero */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:60, width:'100%', maxWidth:1100, minHeight:'80vh', padding:'60px 0 40px' }}>
           <div style={{ flex:1, maxWidth:480 }}>
             <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:20, background:'rgba(255,215,0,0.12)', border:'1px solid rgba(255,215,0,0.25)', fontSize:11, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:20 }}>
               ✦ 2026 粉丝俱乐部
             </div>
-            <motion.h1 initial={{ filter: "blur(10px)", opacity: 0, y: 20 }} animate={{ filter: "blur(0px)", opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} style={{ fontSize:52, fontWeight:900, lineHeight:1.1, letterSpacing:-2, marginBottom:16, fontFamily:"Instrument Serif, serif", fontStyle:"italic" }}>
+            <motion.h1 initial={{ filter: "blur(10px)", opacity: 0, y: 20 }} animate={{ filter: "blur(0px)", opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} style={{ fontSize:48, fontWeight:900, lineHeight:1.15, letterSpacing:-1, marginBottom:16 }}>
               <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>加入 UWELL</span><br />
               <span style={{ background:'linear-gradient(135deg,#457bff,#6c5ce7)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>粉丝俱乐部</span>
             </motion.h1>
@@ -527,7 +446,7 @@ const FanEntryPage = () => {
             </p>
             <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
               {[{label:'每日签到',value:1280,suffix:'+'},{label:'扫码积分',value:8560,suffix:'+'},{label:'积分商城',value:520,suffix:'件'},{label:'会员等级',value:6,suffix:'级'}].map(f => (
-                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:8, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
+                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:500 }}>
                   <span style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#FFD700,#F5A623)' }} />
                   <Counter from={0} to={f.value} suffix={f.suffix} duration={2} />
                 </div>
@@ -535,7 +454,7 @@ const FanEntryPage = () => {
             </div>
           </div>
           <div style={{ flex:1, maxWidth:400 }}>
-            <div style={{ background:'rgba(255,255,255,0.04)', WebkitBackdropFilter:'blur(20px)', backdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:'36px 32px', boxShadow:'0 24px 80px rgba(0,0,0,0.5)' }}>
+            <div style={{ background:'rgba(255,255,255,0.04)', WebkitBackdropFilter:'blur(20px)', backdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'32px 28px', boxShadow:'0 20px 60px rgba(0,0,0,0.4)' }}>
               <div style={{ width:50, height:3, background:'linear-gradient(90deg,#FFD700,#457bff)', borderRadius:2, margin:'0 auto 18px' }} />
               <div style={{ textAlign:'center', marginBottom:24 }}>
                 <h2 style={{ fontSize:20, fontWeight:800, letterSpacing:2, color:'#fff', marginBottom:4 }}>粉丝登录</h2>
@@ -624,8 +543,8 @@ const FanEntryPage = () => {
             </h2>
             <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>滚动浏览 · 点击查看详情</p>
           </div>
-          <div style={{ width:'100%', height:360, position:'relative' }}>
-            <CircularGallery 
+          <div style={{ width:'100%', height:420, position:'relative' }}>
+            <CircularGallery
               items={PD.map(p => ({ image: p.i, text: p.n }))}
               bend={2}
               textColor="#FFD700"
@@ -646,54 +565,6 @@ const FanEntryPage = () => {
         {/* Footer */}        {/* Footer */}
         <div style={{ width:'100%', textAlign:'center', padding:'40px 20px', marginTop:40 }}>
           <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>UWELL FAN CLUB · 2026</p>
-        </div>
-      </div>
-
-      
-      {/* === Caliburn Product Strip (Fixed Bottom) === */}
-      <div style={{
-        position:"fixed", bottom:0, left:0, width:"100%", zIndex:25,
-        padding:"8px 0 6px",
-        background: "linear-gradient(0deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.85) 60%, transparent)",
-        borderTop: "1px solid rgba(255,215,0,0.06)",
-        overflowX: "hidden",
-        overflowY: "visible",
-        maxHeight: "220px",
-        pointerEvents: "auto",
-      }}>
-        {/* Gold glow indicator */}
-        <div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:120,height:1,background:"linear-gradient(90deg,transparent,#FFD700,transparent)",opacity:0.3}} />
-        <div ref={stripRef}
-          style={{
-          display:"flex", gap:18,
-          overflowX:"auto", overflowY:"hidden",
-          padding:"0 20px 12px",
-          scrollbarWidth:"none", msOverflowStyle:"none",
-        }}>
-          {PD.map((p, i) => (
-            <div key={i} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "✨" })}
-              style={{
-                flex:"0 0 auto", width:140, cursor:"pointer",
-                borderRadius:10, overflow:"hidden",
-                background:"rgba(255,255,255,0.03)",
-                border:"1px solid rgba(255,215,0,0.1)",
-                transition:"all .3s",
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = p.c; e.currentTarget.style.transform = "translateY(-4px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,215,0,0.1)"; e.currentTarget.style.transform = "none"; }}
-            >
-              <div style={{ width:"100%", height:100, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,0.3)", borderRadius:"8px 8px 0 0" }}>
-                <img src={p.i} alt={p.n}
-                  style={{ width:"100%", height:"100%", objectFit:"contain", padding:6 }}
-                  onError={(e) => { e.target.style.display = "none"; e.target.parentNode.innerHTML = "<div style=\"padding:20px;text-align:center;color:rgba(255,255,255,0.2);font-size:30px\">📦</div>"; }}
-                />
-              </div>
-              <div style={{ padding:"6px 10px" }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#e5e5e5", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.n}</div>
-                <div style={{ fontSize:8, color:"rgba(255,255,255,0.3)", marginTop:1 }}>{p.t}</div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -735,11 +606,7 @@ const FanEntryPage = () => {
       <style>{`
         @keyframes pulse { 0%,100% { opacity:1; transform:scale(1) } 50% { opacity:0.4; transform:scale(0.6) } }
         input:focus { border-color: #FFD700 !important; background: rgba(255,215,0,0.06) !important; box-shadow: 0 0 0 3px rgba(255,215,0,0.1) !important; }
-        button:hover { transform: translateY(-2px); }
-  .liquid-glass-strong:hover { box-shadow: 0 8px 32px rgba(255,215,0,0.25) !important; border-color: rgba(255,215,0,0.4) !important; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,215,0,0.3); }
       `}</style>
     </div>
   );

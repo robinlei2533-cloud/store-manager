@@ -6,7 +6,7 @@ const getInitialLang = () => {
     const saved = localStorage.getItem('uwell_lang');
     if (saved && LANGUAGES.find(l => l.code === saved)) return saved;
   } catch(e) {}
-  return 'zh'; // Default to Chinese
+  return 'en'; // Default to Chinese
 };
 
 const useLanguageStore = create((set, get) => ({

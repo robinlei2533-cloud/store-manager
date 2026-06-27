@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS public.stores (
   address TEXT DEFAULT '',
   lat DOUBLE PRECISION DEFAULT 0,
   lng DOUBLE PRECISION DEFAULT 0,
-  level TEXT DEFAULT '' CHECK (level IN ('', 'A', 'B', 'C')),
+  level TEXT DEFAULT '' CHECK (level IN ('', 'S', 'A', 'B', 'C')),
   chain_name TEXT DEFAULT '',
   chain_id UUID DEFAULT NULL,
   chain_store_count INTEGER DEFAULT 0,

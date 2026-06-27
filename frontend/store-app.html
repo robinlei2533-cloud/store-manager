@@ -5,22 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>UWELL · 门店管理</title>
     <meta name="theme-color" content="#0a0a0f" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #0a0a0f; color: #e5e5e5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
-      #root { min-height: 100vh; }
-      .loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background: #0a0a0f; flex-direction: column; gap: 16px; }
-      .loading-spinner { width: 36px; height: 36px; border: 3px solid #2a2a35; border-top-color: #FFD700; border-radius: 50%; animation: spin 0.8s linear infinite; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-          @media (max-width: 768px) { html { font-size: 14px; } .ant-table { font-size: 12px !important; } }</style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { background:#0a0a0f; color:#e5e5e5; font-family:"Inter",-apple-system,sans-serif; }
+      #root { min-height:100vh; }
+      .loading { display:flex; justify-content:center; align-items:center; height:100vh; background:#0a0a0f; flex-direction:column; gap:16px; }
+      .spin { width:36px; height:36px; border:3px solid #2a2a35; border-top-color:#FFD700; border-radius:50%; animation:spin 0.8s linear infinite; }
+      @keyframes spin { to { transform:rotate(360deg); } }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
+    <style>
+      .liquid-glass {
+        background: rgba(255,255,255,0.03);
+        background-blend-mode: luminosity;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: none;
+        box-shadow: inset 0 1px 1px rgba(255,215,0,0.08);
+        position: relative;
+        overflow: hidden;
+      }
+      .liquid-glass::before {
+        content: "";
+        position: absolute; inset: 0;
+        border-radius: inherit;
+        padding: 1.2px;
+        background: linear-gradient(180deg, rgba(255,215,0,0.3) 0%, rgba(255,215,0,0.1) 20%, transparent 40%, transparent 60%, rgba(255,215,0,0.1) 80%, rgba(255,215,0,0.3) 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .liquid-glass-strong {
+        background: rgba(255,255,255,0.04);
+        background-blend-mode: luminosity;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        position: relative;
+        overflow: hidden;
+      }
+      .liquid-glass-strong::before {
+        content: "";
+        position: absolute; inset: 0;
+        border-radius: inherit;
+        padding: 1.2px;
+        background: linear-gradient(180deg, rgba(255,215,0,0.4) 0%, rgba(255,215,0,0.15) 20%, transparent 40%, transparent 60%, rgba(255,215,0,0.15) 80%, rgba(255,215,0,0.4) 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .font-heading { font-family: 'Instrument Serif', serif; font-style: italic; }
+      .font-body { font-family: 'Barlow', sans-serif; }
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
+    </style>
   </head>
   <body>
-    <div id="root">
-      <div class="loading-screen">
-        <div class="loading-spinner"></div>
-        <span style="color:#888;font-size:14px;">UWELL · 门店端加载中...</span>
-      </div>
-    </div>
+    <div id="root"><div class="loading"><div class="spin"></div><span style="color:#888;font-size:14px;">UWELL · 加载中...</span></div></div>
     <script type="module" src="./src/store/main.jsx"></script>
-  </body>
+  <canvas id="bg-particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
+<script>
+(function(){var c=document.getElementById("bg-particles");if(!c)return;var x=c.getContext("2d"),W,H;
+var resize=function(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
+resize();window.addEventListener("resize",resize);
+var N=60,ps=[];for(var i=0;i<N;i++){ps.push({x:Math.random()*W*1.2-W*0.1,y:Math.random()*H*1.2-H*0.1,s:1+Math.random()*2.5,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,o:0.15+Math.random()*0.3})}
+function anim(){x.clearRect(0,0,W,H);for(var i=0;i<ps.length;i++){var p=ps[i];p.x+=p.vx;p.y+=p.vy;p.vx*=0.98;p.vy*=0.98;if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fillStyle="rgba(255,215,0,"+p.o+")";x.fill();for(var j=i+1;j<ps.length;j++){var p2=ps[j],dx=p.x-p2.x,dy=p.y-p2.y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p2.x,p2.y);x.strokeStyle="rgba(255,215,0,"+((1-d/80)*0.08)+")";x.lineWidth=0.5;x.stroke()}}}requestAnimationFrame(anim)}
+anim();})();
+</script>
+</body>
 </html>
