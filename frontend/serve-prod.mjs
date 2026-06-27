@@ -67,7 +67,7 @@ const server = http.createServer((req, res) => {
 
   res.writeHead(200, {
     'Content-Type': mime,
-    'Cache-Control': isHtml ? 'no-cache, no-store, must-revalidate' : public, max-age=, immutable,
+    'Cache-Control': isHtml ? 'no-cache, no-store, must-revalidate' : 'public, max-age=31536000, immutable',
   });
 
   fs.createReadStream(filePath).pipe(res);
@@ -75,9 +75,9 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`✦ UWELL CRM Production Server`);
-  console.log(`  http://localhost:/fan-app.html#/fan-entry`);
-  console.log(`  http://localhost:/fan-app.html#/fan-center`);
-  console.log(`  http://localhost:/store-app.html#/store-owner`);
-  console.log(`  http://localhost:/index.html#/admin`);
-  console.log(`  http://localhost:/index.html#/app/dashboard`);
+  console.log(`  http://localhost:${PORT}/fan-app.html#/fan-entry`);
+  console.log(`  http://localhost:${PORT}/fan-app.html#/fan-center`);
+  console.log(`  http://localhost:${PORT}/store-app.html#/store-owner`);
+  console.log(`  http://localhost:${PORT}/index.html#/admin`);
+  console.log(`  http://localhost:${PORT}/index.html#/app/dashboard`);
 });
