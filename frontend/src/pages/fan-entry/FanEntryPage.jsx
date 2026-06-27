@@ -9,21 +9,21 @@ import { Spin } from 'antd';
 
 // ============ Product Data (from fan-entry.html) ============
 const PD = [
-  {n:"CALIBURN AIR",c:"#ff6b35",t:"Flagship Series",i:"https://files.myUWELLl.com/UWELLl/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
-  {n:"CALIBURN G5",c:"#457bff",t:"Flagship Series",i:"https://files.myUWELLl.com/UWELLl/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
-  {n:"G5 KOKO",c:"#6c5ce7",t:"Flagship Series",i:"https://files.myUWELLl.com/UWELLl/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
-  {n:"G5 LITE SE",c:"#00b894",t:"Lite Series",i:"https://files.myUWELLl.com/UWELLl/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
-  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite Series",i:"https://files.myUWELLl.com/UWELLl/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
-  {n:"Caliburn",c:"#e17055",t:"Classic Series",i:"https://files.myUWELLl.com/UWELLl/ow-product-ip/caliburn-20240627113220107.webp"},
-  {n:"Crown",c:"#fdcb6e",t:"Pod Series",i:"https://files.myUWELLl.com/UWELLl/ow-product-ip/CROWN-20240627113158744.webp"},
-  {n:"Havok",c:"#00cec9",t:"Pod Series",i:"https://files.myUWELLl.com/UWELLl/ow-product-ip/havok-20240522105356154.png"},
-  {n:"200-X100",c:"#a29bfe",t:"Professional Series",i:"https://files.myUWELLl.com/UWELLl/ow-product-ip/200X-20240522105129735.png"},
-  {n:"Conjure",c:"#fd79a8",t:"Professional Series",i:"https://files.myUWELLl.com/UWELLl/ow-product-ip/conjure-20240522105509254.png"},
-  {n:"Atop Flow",c:"#00b894",t:"Professional Series",i:"https://files.myUWELLl.com/UWELLl/ow-product-ip/atop-flow-20240627113127696.webp"},
+  {n:"CALIBURN AIR",c:"#ff6b35",t:"Flagship Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
+  {n:"CALIBURN G5",c:"#457bff",t:"Flagship Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
+  {n:"G5 KOKO",c:"#6c5ce7",t:"Flagship Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
+  {n:"G5 LITE SE",c:"#00b894",t:"Lite Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
+  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite Series",i:"https://files.myuwell.com/UWELLl/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
+  {n:"Caliburn",c:"#e17055",t:"Classic Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/caliburn-20240627113220107.webp"},
+  {n:"Crown",c:"#fdcb6e",t:"Pod Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/CROWN-20240627113158744.webp"},
+  {n:"Havok",c:"#00cec9",t:"Pod Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/havok-20240522105356154.png"},
+  {n:"200-X100",c:"#a29bfe",t:"Professional Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/200X-20240522105129735.png"},
+  {n:"Conjure",c:"#fd79a8",t:"Professional Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/conjure-20240522105509254.png"},
+  {n:"Atop Flow",c:"#00b894",t:"Professional Series",i:"https://files.myuwell.com/UWELLl/ow-product-ip/atop-flow-20240627113127696.webp"},
 ];
 const PROD_INFO = {
   "CALIBURN AIR":{desc:"Ultra-slim airflow sensor pod",specs:[["Model","CALIBURN AIR"],["Pod Capacity","2.0ml"],["Battery","400mAh"]],icon:"⚡"},
-  "CALIBURN G5":{desc:"UWELLL 第五代Flagship Series",specs:[["Model","CALIBURN G5"],["Pod Capacity","2.5ml"],["Battery","520mAh"]],icon:"🔥"},
+  "CALIBURN G5":{desc:"UWELL 第五代Flagship Series",specs:[["Model","CALIBURN G5"],["Pod Capacity","2.5ml"],["Battery","520mAh"]],icon:"🔥"},
   "Caliburn":{desc:"The classic that started the CALIBURN era",specs:[["Model","Caliburn OG"],["Pod Capacity","2.0ml"],["Battery","520mAh"]],icon:"🏆"},
 };
 
@@ -340,7 +340,7 @@ const FanEntryPage = () => {
             fontSize:22, fontWeight:900, letterSpacing:3,
             background: 'linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623)',
             WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
-          }}>UWELLL</span>
+          }}>UWELL</span>
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -375,10 +375,10 @@ const FanEntryPage = () => {
                   <span style={{fontSize:16,width:28,textAlign:"center"}}>🔐</span> 管理后台 Panel
                 </div>
                 <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
-                <a href="https://www.myUWELLl.com" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', textDecoration:'none' }}
+                <a href="https://www.myuwell.com" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', textDecoration:'none' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🌐</span> UWELLL 官网
+                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🌐</span> UWELL 官网
                 </a>
               </div>
             )}
@@ -395,11 +395,11 @@ const FanEntryPage = () => {
               ✦ 2026 粉丝俱乐部
             </div>
             <h1 style={{ fontSize:48, fontWeight:900, lineHeight:1.15, letterSpacing:-1, marginBottom:16 }}>
-              <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>加入 UWELLL</span><br />
+              <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>加入 UWELL</span><br />
               <span style={{ background:'linear-gradient(135deg,#457bff,#6c5ce7)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>粉丝俱乐部</span>
             </h1>
             <p style={{ color:'rgba(255,255,255,0.35)', fontSize:15, lineHeight:1.7, marginBottom:28 }}>
-              签到累积积分、扫码认证产品、解锁会员等级、兑换专属好礼 — 和全球 UWELLL 粉丝一起探索更纯粹的体验。
+              签到累积积分、扫码认证产品、解锁会员等级、兑换专属好礼 — 和全球 UWELL 粉丝一起探索更纯粹的体验。
             </p>
             <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
               {['每日签到','扫码积分','积分商城','会员等级'].map(f => (
@@ -455,7 +455,7 @@ const FanEntryPage = () => {
           <div style={{ textAlign:'center', marginBottom:36 }}>
             <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 14px', borderRadius:20, background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.15)', fontSize:10, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:12 }}>✦ 产品家族</div>
             <h2 style={{ fontSize:28, fontWeight:900, letterSpacing:1, marginBottom:8 }}>
-              <span style={{ background:'linear-gradient(135deg,#fff,#FFD700 60%,#F5A623)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>探索 UWELLL 明星产品</span>
+              <span style={{ background:'linear-gradient(135deg,#fff,#FFD700 60%,#F5A623)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>探索 UWELL 明星产品</span>
             </h2>
             <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>从经典到旗舰，总有一款适合你</p>
           </div>
@@ -463,7 +463,7 @@ const FanEntryPage = () => {
             display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:16,
           }}>
             {PD.map((p, idx) => {
-              const info = PROD_INFO[p.n] || { desc: 'UWELLL 优质产品', icon: '✨' };
+              const info = PROD_INFO[p.n] || { desc: 'UWELL 优质产品', icon: '✨' };
               return (
                 <div key={p.n} onClick={() => openModal(p, info)} style={{
                   position:'relative', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)',
@@ -501,7 +501,7 @@ const FanEntryPage = () => {
 
         {/* Footer */}
         <div style={{ width:'100%', textAlign:'center', padding:'40px 20px', marginTop:40 }}>
-          <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>UWELLL FAN CLUB · 2026</p>
+          <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>UWELL FAN CLUB · 2026</p>
         </div>
       </div>
 
