@@ -1,4 +1,4 @@
-﻿// Domain: products
+// Domain: products
 // ============================================================
 
 import { supabase } from '../supabase';

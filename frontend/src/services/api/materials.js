@@ -1,4 +1,4 @@
-﻿// Domain: materials
+// Domain: materials
 // ============================================================
 
 import { supabase } from '../supabase';

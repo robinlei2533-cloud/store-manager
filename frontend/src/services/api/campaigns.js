@@ -1,4 +1,4 @@
-﻿// Domain: campaigns
+// Domain: campaigns
 // ============================================================
 
 import { supabase } from '../supabase';

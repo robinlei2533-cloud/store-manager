@@ -1,4 +1,4 @@
-﻿// Domain: points
+// Domain: points
 // ============================================================
 
 import { supabase } from '../supabase';

@@ -1,4 +1,4 @@
-﻿// Domain: fans
+// Domain: fans
 // ============================================================
 
 import { supabase } from '../supabase';

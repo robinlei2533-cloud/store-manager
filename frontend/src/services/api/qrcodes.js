@@ -1,4 +1,4 @@
-﻿// Domain: qrcodes
+// Domain: qrcodes
 // ============================================================
 
 import { supabase } from '../supabase';

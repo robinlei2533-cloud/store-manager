@@ -1,4 +1,4 @@
-﻿// Domain: evaluations
+// Domain: evaluations
 // ============================================================
 
 import { supabase } from '../supabase';

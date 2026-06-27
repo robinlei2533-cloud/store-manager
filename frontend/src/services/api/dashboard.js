@@ -1,4 +1,4 @@
-﻿// Domain: dashboard
+// Domain: dashboard
 // ============================================================
 
 import { supabase } from '../supabase';
