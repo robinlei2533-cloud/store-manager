@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Table, Button, Input, Select, Space, Tag, Empty, Card, Upload, message, Tooltip } from 'antd';
@@ -10,6 +11,7 @@ const levelColorMap = { A: 'red', B: 'blue', C: 'default' };
 
 const StoreListPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [level, setLevel] = useState(undefined);

@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Image, Tag, Button, Spin, Empty } from 'antd';
@@ -7,6 +8,7 @@ import { getVisitById, getVisitSales, getVisitPhotos } from '../../services/api'
 const VisitDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
 
   const { data: visit, isLoading } = useQuery({ queryKey: ['visit', id], queryFn: () => getVisitById(id), enabled: !!id });
   const { data: sales = [] } = useQuery({ queryKey: ['visit-sales', id], queryFn: () => getVisitSales(id), enabled: !!id });

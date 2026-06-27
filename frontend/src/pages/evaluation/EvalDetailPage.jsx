@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tag, Button, Spin, Row, Col, Statistic, Progress, Empty } from 'antd';
@@ -8,6 +9,7 @@ import { getEvaluationById } from '../../services/api';
 const EvalDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const { data: evalData, isLoading } = useQuery({ queryKey: ['evaluation', id], queryFn: () => getEvaluationById(id), enabled: !!id });
 
   if (isLoading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;

@@ -1,9 +1,11 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Spin } from 'antd';
 
 const FanEntryRedirect = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
 
   useEffect(() => {
     const savedProfileId = localStorage.getItem('store_manager_current_user');

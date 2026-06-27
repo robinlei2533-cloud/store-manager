@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message,

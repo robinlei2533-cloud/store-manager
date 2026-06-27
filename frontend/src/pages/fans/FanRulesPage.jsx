@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Table, Button, Modal, Form, Input, InputNumber, Select, Tag, message, Space, Spin } from 'antd';
@@ -8,6 +9,7 @@ import { FAN_LEVELS } from '../../utils/constants';
 
 const FanRulesPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);

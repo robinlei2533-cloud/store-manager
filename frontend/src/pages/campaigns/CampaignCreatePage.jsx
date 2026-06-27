@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Form, Input, Select, DatePicker, InputNumber, Button, Card, message, Spin, Checkbox, Row, Col, Divider } from 'antd';
@@ -11,6 +12,7 @@ const { TextArea } = Input;
 const CampaignCreatePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);

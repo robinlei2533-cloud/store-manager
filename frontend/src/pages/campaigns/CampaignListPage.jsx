@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Button, Tabs, Select, Tag, Row, Col, Spin, Empty, Badge, Progress, Typography } from 'antd';
@@ -11,6 +12,7 @@ const statusConfig = { planned: { color: 'blue', text: 'Planned' }, ongoing: { c
 
 const CampaignListPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const [statusFilter, setStatusFilter] = useState(undefined);
   const [typeFilter, setTypeFilter] = useState(undefined);
 

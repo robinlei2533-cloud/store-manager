@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, Avatar, message, Table, Tabs, Modal } from 'antd';
@@ -14,6 +15,7 @@ const { Title, Text } = Typography;
 
 const StoreOwnerPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const [store, setStore] = useState(null);
   const [fans, setFans] = useState([]);
   const [scans, setScans] = useState([]);

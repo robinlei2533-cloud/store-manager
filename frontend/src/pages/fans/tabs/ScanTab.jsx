@@ -1,3 +1,4 @@
+import useLanguageStore from '../../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { message, Button, Card, Statistic, Tag, Space, Typography, Row, Col } from 'antd';
 import { QrcodeOutlined, CheckCircleOutlined, ThunderboltOutlined } from '@ant-design/icons';

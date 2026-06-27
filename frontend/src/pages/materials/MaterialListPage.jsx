@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Upload, message, Space, Card, Spin, Empty, Popconfirm, Image, Tag, Tabs, InputNumber as Num, Tooltip, Statistic, Row, Col, Progress } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, InboxOutlined, WarningOutlined } from '@ant-design/icons';

@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
 import { Card, Tabs } from 'antd';
 import { UserOutlined, AppstoreOutlined, DatabaseOutlined } from '@ant-design/icons';

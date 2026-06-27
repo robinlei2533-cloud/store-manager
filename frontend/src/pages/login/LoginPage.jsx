@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Form, Input, Button, Card, Typography, message, Modal, Select, Divider, Alert } from 'antd';
@@ -10,6 +11,7 @@ const { Title, Text } = Typography;
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const { user, loading, signIn, signUp } = useAuthStore();
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();

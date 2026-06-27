@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Typography, Button, Modal, Form, Input, message, Space } from 'antd';
@@ -16,6 +17,7 @@ const { Title, Text } = Typography;
 
 const FanLoginPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const { user, loading, signIn, signUp } = useAuthStore();
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);

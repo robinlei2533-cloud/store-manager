@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Table, Button, DatePicker, Select, Input, Space, Tag, Spin, Empty, Card } from 'antd';
@@ -8,6 +9,7 @@ import dayjs from 'dayjs';
 
 const VisitListPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const [dateRange, setDateRange] = useState(null);
   const [status, setStatus] = useState(undefined);
 

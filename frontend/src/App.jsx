@@ -1,3 +1,4 @@
+import useLanguageStore from './stores/languageStore';
 ﻿import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';

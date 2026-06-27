@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Tag, Button, Spin, Empty } from 'antd';
@@ -7,6 +8,7 @@ import { getStoreById, getVisits } from '../../services/api';
 const StoreDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
 
   const { data: store, isLoading } = useQuery({ queryKey: ['store', id], queryFn: () => getStoreById(id), enabled: !!id });
   const { data: visits = [] } = useQuery({ queryKey: ['store-visits', id], queryFn: () => getVisits({ store_id: id }), enabled: !!id });

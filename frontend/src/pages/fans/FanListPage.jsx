@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Table, Select, Tag, Button, Spin, Empty, Card, Space } from 'antd';
@@ -8,6 +9,7 @@ import { FAN_LEVELS } from '../../utils/constants';
 
 const FanListPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const [level, setLevel] = useState(undefined);
 
   const { data: fans = [], isLoading } = useQuery({ queryKey: ['fans', { level }], queryFn: () => getFans({ level }) });

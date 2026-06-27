@@ -1,3 +1,4 @@
+import useLanguageStore from '../../../stores/languageStore';
 ﻿import React from 'react';
 import { Card, Steps, Tag, Typography, Space, Row, Col } from 'antd';
 import { CheckCircleOutlined, GiftOutlined, QrcodeOutlined, CrownOutlined } from '@ant-design/icons';

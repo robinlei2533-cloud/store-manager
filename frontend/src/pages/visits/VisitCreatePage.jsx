@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Upload, message, Spin, Divider, Space, Image } from 'antd';
@@ -13,6 +14,7 @@ const { TextArea } = Input;
 const VisitCreatePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const queryClient = useQueryClient();
   const profile = useAuthStore((s) => s.profile);
   const [form] = Form.useForm();

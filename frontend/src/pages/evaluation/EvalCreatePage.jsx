@@ -1,3 +1,4 @@
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Form, Input, Select, DatePicker, Slider, Button, Card, message, Spin, Row, Col, Statistic, Tag, Divider } from 'antd';
@@ -18,6 +19,7 @@ const dimensions = [
 const EvalCreatePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
   const profile = useAuthStore((s) => s.profile);
   const [form] = Form.useForm();
   const [scores, setScores] = useState({ score_sales: 5, score_display: 5, score_location: 5, score_cooperation: 5, score_expansion: 5, score_appearance: 5 });
