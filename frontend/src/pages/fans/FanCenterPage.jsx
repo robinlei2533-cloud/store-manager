@@ -29,7 +29,7 @@ import CampaignTab from './tabs/CampaignTab';
 // ============ Main Fan Center Page ============
 const FanCenterPage = () => {
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
+  const { t, setLang } = useLanguageStore();
   const { user, profile, signOut } = useAuthStore();
   const [activeTab, setActiveTab] = useState('checkin');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -119,15 +119,18 @@ const FanCenterPage = () => {
                 { key: 'owner', icon: <ShopOutlined />, label: 'Store Portal' },
                 { key: 'admin', icon: <SettingOutlined />, label: 'Admin' },
                 { type: 'divider' },
-                { key: 'lang_zh', icon: <span role="img">🇨🇦</span>, label: '中文' },
-                { key: 'lang_en', icon: <span role="img">🇬🇧</span>, label: 'English' },
-                { key: 'lang_ar', icon: <span role="img">🇦🇪</span>, label: 'العربية' },
+                { key: 'lang_zh', icon: <span role='img'>🇨🇳</span>, label: '中文' },
+                { key: 'lang_en', icon: <span role='img'>🇬🇧</span>, label: 'English' },
+                { key: 'lang_ar', icon: <span role='img'>🇸🇦</span>, label: 'العربية' },
                 { type: 'divider' },
                 { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
                 else if (key === 'admin') window.location.href = '/index.html#/admin';
+                else if (key === 'lang_zh') setLang('zh');
+                else if (key === 'lang_en') setLang('en');
+                else if (key === 'lang_ar') setLang('ar');
                 else if (key === 'logout') handleLogout();
               },
             }} placement="bottomRight">

@@ -9,22 +9,22 @@ import { Spin } from 'antd';
 
 // ============ Product Data (from fan-entry.html) ============
 const PD = [
-  {n:"CALIBURN AIR",c:"#ff6b35",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
-  {n:"CALIBURN G5",c:"#457bff",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
-  {n:"G5 KOKO",c:"#6c5ce7",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
-  {n:"G5 LITE SE",c:"#00b894",t:"Lite 系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
-  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite 系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
-  {n:"Caliburn",c:"#e17055",t:"经典系列",i:"https://files.myuwell.com/uwell/ow-product-ip/caliburn-20240627113220107.webp"},
-  {n:"Crown",c:"#fdcb6e",t:"大烟雾系列",i:"https://files.myuwell.com/uwell/ow-product-ip/CROWN-20240627113158744.webp"},
-  {n:"Havok",c:"#00cec9",t:"大烟雾系列",i:"https://files.myuwell.com/uwell/ow-product-ip/havok-20240522105356154.png"},
-  {n:"200-X100",c:"#a29bfe",t:"专业系列",i:"https://files.myuwell.com/uwell/ow-product-ip/200X-20240522105129735.png"},
-  {n:"Conjure",c:"#fd79a8",t:"专业系列",i:"https://files.myuwell.com/uwell/ow-product-ip/conjure-20240522105509254.png"},
-  {n:"Atop Flow",c:"#00b894",t:"专业系列",i:"https://files.myuwell.com/uwell/ow-product-ip/atop-flow-20240627113127696.webp"},
+  {n:"CALIBURN AIR",c:"#ff6b35",t:"Flagship Series",i:"https://files.myuwell.com/uwell/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
+  {n:"CALIBURN G5",c:"#457bff",t:"Flagship Series",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
+  {n:"G5 KOKO",c:"#6c5ce7",t:"Flagship Series",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
+  {n:"G5 LITE SE",c:"#00b894",t:"Lite Series",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
+  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite Series",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
+  {n:"Caliburn",c:"#e17055",t:"Classic Series",i:"https://files.myuwell.com/uwell/ow-product-ip/caliburn-20240627113220107.webp"},
+  {n:"Crown",c:"#fdcb6e",t:"Pod Series",i:"https://files.myuwell.com/uwell/ow-product-ip/CROWN-20240627113158744.webp"},
+  {n:"Havok",c:"#00cec9",t:"Pod Series",i:"https://files.myuwell.com/uwell/ow-product-ip/havok-20240522105356154.png"},
+  {n:"200-X100",c:"#a29bfe",t:"Professional Series",i:"https://files.myuwell.com/uwell/ow-product-ip/200X-20240522105129735.png"},
+  {n:"Conjure",c:"#fd79a8",t:"Professional Series",i:"https://files.myuwell.com/uwell/ow-product-ip/conjure-20240522105509254.png"},
+  {n:"Atop Flow",c:"#00b894",t:"Professional Series",i:"https://files.myuwell.com/uwell/ow-product-ip/atop-flow-20240627113127696.webp"},
 ];
 const PROD_INFO = {
-  "CALIBURN AIR":{desc:"极致纤薄的气流感应电子烟",specs:[["型号","CALIBURN AIR"],["烟弹容量","2.0ml"],["电池","400mAh"]],icon:"⚡"},
-  "CALIBURN G5":{desc:"UWELL 第五代旗舰系列",specs:[["型号","CALIBURN G5"],["烟弹容量","2.5ml"],["电池","520mAh"]],icon:"🔥"},
-  "Caliburn":{desc:"开创 CALIBURN 时代的经典之作",specs:[["型号","Caliburn OG"],["烟弹容量","2.0ml"],["电池","520mAh"]],icon:"🏆"},
+  "CALIBURN AIR":{desc:"Ultra-slim airflow sensor pod",specs:[["Model","CALIBURN AIR"],["Pod Capacity","2.0ml"],["Battery","400mAh"]],icon:"⚡"},
+  "CALIBURN G5":{desc:"UWELL 第五代Flagship Series",specs:[["Model","CALIBURN G5"],["Pod Capacity","2.5ml"],["Battery","520mAh"]],icon:"🔥"},
+  "Caliburn":{desc:"The classic that started the CALIBURN era",specs:[["Model","Caliburn OG"],["Pod Capacity","2.0ml"],["Battery","520mAh"]],icon:"🏆"},
 };
 
 const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#0a0a0f' };

@@ -3,7 +3,7 @@ import useLanguageStore from '../../stores/languageStore';
 
 const LANGUAGES = [
   { code: 'zh', label: '中文', flag: '🇨🇳' },
-  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
 ];
 
