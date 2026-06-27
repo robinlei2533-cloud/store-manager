@@ -1,6 +1,9 @@
 ﻿import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useLanguageStore from '../../stores/languageStore';
+import useAuthStore from '../../stores/authStore';
+import localDb from '../../services/db/localDb';
+import seedData from '../../services/db/seedData';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { Spin } from 'antd';
 
@@ -545,6 +548,7 @@ const FanEntryPage = () => {
 };
 
 export default FanEntryPage;
+
 
 
 

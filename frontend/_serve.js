@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const distDir = path.join(__dirname, 'dist');
-const PORT = 3456;
+const PORT = 5173;
 const HOST = '0.0.0.0';
 
 const NO_CACHE = {

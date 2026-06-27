@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-﻿import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
 import {
@@ -37,7 +37,7 @@ const FanCenterPage = () => {
     queryFn: () => getFans({}),
   });
 
-  // Find current fan — match by user ID or fall back to first fan
+  // Find current fan 鈥?match by user ID or fall back to first fan
   let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
 
   // Ensure DB is initialized
@@ -71,7 +71,7 @@ const FanCenterPage = () => {
     localStorage.removeItem('fan_logged_in');
     localStorage.removeItem('store_owner_mode');
     await signOut();
-    window.location.href = '/fan-entry.html';
+    window.location.href = 'fan-app.html#/fan-entry';
   };
 
   if (isLoading) {
@@ -119,7 +119,7 @@ const FanCenterPage = () => {
                 { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
               ],
               onClick: ({ key }) => {
-                if (key === 'owner') window.location.href = '/#/store-owner';
+                if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
                 else if (key === 'admin') window.location.href = '/#/admin';
                 else if (key === 'logout') handleLogout();
               },
@@ -140,32 +140,32 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>📅 Check-in</span>,
+              label: <span>馃搮 Check-in</span>,
               children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
-              label: <span>📱 Scan</span>,
+              label: <span>馃摫 Scan</span>,
               children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
-              label: <span>🎁 Rewards</span>,
+              label: <span>馃巵 Rewards</span>,
               children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
-              label: <span>👥 Invite</span>,
+              label: <span>馃懃 Invite</span>,
               children: <InviteTab fan={currentFan} />,
             },
             {
               key: 'community',
-              label: <span>💬 Community</span>,
+              label: <span>馃挰 Community</span>,
               children: <CommunityTab fan={currentFan} />,
             },
             {
               key: 'help',
-              label: <span>❓ Help</span>,
+              label: <span>鉂?Help</span>,
               children: <HowItWorksTab />,
             },
           ]}
