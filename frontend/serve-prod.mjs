@@ -36,7 +36,7 @@ function getEntryHtml(urlPath) {
 }
 
 const server = http.createServer((req, res) => {
-  let urlPath = new URL(req.url, http://).pathname;
+  let urlPath = new URL(req.url, 'http://localhost').pathname;
 
   // Default to fan-app
   if (urlPath === '/') {
