@@ -74,10 +74,10 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(✦ UWELL CRM Production Server);
-  console.log(  http://localhost:/fan-app.html#/fan-entry);
-  console.log(  http://localhost:/fan-app.html#/fan-center);
-  console.log(  http://localhost:/store-app.html#/store-owner);
-  console.log(  http://localhost:/index.html#/admin);
-  console.log(  http://localhost:/index.html#/app/dashboard);
+  console.log(`✦ UWELL CRM Production Server`);
+  console.log(`  http://localhost:/fan-app.html#/fan-entry`);
+  console.log(`  http://localhost:/fan-app.html#/fan-center`);
+  console.log(`  http://localhost:/store-app.html#/store-owner`);
+  console.log(`  http://localhost:/index.html#/admin`);
+  console.log(`  http://localhost:/index.html#/app/dashboard`);
 });
