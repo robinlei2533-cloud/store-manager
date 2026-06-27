@@ -40,11 +40,9 @@ const FanCenterPage = () => {
   // Find current fan — match by user ID or fall back to first fan
   let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
 
-  // Ensure DB is initialized
-  if (localDb.needsInit()) { localDb.init(seedData); }
 
   // Auto-find fan from localStorage user session
-  if (!resolvedFan) {
+  if (!currentFan) {
     const savedFanId = localStorage.getItem("store_manager_current_user");
     if (savedFanId) {
       const savedFan = localDb.findById("fans", savedFanId);
@@ -52,8 +50,13 @@ const FanCenterPage = () => {
     }
   }
 
+  // Init DB in useEffect (moved from render body)
+  useEffect(() => {
+    if (localDb.needsInit()) { localDb.init(seedData); }
+  }, []);
+
   // Final fallback: use first seed fan
-  if (!resolvedFan) {
+  if (!currentFan) {
     const allFans = localDb.all("fans");
     if (allFans.length > 0) {
       currentFan = allFans[0];
@@ -78,7 +81,7 @@ const FanCenterPage = () => {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><Spin size="large" /></div>;
   }
 
-  if (!resolvedFan) {
+  if (!currentFan) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <Card style={{ textAlign: 'center', maxWidth: 400, borderRadius: 16 }}>
@@ -89,7 +92,7 @@ const FanCenterPage = () => {
     );
   }
 
-  const levelInfo = FAN_LEVELS.find((l) => l.value === resolvedFan.level) || FAN_LEVELS[0];
+  const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: 24 }}>
@@ -108,7 +111,7 @@ const FanCenterPage = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#faad14' }}>{resolvedFan.points} pts</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#faad14' }}>{currentFan.points} pts</div>
               <Tag color={levelInfo.color} style={{ fontSize: 10, margin: 0 }}>{levelInfo.label}</Tag>
             </div>
             <Dropdown menu={{
@@ -141,27 +144,27 @@ const FanCenterPage = () => {
             {
               key: 'checkin',
               label: <span>📅 {t('fan_tab_checkin')}</span>,
-              children: <CheckInTab fan={resolvedFan} onPointsChange={handlePointsChange} />,
+              children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
               label: <span>📱 {t('fan_tab_scan')}</span>,
-              children: <ScanTab fan={resolvedFan} onPointsChange={handlePointsChange} />,
+              children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
               label: <span>🎁 {t('fan_tab_mall')}</span>,
-              children: <MallTab fan={resolvedFan} onPointsChange={handlePointsChange} />,
+              children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
               label: <span>👥 {t('fan_tab_invite')}</span>,
-              children: <InviteTab fan={resolvedFan} />,
+              children: <InviteTab fan={currentFan} />,
             },
             {
               key: 'community',
               label: <span>💬 {t('fan_tab_community')}</span>,
-              children: <CommunityTab fan={resolvedFan} />,
+              children: <CommunityTab fan={currentFan} />,
             },
             {
               key: 'help',
