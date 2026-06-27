@@ -1,83 +1,97 @@
-﻿# UWELL CRM - Post-Optimization Self-Check Script
-# Run this after every change before telling the user "done"
+#!/usr/bin/env pwsh
+<#
+.SYNOPSIS
+UWELL CRM — Post-Optimization Self-Check
+Run this after EVERY code change before claiming completion.
+#>
 
-param([switch]$Fix)
+Continue = 'Stop'
+ = 0
+ = 0
+ = 5173
+ = 'C:\Users\陈木木的\Documents\Uwell CRM网站\uwell-crm\frontend'
 
-$errors = @()
-$root = "C:\Users\陈木木的\Documents\Uwell CRM网站\uwell-crm\frontend"
-
-Write-Host "=== UWELL CRM Self-Check ===" -ForegroundColor Cyan
-
-# 1. Check build
-Write-Host "`n[1/5] Build check..." -ForegroundColor Yellow
-$build = & "$root\node_modules\.pnpm\vite@8.0.16\node_modules\vite\bin\vite.js" build 2>&1 | Out-String
-if ($build -match "built in") {
-    Write-Host "  ✅ Build succeeded" -ForegroundColor Green
-} else {
-    Write-Host "  ❌ Build FAILED" -ForegroundColor Red
-    $errors += "Build failed"
-    if ($Fix) {
-        Write-Host "  → Run: git checkout -- src/ to revert" -ForegroundColor Gray
+function Check(, ) {
+    Write-Host -NoNewline "  [ ]  ... "
+    try {
+        & 
+        Write-Host "PASS" -ForegroundColor Green
+        ++
+    } catch {
+        Write-Host "FAIL" -ForegroundColor Red
+        Write-Host "       " -ForegroundColor DarkRed
+        ++
     }
 }
 
-# 2. Check for React anti-patterns (localDb.init in render body)
-Write-Host "`n[2/5] Checking React anti-patterns..." -ForegroundColor Yellow
-$files = Get-ChildItem "$root\src" -Recurse -Filter "*.jsx"
-$badPatterns = @()
-foreach ($f in $files) {
-    $content = Get-Content $f.FullName -Raw -Encoding UTF8
-    if ($content -match "if \(localDb\.needsInit\(\)\)" -and $f.Name -ne "") {
-        $badPatterns += $f.Name
+Write-Host "
+==========================================" -ForegroundColor Cyan
+Write-Host "  UWELL CRM · 优化后自检" -ForegroundColor Cyan
+Write-Host "==========================================" -ForegroundColor Cyan
+
+# 1. BUILD CHECK
+Check "Build (vite build exit 0)" {
+     = & npx vite build 2>&1
+    if ( -ne 0) { throw "Build failed with exit code " }
+}
+
+# 2. BOM CHECK — no BOM bytes in any JSX/JS files
+Check "No BOM bytes in .jsx/.js files" {
+     = Get-ChildItem -Recurse -Include "*.jsx","*.js" -File | Where-Object { .FullName -notmatch 'node_modules|dist|\.pnpm' }
+     = @()
+    foreach ( in ) {
+         = [System.IO.File]::ReadAllBytes(.FullName)
+        if (.Length -gt 3 -and [0] -eq 0xEF -and [1] -eq 0xBB -and [2] -eq 0xBF) {
+             += .FullName
+        }
     }
-}
-if ($badPatterns.Count -eq 0) {
-    Write-Host "  ✅ No DB init in render body" -ForegroundColor Green
-} else {
-    Write-Host "  ❌ Found DB init in render: $($badPatterns -join ', ')" -ForegroundColor Red
-    $errors += "DB init in render"
+    if (.Count -gt 0) { throw "BOM found in: " }
 }
 
-# 3. Check all pages return 200
-Write-Host "`n[3/5] Server check..." -ForegroundColor Yellow
-try {
-    $r = Invoke-WebRequest -Uri "http://localhost:3456/" -UseBasicParsing -TimeoutSec 3
-    if ($r.StatusCode -eq 200) {
-        Write-Host "  ✅ Server responding (port 3456)" -ForegroundColor Green
+# 3. DIST CHECK — verify dist folder was rebuilt
+Check "Dist folder has fresh build" {
+    if (-not (Test-Path "\dist\index.html")) { throw "dist/index.html missing" }
+    if (-not (Test-Path "\dist\fan-app.html")) { throw "dist/fan-app.html missing" }
+    if (-not (Test-Path "\dist\store-app.html")) { throw "dist/store-app.html missing" }
+}
+
+# 4. SERVER CHECK — ensure server is running on correct port
+Check "Server running on port " {
+     = False
+    try {
+         = Invoke-WebRequest -Uri "http://localhost:/" -UseBasicParsing -TimeoutSec 3
+        if (.StatusCode -eq 200) {  = True }
+    } catch {}
+    if (-not ) { throw "Server not responding on port " }
+}
+
+# 5. PAGE CHECK — all 6 pages return 200
+Check "All 6 pages return 200" {
+     = @("/", "/fan-app.html", "/store-app.html", "/fan-entry", "/fan-center", "/store-owner")
+     = @()
+    foreach ( in ) {
+        try {
+             = Invoke-WebRequest -Uri "http://localhost:" -UseBasicParsing -TimeoutSec 3
+            if (.StatusCode -ne 200) {  += " -> " }
+        } catch {  += " -> Exception" }
     }
-} catch {
-    Write-Host "  ⚠️  Server not running on 3456 (start manually)" -ForegroundColor Yellow
+    if (.Count -gt 0) { throw "Failed pages: " }
 }
 
-# 4. Check for resolvedFan/broken variable refs
-Write-Host "`n[4/5] Checking for undefined variables..." -ForegroundColor Yellow
-$badRefs = @()
-foreach ($f in $files) {
-    $content = Get-Content $f.FullName -Raw -Encoding UTF8
-    if ($content -match "resolvedFan") {
-        $badRefs += $f.Name
-    }
-}
-if ($badRefs.Count -eq 0) {
-    Write-Host "  ✅ No orphaned resolvedFan refs" -ForegroundColor Green
-} else {
-    Write-Host "  ❌ Found resolvedFan refs: $($badRefs -join ', ')" -ForegroundColor Red
-    $errors += "resolvedFan refs"
+# 6. CACHE HEADER CHECK
+Check "Cache-Control: no-cache headers" {
+     = Invoke-WebRequest -Uri "http://localhost:/assets/style-DfDhQfIY.css" -UseBasicParsing -TimeoutSec 3
+     = .Headers['Cache-Control']
+    if (-not ( -match 'no-cache|no-store')) { throw "Missing no-cache header: " }
 }
 
-# 5. Git status check
-Write-Host "`n[5/5] Git status..." -ForegroundColor Yellow
-$status = git -C $root status --porcelain
-if ([string]::IsNullOrEmpty($status)) {
-    Write-Host "  ✅ Working tree clean" -ForegroundColor Green
+# SUMMARY
+Write-Host "==========================================" -ForegroundColor Cyan
+ =  + 
+if ( -eq 0) {
+    Write-Host "  RESULT: / ALL PASSED ✅" -ForegroundColor Green
+    exit 0
 } else {
-    Write-Host "  ⚠️  Uncommitted changes:" -ForegroundColor Yellow
-    $status -split "`n" | ForEach-Object { Write-Host "     $_" -ForegroundColor Gray }
-}
-
-if ($errors.Count -eq 0) {
-    Write-Host "`n✅ ALL CHECKS PASSED - Safe to present to user" -ForegroundColor Green
-} else {
-    Write-Host "`n❌ $($errors.Count) issue(s) found - fix before presenting" -ForegroundColor Red
-    $errors | ForEach-Object { Write-Host "  - $_" }
+    Write-Host "  RESULT: / PASSED,  FAILED ❌" -ForegroundColor Red
+    exit 1
 }

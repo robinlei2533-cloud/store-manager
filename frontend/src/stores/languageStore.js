@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { TRANSLATIONS, LANGUAGES } from '../utils/translations';
 
 const getInitialLang = () => {

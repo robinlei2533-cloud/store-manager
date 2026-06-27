@@ -1,4 +1,4 @@
-﻿// ============ UWELL CRM 多语言翻译系统 ============
+// ============ UWELL CRM 多语言翻译系统 ============
 const zh = {
   // Global
   app_title: 'UWELL 增长运营平台',

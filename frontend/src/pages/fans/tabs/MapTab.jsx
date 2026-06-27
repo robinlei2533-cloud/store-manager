@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Card, Tag, Button, Spin, Empty, Typography, Space } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';

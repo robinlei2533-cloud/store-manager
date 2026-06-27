@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Navigate } from 'react-router';
 import useAuthStore from '../../stores/authStore';
 import { Spin } from 'antd';

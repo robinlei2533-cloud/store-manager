@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.pnpm-store/
+*.log
+.DS_Store
+.env
+coverage/
+# Utility files
+_verify.cjs
+_serve.bat
+_self_check.ps1

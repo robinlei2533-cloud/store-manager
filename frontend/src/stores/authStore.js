@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import localDb from '../services/db/localDb';
 import seedData from '../services/db/seedData';
