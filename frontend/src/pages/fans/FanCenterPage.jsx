@@ -120,21 +120,21 @@ const FanCenterPage = () => {
             <Dropdown menu={{
               items: [
                 { key: 'owner', icon: <ShopOutlined />, label: '门店入口' },
-                { key: '管理后台', icon: <SettingOutlined />, label: '管理后台' },
+                { key: 'admin', icon: <SettingOutlined />, label: '管理后台' },
                 { type: 'divider' },
                 { key: 'lang_zh', icon: <span role='img'>🇨🇳</span>, label: '中文' },
                 { key: 'lang_en', icon: <span role='img'>🇬🇧</span>, label: 'English' },
                 { key: 'lang_ar', icon: <span role='img'>🇸🇦</span>, label: 'العربية' },
                 { type: 'divider' },
-                { key: '退出登录', icon: <LogoutOutlined />, label: '退出登录', danger: true },
+                { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', danger: true },
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
-                else if (key === '管理后台') window.location.href = '/index.html#/admin';
+                else if (key === 'admin') window.location.href = '/index.html#/admin';
                 else if (key === 'lang_zh') setLang('zh');
                 else if (key === 'lang_en') setLang('en');
                 else if (key === 'lang_ar') setLang('ar');
-                else if (key === '退出登录') handleLogout();
+                else if (key === 'logout') handleLogout();
               },
             }} placement="bottomRight">
               <Button type="text" size="small" icon={<SettingOutlined style={{ color: 'rgba(255,255,255,0.5)' }} />} />
