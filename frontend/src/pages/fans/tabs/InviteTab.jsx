@@ -1,13 +1,14 @@
 import useLanguageStore from '../../../stores/languageStore';
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { message, Button, Card, Statistic, Tag, Space, Row, Col, Typography, Input, Divider, List, Empty } from 'antd';
 import { TeamOutlined, CopyOutlined, GiftOutlined, UserOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
+import { useNavigate } from 'react-router';
 const { Text } = Typography;
 const InviteTab = ({ fan }) => {
-  const [inviteCount, setInviteCount] = useState(0);
   const navigate = useNavigate();
+  const [inviteCount, setInviteCount] = useState(0);
   const { t } = useLanguageStore();
 
   useEffect(() => {

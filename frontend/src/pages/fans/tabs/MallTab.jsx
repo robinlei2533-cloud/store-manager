@@ -27,6 +27,7 @@ const MallTab = ({ fan, onPointsChange }) => {
         points_cost: item.points_cost,
       });
       await addFanPoints(fan.id, -item.points_cost, 'redeem', 'Mall Redemption', `Redeemed: ${item.name}`);
+      onPointsChange && onPointsChange();
       message.success(`Redeemed ${item.name}! -${item.points_cost} points 🎁`);
       onPointsChange();
     } catch (err) {

@@ -7,14 +7,14 @@ const LANGUAGES = [
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
 ];
 
-const LanguageSwitcher = ({ position = 'fixed', top = 16, right = 16, zIndex = 1000 }) => {
+const LanguageSwitcher = ({ position, top = 16, right = 16, zIndex = 1000, inline = false }) => {
   const { lang, setLang, t } = useLanguageStore();
   const [open, setOpen] = useState(false);
 
   const current = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
 
   return (
-    <div style={{ position, top, right, zIndex, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+    <div style={{ position: inline ? 'relative' : (position || 'fixed'), top: inline ? undefined : top, right: inline ? undefined : right, zIndex, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
       <button
         onClick={() => setOpen(!open)}
         title={t('settings_language')}

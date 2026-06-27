@@ -343,6 +343,7 @@ const FanEntryPage = () => {
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <LanguageSwitcher inline />
           {/* Settings */}
           <div style={{ position:'relative' }}>
             <button
@@ -367,7 +368,7 @@ const FanEntryPage = () => {
                   <span style={{fontSize:16,width:28,textAlign:'center'}}>🏪</span> 门店进入
                 </div>
                 <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
-                <div onClick={() => window.location.href='./#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
+                <div onClick={() => window.location.href='/index.html#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
                   <span style={{fontSize:16,width:28,textAlign:"center"}}>🔐</span> 管理后台 Panel

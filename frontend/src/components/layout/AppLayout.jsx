@@ -215,12 +215,12 @@ const AppLayout = () => {
               </span>
             )}
           </div>
-          <Dropdown menu={userMenu} placement="bottomRight">
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}><LanguageSwitcher inline /><Dropdown menu={userMenu} placement="bottomRight">
             <Button type="text" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               <Avatar size="small" icon={<UserOutlined />} />
               {!isMobile && <span>{profile.name || '用户'}</span>}
             </Button>
-          </Dropdown>
+          </Dropdown></div>
         </Header>
         <Content style={{
           margin: isMobile ? 8 : 20,

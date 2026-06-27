@@ -25,6 +25,7 @@ import InviteTab from './tabs/InviteTab';
 import CommunityTab from './tabs/CommunityTab';
 import HowItWorksTab from './tabs/HowItWorksTab';
 import MapTab from './tabs/MapTab';
+import CampaignTab from './tabs/CampaignTab';
 // ============ Main Fan Center Page ============
 const FanCenterPage = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const FanCenterPage = () => {
     queryFn: () => getFans({}),
   });
 
-  // Find current fan 閳?match by user ID or fall back to first fan
+  // Find current fan by user ID or fall back to first fan
   let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
 
   // Ensure DB is initialized
@@ -96,26 +97,31 @@ const FanCenterPage = () => {
     <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: 24 }}>
       {/* Top Bar */}
       <div style={{
-        background: 'linear-gradient(135deg, #0a0a23 0%, #1a1a4e 50%, #2d1b69 100%)',
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a0f 50%, #2a2a0f 100%)',
         padding: '16px 20px', color: '#fff', position: 'sticky', top: 0, zIndex: 100,
         boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 600, margin: '0 auto' }}>
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: 2, background: 'linear-gradient(90deg, #667eea, #764ba2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              UWELL
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <Avatar size={36} icon={<UserOutlined />} style={{background:'#FFD700',color:'#0a0a0f',border:'2px solid rgba(255,215,0,0.3)'}} />
+            <div>
+              <div style={{fontSize:13,fontWeight:600}}>{currentFan.name || 'Fan'}</div>
+              <div style={{fontSize:10,color:'rgba(255,255,255,0.5)'}}>{currentFan.phone || '---'}</div>
             </div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 2 }}>FAN CLUB</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#faad14' }}>{currentFan.points} pts</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#FFD700' }}>{currentFan.points} pts <span style={{fontSize:11,fontWeight:400,color:"rgba(255,215,0,0.6)"}}>pts</span></div>
               <Tag color={levelInfo.color} style={{ fontSize: 10, margin: 0 }}>{levelInfo.label}</Tag>
             </div>
             <Dropdown menu={{
               items: [
-                { key: 'owner', icon: <ShopOutlined />, label: 'Store Owner Portal' },
-                { key: 'admin', icon: <SettingOutlined />, label: 'Admin Login' },
+                { key: 'owner', icon: <ShopOutlined />, label: 'Store Portal' },
+                { key: 'admin', icon: <SettingOutlined />, label: 'Admin' },
+                { type: 'divider' },
+                { key: 'lang_zh', icon: <span role="img">🇨🇦</span>, label: '中文' },
+                { key: 'lang_en', icon: <span role="img">🇬🇧</span>, label: 'English' },
+                { key: 'lang_ar', icon: <span role="img">🇦🇪</span>, label: 'العربية' },
                 { type: 'divider' },
                 { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
               ],
@@ -141,32 +147,42 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>棣冩惍 Check-in</span>,
+              label: <span>Check-in</span>,
               children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
-              label: <span>棣冩懌 Scan</span>,
+              label: <span>Scan</span>,
               children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
-              label: <span>棣冨返 Rewards</span>,
+              label: <span>Rewards</span>,
               children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
-              label: <span>棣冩噧 Invite</span>,
+              label: <span>Invite</span>,
               children: <InviteTab fan={currentFan} />,
             },
             {
               key: 'community',
-              label: <span>棣冩尠 Community</span>,
+              label: <span>Community</span>,
               children: <CommunityTab fan={currentFan} />,
             },
             {
+              key: 'campaigns',
+              label: <span>🔥 Activities</span>,
+              children: <CampaignTab fan={currentFan} />,
+            },
+            {
+              key: 'map',
+              label: <span>🗺️ Map</span>,
+              children: <MapTab fan={currentFan} />,
+            },
+            {
               key: 'help',
-              label: <span>閴?Help</span>,
+              label: <span>Help</span>,
               children: <HowItWorksTab />,
             },
           ]}

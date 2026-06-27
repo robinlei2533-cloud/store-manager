@@ -10,6 +10,7 @@ const CommunityTab = ({ fan }) => {
   const [newPost, setNewPost] = useState('');
   const [likedPosts, setLikedPosts] = useState(new Set());
 
+  const [initialized, setInitialized] = useState(false);
   useEffect(() => {
     // Seed some posts if empty
     if (localDb.count('community_posts') === 0) {

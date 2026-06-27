@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
 import {
@@ -10,6 +10,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
+import localDb from "../../services/db/localDb";
 import useAuthStore from '../../stores/authStore';
 import {
   getDashboardStats, getVisitTrend, getStoreDistribution, getVisits,
@@ -30,6 +31,13 @@ const DashboardPage = () => {
   const { data: campaigns, isLoading: campaignsLoading } = useQuery({ queryKey: ['dashboard-campaigns'], queryFn: () => getCampaigns({}) });
   const { data: scanRecords, isLoading: scansLoading } = useQuery({ queryKey: ['dashboard-scans'], queryFn: () => getScanRecords({}) });
   const { data: materialStocks, isLoading: stockLoading } = useQuery({ queryKey: ['dashboard-stocks'], queryFn: getMaterialStocks });
+  const [pendingClaims, setPendingClaims] = useState([]);
+  useEffect(() => {
+    try {
+      const all = localDb.all('campaign_claims') || [];
+      setPendingClaims(all.filter(cl => cl.status === 'pending'));
+    } catch(e) {}
+  }, []);
 
   const levelPieData = storeDistribution?.reduce((acc, store) => {
     const level = store.level || 'Unrated';
@@ -109,6 +117,26 @@ const DashboardPage = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Pending Material Dispatch */}
+      {pendingClaims.length > 0 && (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col xs={24}>
+            <Card title={`📦 Material Dispatch Needed (${pendingClaims.length})`} size="small">
+              <List size="small" dataSource={pendingClaims} renderItem={(cl) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={<Badge status="processing" />}
+                    title={<span style={{color:"#e5e5e5"}}>{cl.campaign_name || "Campaign"}</span>}
+                    description={`Store: ${cl.store_id || "N/A"} · Claimed: ${new Date(cl.claimed_at).toLocaleDateString()}`}
+                  />
+                  <Tag color="volcano">Needs Dispatch</Tag>
+                </List.Item>
+              )} />
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>

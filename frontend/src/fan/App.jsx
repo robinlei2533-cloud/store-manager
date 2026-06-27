@@ -4,7 +4,11 @@ import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import useLanguageStore from '../stores/languageStore';
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: 1 } } });
 
 // Fan portal pages only
 const FanEntryPage = React.lazy(() => import('../pages/fan-entry/FanEntryPage'));
@@ -40,13 +44,13 @@ const FanApp = () => {
         },
       }}
     >
-      <AntApp>
+      <QueryClientProvider client={queryClient}><AntApp>
         <ErrorBoundary>
           <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0f"}}><Spin size="large" /></div>}>
             <RouterProvider router={router} />
           </Suspense>
         </ErrorBoundary>
-      </AntApp>
+      </AntApp></QueryClientProvider>
     </ConfigProvider>
   );
 };
