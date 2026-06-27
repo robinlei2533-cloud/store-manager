@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Upload, message, Spin, Divider, Space, Image } from 'antd';
 import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';

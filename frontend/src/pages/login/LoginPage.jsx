@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Form, Input, Button, Card, Typography, message, Modal, Select, Divider, Alert } from 'antd';
 import { MailOutlined, LockOutlined, UserOutlined, ShopOutlined, SafetyCertificateOutlined } from '@ant-design/icons';

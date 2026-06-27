@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Table, Select, Tag, Button, Spin, Empty, Card, Space } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';

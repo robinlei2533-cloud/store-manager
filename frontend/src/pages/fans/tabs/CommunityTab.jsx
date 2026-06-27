@@ -1,5 +1,5 @@
 import useLanguageStore from '../../../stores/languageStore';
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { message, Card, Button, Input, List, Typography, Avatar, Empty, Space } from 'antd';
 import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';

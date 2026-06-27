@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Form, Input, Select, DatePicker, Slider, Button, Card, message, Spin, Row, Col, Statistic, Tag, Divider } from 'antd';
 import { useQuery } from '@tanstack/react-query';

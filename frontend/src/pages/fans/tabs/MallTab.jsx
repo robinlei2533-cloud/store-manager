@@ -1,5 +1,5 @@
 import useLanguageStore from '../../../stores/languageStore';
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { message, Button, Card, Tag, Space, Row, Col, Empty } from 'antd';
 import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';

@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-﻿import React from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tag, Button, Spin, Row, Col, Statistic, Progress, Empty } from 'antd';
 import { useQuery } from '@tanstack/react-query';

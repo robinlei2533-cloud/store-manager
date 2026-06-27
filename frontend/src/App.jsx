@@ -1,5 +1,5 @@
 import useLanguageStore from './stores/languageStore';
-﻿import React, { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
 import LanguageSwitcher from './components/common/LanguageSwitcher';

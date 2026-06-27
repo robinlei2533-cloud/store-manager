@@ -1,6 +1,6 @@
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import useLanguageStore from '../../stores/languageStore';
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, Avatar, message, Table, Tabs, Modal, Empty } from 'antd';
 import {
