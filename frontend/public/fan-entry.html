@@ -1,0 +1,559 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UWELL · 粉丝俱乐部</title>
+<style>
+/* ============ Reset & Base ============ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;
+background:#0a0a0f;color:#fff;overflow-x:hidden;min-height:100vh;width:100vw;
+-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale
+}
+
+/* ============ Background Layers ============ */
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:radial-gradient(ellipse at 50% 0%,#1a1a2e 0%,#0a0a0f 60%,#000 100%)}
+.st{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;animation:tw 4s ease-in-out infinite alternate}
+.st::after{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,0.35),transparent),radial-gradient(1px 1px at 30% 50%,rgba(255,255,255,0.25),transparent),radial-gradient(1.5px 1.5px at 50% 10%,rgba(255,255,255,0.45),transparent),radial-gradient(1px 1px at 70% 30%,rgba(255,255,255,0.25),transparent),radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,0.35),transparent),radial-gradient(1.5px 1.5px at 15% 80%,rgba(255,255,255,0.25),transparent);background-size:200px 200px}
+@keyframes tw{0%{opacity:0.3}100%{opacity:1}}
+.am{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+.am>div{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:of 8s ease-in-out infinite alternate}
+.am>div:nth-child(1){width:400px;height:400px;background:radial-gradient(circle,#FFD700,#F5A623);top:-10%;left:-5%;animation-duration:10s}
+.am>div:nth-child(2){width:350px;height:350px;background:radial-gradient(circle,#457bff,#6c5ce7);top:40%;right:-8%;animation-duration:12s;animation-delay:-3s}
+.am>div:nth-child(3){width:300px;height:300px;background:radial-gradient(circle,#00d2ff,#00b894);bottom:15%;left:20%;animation-duration:9s;animation-delay:-5s}
+@keyframes of{0%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-20px) scale(1.1)}100%{transform:translate(-20px,15px) scale(0.9)}}
+.gl{position:fixed;top:0;left:0;width:100%;height:100%;z-index:3;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.015) 2px,rgba(0,0,0,0.015) 4px)}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%}#pc{z-index:1}#gc{z-index:2;pointer-events:none}
+.pz{position:fixed;bottom:0;left:0;width:100%;height:20vh;z-index:8;pointer-events:none;overflow:hidden}
+
+/* ============ Header ============ */
+.hd{
+position:fixed;top:0;left:0;width:100%;z-index:50;
+display:flex;justify-content:space-between;align-items:center;
+padding:16px 32px;
+background:linear-gradient(180deg,rgba(10,10,15,0.8) 0%,transparent 100%);
+-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)
+}
+.hd .lg{display:flex;align-items:center;gap:10px}
+.hd .lg .lt{font-size:22px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#fff 30%,#FFD700 70%,#457bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hd .lg .dot{width:6px;height:6px;border-radius:50%;background:#FFD700;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
+
+/* ---- Settings Dropdown ---- */
+.settings-wrap{position:relative}
+.settings-btn{
+width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
+background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-size:18px;
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+transition:all .3s;user-select:none
+}
+.settings-btn:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;transform:rotate(30deg)}
+.settings-btn.open{transform:rotate(60deg);color:#FFD700;border-color:#FFD70044}
+
+.settings-dropdown{
+position:absolute;top:calc(100% + 8px);right:0;min-width:200px;
+background:rgba(20,20,30,0.95);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.08);border-radius:14px;
+padding:6px;opacity:0;transform:translateY(-8px) scale(0.95);pointer-events:none;
+transition:all .3s cubic-bezier(0.34,1.56,0.64,1);z-index:100;
+box-shadow:0 20px 60px rgba(0,0,0,0.5)
+}
+.settings-dropdown.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.settings-dropdown .item{
+display:flex;align-items:center;gap:10px;
+padding:10px 14px;border-radius:10px;
+color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;letter-spacing:0.5px;
+cursor:pointer;transition:all .2s;text-decoration:none
+}
+.settings-dropdown .item:hover{background:rgba(255,255,255,0.06);color:#fff}
+.settings-dropdown .item .icon{font-size:16px;width:28px;text-align:center}
+.settings-dropdown .divider{height:1px;background:rgba(255,255,255,0.06);margin:4px 8px}
+
+/* ============ Main Layout ============ */
+.main-wrap{position:relative;z-index:20;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:100px 20px 140px}
+
+/* ============ Hero / Login Section ============ */
+.hero-section{
+display:flex;align-items:center;justify-content:center;gap:60px;
+width:100%;max-width:1100px;min-height:80vh;padding:60px 0 40px
+}
+.hero-left{flex:1;max-width:480px}
+.hero-right{flex:1;max-width:400px}
+
+.hero-badge{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 14px;border-radius:20px;
+background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);
+font-size:11px;font-weight:700;letter-spacing:2px;color:#FFD700;text-transform:uppercase;
+margin-bottom:20px
+}
+.hero-title{
+font-size:48px;font-weight:900;line-height:1.15;letter-spacing:-1px;
+margin-bottom:16px
+}
+.hero-title .grad{background:linear-gradient(135deg,#fff 30%,#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-title .grad2{background:linear-gradient(135deg,#457bff,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:rgba(255,255,255,0.35);font-size:15px;line-height:1.7;margin-bottom:28px}
+.hero-features{display:flex;gap:20px;flex-wrap:wrap}
+.hero-features .feat{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.5);font-weight:500}
+.hero-features .feat .dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#F5A623)}
+
+/* ---- Login Card ---- */
+.lc{
+background:rgba(255,255,255,0.04);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.08);border-radius:20px;
+padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,0.4)
+}
+.lc .bar{width:50px;height:3px;background:linear-gradient(90deg,#FFD700,#457bff);border-radius:2px;margin:0 auto 18px}
+.lc .lt{text-align:center;margin-bottom:24px}
+.lc .lt h2{font-size:20px;font-weight:800;letter-spacing:2px;color:#fff;margin-bottom:4px}
+.lc .lt p{color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:1px}
+.fg{margin-bottom:14px}
+.fg input{
+width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.1);border-radius:10px;
+color:#fff;font-size:14px;outline:none;transition:all .3s
+}
+.fg input:focus{border-color:#FFD700;background:rgba(255,215,0,0.06);box-shadow:0 0 0 3px rgba(255,215,0,0.1)}
+.fg input::placeholder{color:rgba(255,255,255,0.18)}
+.fo{display:flex;justify-content:space-between;align-items:center;margin:16px 0 20px}
+.fo label{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.3);font-size:12px;cursor:pointer}
+.fo a{color:rgba(255,255,255,0.3);font-size:12px;text-decoration:none;cursor:pointer;transition:color .3s}
+.fo a:hover{color:#457bff}
+.btn{
+width:100%;padding:13px;border:none;border-radius:10px;
+background:linear-gradient(135deg,#FFD700,#F5A623);
+color:#fff;font-size:14px;font-weight:700;letter-spacing:2px;
+cursor:pointer;transition:all .3s;position:relative;overflow:hidden
+}
+.btn::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left .5s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(230,57,70,0.3)}
+.btn:hover::after{left:100%}
+.rl{text-align:center;margin-top:14px}
+.rl a{color:rgba(255,255,255,0.3);font-size:12px;cursor:pointer;text-decoration:none;transition:color .3s}
+.rl a:hover{color:#457bff}
+.rl a em{color:#FFD700;font-style:normal;font-weight:600}
+
+/* ============ Aurora Effect ============ */
+#aurora-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.lang-wrap{position:relative;display:inline-block}
+.lang-btn{
+width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
+background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+transition:all .3s;user-select:none;letter-spacing:0.5px
+}
+.lang-btn:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff}
+.lang-dropdown{
+position:absolute;top:calc(100% + 8px);right:0;min-width:160px;
+background:rgba(20,20,30,0.95);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.08);border-radius:14px;
+padding:6px;opacity:0;transform:translateY(-8px) scale(0.95);pointer-events:none;
+transition:all .3s cubic-bezier(0.34,1.56,0.64,1);z-index:100;
+box-shadow:0 20px 60px rgba(0,0,0,0.5)
+}
+.lang-dropdown.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.lang-dropdown .item{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
+color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.lang-dropdown .item:hover{background:rgba(255,255,255,0.06);color:#fff}
+
+.showcase{width:100%;max-width:1200px;margin:20px auto 0;padding:0 20px}
+.showcase-header{text-align:center;margin-bottom:36px}
+.showcase-header .tag{
+display:inline-flex;align-items:center;gap:6px;
+padding:4px 14px;border-radius:20px;
+background:rgba(69,123,255,0.08);border:1px solid rgba(69,123,255,0.15);
+font-size:10px;font-weight:700;letter-spacing:2px;color:#457bff;text-transform:uppercase;
+margin-bottom:12px
+}
+.showcase-header h2{font-size:28px;font-weight:900;letter-spacing:1px;margin-bottom:8px}
+.showcase-header h2 span{background:linear-gradient(135deg,#fff,#FFD700 60%,#457bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.showcase-header p{color:rgba(255,255,255,0.3);font-size:13px;letter-spacing:1px}
+
+.showcase-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+gap:20px;
+}
+
+.prod-card{
+position:relative;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);
+border-radius:18px;padding:24px 20px 20px;
+overflow:hidden;cursor:pointer;
+transition:all .6s cubic-bezier(0.34,1.56,0.64,1);
+opacity:0;transform:translateY(50px) scale(0.92);
+}
+.prod-card.visible{opacity:1;transform:translateY(0) scale(1)}
+.prod-card:hover{
+background:rgba(255,255,255,0.07);
+border-color:rgba(255,255,255,0.14);
+transform:translateY(-8px) scale(1.02);
+box-shadow:0 24px 60px rgba(0,0,0,0.5)
+}
+.prod-card .glow-bg{
+position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+border-radius:50%;opacity:0.06;transition:opacity .5s;pointer-events:none
+}
+.prod-card:hover .glow-bg{opacity:0.18}
+
+.prod-card .img-wrap{
+width:100%;height:150px;
+display:flex;align-items:center;justify-content:center;
+margin-bottom:16px;position:relative;z-index:1
+}
+.prod-card .img-wrap img{
+max-width:90%;max-height:100%;
+object-fit:contain;
+filter:drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+transition:transform .6s cubic-bezier(0.34,1.56,0.64,1)
+}
+.prod-card:hover .img-wrap img{transform:scale(1.12) translateY(-4px)}
+
+.prod-card .info{position:relative;z-index:1}
+.prod-card .info .name{font-size:17px;font-weight:800;letter-spacing:0.5px;margin-bottom:2px}
+.prod-card .info .series{font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-bottom:8px}
+.prod-card .info .badge{
+display:inline-block;font-size:9px;padding:2px 10px;border-radius:20px;
+background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);
+letter-spacing:1px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08)
+}
+.prod-card .info .desc{font-size:12px;color:rgba(255,255,255,0.3);line-height:1.6}
+
+/* ============ Product Modal ============ */
+.prod-modal-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;
+z-index:200;
+background:rgba(0,0,0,0.7);
+-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+display:none;align-items:center;justify-content:center;
+padding:20px
+}
+.prod-modal-overlay.open{display:flex}
+.prod-modal{
+background:rgba(20,20,30,0.95);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:24px;padding:36px;
+max-width:520px;width:100%;
+position:relative;
+animation:modalIn .45s cubic-bezier(0.34,1.56,0.64,1)
+}
+@keyframes modalIn{0%{opacity:0;transform:scale(0.8) translateY(30px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.prod-modal .close{
+position:absolute;top:14px;right:14px;width:32px;height:32px;
+border-radius:50%;border:none;
+background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);
+font-size:16px;cursor:pointer;display:flex;
+align-items:center;justify-content:center;
+transition:all .3s
+}
+.prod-modal .close:hover{background:rgba(255,215,0,0.2);color:#FFD700;transform:rotate(90deg)}
+.prod-modal .modal-img{width:100%;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.prod-modal .modal-img img{max-width:90%;max-height:100%;object-fit:contain;filter:drop-shadow(0 12px 32px rgba(0,0,0,0.5))}
+.prod-modal h2{font-size:24px;font-weight:900;letter-spacing:1px;margin-bottom:4px}
+.prod-modal .modal-series{font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-bottom:12px}
+.prod-modal .modal-desc{color:rgba(255,255,255,0.45);font-size:13px;line-height:1.8;margin-bottom:20px}
+.prod-modal .modal-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod-modal .modal-specs .spec{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px}
+.prod-modal .modal-specs .spec .label{font-size:9px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.prod-modal .modal-specs .spec .value{font-size:13px;font-weight:600}
+
+/* ============ Footer ============ */
+.footer{width:100%;text-align:center;padding:40px 20px;margin-top:40px;position:relative;z-index:20}
+.footer p{color:rgba(255,255,255,0.12);font-size:11px;letter-spacing:1px}
+
+/* ============ Responsive ============ */
+@media(max-width:900px){
+.hero-section{flex-direction:column;gap:40px;min-height:auto;padding:40px 0}
+.hero-left,.hero-right{max-width:100%;width:100%}
+.hero-title{font-size:36px}
+.showcase-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+}
+@media(max-width:550px){
+.hd{padding:12px 16px}
+.hd .lg .lt{font-size:18px}
+.hero-title{font-size:28px}
+.hero-features{gap:12px}
+.hero-features .feat{font-size:12px}
+.lc{padding:24px 18px}
+.showcase-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.prod-card{padding:16px 14px}
+.prod-card .img-wrap{height:100px}
+.main-wrap{padding:80px 12px 100px}
+}
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="st"></div>
+<div class="bg"></div>
+<div class="am"><div></div><div></div><div></div></div>
+<div class="gl"></div>
+<canvas id="pc"></canvas>
+<canvas id="gc"></canvas>
+
+<!-- Product drop zone -->
+<!-- ============ Header ============ -->
+<header class="hd">
+  <div class="lg">
+    <span class="lt">UWELL</span>
+    <span class="dot"></span>
+  </div>
+  <div class="settings-wrap">
+    <button class="settings-btn" id="settingsBtn" aria-label="设置">⚙</button>
+    <div class="settings-dropdown" id="settingsDropdown">
+      <a class="item" id="headerOwner"><span class="icon">🏪</span>Store Owner</a>
+      <div class="divider"></div>
+      <a class="item" id="headerAdmin"><span class="icon">🔐</span>Admin Panel</a>
+      <div class="divider"></div>
+      <a class="item" id="headerWebsite" href="https://www.myuwell.com" target="_blank"><span class="icon">🌐</span>Uwell Website</a>
+  </div>
+<div class="lang-wrap">
+    <button class="lang-btn" id="langBtn">🇺🇸 EN</button>
+    <div class="lang-dropdown" id="langDropdown">
+      <a class="item" data-lang="en"><span>🇺🇸</span> English</a>
+      <a class="item" data-lang="zh"><span>🇨🇳</span> 中文</a>
+      <a class="item" data-lang="ar"><span>🇸🇦</span> العربية</a>
+    </div>
+  </div>
+  </header>
+
+<!-- ============ Main Content ============ -->
+<div class="main-wrap">
+
+  <!-- Hero Section: Copy + Login -->
+  <div class="hero-section">
+    <div class="hero-left">
+      <div class="hero-badge">✦ 2026 粉丝俱乐部</div>
+      <h1 class="hero-title">
+        <span class="grad">加入 UWELL</span><br>
+        <span class="grad2">粉丝俱乐部</span>
+      </h1>
+      <p class="hero-sub">
+        签到累积积分、扫码认证产品、解锁会员等级、<br>
+        兑换专属好礼 — 和全球 UWELL 粉丝一起探索更纯粹的体验。
+      </p>
+      <div class="hero-features">
+        <div class="feat"><span class="dot"></span>每日签到</div>
+        <div class="feat"><span class="dot"></span>扫码积分</div>
+        <div class="feat"><span class="dot"></span>积分商城</div>
+        <div class="feat"><span class="dot"></span>会员等级</div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="lc">
+        <div class="bar"></div>
+        <div class="lt">
+          <h2>粉丝登录</h2>
+          <p>使用邮箱快速加入</p>
+        </div>
+        <div class="fg">
+          <input type="email" id="un" placeholder="邮箱地址" autocomplete="email">
+        </div>
+        <div class="fg">
+          <input type="password" id="pw" placeholder="密码" autocomplete="current-password">
+        </div>
+        <div class="fo">
+          <label><input type="checkbox" checked> 记住我</label>
+          <a href="#">忘记密码?</a>
+        </div>
+        <button class="btn" id="loginBtn">登 录</button>
+        <div class="rl">
+          <a href="#">还没有账号？<em>立即注册</em></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Product Showcase ============ -->
+  <div class="showcase" id="showcase">
+    <div class="showcase-header">
+      <div class="tag">✦ 产品家族</div>
+      <h2><span>探索 UWELL 明星产品</span></h2>
+      <p>从经典到旗舰，总有一款适合你</p>
+    </div>
+    <div class="showcase-grid" id="productGrid"></div>
+  </div>
+
+  <div class="footer">
+    <p>UWELL FAN CLUB · 2026</p>
+  </div>
+</div>
+
+<!-- ============ Product Detail Modal ============ -->
+<div class="prod-modal-overlay" id="prodModal">
+  <div class="prod-modal">
+    <button class="close" id="modalClose">✕</button>
+    <div class="modal-img"><img id="modalImg" src="" alt=""></div>
+    <h2 id="modalTitle"></h2>
+    <div class="modal-series" id="modalSeries"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-specs" id="modalSpecs"></div>
+  </div>
+</div>
+
+<!-- ============ JavaScript ============ -->
+<script>
+// Product Data
+var PD=[
+{n:"CALIBURN AIR",c:"#FFD700",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/AIR%20PC%20banner%20%203840-1620-20260616092816517.jpg"},
+{n:"CALIBURN G5",c:"#457bff",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-banner-3840-1620-20260421160504521.jpg"},
+{n:"G5 KOKO",c:"#6c5ce7",t:"旗舰系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20KOKO-BANNER-3840x1620-20260108144156453.png"},
+{n:"G5 LITE SE",c:"#00b894",t:"Lite 系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5%20Lite%20%26%20Lite%20SE-BANNER-3840x1620-20251210144711254.png"},
+{n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite 系列",i:"https://files.myuwell.com/uwell/ow-home-banner/G5-Lite-KOKO-banner-3840-1620-20251210135848829.jpg"},
+{n:"Caliburn",c:"#e17055",t:"经典系列",i:"https://files.myuwell.com/uwell/ow-product-ip/caliburn-20240627113220107.webp"},
+{n:"Crown",c:"#fdcb6e",t:"大烟雾系列",i:"https://files.myuwell.com/uwell/ow-product-ip/CROWN-20240627113158744.webp"},
+{n:"Havok",c:"#00cec9",t:"大烟雾系列",i:"https://files.myuwell.com/uwell/ow-product-ip/havok-20240522105356154.png"},
+{n:"200-X100",c:"#a29bfe",t:"专业系列",i:"https://files.myuwell.com/uwell/ow-product-ip/200-X100-20251024143003969.png"},
+{n:"E-MLOCK2",c:"#ffeaa7",t:"智能系列",i:"https://files.myuwell.com/uwell/ow-product-ip/E-MLOCK2-20250106151611228.png"},
+{n:"IP3",c:"#fab1a0",t:"三防系列",i:"https://files.myuwell.com/uwell/ow-product-ip/ip3-20240523142405908.png"},
+{n:"IP2",c:"#81ecec",t:"三防系列",i:"https://files.myuwell.com/uwell/ow-product-ip/ip2-20240523142323960.png"}
+];
+
+var PROD_INFO = {
+  "CALIBURN AIR":{desc:"极致纤薄的气流感应电子烟，专为追求便携与口感的用户打造。极速响应、不漏油、零按键操作。",specs:[["型号","CALIBURN AIR"],["烟弹容量","2.0ml"],["电池","400mAh"],["材质","锌合金+PC"],["特色","气流感应"]],icon:"⚡"},
+  "CALIBURN G5":{desc:"UWELL 第五代 CALIBURN 旗舰系列，融合创新网芯技术与人体工学设计，带来层次丰富的口感体验。",specs:[["型号","CALIBURN G5"],["烟弹容量","2.5ml"],["电池","520mAh"],["输出功率","15-25W"],["线圈","0.6/0.8Ω"]],icon:"🔥"},
+  "G5 KOKO":{desc:"G5 家族紧凑版本，保留旗舰口感的同时更加小巧便携。多彩配色，随时随地展现个性。",specs:[["型号","G5 KOKO"],["烟弹容量","2.0ml"],["电池","450mAh"],["材质","航空铝"],["配色","5色可选"]],icon:"💜"},
+  "G5 LITE SE":{desc:"G5 Lite SE 入门级优选，继承 G5 核心科技，价格更亲民。适合首次尝试电子烟的用户。",specs:[["型号","G5 LITE SE"],["烟弹容量","2.0ml"],["电池","380mAh"],["特色","性价比之选"],["线圈","1.2Ω"]],icon:"🌿"},
+  "G5 LITE KOKO":{desc:"时尚紧凑的轻量级选择，兼具 G5 系列口感特点。女性用户首选，轻巧随行。",specs:[["型号","G5 LITE KOKO"],["烟弹容量","1.8ml"],["电池","350mAh"],["配色","5种可选"],["重量","32g"]],icon:"🌸"},
+  "Caliburn":{desc:"UWELL 经典传奇之作，开创 CALIBURN 时代。全球销量领先的开放式电子烟，经久不衰。",specs:[["型号","Caliburn OG"],["烟弹容量","2.0ml"],["电池","520mAh"],["线圈","1.4Ω"],["材质","锌合金"]],icon:"🏆"},
+  "Crown":{desc:"王者之作，Crown 系列为追求极致大烟雾与浓郁口感的进阶玩家打造。",specs:[["型号","Crown"],["功率","60-80W"],["烟油容量","3.5ml"],["线圈","0.2/0.4Ω"],["材质","不锈钢"]],icon:"👑"},
+  "Havok":{desc:"Havok 系列颠覆性设计，未来感造型搭配澎湃性能。大烟雾爱好者的不二之选。",specs:[["型号","Havok"],["功率","80-100W"],["烟油容量","4.0ml"],["特色","可调气流"],["材质","合金"]],icon:"💥"},
+  "200-X100":{desc:"专业级大烟雾主机，双电 200W 输出。配备智能温控系统，满足高阶玩家的所有需求。",specs:[["型号","200-X100"],["功率","5-200W"],["电池","双18650"],["芯片","智能温控"],["屏幕","1.3寸彩屏"]],icon:"🚀"},
+  "E-MLOCK2":{desc:"智能电子锁系统，专为未成年保护设计。为零售商和家长提供安心保障。",specs:[["型号","E-MLOCK2"],["类型","智能锁"],["兼容","多系列"],["认证","CE/RoHS"],["功能","指纹+APP"]],icon:"🔐"},
+  "IP3":{desc:"IP3 系列三防设计（防水/防尘/防摔），适合户外场景和严苛环境使用。",specs:[["型号","IP3"],["防护","IP67"],["电池","内置2000mAh"],["特色","三防机身"],["功率","50W"]],icon:"🛡️"},
+  "IP2":{desc:"IP2 系列经典三防机型，可靠耐用。军工级防护标准，全天候无忧使用。",specs:[["型号","IP2"],["防护","IP65"],["电池","内置1500mAh"],["适用","全天候"],["功率","40W"]],icon:"💪"}
+};
+
+// ============ Build Product Cards ============
+(function(){
+  var c = document.createElement("canvas");
+  c.id = "ms";
+  c.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none";
+  document.body.appendChild(c);
+  var x = c.getContext("2d"), W, H, animId;
+  function rs(){ W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+  rs(); window.addEventListener("resize", rs);
+
+  function Meteor() {
+    this.reset = function() {
+      this.x = W * 0.5 + Math.random() * W * 0.6;
+      this.y = -20 - Math.random() * H * 0.3;
+      var speed = 6 + Math.random() * 10;
+      var angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2;
+      this.vx = -Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed;
+      this.gravity = 0.05 + Math.random() * 0.05;
+      this.trail = [];
+      this.maxTrail = 12 + Math.floor(Math.random() * 8);
+      this.size = 2 + Math.random() * 3;
+      this.brightness = 0.6 + Math.random() * 0.4;
+      this.glowSize = this.size * 4;
+      this.age = 0;
+      this.maxAge = 80 + Math.floor(Math.random() * 60);
+      this.alive = true;
+    };
+    this.reset();
+    this.update = function() {
+      this.vy += this.gravity;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.age++;
+      this.trail.push({x:this.x,y:this.y});
+      if (this.trail.length > this.maxTrail) this.trail.shift();
+      if (this.age > this.maxAge - 20) this.brightness *= 0.92;
+      if (this.x < -50 || this.x > W+50 || this.y > H+50 || this.age > this.maxAge) this.alive = false;
+    };
+    this.draw = function() {
+      for (var i = 0; i < this.trail.length; i++) {
+        var t = this.trail[i], ratio = i / this.trail.length;
+        x.beginPath(); x.arc(t.x, t.y, Math.max(this.size * ratio * 0.8, 0.5), 0, Math.PI*2);
+        x.fillStyle = "hsla(42,100%,65%," + (ratio * this.brightness * 0.6) + ")"; x.fill();
+      }
+      if (this.trail.length > 0) {
+        var h = this.trail[this.trail.length - 1];
+        var g = x.createRadialGradient(h.x,h.y,0,h.x,h.y,this.glowSize);
+        g.addColorStop(0,"rgba(255,215,0,"+(this.brightness*0.3)+")");
+        g.addColorStop(1,"rgba(255,215,0,0)");
+        x.fillStyle = g;
+        x.fillRect(h.x-this.glowSize,h.y-this.glowSize,this.glowSize*2,this.glowSize*2);
+        x.beginPath(); x.arc(h.x,h.y,this.size,0,Math.PI*2);
+        x.fillStyle = "rgba(255,255,255,"+this.brightness+")"; x.fill();
+        x.beginPath(); x.arc(h.x,h.y,this.size*0.7,0,Math.PI*2);
+        x.fillStyle = "hsla(42,100%,75%,"+this.brightness+")"; x.fill();
+      }
+    };
+  }
+
+  var meteors = [], spawnTimer = 0, maxMeteors = 8;
+  function an() {
+    x.clearRect(0,0,W,H);
+    spawnTimer++;
+    if (spawnTimer > 12 - Math.floor(Math.random()*8) && meteors.length < maxMeteors) {
+      var m = new Meteor(); meteors.push(m);
+      if (Math.random() < 0.2) {
+        var m2 = new Meteor(); m2.x = m.x + (Math.random()-0.5)*60; m2.y = m.y - Math.random()*40; meteors.push(m2);
+      }
+      spawnTimer = 0;
+    }
+    for (var i = meteors.length-1; i >= 0; i--) {
+      meteors[i].update(); meteors[i].draw();
+      if (!meteors[i].alive) meteors.splice(i,1);
+    }
+    requestAnimationFrame(an);
+  }
+  an();
+})();
+
+// ============ Particle Canvas ============
+(function(){var c=document.getElementById("pc"),x=c.getContext("2d"),W,H;function rs(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}rs();window.addEventListener("resize",rs);var ps=[],N=110,CS=["rgba(255,215,0,","rgba(69,123,255,","rgba(108,92,231,","rgba(0,206,201,","rgba(253,121,168,","rgba(255,255,255,"];
+for(var i=0;i<N;i++){ps.push({x:Math.random()*W,y:Math.random()*H,s:1.8+Math.random()*3.2,vx:(Math.random()-0.5)*0.6,vy:(Math.random()-0.5)*0.6,o:0.2+Math.random()*0.4,ci:Math.floor(Math.random()*CS.length),ps:0.01+Math.random()*0.02})}
+var ms=null;document.addEventListener("mousemove",function(e){ms={x:e.clientX,y:e.clientY}});document.addEventListener("mouseleave",function(){ms=null});document.addEventListener("touchmove",function(e){var t=e.touches[0];ms={x:t.clientX,y:t.clientY}},{passive:true});document.addEventListener("touchend",function(){ms=null});
+var tt=0;!function an(){tt+=0.016;x.clearRect(0,0,W,H);for(var i=0;i<ps.length;i++){var p=ps[i];if(ms){var dx=p.x-ms.x,dy=p.y-ms.y,d=Math.sqrt(dx*dx+dy*dy);if(d<150){var f=(150-d)/150*0.8;p.vx+=(dx/d||0)*f;p.vy+=(dy/d||0)*f}}p.x+=p.vx;p.y+=p.vy;p.vx*=0.97;p.vy*=0.97;if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;var op=p.o*(0.5+0.5*Math.sin(tt*p.ps));x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fillStyle=CS[p.ci]+op+")";x.fill();x.beginPath();x.arc(p.x,p.y,p.s*3,0,Math.PI*2);x.fillStyle=CS[p.ci]+(op*0.08)+")";x.fill();for(var j=i+1;j<ps.length;j++){var p2=ps[j],dx2=p.x-p2.x,dy2=p.y-p2.y,d2=Math.sqrt(dx2*dx2+dy2*dy2);if(d2<100){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p2.x,p2.y);x.strokeStyle="rgba(255,255,255,"+((1-d2/100)*0.12)+")";x.lineWidth=0.5;x.stroke()}}if(ms){var dx3=p.x-ms.x,dy3=p.y-ms.y,d3=Math.sqrt(dx3*dx3+dy3*dy3);if(d3<100){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(ms.x,ms.y);x.strokeStyle="rgba(255,215,0,"+((1-d3/100)*0.2)+")";x.lineWidth=1;x.stroke()}}}requestAnimationFrame(an)}()})();
+
+// ============ Glow Canvas ============
+(function(){var c=document.getElementById("gc"),x=c.getContext("2d"),W,H;function rs(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}rs();window.addEventListener("resize",rs);var ms={x:W/2,y:H/2,a:false};document.addEventListener("mousemove",function(e){ms.x=e.clientX;ms.y=e.clientY;ms.a=true});document.addEventListener("mouseleave",function(){ms.a=false});document.addEventListener("touchmove",function(e){var t=e.touches[0];ms.x=t.clientX;ms.y=t.clientY;ms.a=true},{passive:true});document.addEventListener("touchend",function(){ms.a=false});
+!function an(){x.clearRect(0,0,W,H);if(ms.a){var g=x.createRadialGradient(ms.x,ms.y,0,ms.x,ms.y,300);g.addColorStop(0,"rgba(255,215,0,0.08)");g.addColorStop(0.4,"rgba(69,123,255,0.04)");g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,W,H)}[[W*0.15,H*0.3,250,"rgba(255,215,0,0.04)"],[W*0.85,H*0.4,200,"rgba(69,123,255,0.04)"],[W*0.5,H*0.7,180,"rgba(0,206,201,0.03)"]].forEach(function(o){var g=x.createRadialGradient(o[0],o[1],0,o[0],o[1],o[2]);g.addColorStop(0,o[3]);g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(o[0]-o[2],o[1]-o[2],o[2]*2,o[2]*2)});requestAnimationFrame(an)}()})();
+
+// Enter key
+document.addEventListener("keydown",function(e){if(e.key==="Enter"){var a=document.activeElement;if(a&&(a.id==="un"||a.id==="pw"))document.getElementById("loginBtn").click()}});
+
+// ============ Aurora Effect ============
+(function(){var c=document.getElementById("aurora-canvas"),x=c.getContext("2d"),W,H,cl=0;
+function rs(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}rs();window.addEventListener("resize",rs);
+var auroras=[];for(var i=0;i<3;i++){auroras.push({x:W*0.2+Math.random()*W*0.6,y:H*0.1+Math.random()*H*0.3,w:300+Math.random()*400,h:100+Math.random()*150,
+c1:"hsla("+(200+Math.random()*40)+",80%,60%,0.15)",c2:"hsla("+(260+Math.random()*40)+",80%,50%,0.1)",sp:0.1+Math.random()*0.2,ph:Math.random()*6.28})}
+!function an(){x.clearRect(0,0,W,H);cl+=0.005;
+for(var i=0;i<auroras.length;i++){var a=auroras[i];
+a.x+=Math.sin(cl*a.sp+a.ph)*0.3;
+for(var j=0;j<3;j++){var off=(j-1)*a.w*0.3;var grad=x.createRadialGradient(a.x+off,a.y+j*30,0,a.x+off,a.y+j*30,a.w);
+grad.addColorStop(0,i===0?a.c1:a.c2);grad.addColorStop(1,"transparent");
+x.fillStyle=grad;x.fillRect(a.x+off-a.w,a.y+j*30-a.h,a.w*2,a.h*2)}}
+requestAnimationFrame(an)}()})();
+
+// ============ Language Switcher ============
+(function(){var btn=document.getElementById("langBtn"),dd=document.getElementById("langDropdown");
+btn.addEventListener("click",function(e){e.stopPropagation();dd.classList.toggle("open");});
+document.addEventListener("click",function(){dd.classList.remove("open");});
+dd.addEventListener("click",function(e){e.stopPropagation();});
+var items=dd.querySelectorAll(".item");
+items.forEach(function(item){item.addEventListener("click",function(){
+var lang=this.getAttribute("data-lang");
+btn.textContent=this.querySelector("span").textContent+" "+this.textContent.trim().split(" ").pop();
+dd.classList.remove("open");});});})();
+
+</script>
+<canvas id="aurora-canvas"></canvas>
+</body>
+</html>
+
+
+
+
+
