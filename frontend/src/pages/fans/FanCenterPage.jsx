@@ -127,7 +127,7 @@ const FanCenterPage = () => {
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
-                else if (key === 'admin') window.location.href = '/#/admin';
+                else if (key === 'admin') window.location.href = '/index.html#/admin';
                 else if (key === 'logout') handleLogout();
               },
             }} placement="bottomRight">
