@@ -1,4 +1,4 @@
-﻿import useLanguageStore from '../../stores/languageStore';
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Form, Input, Button, Card, Typography, message, Modal, Select, Divider, Alert } from 'antd';
@@ -32,10 +32,10 @@ const LoginPage = () => {
       if (IS_LOCAL_MODE && result?.profile) {
         localStorage.setItem('store_manager_current_user', result.profile.id);
       }
-      message.success(t('nav_login_success'));
+      message.success('登录成功');
       navigate('/app/dashboard', { replace: true });
     } catch (err) {
-      message.error(err.message || t('nav_login_failed'));
+      message.error(err.message || '登录失败，请检查账号信息');
     } finally {
       setSubmitting(false);
     }
@@ -45,11 +45,11 @@ const LoginPage = () => {
     setRegistering(true);
     try {
       await signUp(values.email, values.password, { name: values.name, role: values.role });
-      message.success(t('nav_register_success'));
+      message.success('账号已创建，请登录');
       setRegisterModalOpen(false);
       registerForm.resetFields();
     } catch (err) {
-      message.error(err.message || t('nav_register_failed'));
+      message.error(err.message || '注册失败');
     } finally {
       setRegistering(false);
     }
@@ -127,6 +127,5 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
 
 

@@ -283,6 +283,7 @@ const FanEntryPage = () => {
       const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
   const [visibleCards, setVisibleCards] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const gridRef = useRef(null);
 
   // Staggered product card entrance

@@ -1,4 +1,4 @@
-﻿import useLanguageStore from '../../stores/languageStore';
+import useLanguageStore from '../../stores/languageStore';
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
@@ -40,6 +40,8 @@ const FanCenterPage = () => {
   // Find current fan — match by user ID or fall back to first fan
   let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
 
+  // Ensure DB is initialized
+  if (localDb.needsInit()) { localDb.init(seedData); }
 
   // Auto-find fan from localStorage user session
   if (!currentFan) {
@@ -49,11 +51,6 @@ const FanCenterPage = () => {
       if (savedFan) { currentFan = savedFan; }
     }
   }
-
-  // Init DB in useEffect (moved from render body)
-  useEffect(() => {
-    if (localDb.needsInit()) { localDb.init(seedData); }
-  }, []);
 
   // Final fallback: use first seed fan
   if (!currentFan) {
@@ -85,8 +82,8 @@ const FanCenterPage = () => {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <Card style={{ textAlign: 'center', maxWidth: 400, borderRadius: 16 }}>
-          <Empty description={t("fan_no_profile")} />
-          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>{t('fan_back_home')}</Button>
+          <Empty description="No fan profile found. Please contact support." />
+          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>Back to Home</Button>
         </Card>
       </div>
     );
@@ -116,10 +113,10 @@ const FanCenterPage = () => {
             </div>
             <Dropdown menu={{
               items: [
-                { key: 'owner', icon: <ShopOutlined />, label: t('fan_owner_portal') },
-                { key: 'admin', icon: <SettingOutlined />, label: t('fan_admin_login') },
+                { key: 'owner', icon: <ShopOutlined />, label: 'Store Owner Portal' },
+                { key: 'admin', icon: <SettingOutlined />, label: 'Admin Login' },
                 { type: 'divider' },
-                { key: 'logout', icon: <LogoutOutlined />, label: t('fan_logout'), danger: true },
+                { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = '/#/store-owner';
@@ -143,32 +140,32 @@ const FanCenterPage = () => {
           items={[
             {
               key: 'checkin',
-              label: <span>📅 {t('fan_tab_checkin')}</span>,
+              label: <span>📅 Check-in</span>,
               children: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'scan',
-              label: <span>📱 {t('fan_tab_scan')}</span>,
+              label: <span>📱 Scan</span>,
               children: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'mall',
-              label: <span>🎁 {t('fan_tab_mall')}</span>,
+              label: <span>🎁 Rewards</span>,
               children: <MallTab fan={currentFan} onPointsChange={handlePointsChange} />,
             },
             {
               key: 'invite',
-              label: <span>👥 {t('fan_tab_invite')}</span>,
+              label: <span>👥 Invite</span>,
               children: <InviteTab fan={currentFan} />,
             },
             {
               key: 'community',
-              label: <span>💬 {t('fan_tab_community')}</span>,
+              label: <span>💬 Community</span>,
               children: <CommunityTab fan={currentFan} />,
             },
             {
               key: 'help',
-              label: <span>❓ {t('fan_tab_help')}</span>,
+              label: <span>❓ Help</span>,
               children: <HowItWorksTab />,
             },
           ]}
@@ -179,7 +176,6 @@ const FanCenterPage = () => {
 };
 
 export default FanCenterPage;
-
 
 
 
