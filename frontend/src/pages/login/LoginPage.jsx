@@ -32,10 +32,10 @@ const LoginPage = () => {
       if (IS_LOCAL_MODE && result?.profile) {
         localStorage.setItem('store_manager_current_user', result.profile.id);
       }
-      message.success('登录成功');
+      message.success('Login successful');
       navigate('/app/dashboard', { replace: true });
     } catch (err) {
-      message.error(err.message || '登录失败，请检查账号信息');
+      message.error(err.message || 'Login failed, please check credentials');
     } finally {
       setSubmitting(false);
     }
