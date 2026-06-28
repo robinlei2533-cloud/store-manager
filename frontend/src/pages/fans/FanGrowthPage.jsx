@@ -1,5 +1,6 @@
 import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message,
   Modal, Progress, List, Avatar, Image, Input, Select, Typography, Tooltip, Badge,
@@ -17,6 +18,7 @@ import {
   getFans, getFanPointsLog, addFanPoints, getLevelRules, getScanRecords,
 } from '../../services/api';
 import { FAN_LEVELS, LOTTERY_PRIZES, MALL_ITEMS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -30,6 +32,15 @@ function getNextLevel(currentLevel) {
   if (idx < 0 || idx >= FAN_LEVELS.length - 1) return null;
   return FAN_LEVELS[idx + 1];
 }
+
+
+const staggerVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (i) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.08, type: "spring", stiffness: 200, damping: 20 }
+  })
+};
 
 // ============ Tab 1: Check-in & Points ============
 const CheckInTab = ({ fan }) => {
@@ -108,11 +119,12 @@ const CheckInTab = ({ fan }) => {
   const weekDayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
+    <PageTransition>
     <div>
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col xs={12} sm={12} lg={6}>
           <Card size="small">
-            <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: '#1677ff' }} />
+            <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: 'var(--uwell-gold)' }} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
@@ -219,7 +231,7 @@ const CheckInTab = ({ fan }) => {
         )}
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 // ============ Tab 2: Lucky Draw ============
@@ -505,7 +517,7 @@ const MallTab = ({ fan }) => {
 
   return (
     <div>
-      <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%)' }}>
+      <Card size="small" className="fg-card" style={{ marginBottom: 16, background: 'linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(18,18,26,0.95) 100%)' }}>
         <Row align="middle" justify="space-between">
           <Col>
             <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: '#1677ff', fontSize: 28 }} />

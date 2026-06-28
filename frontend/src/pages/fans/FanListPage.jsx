@@ -6,6 +6,7 @@ import { SettingOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { getFans } from '../../services/api';
 import { FAN_LEVELS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const FanListPage = () => {
   const navigate = useNavigate();
@@ -26,13 +27,14 @@ const FanListPage = () => {
   ];
 
   return (
+    <PageTransition>
     <Card title="Fan Operations" extra={<Button icon={<SettingOutlined />} onClick={() => navigate('/app/fans/rules')}>Rules</Button>}>
       <Space style={{ marginBottom: 16 }}>
         <Select placeholder="Level" value={level} onChange={setLevel} allowClear style={{ width: 150 }} options={FAN_LEVELS.map(f => ({ label: f.label, value: f.value }))} />
       </Space>
       <Table columns={columns} dataSource={fans} rowKey="id" loading={isLoading} locale={{ emptyText: <Empty description="No fans" /> }} pagination={{ pageSize: 15, showTotal: (t) => `Total ${t} fans` }} />
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default FanListPage;

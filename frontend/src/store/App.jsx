@@ -10,6 +10,7 @@ import ErrorBoundary from '../components/common/ErrorBoundary';
 
 import useLanguageStore from '../stores/languageStore';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import PageTransition from "../components/common/PageTransition";
 
 // Store portal pages only
 const StoreOwnerPage = React.lazy(() => import('../pages/store-owner/StoreOwnerPage'));
@@ -29,6 +30,7 @@ const StoreApp = () => {
   const locale = localeMap[lang] || zhCN;
 
   return (
+    <PageTransition>
     <QueryClientProvider client={queryClient}>
       <ConfigProvider
         locale={locale}
@@ -61,7 +63,7 @@ const StoreApp = () => {
         </AntApp>
       </ConfigProvider>
     </QueryClientProvider>
-  );
+    </PageTransition>);
 };
 
 export default StoreApp;

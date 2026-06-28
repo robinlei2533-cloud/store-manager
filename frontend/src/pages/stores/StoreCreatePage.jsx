@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router';
 import { Form, Input, InputNumber, Select, Button, Card, message, Spin } from 'antd';
 import { createStore, updateStore, getStoreById, getStores } from '../../services/api';
 import { STORE_LEVELS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const StoreCreatePage = () => {
   const { id } = useParams();
@@ -46,6 +47,7 @@ const StoreCreatePage = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
 
   return (
+    <PageTransition>
     <Card title={id ? 'Edit Store' : 'Add Store'}>
       <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ maxWidth: 600 }}>
         <Form.Item name="name" label="Store Name" rules={[{ required: true, message: 'Please enter store name' }]}>
@@ -67,7 +69,7 @@ const StoreCreatePage = () => {
         </Form.Item>
       </Form>
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default StoreCreatePage;

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { getStores, getCampaignById, createCampaign, updateCampaign } from '../../services/api';
 import { CAMPAIGN_TYPES } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const { TextArea } = Input;
 
@@ -46,6 +47,7 @@ const CampaignCreatePage = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
       <Card title={id ? 'Edit Campaign' : 'New Campaign'}>
@@ -78,7 +80,7 @@ const CampaignCreatePage = () => {
         </Form>
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default CampaignCreatePage;

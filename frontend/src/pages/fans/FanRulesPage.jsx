@@ -6,6 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPointsRules, createPointsRule, updatePointsRule, deletePointsRule, getLevelRules, updateLevelRule } from '../../services/api';
 import { FAN_LEVELS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const FanRulesPage = () => {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ const FanRulesPage = () => {
   ];
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
       <Card title="Points Rules" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true); }}>Add Rule</Button>} style={{ marginBottom: 16 }}>
@@ -66,7 +68,7 @@ const FanRulesPage = () => {
         </Form>
       </Modal>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default FanRulesPage;

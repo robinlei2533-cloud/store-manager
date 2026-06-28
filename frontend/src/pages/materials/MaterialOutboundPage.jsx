@@ -6,6 +6,7 @@ import { getMaterials, getStores, createOutbound, getOutbounds, updateOutboundSt
 import { OUTBOUND_STATUS } from '../../utils/constants';
 import useAuthStore from '../../stores/authStore';
 import { ROLES } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const MaterialOutboundPage = () => {
   const queryClient = useQueryClient();
@@ -54,6 +55,7 @@ const MaterialOutboundPage = () => {
   ];
 
   return (
+    <PageTransition>
     <Card title="Outbound / Requisition">
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
         { key: 'apply', label: 'New Requisition', children: (
@@ -74,7 +76,7 @@ const MaterialOutboundPage = () => {
         { key: 'records', label: 'Outbound Records', children: isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> : <Table rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} /> },
       ]} />
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default MaterialOutboundPage;

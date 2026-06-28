@@ -1,6 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, message, Table, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Progress } from "antd";
-import gsap from 'gsap';
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, SettingOutlined, UserOutlined, BarChartOutlined, HistoryOutlined } from "@ant-design/icons";
 import localDb from "../../services/db/localDb";
 import useLanguageStore from "../../stores/languageStore";
@@ -32,12 +31,6 @@ const StoreOwnerPage = () => {
   const { t } = useLanguageStore();
 
   // GSAP entrance animation
-  useEffect(() => {
-    const cards = document.querySelectorAll('.so-card');
-    if (cards.length) {
-      gsap.from(cards, { opacity: 0, y: 30, stagger: 0.08, duration: 0.6, ease: 'power3.out', clearProps: 'all' });
-    }
-  }, []);
 
   // Load material requests
   useEffect(() => {
@@ -136,10 +129,10 @@ const StoreOwnerPage = () => {
 
   if (!store) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#0a0a0f" }}>
-        <Card className="so-card" style={{ background: "#1a1a2e", border: "1px solid rgba(255,215,0,0.15)", borderRadius: 16 }}>
-          <Title level={4} style={{ color: "#FFD700" }}>{t('no_data')}</Title>
-          <Text style={{ color: "rgba(255,255,255,0.5)" }}>{t('store_create')}</Text>
+      <div className="so-spin-center">
+        <Card className="so-card-main">
+          <Title level={4} className="so-text-gold">{t('no_data')}</Title>
+          <Text className="so-text-white50">{t('store_create')}</Text>
         </Card>
       </div>
     );
@@ -159,19 +152,19 @@ const StoreOwnerPage = () => {
           background: "linear-gradient(135deg, #1a1a2e 0%, #1a1a1f 100%)",
           border: "1px solid rgba(255,215,0,0.1)",
         }}
-        extra={<Button type="link" icon={<EditOutlined />} style={{ color: "#FFD700" }} onClick={() => setEditModalOpen(true)}>{t('edit')}</Button>}
+        extra={<Button type="link" icon={<EditOutlined />} className="so-text-gold" onClick={() => setEditModalOpen(true)}>{t('edit')}</Button>}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div className="so-flex-between-mb">
           <div>
-            <Title level={4} style={{ color: "#FFD700", margin: 0 }}>{store.name}</Title>
-            <Tag color={levelBundle.color} style={{ marginTop: 4, fontWeight: 600 }}>{levelBundle.icon} {levelBundle.label}</Tag>
+            <Title level={4} className="so-text-gold so-m0">{store.name}</Title>
+            <Tag color={levelBundle.color} className="so-mt4 so-fw600">{levelBundle.icon} {levelBundle.label}</Tag>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
-          <div><EnvironmentOutlined /> <span style={{ color: "#e5e5e5" }}>{store.address?.substring(0, 40) || "N/A"}</span></div>
-          <div><PhoneOutlined /> <span style={{ color: "#e5e5e5" }}>{store.phone || "N/A"}</span></div>
-          <div><ShopOutlined /> ID: <span style={{ color: "#e5e5e5" }}>{store.id}</span></div>
-          <div><ClockCircleOutlined /> <span style={{ color: "#e5e5e5" }}>{store.created_at ? new Date(store.created_at).toLocaleDateString() : "N/A"}</span></div>
+        <div className="so-grid-2">
+          <div><EnvironmentOutlined /> <span className="so-text-light">{store.address?.substring(0, 40) || "N/A"}</span></div>
+          <div><PhoneOutlined /> <span className="so-text-light">{store.phone || "N/A"}</span></div>
+          <div><ShopOutlined /> ID: <span className="so-text-light">{store.id}</span></div>
+          <div><ClockCircleOutlined /> <span className="so-text-light">{store.created_at ? new Date(store.created_at).toLocaleDateString() : "N/A"}</span></div>
         </div>
       </Card>
 
@@ -184,14 +177,14 @@ const StoreOwnerPage = () => {
           { icon: <BarChartOutlined />, label: t('nav_fan_scan'), value: stats.scanCount, color: "#6c5ce7" },
         ].map((card) => (
           <Col span={12} key={card.label}>
-            <Card size="small" style={{ borderRadius: 10, background: "#1a1a25", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Card size="small" className="so-card-subtle">
+              <div className="so-flex">
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: "#" + card.color.slice(1) + "15", display: "flex", alignItems: "center", justifyContent: "center", color: card.color, fontSize: 18 }}>
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#e5e5e5" }}>{card.value}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{card.label}</div>
+                  <div className="so-stat-value">{card.value}</div>
+                  <div className="so-stat-label">{card.label}</div>
                 </div>
               </div>
             </Card>
@@ -204,11 +197,11 @@ const StoreOwnerPage = () => {
         size="small"
         style={{ marginTop: 12, borderRadius: 12, background: "linear-gradient(135deg, #1a1a2e 0%, #1a1a0e 100%)", border: "1px solid " + levelBundle.color + "22" }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ fontSize: 20 }}>{levelBundle.icon}</span>
+        <div className="so-flex-gap8">
+          <span className="so-fs20">{levelBundle.icon}</span>
           <Text strong style={{ color: levelBundle.color, fontSize: 14 }}>{levelBundle.label} - {t('store_materials')}</Text>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div className="so-flex-wrap">
           {levelBundle.materials.map((m, i) => (
             <Tag key={i} style={{ background: "#" + levelBundle.color.slice(1) + "12", color: levelBundle.color, border: "1px solid " + levelBundle.color + "22", borderRadius: 6, padding: "2px 8px", fontSize: 11 }}>
               {m}
@@ -228,8 +221,8 @@ const StoreOwnerPage = () => {
       <div>
         {/* Active Campaigns for this store */}
         {storeCampaigns.length > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            <Text strong style={{ color: "#FFD700", fontSize: 14, display: "block", marginBottom: 8 }}>
+          <div className="so-mb16">
+            <Text strong className="so-text-gold so-fs14 so-dblock so-mb8">
               <FireOutlined /> {t('nav_campaigns')}
             </Text>
             {storeCampaigns.map((camp) => {
@@ -246,39 +239,39 @@ const StoreOwnerPage = () => {
                     border: camp.status === "ongoing" ? "1px solid rgba(255,215,0,0.2)" : "1px solid #2a2a35",
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                        <Text strong style={{ color: "#e5e5e5", fontSize: 13 }}>{camp.name}</Text>
-                        <Tag color={camp.status === "ongoing" ? "gold" : "default"} style={{ fontSize: 10 }}>{camp.status === "ongoing" ? t('camp_active') : camp.status}</Tag>
+                  <div className="so-flex-between">
+                    <div className="so-flex-1">
+                      <div className="so-flex-gap6">
+                        <Text strong className="so-text-light so-fs13">{camp.name}</Text>
+                        <Tag color={camp.status === "ongoing" ? "gold" : "default"} className="so-fs10">{camp.status === "ongoing" ? t('camp_active') : camp.status}</Tag>
                       </div>
-                      <Text style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>{camp.description?.substring(0, 80)}</Text>
+                      <Text className="so-text-white30 so-fs11">{camp.description?.substring(0, 80)}</Text>
                       {claimed && (
-                        <div style={{ marginTop: 6 }}>
-                          <Tag color={claimed.status === "completed" ? "green" : claimed.status === "in_progress" ? "blue" : claimed.status === "pending" ? "gold" : "default"} style={{ fontSize: 10 }}>
+                        <div className="so-mt6">
+                          <Tag color={claimed.status === "completed" ? "green" : claimed.status === "in_progress" ? "blue" : claimed.status === "pending" ? "gold" : "default"} className="so-fs10">
                             {claimed.status === "completed" ? t('visit_completed') : claimed.status === "in_progress" ? t('camp_active') : claimed.status === "pending" ? t('already_claimed') : claimed.status}
                           </Tag>
                         </div>
                       )}
                     </div>
-                    <div style={{ textAlign: "right", minWidth: 80 }}>
+                    <div className="so-text-right so-minw80">
                       {!claimed && camp.status === "ongoing" && (
-                        <Button type="primary" size="small" style={{ background: "#FFD700", borderColor: "#FFD700", color: "#000" }} onClick={() => handleClaim(camp)}>
+                        <Button type="primary" size="small" className="so-btn-gold" onClick={() => handleClaim(camp)}>
                           {t('claim_campaign')}
                         </Button>
                       )}
                       {claimed && claimed.status === "in_progress" && (
-                        <Button size="small" style={{ borderColor: "#52c41a", color: "#52c41a" }} onClick={() => handleOpenReview(claimed)}>
+                        <Button size="small" className="so-btn-success" onClick={() => handleOpenReview(claimed)}>
                           {t('submit_review')}
                         </Button>
                       )}
                       {claimed && claimed.status === "completed" && (
-                        <Button size="small" style={{ borderColor: "#FFD700", color: "#FFD700" }} onClick={() => handleOpenReview(claimed)}>
+                        <Button size="small" className="so-btn-warning" onClick={() => handleOpenReview(claimed)}>
                           {t('view_review')}
                         </Button>
                       )}
                       {days > 0 && camp.status === "ongoing" && days <= 7 && (
-                        <div style={{ fontSize: 10, color: "#ff4d4f", marginTop: 4 }}>{t('days_remaining')} {days} {t('days')}</div>
+                        <div className="so-text-danger so-fs10 so-mt4">{t('days_remaining')} {days} {t('days')}</div>
                       )}
                     </div>
                   </div>
@@ -291,14 +284,14 @@ const StoreOwnerPage = () => {
         {/* Pending Reviews */}
         {pendingReview.length > 0 && (
           <div>
-            <Text strong style={{ color: "#52c41a", fontSize: 13, display: "block", marginBottom: 8 }}>
+            <Text strong className="so-text-green so-fs13 so-dblock so-mb8">
               {t('pending_review')} ({pendingReview.length})
             </Text>
             {pendingReview.map((claim) => (
-              <Card key={claim.id} size="small" style={{ marginBottom: 8, borderRadius: 10, background: "#1a1a25", border: "1px solid rgba(82,196,26,0.15)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Text style={{ color: "#e5e5e5", fontSize: 13 }}>{claim.campaign_name}</Text>
-                  <Button size="small" style={{ borderColor: "#52c41a", color: "#52c41a" }} onClick={() => handleOpenReview(claim)}>
+              <Card key={claim.id} size="small" className="so-card-green">
+                <div className="so-flex-between">
+                  <Text className="so-text-light so-fs13">{claim.campaign_name}</Text>
+                  <Button size="small" className="so-btn-green" onClick={() => handleOpenReview(claim)}>
                     {t('review')}
                   </Button>
                 </div>
@@ -342,21 +335,21 @@ const StoreOwnerPage = () => {
           border: "1px solid " + levelBundle.color + "22",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{ fontSize: 24 }}>{levelBundle.icon}</span>
+        <div className="so-flex-gap8">
+          <span className="so-fs24">{levelBundle.icon}</span>
           <div>
             <Text strong style={{ color: levelBundle.color, fontSize: 15, display: "block" }}>{levelBundle.label}{t('material_pack')}</Text>
-            <Text style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>{t('material_bundle_desc')}</Text>
+            <Text className="so-text-white30 so-fs11">{t('material_bundle_desc')}</Text>
           </div>
         </div>
         <Divider style={{ borderColor: levelBundle.color + "22", margin: "8px 0" }} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="so-flex-col">
           {levelBundle.materials.map((m, i) => {
             const mat = storeMaterials.find((mt) => mt.name === m);
             return (
-              <div key={i} style={{ padding: "6px 8px", background: "rgba(255,255,255,0.03)", borderRadius: 6, fontSize: 12 }}>
-                <div style={{ color: "#e5e5e5" }}>{m}</div>
-                <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{mat ? mat.unit_cost + " SAR/" + mat.unit : ""}</div>
+              <div key={i} className="so-tag-material">
+                <div className="so-material-name">{m}</div>
+                <div className="so-material-unit">{mat ? mat.unit_cost + " SAR/" + mat.unit : ""}</div>
               </div>
             );
           })}
@@ -364,17 +357,17 @@ const StoreOwnerPage = () => {
       </Card>
 
       {/* All Materials */}
-      <Text strong style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, display: "block", marginBottom: 8 }}>
+      <Text strong className="so-text-white50 so-fs12 so-dblock so-mb8">
         {t('store_materials')}
       </Text>
       {storeMaterials.map((m) => (
-        <Card key={m.id} size="small" style={{ marginBottom: 6, borderRadius: 8, background: "#1a1a25", border: "1px solid #2a2a35" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Card key={m.id} size="small" className="so-mb6 so-card-dark-border">
+          <div className="so-flex-between">
             <div>
-              <Text style={{ color: "#e5e5e5", fontSize: 13 }}>{m.name}</Text>
-              <Tag style={{ marginLeft: 8, fontSize: 10, background: "rgba(255,255,255,0.05)", border: "none" }}>{m.category}</Tag>
+              <Text className="so-text-light so-fs13">{m.name}</Text>
+              <Tag className="so-ml8 so-fs10 so-tag-material-sm">{m.category}</Tag>
             </div>
-            <Text style={{ color: "#FFD700", fontSize: 12 }}>{m.unit_cost} SAR</Text>
+            <Text className="so-text-gold so-fs12">{m.unit_cost} SAR</Text>
           </div>
         </Card>
       ))}
@@ -384,9 +377,9 @@ const StoreOwnerPage = () => {
   // ====== Fans Tab ======
   const FansTab = () => {
     const columns = [
-      { title: "ID", dataIndex: "id", key: "id", render: (t) => <Text copyable style={{ fontSize: 11 }}>{t}</Text> },
+      { title: "ID", dataIndex: "id", key: "id", render: (t) => <Text copyable className="so-table-id">{t}</Text> },
       { title: t('fan_level'), dataIndex: "level", key: "level", render: (l) => <Tag color={l === "S" ? "purple" : l === "A" ? "red" : l === "B" ? "blue" : "default"}>{l || "C"}</Tag> },
-      { title: t('fan_total_points'), dataIndex: "points", key: "points", render: (p) => <Text strong style={{ color: "#FFD700" }}>{p || 0}</Text> },
+      { title: t('fan_total_points'), dataIndex: "points", key: "points", render: (p) => <Text strong className="so-table-points">{p || 0}</Text> },
       { title: t('join_date'), dataIndex: "created_at", key: "created_at", render: (d) => d ? new Date(d).toLocaleDateString() : "-" },
     ];
     return (
@@ -397,7 +390,7 @@ const StoreOwnerPage = () => {
         size="small"
         pagination={{ pageSize: 10, size: "small" }}
         locale={{ emptyText: <Empty description={t('no_data')} /> }}
-        style={{ background: "transparent" }}
+        className="so-bg-transparent"
       />
     );
   };
@@ -406,7 +399,7 @@ const StoreOwnerPage = () => {
   const ScansTab = () => {
     const columns = [
       { title: t('fan_products'), dataIndex: "product_name", key: "product_name", render: (t) => t || "-" },
-      { title: t('fan_id'), dataIndex: "fan_id", key: "fan_id", render: (t) => <Text copyable style={{ fontSize: 11 }}>{t}</Text> },
+      { title: t('fan_id'), dataIndex: "fan_id", key: "fan_id", render: (t) => <Text copyable className="so-fs11">{t}</Text> },
       { title: t('date'), dataIndex: "created_at", key: "created_at", render: (d) => d ? new Date(d).toLocaleString() : "-" },
       { title: t('status'), dataIndex: "status", key: "status", render: (s) => <Tag color={s === "verified" ? "green" : "default"}>{s || "pending"}</Tag> },
     ];
@@ -431,14 +424,14 @@ const StoreOwnerPage = () => {
   ];
 
   return (
-    <div style={{ background: "#0a0a0f", minHeight: "100vh", padding: "12px 16px", paddingBottom: 80 }}>
+    <div className="so-page">
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div className="so-flex-between-mb">
         <div>
-          <Title level={4} style={{ color: "#FFD700", margin: 0 }}>{t('store_title')}</Title>
-          <Text style={{ color: "rgba(255,255,255,0.3)", fontSize: 11 }}>{store.name}</Text>
+          <Title level={4} className="so-text-gold so-m0">{t('store_title')}</Title>
+          <Text className="so-text-white30 so-fs11">{store.name}</Text>
         </div>
-        <Tag color={levelBundle.color} style={{ fontWeight: 600 }}>{levelBundle.icon} {levelBundle.label}</Tag>
+        <Tag color={levelBundle.color} className="so-fw600">{levelBundle.icon} {levelBundle.label}</Tag>
       </div>
 
       <Tabs
@@ -446,12 +439,12 @@ const StoreOwnerPage = () => {
         onChange={setActiveTab}
         items={tabItems}
         size="small"
-        style={{ color: "#e5e5e5" }}
+        className="so-text-light"
       />
 
       {/* Edit Store Modal */}
       <Modal
-        title={<span style={{ color: "#FFD700" }}><EditOutlined /> {t('store_edit')}</span>}
+        title={<span className="so-text-gold"><EditOutlined /> {t('store_edit')}</span>}
         open={editModalOpen}
         onCancel={() => setEditModalOpen(false)}
         onOk={handleSaveStore}
@@ -460,24 +453,24 @@ const StoreOwnerPage = () => {
         styles={{ content: { background: "#1a1a2e", border: "1px solid rgba(255,215,0,0.15)" } }}
       >
         <Form form={editForm} layout="vertical">
-          <Form.Item name="name" label={<span style={{ color: "#e5e5e5" }}>{t('store_name')}</span>} rules={[{ required: true }]}>
-            <Input style={{ background: "#2a2a35", border: "1px solid #3a3a45", color: "#e5e5e5" }} />
+          <Form.Item name="name" label={<span className="so-text-light">{t('store_name')}</span>} rules={[{ required: true }]}>
+            <Input className="so-input-dark" />
           </Form.Item>
-          <Form.Item name="phone" label={<span style={{ color: "#e5e5e5" }}>{t('store_phone')}</span>}>
-            <Input style={{ background: "#2a2a35", border: "1px solid #3a3a45", color: "#e5e5e5" }} />
+          <Form.Item name="phone" label={<span className="so-text-light">{t('store_phone')}</span>}>
+            <Input className="so-input-dark" />
           </Form.Item>
-          <Form.Item name="address" label={<span style={{ color: "#e5e5e5" }}>{t('store_address')}</span>}>
-            <Input.TextArea rows={2} style={{ background: "#2a2a35", border: "1px solid #3a3a45", color: "#e5e5e5" }} />
+          <Form.Item name="address" label={<span className="so-text-light">{t('store_address')}</span>}>
+            <Input.TextArea rows={2} className="so-input-dark" />
           </Form.Item>
-          <Form.Item name="contact" label={<span style={{ color: "#e5e5e5" }}>{t('contact')}</span>}>
-            <Input style={{ background: "#2a2a35", border: "1px solid #3a3a45", color: "#e5e5e5" }} />
+          <Form.Item name="contact" label={<span className="so-text-light">{t('contact')}</span>}>
+            <Input className="so-input-dark" />
           </Form.Item>
         </Form>
       </Modal>
 
       {/* Review Modal */}
       <Modal
-        title={<span style={{ color: "#52c41a" }}><CheckCircleOutlined /> {t('review_title')}</span>}
+        title={<span className="so-text-green"><CheckCircleOutlined /> {t('review_title')}</span>}
         open={reviewModal.open}
         onCancel={() => setReviewModal({ open: false, claim: null })}
         onOk={handleSubmitReview}
@@ -487,26 +480,26 @@ const StoreOwnerPage = () => {
       >
         {reviewModal.claim && (
           <div>
-            <Text style={{ color: "#e5e5e5", display: "block", marginBottom: 12 }}>
-              {t('nav_campaigns')}: <strong style={{ color: "#FFD700" }}>{reviewModal.claim.campaign_name}</strong>
+            <Text className="so-text-light so-dblock so-mb12">
+              {t('nav_campaigns')}: <strong className="so-table-points">{reviewModal.claim.campaign_name}</strong>
             </Text>
 
-            <div style={{ marginBottom: 12 }}>
-              <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, display: "block", marginBottom: 4 }}>{t('materials_used')}</Text>
+            <div className="so-mb12">
+              <Text className="so-text-white50 so-fs12 so-dblock so-mb4">{t('materials_used')}</Text>
               <InputNumber
                 min={0}
                 value={reviewForm.materials_used}
                 onChange={(v) => setReviewForm((p) => ({ ...p, materials_used: v }))}
-                style={{ width: "100%", background: "#2a2a35", border: "1px solid #3a3a45", color: "#e5e5e5" }}
+                className="so-input-dark" style={{ width: "100%" }}
               />
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, display: "block", marginBottom: 4 }}>{t('effect')}</Text>
+            <div className="so-mb12">
+              <Text className="so-text-white50 so-fs12 so-dblock so-mb4">{t('effect')}</Text>
               <Select
                 value={reviewForm.effect}
                 onChange={(v) => setReviewForm((p) => ({ ...p, effect: v }))}
-                style={{ width: "100%" }}
+                className="so-minw80" style={{ width: "100%" }}
                 options={[
                   { label: t('effect_great'), value: "great" },
                   { label: t('effect_good'), value: "good" },
@@ -517,12 +510,12 @@ const StoreOwnerPage = () => {
             </div>
 
             <div>
-              <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, display: "block", marginBottom: 4 }}>{t('feedback')}</Text>
+              <Text className="so-text-white50 so-fs12 so-dblock so-mb4">{t('feedback')}</Text>
               <Input.TextArea
                 rows={3}
                 value={reviewForm.feedback}
                 onChange={(e) => setReviewForm((p) => ({ ...p, feedback: e.target.value }))}
-                style={{ background: "#2a2a35", border: "1px solid #3a3a45", color: "#e5e5e5" }}
+                className="so-input-dark"
                 placeholder={t('feedback_placeholder')}
               />
             </div>

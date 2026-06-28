@@ -6,6 +6,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { getCampaigns } from '../../services/api';
 import { CAMPAIGN_TYPES } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const { Text } = Typography;
 const statusConfig = { planned: { color: 'blue', text: 'Planned' }, ongoing: { color: 'processing', text: 'Ongoing' }, completed: { color: 'default', text: 'Completed' }, cancelled: { color: 'red', text: 'Cancelled' } };
@@ -19,8 +20,9 @@ const CampaignListPage = () => {
   const { data: campaigns = [], isLoading } = useQuery({ queryKey: ['campaigns', { status: statusFilter, type: typeFilter }], queryFn: () => getCampaigns({ status: statusFilter, type: typeFilter }) });
 
   return (
+    <PageTransition>
     <div>
-      <Card title="Campaign Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/campaigns/create')}>New Campaign</Button>} style={{ marginBottom: 16 }}>
+      <Card className="crud-card" title="Campaign Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/campaigns/create')}>New Campaign</Button>} style={{ marginBottom: 16 }}>
         <Tabs activeKey={statusFilter || 'all'} onChange={(k) => setStatusFilter(k === 'all' ? undefined : k)} items={[
           { key: 'all', label: 'All' }, { key: 'planned', label: 'Planned' }, { key: 'ongoing', label: 'Ongoing' }, { key: 'completed', label: 'Completed' },
         ]} />
@@ -50,7 +52,7 @@ const CampaignListPage = () => {
          })}
        </Row>}
     </div>
-  );
+    </PageTransition>);
 };
 
 export default CampaignListPage;

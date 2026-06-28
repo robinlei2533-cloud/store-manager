@@ -5,11 +5,13 @@ import { UserOutlined, AppstoreOutlined, DatabaseOutlined } from '@ant-design/ic
 import UserManagementPage from './UserManagementPage';
 import ProductManagementPage from './ProductManagementPage';
 import DataManagement from './DataManagement';
+import PageTransition from "../../components/common/PageTransition";
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('users');
 
   return (
+    <PageTransition>
     <Card>
       <Tabs
         activeKey={activeTab}
@@ -33,7 +35,7 @@ const SettingsPage = () => {
         ]}
       />
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default SettingsPage;

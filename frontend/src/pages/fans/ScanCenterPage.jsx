@@ -5,6 +5,7 @@ import { PlusOutlined, QrcodeOutlined, ScanOutlined, DeleteOutlined } from '@ant
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getQrCodes, createQrCode, updateQrCode, deleteQrCode, scanQrCode, getScanRecords, getProducts, getStores } from '../../services/api';
 import { FAN_LEVELS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const levelMap = Object.fromEntries(FAN_LEVELS.map(f => [f.value, f]));
 
@@ -57,6 +58,7 @@ const ScanCenterPage = () => {
   ];
 
   return (
+    <PageTransition>
     <Card>
       <Tabs items={[
         { key: 'qr', label: 'QR Code Management', children: (
@@ -88,7 +90,7 @@ const ScanCenterPage = () => {
         </Form>
       </Modal>
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default ScanCenterPage;

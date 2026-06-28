@@ -5,6 +5,7 @@ import { DownloadOutlined, ImportOutlined, DatabaseOutlined, CloudOutlined } fro
 import { IS_LOCAL_MODE } from '../../services/api';
 import localDb from '../../services/db/localDb';
 import seedData from '../../services/db/seedData';
+import PageTransition from "../../components/common/PageTransition";
 
 const { Text, Paragraph } = Typography;
 
@@ -90,6 +91,7 @@ const DataManagement = () => {
   const totalRecords = TABLES.reduce((sum, table) => sum + localDb.all(table).length, 0);
 
   return (
+    <PageTransition>
     <Card title={<><DatabaseOutlined /> Data Management</>} style={{ maxWidth: 700 }}>
       {IS_LOCAL_MODE ? (
         <Alert
@@ -156,7 +158,7 @@ const DataManagement = () => {
         </div>
       </Space>
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default DataManagement;

@@ -6,6 +6,7 @@ import { PlusOutlined, SearchOutlined, ImportOutlined, DownloadOutlined } from '
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getStores, createStore } from '../../services/api';
 import { STORE_LEVELS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const levelColorMap = { A: 'red', B: 'blue', C: 'default' };
 
@@ -119,7 +120,8 @@ const StoreListPage = () => {
   ];
 
   return (
-    <Card title="Store Management" extra={
+    <PageTransition>
+    <Card className="crud-card" title="Store Management" extra={
       <Space>
         <Button icon={<ImportOutlined />} onClick={() => setImportModalOpen(true)}>Import</Button>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/stores/create')}>Add Store</Button>
@@ -133,7 +135,7 @@ const StoreListPage = () => {
 
       {/* Import Modal */}
       {importModalOpen && (
-        <Card title="Import Stores from CSV" size="small" style={{ marginTop: 16, background: '#fafafa' }}>
+        <Card className="crud-card" title="Import Stores from CSV" size="small" style={{ marginTop: 16, background: '#fafafa' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <p style={{ margin: 0, color: '#666', fontSize: 13 }}>
               Upload a CSV file with columns: name, address, lat, lng, level, chain_name, chain_store_count, contact, phone
@@ -149,7 +151,7 @@ const StoreListPage = () => {
         </Card>
       )}
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default StoreListPage;

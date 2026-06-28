@@ -5,6 +5,7 @@ import { Card, Descriptions, Tabs, Table, Tag, Button, Spin, Empty } from 'antd'
 import { useQuery } from '@tanstack/react-query';
 import { getFanById, getFanPointsLog, getLevelRules } from '../../services/api';
 import { FAN_LEVELS } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const FanDetailPage = () => {
   const { id } = useParams();
@@ -30,6 +31,7 @@ const FanDetailPage = () => {
   ];
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
       <Card title="Fan Detail">
@@ -59,7 +61,7 @@ const FanDetailPage = () => {
         ]} />
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default FanDetailPage;

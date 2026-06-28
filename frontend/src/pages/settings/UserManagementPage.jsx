@@ -4,6 +4,7 @@ import { Table, Card, Tag, Spin, Empty, Button, Select, message } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProfiles, updateProfile } from '../../services/api';
 import { ROLE_NAMES } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const UserManagementPage = () => {
   const queryClient = useQueryClient();
@@ -27,12 +28,13 @@ const UserManagementPage = () => {
   ];
 
   return (
+    <PageTransition>
     <Card title="User Management">
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div> :
      !profiles.length ? <Empty description="No users" /> :
      <Table rowKey="id" dataSource={profiles} columns={columns} pagination={false} />}
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default UserManagementPage;

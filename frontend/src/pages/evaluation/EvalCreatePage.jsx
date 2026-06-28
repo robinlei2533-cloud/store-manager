@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import useAuthStore from '../../stores/authStore';
 import { getStores, getProfiles, createEvaluation, updateEvaluation, getEvaluationById } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const dimensions = [
   { key: 'score_sales', label: 'Sales / Order Frequency', desc: 'Recent sales volume and order frequency' },
@@ -61,6 +62,7 @@ const EvalCreatePage = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
       <Card title={id ? 'Edit Evaluation' : 'New Evaluation'}>
@@ -96,7 +98,7 @@ const EvalCreatePage = () => {
         <Button size="large" style={{ marginLeft: 8 }} onClick={() => navigate('/app/evaluation')}>Cancel</Button>
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default EvalCreatePage;

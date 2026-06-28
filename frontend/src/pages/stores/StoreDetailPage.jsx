@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Tag, Button, Spin, Empty } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { getStoreById, getVisits } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const StoreDetailPage = () => {
   const { id } = useParams();
@@ -23,6 +24,7 @@ const StoreDetailPage = () => {
   if (isLoading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/stores/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Stores</Button>
       <Card title={store?.name || 'Store Detail'}>
@@ -43,7 +45,7 @@ const StoreDetailPage = () => {
         ]} />
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default StoreDetailPage;

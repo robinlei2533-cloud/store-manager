@@ -77,13 +77,13 @@ const FanCenterPage = () => {
   };
 
   if (isLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><Spin size="large" /></div>;
+    return <div className="fc-spin-center"><Spin size="large" /></div>;
   }
 
   if (!currentFan) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <Card style={{ textAlign: 'center', maxWidth: 400, borderRadius: 16 }}>
+      <div className="fc-empty-state">
+        <Card className="fc-empty-card">
           <Empty description={t('no_data')} />
           <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>{t('back')}</Button>
         </Card>
@@ -93,31 +93,42 @@ const FanCenterPage = () => {
 
   const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
 
+  const tabBarExtraContent = activeTab === "invite" || activeTab === "map" || activeTab === "help" ? null : (
+    <Dropdown
+      menu={{
+        items: [
+          { key: "invite", icon: <TeamOutlined />, label: t("fan_invite") },
+          { key: "map", icon: <span>{"\ud83d\uddfa\ufe0f"}</span>, label: "Map" },
+          { key: "help", icon: <QuestionCircleOutlined />, label: t("fan_help") },
+        ],
+        onClick: ({ key }) => setActiveTab(key),
+      }}
+      placement="bottomRight"
+    >
+      <Button type="text" size="small" className="fc-more-btn">
+        {"\u66f4\u591a"} <span style={{ fontSize: 10, marginLeft: 4 }}>{"\u25be"}</span>
+      </Button>
+    </Dropdown>
+  );
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', paddingBottom: 24, position: 'relative', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+    <div className="fc-page">
       {/* Decorative glow */}
-      <div style={{position:'fixed',top:'-20%',right:'-10%',width:500,height:500,borderRadius:'50%',background:'radial-gradient(circle,rgba(212,168,0,0.06) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
-      <div style={{position:'fixed',bottom:'-10%',left:'-5%',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
+      <div className="fc-glow-top" />
+      <div className="fc-glow-bottom" />
       {/* Top Bar */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #191400 50%, #2a1f00 100%)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-        padding: '16px 20px', color: '#fff', position: 'sticky', top: 0, zIndex: 100,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.15)', borderBottom: '1px solid rgba(255,215,0,0.08)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 600, margin: '0 auto', position: 'relative' }}>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <Avatar size={36} icon={<UserOutlined />} style={{background:'#FFD700',color:'#0a0a0f',border:'2px solid rgba(255,215,0,0.3)'}} />
+      <div className="fc-topbar">
+        <div className="fc-topbar-inner">
+          <div className="fc-profile-section">
+            <Avatar size={36} icon={<UserOutlined />} className="fc-profile-avatar" />
             <div>
-              <div style={{fontSize:13,fontWeight:600}}>{currentFan.name || t('fan_profile')}</div>
-              <div style={{fontSize:10,color:'rgba(255,255,255,0.5)'}}>{currentFan.phone || '---'}</div>
+              <div className="fc-profile-name">{currentFan.name || t('fan_profile')}</div>
+              <div className="fc-profile-phone">{currentFan.phone || '---'}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#FFD700' }}>{currentFan.points} <span style={{fontSize:11,fontWeight:400,color:"rgba(255,215,0,0.6)"}}>pts</span></div>
-              <Tag color={levelInfo.color} style={{ fontSize: 10, margin: 0 }}>{levelInfo.label}</Tag>
+          <div className="fc-points-section">
+            <div className="fc-points-display">
+              <div className="fc-points-value">{currentFan.points} <span className="fc-points-unit">pts</span></div>
+              <Tag color={levelInfo.color} className="fc-points-tag">{levelInfo.label}</Tag>
             </div>
             <Dropdown menu={{
               items: [
@@ -139,59 +150,56 @@ const FanCenterPage = () => {
                 else if (key === 'logout') handleLogout();
               },
             }} placement="bottomRight">
-              <Button type="text" size="small" icon={<SettingOutlined style={{ color: 'rgba(255,255,255,0.5)' }} />} />
+              <Button type="text" size="small" icon={<SettingOutlined className="fc-settings-trigger" />} />
             </Dropdown>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
+      <div className="fc-tabs-wrapper">
         <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
+          activeKey={activeTab === "invite" || activeTab === "map" || activeTab === "help" ? "more" : activeTab}
+          onChange={(key) => { if (key !== "more") setActiveTab(key); }}
           centered
           size="small"
+          tabBarExtraContent={tabBarExtraContent}
           items={[
             {
-              key: 'checkin',
-              label: <span>{t('fan_check_in')}</span>,
+              key: "checkin",
+              label: <span>{t("fan_check_in")}</span>,
               children: <div className="fc-tab-content"><CheckInTab fan={currentFan} onPointsChange={handlePointsChange} /></div>,
             },
             {
-              key: 'scan',
-              label: <span>{t('fan_scan')}</span>,
+              key: "scan",
+              label: <span>{t("fan_scan")}</span>,
               children: <div className="fc-tab-content"><ScanTab fan={currentFan} onPointsChange={handlePointsChange} /></div>,
             },
             {
-              key: 'mall',
-              label: <span>{t('fan_products')}</span>,
+              key: "mall",
+              label: <span>{t("fan_products")}</span>,
               children: <div className="fc-tab-content"><MallTab fan={currentFan} onPointsChange={handlePointsChange} /></div>,
             },
             {
-              key: 'invite',
-              label: <span>{t('fan_invite')}</span>,
-              children: <div className="fc-tab-content"><InviteTab fan={currentFan} /></div>,
-            },
-            {
-              key: 'community',
-              label: <span>{t('fan_community')}</span>,
+              key: "community",
+              label: <span>{t("fan_community")}</span>,
               children: <div className="fc-tab-content"><CommunityTab fan={currentFan} /></div>,
             },
             {
-              key: 'campaigns',
-              label: <span>{t('fan_activities')}</span>,
+              key: "campaigns",
+              label: <span>{t("fan_activities")}</span>,
               children: <div className="fc-tab-content"><CampaignTab fan={currentFan} /></div>,
             },
             {
-              key: 'map',
-              label: <span>🗺️ Map</span>,
-              children: <div className="fc-tab-content"><MapTab fan={currentFan} /></div>,
-            },
-            {
-              key: 'help',
-              label: <span>{t('fan_help')}</span>,
-              children: <div className="fc-tab-content"><HowItWorksTab /></div>,
+              key: "more",
+              label: <span style={{ display: "none" }}>more</span>,
+              children: (
+                <div className="fc-tab-content">
+                  {activeTab === "invite" && <InviteTab fan={currentFan} />}
+                  {activeTab === "map" && <MapTab fan={currentFan} />}
+                  {activeTab === "help" && <HowItWorksTab />}
+                </div>
+              ),
             },
           ]}
         />

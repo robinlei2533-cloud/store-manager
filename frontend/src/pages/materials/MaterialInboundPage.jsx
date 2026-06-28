@@ -4,6 +4,7 @@ import { Form, Select, InputNumber, Input, Button, Card, Table, message, Spin, D
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMaterials, createInbound, getInbounds } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
+import PageTransition from "../../components/common/PageTransition";
 
 const MaterialInboundPage = () => {
   const queryClient = useQueryClient();
@@ -32,6 +33,7 @@ const MaterialInboundPage = () => {
   ];
 
   return (
+    <PageTransition>
     <div>
       <Card title="Inbound Management" style={{ marginBottom: 16 }}>
         <Form form={form} layout="inline" onFinish={handleSubmit} style={{ marginBottom: 16 }}>
@@ -55,7 +57,7 @@ const MaterialInboundPage = () => {
          <Table rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }} />}
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default MaterialInboundPage;

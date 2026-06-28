@@ -7,6 +7,7 @@ import { getMaterials, createMaterial, updateMaterial, deleteMaterial, getMateri
 import useAuthStore from '../../stores/authStore';
 import { ROLES } from '../../utils/constants';
 import localDb from '../../services/db/localDb';
+import PageTransition from "../../components/common/PageTransition";
 
 const MATERIAL_CATEGORIES = ['Promotional', 'Display', 'Office Supply', 'Gift', 'Store', 'Uniform', 'Sample', 'Other'];
 
@@ -88,6 +89,7 @@ const CatalogTab = () => {
       render: (_, record) => {
         const stock = getStockInfo(record.id);
         return (
+    <PageTransition>
           <Tooltip title="Click to edit">
             <InputNumber
               value={stock.qty}
@@ -97,7 +99,7 @@ const CatalogTab = () => {
               onChange={(v) => updateStockMutation.mutate({ materialId: record.id, qty: v || 0, safetyStock: stock.safety_stock })}
             />
           </Tooltip>
-        );
+    </PageTransition>);
       },
     },
     {

@@ -8,6 +8,7 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import useLanguageStore from '../stores/languageStore';
+import PageTransition from "../components/common/PageTransition";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: 1 } } });
 
@@ -24,6 +25,7 @@ const router = createHashRouter([
 
 const FanApp = () => {
   return (
+    <PageTransition>
     <ConfigProvider
       locale={zhCN}
       theme={{
@@ -53,7 +55,7 @@ const FanApp = () => {
         </ErrorBoundary>
       </AntApp></QueryClientProvider>
     </ConfigProvider>
-  );
+    </PageTransition>);
 };
 
 export default FanApp;

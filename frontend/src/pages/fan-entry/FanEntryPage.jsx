@@ -11,7 +11,6 @@ import CircularGallery from "../../components/effects/CircularGallery";
 import ClickSpark from "../../components/effects/ClickSpark";
 import Counter from "../../components/effects/Counter";
 import { Spin, message } from 'antd';
-import gsap from 'gsap';
 
 // ============ Product Data (from fan-entry.html) ============
 const PD = [
@@ -375,12 +374,6 @@ const FanEntryPage = () => {
     };
   }, []);
 
-  // GSAP entrance animation for header
-  useEffect(() => {
-    gsap.from('.fe-hero-title', { opacity: 0, y: 40, duration: 1, ease: 'power3.out', delay: 0.3 });
-    gsap.from('.fe-hero-sub', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out', delay: 0.6 });
-    gsap.from('.fe-login-form', { opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: 0.9 });
-  }, []);
   // Staggered product card entrance
   useEffect(() => {
     const t = setTimeout(() => setVisibleCards(true), 600);

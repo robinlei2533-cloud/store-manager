@@ -6,6 +6,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { getVisits, getStores } from '../../services/api';
 import dayjs from 'dayjs';
+import PageTransition from "../../components/common/PageTransition";
 
 const VisitListPage = () => {
   const navigate = useNavigate();
@@ -36,7 +37,8 @@ const VisitListPage = () => {
   ];
 
   return (
-    <Card title="Visit Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/visits/create')}>New Visit</Button>}>
+    <PageTransition>
+    <Card className="crud-card" title="Visit Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/visits/create')}>New Visit</Button>}>
       <Space wrap style={{ marginBottom: 16 }}>
         <RangePicker value={dateRange} onChange={setDateRange} />
         <Select placeholder="Status" value={status} onChange={setStatus} allowClear style={{ width: 140 }} options={[
@@ -45,7 +47,7 @@ const VisitListPage = () => {
       </Space>
       <Table columns={columns} dataSource={visits} rowKey="id" loading={isLoading} locale={{ emptyText: <Empty description="No visits found" /> }} pagination={{ pageSize: 15, showTotal: (t) => `Total ${t} visits` }} scroll={{ x: 700 }} />
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default VisitListPage;

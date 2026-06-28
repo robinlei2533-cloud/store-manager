@@ -94,17 +94,12 @@ const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
   }, [value]);
 
   return (
-    <div ref={cardRef} className="liquid-glass" style={{
-      padding: '18px 16px',
-      borderRadius: 16,
-      textAlign: 'center',
-      border: '1px solid rgba(255,215,0,0.08)',
-    }}>
-      <div style={{ fontSize: 22, color, marginBottom: 6, opacity: 0.8 }}>{icon}</div>
-      <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>
+    <div ref={cardRef} className="dash-stat-card liquid-glass">
+      <div className="dash-stat-icon" style={{ color }}>{icon}</div>
+      <div className="dash-stat-value">
         {typeof value === 'number' ? animatedValue.toLocaleString() : value}
       </div>
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontWeight: 500 }}>{label}</div>
+      <div className="dash-stat-label">{label}</div>
     </div>
   );
 };
@@ -216,7 +211,7 @@ const DashboardPage = () => {
 
   return (
     <div>
-      <Title level={4} style={{ marginBottom: 24 }}>
+      <Title level={4} className="dash-section">
         <RiseOutlined /> Dashboard
         <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>Welcome back, {profile?.name || 'User'}</Text>
       </Title>
@@ -237,7 +232,7 @@ const DashboardPage = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={14}>
           <Card title={<><CameraOutlined /> 30-Day Visit Trend</>}>
-            {trendLoading ? <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div> :
+            {trendLoading ? <div className="dash-loading"><Spin /></div> :
              trendData?.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={trendData}>
@@ -248,7 +243,7 @@ const DashboardPage = () => {
                   <Line type="monotone" dataKey="count" stroke="#1677ff" strokeWidth={2} dot={{ r: 3 }} name="Visits" />
                 </LineChart>
               </ResponsiveContainer>
-            ) : <Empty description="No visit data" style={{ padding: '60px 0' }} />}
+            ) : <Empty description="No visit data" className="dash-empty" />}
           </Card>
         </Col>
         <Col xs={24} lg={10}>
@@ -296,7 +291,7 @@ const DashboardPage = () => {
                 <List.Item>
                   <List.Item.Meta
                     avatar={<Badge status="processing" />}
-                    title={<span style={{color:"#e5e5e5"}}>{cl.campaign_name || "Campaign"}</span>}
+                    title={<span className="dash-card-title-light">{cl.campaign_name || "Campaign"}</span>}
                     description={`Store: ${cl.store_id || "N/A"} · Claimed: ${new Date(cl.claimed_at).toLocaleDateString()}`}
                   />
                   <Tag color="volcano">Needs Dispatch</Tag>
@@ -310,14 +305,14 @@ const DashboardPage = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
           <Card title={<><ThunderboltOutlined /> Campaign Overview</>}>
-            {campaignsLoading ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div> :
+            {campaignsLoading ? <div className="dash-loading-sm"><Spin /></div> :
              campaigns?.length > 0 ? (
               <List size="small" dataSource={campaigns.slice(0, 5)} renderItem={(c) => (
                 <List.Item>
                   <List.Item.Meta title={<span><Tag color={c.status === 'ongoing' ? 'processing' : c.status === 'completed' ? 'default' : 'blue'}>{c.status === 'ongoing' ? 'Ongoing' : c.status === 'completed' ? 'Completed' : c.status === 'planned' ? 'Planned' : 'Cancelled'}</Tag>{c.name}</span>} description={`${c.type} · ${c.start_date} ~ ${c.end_date} · ${c.store_count || (c.target_stores?.length || 0)} stores`} />
                 </List.Item>
               )} />
-            ) : <Empty description="No campaigns" style={{ padding: '40px 0' }} />}
+            ) : <Empty description="No campaigns" className="dash-empty-sm" />}
           </Card>
         </Col>
         <Col xs={24} lg={12}>
@@ -357,7 +352,7 @@ const DashboardPage = () => {
       {/* Store Visit Heatmap */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24}>
-          <Card title={<span style={{color:"#FFD700"}}>Store Visit Heatmap</span>} extra={
+          <Card title={<span className="dash-card-title-gold">Store Visit Heatmap</span>} extra={
             <Button size="small" icon={<DownloadOutlined />} onClick={() => {
               const data = (storeDistribution || []).map(s => ({ name: s.name, level: s.level || "Unrated", visits: visitCountMap[s.id] || 0 }));
               exportToCSV(data, "stores-heatmap.csv", [{title:"Store", dataIndex:"name"}, {title:"Level", dataIndex:"level"}, {title:"Visits", dataIndex:"visits"}]);
@@ -366,7 +361,7 @@ const DashboardPage = () => {
             {storeDistribution?.length > 0 ? (
               <StoreHeatmap stores={storeDistribution} visitCounts={visitCountMap} onStoreClick={(s) => { window.open("/#/app/stores/" + s.id, "_blank"); }} />
             ) : (
-              <div style={{textAlign:"center", padding:60, color:"#666"}}>No store data</div>
+              <div className="dash-no-data">No store data</div>
             )}
           </Card>
         </Col>

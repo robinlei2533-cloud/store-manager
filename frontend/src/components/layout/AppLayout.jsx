@@ -18,13 +18,12 @@ import {
   MenuOutlined,
   ApartmentOutlined,
 } from '@ant-design/icons';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
 import useAuthStore from '../../stores/authStore';
 import useLanguageStore from '../../stores/languageStore';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { ROLES, ROLE_NAMES } from '../../utils/constants';
 import { IS_LOCAL_MODE } from '../../services/api';
+import { motion } from 'framer-motion';
 
 const { Header, Sider, Content } = Layout;
 
@@ -37,19 +36,9 @@ const AppLayout = () => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const contentRef = useRef(null);
-
+  
   if (!profile) {
-    // Animate content on route change
-  useGSAP(() => {
-    gsap.from(contentRef.current, {
-      opacity: 0,
-      y: 20,
-      duration: 0.5,
-      ease: 'power3.out',
-    });
-  }, { dependencies: [location.pathname], scope: contentRef });
-
+  
   return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Spin size="large" />
@@ -149,11 +138,6 @@ const AppLayout = () => {
     return keys;
   };
 
-  // Animate brand block entrance
-  useGSAP(() => {
-    gsap.from('.brand-block', { opacity: 0, y: -10, duration: 0.6, ease: 'power3.out' });
-  }, []);
-
   const brandBlock = (
     <div style={{
       height: 76,
@@ -165,7 +149,7 @@ const AppLayout = () => {
       color: token.colorPrimary,
       borderBottom: `1px solid ${token.colorBorderSecondary}`,
     }}>
-      <div style={{ fontSize: 20, lineHeight: '24px' }}>UWELL CRM</div>
+      <div className="layout-brand">UWELL CRM</div>
       <div style={{ fontSize: 11, color: token.colorTextTertiary, fontWeight: 500, marginTop: 3 }}>
         粉丝运营与门店增长系统
       </div>
@@ -183,24 +167,15 @@ const AppLayout = () => {
     />
   );
 
-  // Animate content on route change
-  useGSAP(() => {
-    gsap.from(contentRef.current, {
-      opacity: 0,
-      y: 20,
-      duration: 0.5,
-      ease: 'power3.out',
-    });
-  }, { dependencies: [location.pathname], scope: contentRef });
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="layout-root">
       {!isMobile && (
-        <Sider width={232} breakpoint="lg" collapsedWidth={0} style={{ background: token.colorBgContainer, borderRight: `1px solid ${token.colorBorderSecondary}` }}>
+        <Sider width={232} breakpoint="lg" collapsedWidth={0} className="layout-sider">
           {brandBlock}
           {IS_LOCAL_MODE && (
             <div style={{ padding: '10px 16px 2px', textAlign: 'center' }}>
-              <Tag color="blue" style={{ fontSize: 11, marginInlineEnd: 0 }}>本地演示模式</Tag>
+              <Tag color="blue" className="layout-role-tag">本地演示模式</Tag>
             </div>
           )}
           {menu}
@@ -244,7 +219,7 @@ const AppLayout = () => {
             )}
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}><LanguageSwitcher inline /><Dropdown menu={userMenu} placement="bottomRight">
-            <Button type="text" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <Button type="text" className="layout-user-btn">
               <Avatar size="small" icon={<UserOutlined />} />
               {!isMobile && <span>{profile.name || '用户'}</span>}
             </Button>
@@ -258,7 +233,14 @@ const AppLayout = () => {
           overflow: 'auto',
           boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
         }}>
-          <Outlet />
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Outlet />
+          </motion.div>
         </Content>
       </Layout>
     </Layout>

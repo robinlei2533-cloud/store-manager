@@ -4,6 +4,7 @@ import { Table, Button, Modal, Form, Input, InputNumber, Select, message, Space,
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const CATEGORIES = ['Beverage', 'Snack', 'Food', 'Daily Use', 'Other'];
 
@@ -41,6 +42,7 @@ const ProductManagementPage = () => {
   ];
 
   return (
+    <PageTransition>
     <Card title="Product Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true); }}>Add Product</Button>}>
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
        !products.length ? <Empty description="No products" /> :
@@ -54,7 +56,7 @@ const ProductManagementPage = () => {
         </Form>
       </Modal>
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default ProductManagementPage;

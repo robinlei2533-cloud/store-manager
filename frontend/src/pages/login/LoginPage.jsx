@@ -66,11 +66,11 @@ const LoginPage = () => {
       </div>
 
       <Card className="staff-login-card" styles={{ body: { padding: 32 } }}>
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        <div className="login-title">
           <div className="login-icon">
             <SafetyCertificateOutlined />
           </div>
-          <Title level={3} style={{ margin: 0 }}>{t('admin_login')}</Title>
+          <Title level={3} className="">{t('admin_login')}</Title>
           <Text type="secondary">运营人员、业务代表和管理员使用</Text>
         </div>
 
@@ -80,7 +80,7 @@ const LoginPage = () => {
             showIcon
             message="本地演示模式"
             description="当前未连接 Supabase，输入任意邮箱和密码即可体验后台功能。正式上线后会使用真实账号体系。"
-            style={{ marginBottom: 16 }}
+            className="login-mb16"
           />
         )}
 
@@ -91,17 +91,17 @@ const LoginPage = () => {
           <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
             <Input.Password prefix={<LockOutlined />} placeholder={t("admin_password")} />
           </Form.Item>
-          <Form.Item style={{ marginBottom: 12 }}>
-            <Button type="primary" htmlType="submit" loading={submitting} block style={{ height: 44 }}>{t("admin_login_btn")}</Button>
+          <Form.Item className="login-mb12">
+            <Button type="primary" htmlType="submit" loading={submitting} block className="login-btn-primary">{t("admin_login_btn")}</Button>
           </Form.Item>
         </Form>
 
-        <Divider plain><Text type="secondary" style={{ fontSize: 12 }}>首次使用</Text></Divider>
-        <Button block style={{ height: 44 }} onClick={() => setRegisterModalOpen(true)}>创建员工账号</Button>
+        <Divider plain><Text type="secondary" className="login-divider-text">首次使用</Text></Divider>
+        <Button block className="login-btn-secondary" onClick={() => setRegisterModalOpen(true)}>创建员工账号</Button>
       </Card>
 
       <Modal title="创建员工账号" open={registerModalOpen} onCancel={() => { setRegisterModalOpen(false); registerForm.resetFields(); }} footer={null} width={420} destroyOnClose>
-        <Form form={registerForm} layout="vertical" onFinish={handleRegister} style={{ marginTop: 16 }}>
+        <Form form={registerForm} layout="vertical" onFinish={handleRegister} className="login-form-mt16">
           <Form.Item name="name" rules={[{ required: true, message: '请输入姓名' }]}>
             <Input prefix={<UserOutlined />} placeholder="姓名" />
           </Form.Item>
@@ -117,8 +117,8 @@ const LoginPage = () => {
               { label: ROLE_NAMES.fan, value: ROLES.FAN },
             ]} />
           </Form.Item>
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Button type="primary" htmlType="submit" loading={registering} block style={{ height: 44 }}>创建账号</Button>
+          <Form.Item className="login-mb0">
+            <Button type="primary" htmlType="submit" loading={registering} block className="login-btn-primary">创建账号</Button>
           </Form.Item>
         </Form>
       </Modal>

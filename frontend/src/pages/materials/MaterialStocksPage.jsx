@@ -3,6 +3,7 @@ import React from 'react';
 import { Table, Tag, Card, Spin, Empty, Image } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { getMaterialStocks, getMaterials } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const MaterialStocksPage = () => {
   const { data: stocks = [], isLoading } = useQuery({ queryKey: ['material-stocks'], queryFn: getMaterialStocks });
@@ -34,12 +35,13 @@ const MaterialStocksPage = () => {
   ];
 
   return (
+    <PageTransition>
     <Card title="Inventory Dashboard">
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div> :
      !enrichedStocks.length ? <Empty description="No inventory data" /> :
      <Table rowKey="id" dataSource={enrichedStocks} columns={columns} pagination={{ pageSize: 15, showTotal: (t) => `Total ${t} items` }} rowClassName={(r) => r.qty <= r.safety_stock ? 'low-stock-row' : ''} />}
     </Card>
-  );
+    </PageTransition>);
 };
 
 export default MaterialStocksPage;

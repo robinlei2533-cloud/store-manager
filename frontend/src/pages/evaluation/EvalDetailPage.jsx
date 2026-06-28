@@ -5,6 +5,7 @@ import { Card, Descriptions, Tag, Button, Spin, Row, Col, Statistic, Progress, E
 import { useQuery } from '@tanstack/react-query';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { getEvaluationById } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const EvalDetailPage = () => {
   const { id } = useParams();
@@ -34,6 +35,7 @@ const EvalDetailPage = () => {
   ];
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Evaluations</Button>
       <Card title={`Evaluation: ${evalData.stores?.name || ''}`}>
@@ -76,7 +78,7 @@ const EvalDetailPage = () => {
         </Row>
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default EvalDetailPage;

@@ -9,6 +9,7 @@ import useAuthStore from '../../stores/authStore';
 import localDb from '../../services/db/localDb';
 import { getStores, getProducts, createVisit, updateVisit, getVisitById, getVisitSales, getVisitPhotos, upsertVisitSales, uploadVisitPhoto, deleteVisitPhoto } from '../../services/api';
 import { PHOTO_TYPES } from '../../utils/constants';
+import PageTransition from "../../components/common/PageTransition";
 
 const { TextArea } = Input;
 
@@ -89,6 +90,7 @@ const VisitCreatePage = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/visits/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Visits</Button>
       <Card title={id ? 'Edit Visit' : 'New Visit'}>
@@ -173,7 +175,7 @@ const VisitCreatePage = () => {
         </div>
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default VisitCreatePage;

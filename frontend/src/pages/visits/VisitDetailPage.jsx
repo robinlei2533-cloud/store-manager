@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Image, Tag, Button, Spin, Empty } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { getVisitById, getVisitSales, getVisitPhotos } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const VisitDetailPage = () => {
   const { id } = useParams();
@@ -28,6 +29,7 @@ const VisitDetailPage = () => {
   ];
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/visits/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Visits</Button>
       <Card title="Visit Detail">
@@ -53,7 +55,7 @@ const VisitDetailPage = () => {
         ]} />
       </Card>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default VisitDetailPage;

@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import localDb from '../../services/db/localDb';
 import { getCampaignById, createCampaignTask, updateCampaignTask, deleteCampaignTask, createCampaignReport, updateCampaignReport } from '../../services/api';
+import PageTransition from "../../components/common/PageTransition";
 
 const { TextArea } = Input;
 const statusConfig = { planned: 'Planned', ongoing: 'Ongoing', completed: 'Completed', cancelled: 'Cancelled' };
@@ -88,6 +89,7 @@ const CampaignDetailPage = () => {
   ];
 
   return (
+    <PageTransition>
     <div>
       <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
       <Card title={campaign.name} extra={<Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>}>
@@ -206,7 +208,7 @@ const CampaignDetailPage = () => {
         </Form>
       </Modal>
     </div>
-  );
+    </PageTransition>);
 };
 
 export default CampaignDetailPage;
