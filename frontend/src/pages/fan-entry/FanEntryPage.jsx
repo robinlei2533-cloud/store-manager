@@ -106,7 +106,7 @@ const ParticleCanvas = () => {
       document.removeEventListener('mouseleave', onLeave);
     };
   }, []);
-  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:1, pointerEvents:'none' }} />;
+  return <canvas ref={canvasRef} className="fe-canvas" />;
 };
 
 // ============ Aurora Canvas Component ============
@@ -148,7 +148,7 @@ const AuroraCanvas = () => {
     animate();
     return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
   }, []);
-  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0, pointerEvents:'none' }} />;
+  return <canvas ref={canvasRef} className="fe-canvas" />;
 };
 
 
@@ -282,7 +282,7 @@ const MeteorShower = () => {
       window.removeEventListener('resize', resize);
     };
   }, []);
-  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:2, pointerEvents:'none' }} />;
+  return <canvas ref={canvasRef} className="fe-canvas" />;
 };
 
 
@@ -326,7 +326,7 @@ const ShaderOverlay = () => {
     draw();
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
   }, []);
-  return React.createElement("canvas", { ref, style: {position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:1,pointerEvents:"none",opacity:0.7} });
+  return React.createElement("canvas", { ref, className: "fe-canvas" });
 };
 
 // ============ Main Component ============
@@ -452,7 +452,7 @@ const FanEntryPage = () => {
         background: 'linear-gradient(180deg, rgba(10,10,15,0.8) 0%, transparent 100%)',
         WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)',
       }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <div className="fe-header-left">
           <motion.span initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} style={{
             fontSize:22, fontWeight:900, letterSpacing:3,
             background: 'linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623)',
@@ -460,7 +460,7 @@ const FanEntryPage = () => {
           }}>UWELL</motion.span>
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+        <div className="fe-header-right">
             <LanguageSwitcher inline={true} />
           {/* Store Entry - Direct Button */}
           <button
@@ -474,7 +474,7 @@ const FanEntryPage = () => {
             }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.2)'; e.currentTarget.style.borderColor = '#FFD700'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,215,0,0.25)'; }}
-          ><span style={{fontSize:16}}>🏪</span> {t('settings_store')}</button>
+          ><span className="fe-settings-icon">🏪</span> {t('settings_store')}</button>
           {/* Rep Entry */}
           <button
             onClick={() => window.location.href='/#/admin?role=rep'}
@@ -510,13 +510,13 @@ const FanEntryPage = () => {
                 <div onClick={() => window.location.href='/index.html#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:"center"}}>🔐</span> {t('settings_admin')}
+                  <span className="fe-settings-icon">🔐</span> {t('settings_admin')}
                 </div>
-                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
+                <div className="fe-settings-divider" />
                 <a href="https://www.myuwell.com" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', textDecoration:'none' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🌐</span> {t('settings_website')}
+                  <span className="fe-settings-icon">🌐</span> {t('settings_website')}
                 </a>
               </div>
             )}
@@ -528,13 +528,13 @@ const FanEntryPage = () => {
       <div style={{ position:'relative', zIndex:20, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'120px 40px 260px' }}>
         {/* Hero */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:80, width:'100%', maxWidth:1100, minHeight:'80vh', padding:'60px 0 40px' }}>
-          <div style={{ flex:1, maxWidth:480 }}>
+          <div className="fe-hero-left">
             <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:20, background:'rgba(255,215,0,0.12)', border:'1px solid rgba(255,215,0,0.25)', fontSize:11, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:20 }}>
               {t('fan_entry_tag')}
             </div>
             <motion.h1 initial={{ filter: "blur(10px)", opacity: 0, y: 20 }} animate={{ filter: "blur(0px)", opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} style={{ fontSize:52, fontWeight:900, lineHeight:1.1, letterSpacing:-2, marginBottom:16, fontFamily:"Instrument Serif, serif", fontStyle:"italic" }}>
-              <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{t("fan_entry_join")}</span><br />
-              <span style={{ background:'linear-gradient(135deg,#457bff,#6c5ce7)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{t("fan_entry_club")}</span>
+              <span className="fe-text-gold-grad">{t("fan_entry_join")}</span><br />
+              <span className="fe-text-blue-grad">{t("fan_entry_club")}</span>
             </motion.h1>
             <p style={{ color:'rgba(255,255,255,0.35)', fontSize:15, lineHeight:1.7, marginBottom:28 }}>
               {t('fan_entry_desc')}
@@ -548,14 +548,14 @@ const FanEntryPage = () => {
               ))}
             </div>
           </div>
-          <div style={{ flex:1, maxWidth:400 }}>
+          <div className="fe-hero-right">
             <div style={{ background:'rgba(255,255,255,0.04)', WebkitBackdropFilter:'blur(20px)', backdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:'40px 36px', boxShadow:'0 24px 80px rgba(0,0,0,0.5)' }}>
               <div style={{ width:50, height:3, background:'linear-gradient(90deg,#FFD700,#457bff)', borderRadius:2, margin:'0 auto 18px' }} />
               <div style={{ textAlign:'center', marginBottom:24 }}>
                 <h2 style={{ fontSize:20, fontWeight:800, letterSpacing:2, color:'#fff', marginBottom:4 }}>{mode === 'login' ? t('fan_entry_login_title') : t('fan_entry_register_title')}</h2>
                 <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, letterSpacing:1 }}>{mode === 'login' ? t('fan_entry_login_subtitle') : t('fan_entry_fill_fields')}</p>
               </div>
-              <div style={{ marginBottom:14 }}>
+              <div className="fe-input-group">
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown}
                   placeholder={t('fan_entry_placeholder_email')} autoComplete="email"
                   style={{ width:'100%', padding:'12px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' }}
@@ -567,11 +567,11 @@ const FanEntryPage = () => {
                   style={{ width:'100%', padding:'12px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' }}
                 />
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', margin:'16px 0 20px' }}>
-                <label style={{ display:'flex', alignItems:'center', gap:6, color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer' }}>
+              <div className="fe-form-row">
+                <label className="fe-form-label">
                   <input type="checkbox" defaultChecked /> {t('fan_entry_remember')}
                 </label>
-                <a href="#" style={{ color:'rgba(255,255,255,0.3)', fontSize:12, textDecoration:'none' }}>{t('fan_entry_forgot')}</a>
+                <a href="#" className="fe-form-link">{t('fan_entry_forgot')}</a>
               </div>
               {mode === 'login' && (
               <button onClick={handleLogin} style={{
@@ -613,14 +613,14 @@ const FanEntryPage = () => {
                 </>
               )}
               {mode === 'login' ? (
-                <div style={{ textAlign:"center", marginTop:14 }}>
-                  <a onClick={() => setMode('register')} style={{ color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer', textDecoration:'none' }}>
-                    {t('fan_entry_no_account')} <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>{t('fan_entry_register_now')}</span>
+                <div className="fe-form-toggle">
+                  <a onClick={() => setMode('register')} className="fe-form-link">
+                    {t('fan_entry_no_account')} <span className="fe-btn-secondary">{t('fan_entry_register_now')}</span>
                   </a>
                 </div>
               ) : (
                 <div style={{ textAlign:"center", marginTop:14 }}>
-                  <a onClick={() => setMode('login')} style={{ color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer', textDecoration:'none' }}>
+                  <a onClick={() => setMode('login')} className="fe-form-link">
                     {t('fan_entry_have_account')} <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>{t('fan_entry_sign_in')}</span>
                   </a>
                 </div>
@@ -658,7 +658,7 @@ const FanEntryPage = () => {
         </div>
 
         {/* Footer */}        {/* Footer */}
-        <div style={{ width:'100%', textAlign:'center', padding:'40px 20px', marginTop:40 }}>
+        <div className="fe-footer">
           <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>{t('fan_entry_footer')}</p>
         </div>
       </div>
@@ -713,15 +713,8 @@ const FanEntryPage = () => {
 
       {/* Product Modal */}
       {modalOpen && modalProduct && (
-        <div onClick={() => setModalOpen(false)} style={{
-          position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:200,
-          background:'rgba(0,0,0,0.7)', WebkitBackdropFilter:'blur(16px)', backdropFilter:'blur(16px)',
-          display:'flex', alignItems:'center', justifyContent:'center', padding:20,
-        }}>
-          <div onClick={e => e.stopPropagation()} style={{
-            background:'rgba(20,20,30,0.95)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:36,
-            maxWidth:520, width:'100%', position:'relative',
-          }}>
+        <div onClick={() => setModalOpen(false)} className="fe-modal-overlay">
+          <div onClick={e => e.stopPropagation()} className="fe-modal-card">
             <button onClick={() => setModalOpen(false)} style={{
               position:'absolute', top:14, right:14, width:32, height:32, borderRadius:'50%', border:'none',
               background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.4)', fontSize:16, cursor:'pointer',
@@ -732,10 +725,9 @@ const FanEntryPage = () => {
             </div>
             <h2 style={{ fontSize:24, fontWeight:900, letterSpacing:1, marginBottom:4, color: modalProduct.product.c }}>{modalProduct.info.icon} {modalProduct.product.n}</h2>
             <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)', letterSpacing:1, marginBottom:12 }}>{modalProduct.product.t}</div>
-            <div style={{ color:'rgba(255,255,255,0.45)', fontSize:13, lineHeight:1.8, marginBottom:20 }}>{modalProduct.info.desc}</div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            <div className="fe-modal-specs">
               {(modalProduct.info.specs || []).map((spec, i) => (
-                <div key={i} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.04)', borderRadius:10, padding:'10px 14px' }}>
+                <div key={i} className="fe-modal-spec-item">
                   <div style={{ fontSize:9, color:'rgba(255,255,255,0.25)', textTransform:'uppercase', letterSpacing:1, marginBottom:2 }}>{spec[0]}</div>
                   <div style={{ fontSize:13, fontWeight:600 }}>{spec[1]}</div>
                 </div>
