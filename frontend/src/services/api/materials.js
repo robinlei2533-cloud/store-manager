@@ -4,7 +4,7 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { isLocal, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit, enrichMaterialStock } from './helpers';
 
 // ============ 鐗╂枡 ============
 

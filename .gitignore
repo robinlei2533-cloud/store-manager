@@ -13,3 +13,11 @@ fix_app.*
 *.cjs
 test-results/
 project_data/
+
+# Screenshots
+*.png
+
+
+# Test screenshots
+frontend/_*.png
+

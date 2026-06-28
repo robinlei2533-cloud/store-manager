@@ -21,6 +21,8 @@ import {
 import useAuthStore from '../../stores/authStore';
 import useLanguageStore from '../../stores/languageStore';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
+import ShinyText from '../../components/effects/ShinyText';
+import PageTransition from '../../components/common/PageTransition';
 import { ROLES, ROLE_NAMES } from '../../utils/constants';
 import { IS_LOCAL_MODE } from '../../services/api';
 import { motion } from 'framer-motion';

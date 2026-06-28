@@ -60,7 +60,7 @@ const LoginPage = () => {
     <div className="staff-login-page">
       <div className="staff-login-copy">
         <div className="brand-mark">UWELL CRM</div>
-        <Title level={1}>门店增长与粉丝运营管理后台</Title>
+        <BlurText text="门店增长与粉丝运营管理后台" as="h1" delay={0.04} style={{ fontSize: 32, fontWeight: 700, lineHeight: 1.3 }} />
         <Text>
           将门店拜访、活动执行、扫码积分、粉丝等级和物料库存集中管理，帮助团队把线下动作沉淀成可追踪的数据资产。
         </Text>
