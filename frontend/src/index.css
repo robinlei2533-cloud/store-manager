@@ -941,3 +941,87 @@ body {
   border: 1px solid rgba(255,215,0,0.15) !important;
   color: #FFD700 !important;
 }
+
+
+/* ===== FanGrowth Page - Extended Utilities ===== */
+.fg-text-center { text-align: center !important; }
+.fg-mb16 { margin-bottom: 16px !important; }
+.fg-mb24 { margin-bottom: 24px !important; }
+.fg-mt8 { margin-top: 8px !important; }
+.fg-mt16 { margin-top: 16px !important; }
+.fg-p24 { padding: 24px !important; }
+.fg-p48 { padding: 48px !important; }
+.fg-p40-20 { padding: 40px 20px !important; }
+.fg-fs10 { font-size: 10px !important; }
+.fg-fs11 { font-size: 11px !important; }
+.fg-fs12 { font-size: 12px !important; }
+.fg-fs13 { font-size: 13px !important; }
+.fg-fs14 { font-size: 14px !important; }
+.fg-fs18 { font-size: 18px !important; }
+.fg-fs20 { font-size: 20px !important; }
+.fg-fs24 { font-size: 24px !important; }
+.fg-fs28 { font-size: 28px !important; }
+.fg-fs32 { font-size: 32px !important; }
+.fg-fs48 { font-size: 48px !important; }
+.fg-fs72 { font-size: 72px !important; }
+.fg-fw600 { font-weight: 600 !important; }
+.fg-fw700 { font-weight: 700 !important; }
+.fg-fw800 { font-weight: 800 !important; }
+.fg-fw900 { font-weight: 900 !important; }
+.fg-color-gold { color: var(--uwell-gold) !important; }
+.fg-color-green { color: #52c41a !important; }
+.fg-color-blue { color: #1677ff !important; }
+.fg-color-red { color: #ff4d4f !important; }
+.fg-color-grey { color: #999 !important; }
+.fg-color-ccc { color: #ccc !important; }
+.fg-spec-table { width: 90%; max-width: 360px; }
+.fg-spin-center { display: flex; justify-content: center; align-items: center; min-height: 200px; }
+.fg-spin-page { text-align: center; padding: 48px; }
+.fg-empty-p40 { padding: 40px !important; }
+
+/* Day cell for check-in grid */
+.fg-day-cell { text-align: center; }
+.fg-day-label { font-size: 11px; color: #999; }
+.fg-day-value { font-size: 18px; font-weight: 600; margin: 4px 0; }
+.fg-day-checked { color: #52c41a; font-size: 20px; }
+.fg-day-locked { color: #ccc; }
+.fg-day-spacer { height: 20px; }
+.fg-checkin-actions { text-align: center; margin-top: 16px; }
+
+/* Prize items */
+.fg-prize-card { text-align: center; }
+.fg-prize-icon { font-size: 32px; }
+.fg-prize-label { font-weight: 600; font-size: 13px; }
+.fg-prize-points { }
+.fg-prize-prob { margin-top: 4px; }
+
+/* Lottery section */
+.fg-lotto-card {
+  text-align: center; margin-bottom: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.fg-lotto-body { padding: 40px 20px; }
+.fg-lotto-wheel { font-size: 48px; }
+.fg-lotto-result-icon { font-size: 48px; }
+.fg-lotto-result-label { font-weight: 600; margin-top: 4px; }
+.fg-lotto-cta { min-width: 220px; height: 48px; font-size: 16px; }
+.fg-lotto-info { margin-top: 8px; color: #ffccc7; }
+
+/* Mall items */
+.fg-mall-card { position: relative; }
+.fg-mall-img { object-fit: cover; border-radius: 8px; }
+.fg-mall-icon { font-size: 48px; }
+.fg-mall-badge { position: absolute; top: 8px; left: 8px; }
+
+/* Level progress */
+.fg-level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.fg-level-tag { font-size: 14px !important; padding: 4px 12px !important; }
+
+/* Admin panels */
+.fg-leaderboard-avatar { font-size: 20px; }
+.fg-leaderboard-tag { font-size: 10px; }
+.fg-leaderboard-name { font-size: 12px; }
+
+/* Store fan tags */
+.fg-fan-tag { font-size: 11px; }
+.fg-store-badge { background-color: #1677ff; }

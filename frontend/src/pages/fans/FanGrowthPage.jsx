@@ -121,7 +121,7 @@ const CheckInTab = ({ fan }) => {
   return (
     <PageTransition>
     <div>
-      <Row gutter={16} style={{ marginBottom: 24 }}>
+      <Row gutter={16} className="fg-mb24">
         <Col xs={12} sm={12} lg={6}>
           <Card size="small">
             <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: 'var(--uwell-gold)' }} />
@@ -145,7 +145,7 @@ const CheckInTab = ({ fan }) => {
       </Row>
 
       {/* Level Progress */}
-      <Card title="Level Progress" size="small" style={{ marginBottom: 24 }}>
+      <Card title="Level Progress" size="small" className="fg-mb24">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <Tag color={levelInfo.color} style={{ fontSize: 14, padding: '4px 12px' }}>{levelInfo.label}</Tag>
           {nextLevel ? (
@@ -158,7 +158,7 @@ const CheckInTab = ({ fan }) => {
       </Card>
 
       {/* Check-in Calendar */}
-      <Card title="Daily Check-in (+5 pts/day)" size="small" style={{ marginBottom: 24 }}>
+      <Card title="Daily Check-in (+5 pts/day)" size="small" className="fg-mb24">
         <Row gutter={8}>
           {weekData.map((day, idx) => (
             <Col span={24 / 7} key={idx} style={{ textAlign: 'center' }}>
@@ -182,7 +182,7 @@ const CheckInTab = ({ fan }) => {
                 ) : day.date > todayStr ? (
                   <LockOutlined style={{ color: '#ccc' }} />
                 ) : (
-                  <div style={{ height: 20 }} />
+                  <div className="fg-day-spacer" />
                 )}
               </div>
             </Col>
@@ -313,7 +313,7 @@ const LuckyDrawTab = ({ fan }) => {
 
   return (
     <div>
-      <Row gutter={16} style={{ marginBottom: 24 }}>
+      <Row gutter={16} className="fg-mb24">
         <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: '#1677ff' }} />
@@ -365,8 +365,8 @@ const LuckyDrawTab = ({ fan }) => {
                 <Spin size="large" />
               ) : result ? (
                 <>
-                  <div style={{ fontSize: 48 }}>{result.icon}</div>
-                  <div style={{ fontWeight: 600, marginTop: 4 }}>{result.label}</div>
+                  <div className="fg-lotto-result-icon">{result.icon}</div>
+                  <div className="fg-lotto-result-label">{result.label}</div>
                 </>
               ) : (
                 <>
@@ -397,17 +397,17 @@ const LuckyDrawTab = ({ fan }) => {
       </Card>
 
       {/* Prize List */}
-      <Card title="Prize Tiers" size="small" style={{ marginBottom: 24 }}>
+      <Card title="Prize Tiers" size="small" className="fg-mb24">
         <Row gutter={[8, 8]}>
           {LOTTERY_PRIZES.map((prize) => (
             <Col xs={12} sm={8} key={prize.id}>
               <Card size="small" hoverable style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 32 }}>{prize.icon}</div>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>{prize.label}</div>
+                <div className="fg-prize-icon">{prize.icon}</div>
+                <div className="fg-prize-label">{prize.label}</div>
                 <div style={{ color: prize.points > 0 ? '#52c41a' : '#999' }}>
                   {prize.points > 0 ? `+${prize.points} pts` : 'No prize'}
                 </div>
-                <Tag style={{ marginTop: 4 }}>{(prize.probability * 100).toFixed(0)}%</Tag>
+                <Tag className="fg-mt8">{(prize.probability * 100).toFixed(0)}%</Tag>
               </Card>
             </Col>
           ))}
@@ -450,11 +450,11 @@ const LuckyDrawTab = ({ fan }) => {
         onCancel={() => setResultModalOpen(false)}
         footer={<Button type="primary" onClick={() => setResultModalOpen(false)}>Claim</Button>}
         centered
-        width="90%" style={{ maxWidth: 360 }}
+        width="90%" className="fg-spec-table"
       >
         {result && (
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
-            <div style={{ fontSize: 72, marginBottom: 16 }}>{result.icon}</div>
+            <div className="fg-fs72 fg-mb16">{result.icon}</div>
             <Title level={3} style={{ marginBottom: 8 }}>{result.label}</Title>
             {result.points > 0 ? (
               <Paragraph type="success" style={{ fontSize: 20 }}>
@@ -535,7 +535,7 @@ const MallTab = ({ fan }) => {
         </Row>
       </Card>
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+      <Row gutter={[12, 12]} className="fg-mb24">
         {filteredItems.map((item) => {
           const canAfford = fan.points >= item.points_cost;
           return (
@@ -580,11 +580,11 @@ const MallTab = ({ fan }) => {
                 ]}
               >
                 <Card.Meta
-                  title={<Text style={{ fontSize: 13 }}>{item.name}</Text>}
+                  title={<Text className="fg-fs13">{item.name}</Text>}
                   description={
                     <Space>
                       <Tag color="orange">{item.points_cost} pts</Tag>
-                      <Text type="secondary" style={{ fontSize: 12 }}>Stock: {item.stock}</Text>
+                      <Text type="secondary" className="fg-fs12">Stock: {item.stock}</Text>
                     </Space>
                   }
                 />
@@ -643,7 +643,7 @@ const FanMapTab = ({ fans }) => {
 
   return (
     <div>
-      <Row gutter={16} style={{ marginBottom: 24 }}>
+      <Row gutter={16} className="fg-mb24">
         <Col xs={12} sm={12} lg={6}>
           <Card size="small"><Statistic title="Total Fans" value={fans.length} prefix={<EnvironmentOutlined />} /></Card>
         </Col>
@@ -661,7 +661,7 @@ const FanMapTab = ({ fans }) => {
       <Row gutter={16}>
         {/* Level Distribution Chart */}
         <Col xs={24} lg={12}>
-          <Card title="Fan Level Distribution" size="small" style={{ marginBottom: 16 }}>
+          <Card title="Fan Level Distribution" size="small" className="fg-mb16">
             {levelData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={levelData} layout="vertical">
@@ -677,14 +677,14 @@ const FanMapTab = ({ fans }) => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <Empty description="No data" style={{ padding: 40 }} />
+              <Empty description="No data" className="fg-empty-p40" />
             )}
           </Card>
         </Col>
 
         {/* Top Fans Leaderboard */}
         <Col xs={24} lg={12}>
-          <Card title={<><TrophyOutlined /> Top Fans Leaderboard</>} size="small" style={{ marginBottom: 16 }}>
+          <Card title={<><TrophyOutlined /> Top Fans Leaderboard</>} size="small" className="fg-mb16">
             <List
               size="small"
               dataSource={topFans}
@@ -694,11 +694,11 @@ const FanMapTab = ({ fans }) => {
                 return (
                   <List.Item>
                     <List.Item.Meta
-                      avatar={<span style={{ fontSize: 20 }}>{medal}</span>}
+                      avatar={<span className="fg-leaderboard-avatar">{medal}</span>}
                       title={
                         <Space>
                           <span>{fan.profiles?.name || `Fan #${fan.id?.slice(0, 6)}`}</span>
-                          <Tag color={levelInfo.color} style={{ fontSize: 10 }}>{levelInfo.label}</Tag>
+                          <Tag color={levelInfo.color} className="fg-fs10">{levelInfo.label}</Tag>
                         </Space>
                       }
                       description={
@@ -739,7 +739,7 @@ const FanMapTab = ({ fans }) => {
                       {storeFans.slice(0, 8).map((f) => {
                         const li = getLevelInfo(f.level);
                         return (
-                          <Tag key={f.id} color={li.color} style={{ fontSize: 11 }}>
+                          <Tag key={f.id} color={li.color} className="fg-fan-tag">
                             {f.profiles?.name || `Fan #${f.id?.slice(0, 4)}`} · {f.points}pts
                           </Tag>
                         );
@@ -786,12 +786,12 @@ const FanGrowthPage = () => {
 
   return (
     <div>
-      <Title level={4} style={{ marginBottom: 16 }}>
+      <Title level={4} className="fg-mb16">
         <ThunderboltOutlined /> Fan Growth Center
       </Title>
 
       {/* Fan selector */}
-      <Card size="small" style={{ marginBottom: 16 }}>
+      <Card size="small" className="fg-mb16">
         <Row gutter={16} align="middle">
           <Col xs={24} sm={12} md={8}>
             <Text strong>Select Fan: </Text>

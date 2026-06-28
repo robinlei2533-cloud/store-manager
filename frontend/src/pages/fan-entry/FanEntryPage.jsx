@@ -540,7 +540,7 @@ const FanEntryPage = () => {
               {t('fan_entry_desc')}
             </p>
             <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginTop:20 }}>
-              {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map(f => (
+              {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map((f, idx) => (
                 <div key={f.label} style={{ display:'flex', alignItems:'center', gap:12, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
                   <span style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#FFD700,#F5A623)' }} />
                   <Counter from={0} to={f.value} suffix={f.suffix} duration={2} />
