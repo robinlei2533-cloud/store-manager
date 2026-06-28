@@ -35,3 +35,29 @@
 - 数据层: localStorage 本地模式 (26 张表)
 - 云模式: Supabase 集成就绪 (待配置上线)
 - 构建: Vite build 成功 (3721 模块, ~2.3MB)
+
+## v0.1.0 (2026-06-28)
+
+### Phase 1 — 后端基建
+- 审计日志系统 (audit_logs 表 + 16 个触发器)
+- 数据库备份脚本 (full/schema/data 三种模式)
+- Supabase 部署指南
+- PWA manifest + Service Worker
+- 共享 Design System CSS (liquid-glass 提取)
+- 管理端 i18n (17处硬编码替换)
+
+### Phase 2 — 前端重构
+- PWA 全面支持 (3个入口 + manifest + SW注册)
+- 管理端侧边栏国际化 (中/英/阿)
+- 3个HTML入口去重CSS (design-system.css)
+
+### Phase 3 — 功能完善
+- Supabase Realtime 实时订阅 (Dashboard + FanCenter)
+- 运营日报视图 (v_daily_ops_report + v_weekly_trend)
+- 移动端响应式修复
+- 仪表盘增强建议
+
+### Phase 4 — 运维监控
+- Sentry 错误监控配置
+- 审计日志查看页面
+- 部署文档
