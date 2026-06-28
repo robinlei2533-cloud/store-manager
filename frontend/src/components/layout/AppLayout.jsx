@@ -55,35 +55,35 @@ const AppLayout = () => {
 
     const crmChildren = [];
     if (canViewAllCRM) {
-      crmChildren.push({ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: '\u95e8\u5e97\u7ba1\u7406' });
+      crmChildren.push({ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_stores') });
     }
-    crmChildren.push({ key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: '\u62dc\u8bbf\u8bb0\u5f55' });
-    crmChildren.push({ key: '/app/evaluation', icon: React.createElement(StarOutlined), label: '\u95e8\u5e97\u8bc4\u4f30' });
+    crmChildren.push({ key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: t('nav_visits') });
+    crmChildren.push({ key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') });
     if (canViewAllCRM) {
-      crmChildren.push({ key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: '\u6d3b\u52a8\u7ba1\u7406' });
+      crmChildren.push({ key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: t('nav_campaigns') });
     }
-    crmChildren.push({ key: '/app/materials/list', icon: React.createElement(InboxOutlined), label: '\u7269\u6599\u7ba1\u7406' });
+    crmChildren.push({ key: '/app/materials/list', icon: React.createElement(InboxOutlined), label: t('nav_materials') });
 
     const items = [
-      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: '\u7ecf\u8425\u603b\u89c8' },
-      { key: 'crm', icon: React.createElement(ApartmentOutlined), label: 'CRM \u7ba1\u7406', children: crmChildren },
+      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: t('nav_dashboard2') },
+      { key: 'crm', icon: React.createElement(ApartmentOutlined), label: t('crm_management'), children: crmChildren },
     ];
 
     if (canViewAllCRM) {
       items.push({
         key: 'fan-ops',
         icon: React.createElement(TeamOutlined),
-        label: '\u7c89\u4e1d\u8fd0\u8425',
+        label: t('fan_operations'),
         children: [
-          { key: '/app/fans/list', icon: React.createElement(TeamOutlined), label: '\u7c89\u4e1d\u5217\u8868' },
-          { key: '/app/fans/growth', icon: React.createElement(RiseOutlined), label: '\u589e\u957f\u770b\u677f' },
-          { key: '/app/fans/scan', icon: React.createElement(QrcodeOutlined), label: '\u626b\u7801\u79ef\u5206' },
+          { key: '/app/fans/list', icon: React.createElement(TeamOutlined), label: t('nav_fan_list') },
+          { key: '/app/fans/growth', icon: React.createElement(RiseOutlined), label: t('nav_growth') },
+          { key: '/app/fans/scan', icon: React.createElement(QrcodeOutlined), label: t('nav_fan_scan') },
         ],
       });
     }
 
     if (isAdmin) {
-      items.push({ key: '/app/settings/users', icon: React.createElement(SettingOutlined), label: '\u7cfb\u7edf\u8bbe\u7f6e' });
+      items.push({ key: '/app/settings/users', icon: React.createElement(SettingOutlined), label: t('nav_settings') });
     }
 
     return items;
@@ -104,7 +104,7 @@ const AppLayout = () => {
     items: [
       { key: 'profile', icon: <UserOutlined />, label: `${profile.name || ''} (${ROLE_NAMES[profile.role] || profile.role})` },
       { type: 'divider' },
-      { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', danger: true },
+      { key: 'logout', icon: <LogoutOutlined />, label: t('logout'), danger: true },
     ],
     onClick: ({ key }) => {
       if (key === 'logout') handleLogout();
@@ -154,7 +154,7 @@ const AppLayout = () => {
     }}>
       <div className="layout-brand"><ShinyText speed={4}>UWELL CRM</ShinyText></div>
       <div style={{ fontSize: 11, color: token.colorTextTertiary, fontWeight: 500, marginTop: 3 }}>
-        粉丝运营与门店增长系统
+        {t('app_subtitle')}
       </div>
     </div>
   );
@@ -178,7 +178,7 @@ const AppLayout = () => {
           {brandBlock}
           {IS_LOCAL_MODE && (
             <div style={{ padding: '10px 16px 2px', textAlign: 'center' }}>
-              <Tag color="blue" className="layout-role-tag">本地演示模式</Tag>
+              <Tag color="blue" className="layout-role-tag">{t('local_demo')}</Tag>
             </div>
           )}
           {menu}

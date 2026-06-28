@@ -1,4 +1,5 @@
-﻿import { defineConfig } from 'vite'
+﻿// PWA: manifest.json, sw.js, and images/ are in public/ — Vite copies them to dist/ automatically
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 

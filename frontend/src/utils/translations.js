@@ -261,6 +261,14 @@ const zh = {
   fan_entry_fill_fields: '请填写昵称、邮箱和密码',
   fan_entry_fill_fields: '请填写昵称、邮箱和密码',
   fan_help: '帮助',
+
+  // AppLayout sidebar (新增)
+  nav_dashboard2: '经营总览',
+  crm_management: 'CRM 管理',
+  nav_growth: '增长看板',
+  fan_operations: '粉丝运营',
+  app_subtitle: '粉丝运营与门店增长系统',
+  local_demo: '本地演示模式',
 };
 
 const en = {
@@ -511,6 +519,13 @@ const en = {
   fan_entry_fill_fields: 'Please fill in name, email and password',
   fan_fill_fields: 'Please fill in name, email and password',
   fan_help: 'Help',
+
+  nav_dashboard2: 'Dashboard',
+  crm_management: 'CRM Management',
+  nav_growth: 'Growth Board',
+  fan_operations: 'Fan Operations',
+  app_subtitle: 'Fan Operations & Store Growth System',
+  local_demo: 'Local Demo Mode',
 };
 
 
@@ -729,6 +744,12 @@ const ar = {
   community_share: 'مشاركة',
   community_share: 'مشاركة',
   fan_help: 'مساعدة',
+  nav_dashboard2: 'لوحة القيادة',
+  crm_management: 'إدارة CRM',
+  nav_growth: 'لوحة النمو',
+  fan_operations: 'عمليات المعجبين',
+  app_subtitle: 'عمليات المعجبين ونظام نمو المتجر',
+  local_demo: 'وضع العرض المحلي',
 };
 
 export const TRANSLATIONS = { zh, en, ar };
