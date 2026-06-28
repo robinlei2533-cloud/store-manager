@@ -4,13 +4,13 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { USE_LOCAL, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ 娲诲姩绠＄悊 ============
 
 export async function getCampaigns(filters = {}) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     let data = localDb.all('campaigns');
     if (filters.status) data = data.filter((c) => c.status === filters.status);
     if (filters.type) data = data.filter((c) => c.type === filters.type);
@@ -31,7 +31,7 @@ export async function getCampaigns(filters = {}) {
 
 export async function getCampaignById(id) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const campaign = localDb.findById('campaigns', id);
     if (!campaign) return null;
     return {
@@ -48,7 +48,7 @@ export async function getCampaignById(id) {
 
 export async function createCampaign(campaign) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.insert('campaigns', campaign);
+  if (isLocal()) return localDb.insert('campaigns', campaign);
   const { data, error } = await supabase.from('campaigns').insert(campaign).select().single();
   if (error) throw error;
   return data;
@@ -56,7 +56,7 @@ export async function createCampaign(campaign) {
 
 export async function updateCampaign(id, campaign) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.update('campaigns', id, campaign);
+  if (isLocal()) return localDb.update('campaigns', id, campaign);
   const { data, error } = await supabase.from('campaigns').update(campaign).eq('id', id).select().single();
   if (error) throw error;
   return data;
@@ -64,7 +64,7 @@ export async function updateCampaign(id, campaign) {
 
 export async function deleteCampaign(id) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     localDb.remove('campaigns', id);
     localDb.find('campaign_tasks', (t) => t.campaign_id === id).forEach((t) => localDb.remove('campaign_tasks', t.id));
     localDb.find('campaign_reports', (r) => r.campaign_id === id).forEach((r) => localDb.remove('campaign_reports', r.id));
@@ -76,7 +76,7 @@ export async function deleteCampaign(id) {
 
 export async function createCampaignTask(task) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.insert('campaign_tasks', task);
+  if (isLocal()) return localDb.insert('campaign_tasks', task);
   const { data, error } = await supabase.from('campaign_tasks').insert(task).select().single();
   if (error) throw error;
   return data;
@@ -84,7 +84,7 @@ export async function createCampaignTask(task) {
 
 export async function updateCampaignTask(id, task) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.update('campaign_tasks', id, task);
+  if (isLocal()) return localDb.update('campaign_tasks', id, task);
   const { data, error } = await supabase.from('campaign_tasks').update(task).eq('id', id).select().single();
   if (error) throw error;
   return data;
@@ -92,14 +92,14 @@ export async function updateCampaignTask(id, task) {
 
 export async function deleteCampaignTask(id) {
   ensureLocalInit();
-  if (USE_LOCAL) { localDb.remove('campaign_tasks', id); return; }
+  if (isLocal()) { localDb.remove('campaign_tasks', id); return; }
   const { error } = await supabase.from('campaign_tasks').delete().eq('id', id);
   if (error) throw error;
 }
 
 export async function createCampaignReport(report) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.insert('campaign_reports', report);
+  if (isLocal()) return localDb.insert('campaign_reports', report);
   const { data, error } = await supabase.from('campaign_reports').insert(report).select().single();
   if (error) throw error;
   return data;
@@ -107,7 +107,7 @@ export async function createCampaignReport(report) {
 
 export async function updateCampaignReport(id, report) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.update('campaign_reports', id, report);
+  if (isLocal()) return localDb.update('campaign_reports', id, report);
   const { data, error } = await supabase.from('campaign_reports').update(report).eq('id', id).select().single();
   if (error) throw error;
   return data;

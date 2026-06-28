@@ -4,13 +4,13 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { USE_LOCAL, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ 粉丝 ============
 
 export async function getFans(filters = {}) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     let data = localDb.all('fans');
     if (filters.level) data = data.filter((f) => f.level === filters.level);
     if (filters.store_id) data = data.filter((f) => f.store_id === filters.store_id);
@@ -26,7 +26,7 @@ export async function getFans(filters = {}) {
 
 export async function getFanById(id) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const fan = localDb.findById('fans', id);
     if (!fan) return null;
     return enrichFan(fan);
@@ -38,7 +38,7 @@ export async function getFanById(id) {
 
 export async function getFanPointsLog(fanId) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.find('fan_points_log', (l) => l.fan_id === fanId).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  if (isLocal()) return localDb.find('fan_points_log', (l) => l.fan_id === fanId).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   const { data, error } = await supabase.from('fan_points_log').select('*').eq('fan_id', fanId).order('created_at', { ascending: false });
   if (error) throw error;
   return data;
@@ -46,7 +46,7 @@ export async function getFanPointsLog(fanId) {
 
 export async function addFanPoints(fanId, points, type, source, description) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     localDb.insert('fan_points_log', { fan_id: fanId, points, type, source, description });
     const fan = localDb.findById('fans', fanId);
     if (fan) {

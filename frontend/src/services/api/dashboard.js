@@ -4,7 +4,7 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { USE_LOCAL, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ Shared Helpers ============
 
@@ -28,7 +28,7 @@ function enrichMaterialStock(stock) {
 
 export async function getDashboardStats() {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const stores = localDb.all('stores');
     const visits = localDb.all('visits');
     const todayStr = new Date().toISOString().split('T')[0];
@@ -73,7 +73,7 @@ export async function getDashboardStats() {
 
 export async function getVisitTrend(days = 30) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const visits = localDb.all('visits');
     const result = [];
     for (let i = days - 1; i >= 0; i--) {
@@ -92,7 +92,7 @@ export async function getVisitTrend(days = 30) {
 
 export async function getStoreDistribution() {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     return localDb.all('stores').map((s) => ({ id: s.id, name: s.name, lat: s.lat, lng: s.lng, level: s.level }));
   }
   const { data, error } = await supabase.from('stores').select('id, name, lat, lng, level');
@@ -102,7 +102,7 @@ export async function getStoreDistribution() {
 
 export async function getScanTrend(days = 30) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const scans = localDb.all('scan_records');
     const result = [];
     for (let i = days - 1; i >= 0; i--) {
@@ -118,4 +118,4 @@ export async function getScanTrend(days = 30) {
 }
 
 // 
-export const IS_LOCAL_MODE = USE_LOCAL;
+export const IS_LOCAL_MODE = isLocal();

@@ -3,6 +3,7 @@ import { supabase } from '../services/supabase';
 import localDb from '../services/db/localDb';
 import seedData from '../services/db/seedData';
 import { IS_LOCAL_MODE } from '../services/api';
+import { ensureLocalInit } from '../services/api/helpers';
 
 const useAuthStore = create((set, get) => ({
   user: null,
@@ -75,7 +76,12 @@ const useAuthStore = create((set, get) => ({
     if (IS_LOCAL_MODE) {
       return get().signInLocal(email, password);
     }
-    return get().signInSupabase(email, password);
+    try {
+      return await get().signInSupabase(email, password);
+    } catch (e) {
+      console.warn("[Auth] Supabase error, falling back to local mode:", e.message);
+      return get().signInLocal(email, password);
+    }
   },
 
   signUp: async (email, password, metadata) => {
@@ -108,6 +114,7 @@ const useAuthStore = create((set, get) => ({
   },
 
   initialize: async () => {
+    ensureLocalInit();
     set({ loading: true });
     if (IS_LOCAL_MODE) {
       const savedProfileId = localStorage.getItem('store_manager_current_user');
@@ -150,6 +157,22 @@ const useAuthStore = create((set, get) => ({
       }
       set({ loading: false });
       return;
+    }
+
+    // Fallback: check localStorage for saved user
+    const savedProfileId = localStorage.getItem('store_manager_current_user');
+    if (savedProfileId) {
+      const profile = localDb.findById('profiles', savedProfileId);
+      if (profile) {
+        set({ user: { id: profile.id }, profile, isAuthenticated: true, loading: false });
+        return;
+      }
+      const fan = localDb.findById('fans', savedProfileId);
+      if (fan) {
+        const fanProfile = { id: fan.id, role: 'fan', name: fan.id, phone: '', avatar: '' };
+        set({ user: { id: fan.id }, profile: fanProfile, isAuthenticated: true, loading: false });
+        return;
+      }
     }
 
     // Supabase mode

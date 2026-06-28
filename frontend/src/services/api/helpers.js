@@ -12,6 +12,7 @@ let _useLocal = !(typeof import.meta !== 'undefined' && import.meta.env && impor
 export function getUseLocal() { return _useLocal; }
 export const USE_LOCAL = _useLocal;
 export function setLocalMode(v) { _useLocal = v; }
+export function isLocal() { return _useLocal; }
 
 export function ensureLocalInit() {
   if (localDb.needsInit()) localDb.init(seedData);

@@ -4,7 +4,7 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { USE_LOCAL, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ EVALUATIONS ============
 // ============ EVALUATIONS ============
@@ -27,7 +27,7 @@ function enrichMaterialStock(stock) {
 
 export async function getEvaluations(filters = {}) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     let data = localDb.all('store_evaluations');
     if (filters.store_id) data = data.filter((e) => e.store_id === filters.store_id);
     if (filters.level) data = data.filter((e) => e.recommended_level === filters.level);
@@ -46,7 +46,7 @@ export async function getEvaluations(filters = {}) {
 
 export async function getEvaluationById(id) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const evalRecord = localDb.findById('store_evaluations', id);
     if (!evalRecord) return null;
     return {
@@ -72,7 +72,7 @@ export async function createEvaluation(evalData) {
 
   const record = { ...evalData, total_score: total, recommended_level: level };
 
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const result = localDb.insert('store_evaluations', record);
     // Sync store level
     localDb.update('stores', evalData.store_id, { level });
@@ -93,7 +93,7 @@ export async function updateEvaluation(id, evalData) {
   else if (avg >= 6) level = 'B';
   const record = { ...evalData, total_score: total, recommended_level: level };
 
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const result = localDb.update('store_evaluations', id, record);
     localDb.update('stores', evalData.store_id, { level });
     return result;
@@ -105,7 +105,7 @@ export async function updateEvaluation(id, evalData) {
 
 export async function deleteEvaluation(id) {
   ensureLocalInit();
-  if (USE_LOCAL) { localDb.remove('store_evaluations', id); return; }
+  if (isLocal()) { localDb.remove('store_evaluations', id); return; }
   const { error } = await supabase.from('store_evaluations').delete().eq('id', id);
   if (error) throw error;
 }

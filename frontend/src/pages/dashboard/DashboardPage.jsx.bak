@@ -3,13 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 gsap.registerPlugin(useGSAP);
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
@@ -21,11 +14,6 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-
-import { Button, message } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import localDb from "../../services/db/localDb";
 import useAuthStore from '../../stores/authStore';
 import {
@@ -34,30 +22,6 @@ import {
 } from '../../services/api';
 
 const { Title, Text } = Typography;
-
-const exportToCSV = (data, filename, cols) => {
-  if (!data || !data.length) { message?.warning?.('No data'); return; }
-  const BOM = '\uFEFF';
-  const header = cols.map(x => x.title).join(',');
-  const rows = data.map(row =>
-    cols.map(col => {
-      let val;
-      if (col.dataIndex && Array.isArray(col.dataIndex)) {
-        val = col.dataIndex.reduce((o, k) => o?.[k], row);
-      } else if (col.dataIndex) {
-        val = row[col.dataIndex];
-      } else {
-        val = row[col.key];
-      }
-      return '"' + String(val ?? '') + '"';
-    }).join(',')
-  ).join('\n');
-  const blob = new Blob([BOM + header + '\n' + rows], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = filename;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 200);
-};
 const COLORS = ['#FFD700', '#FFD700', '#F5A623', '#D4A800', '#8B7500'];
 const LEVEL_COLORS = { S: '#FFD700', A: '#FFD700', B: '#B8860B', C: '#8B7500', platinum: '#FFD700', gold: '#FFD700', silver: '#B8860B', bronze: '#8B7500' };
 
@@ -106,36 +70,6 @@ const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
       </div>
       <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontWeight: 500 }}>{label}</div>
     </div>
-  );
-};
-
-const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
-  const mapRef = React.useRef(null);
-  const containerRef = React.useRef(null);
-  React.useEffect(() => {
-    if (!stores?.length || !containerRef.current) return;
-    if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
-    const map = L.map(containerRef.current, { center: [24.7136, 46.6753], zoom: 10, zoomControl: true });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 18 }).addTo(map);
-    const coords = [];
-    stores.forEach(s => {
-      const lat = parseFloat(s.lat), lng = parseFloat(s.lng);
-      if (!lat || !lng || (lat === 0 && lng === 0)) return;
-      coords.push([lat, lng]);
-      const visits = (visitCounts?.[s.id]) || 0;
-      const r = Math.max(8, Math.min(20, 6 + visits * 2));
-      const color = '#FFD700';
-      const m = L.circleMarker([lat, lng], { radius: r, fillColor: color, color: '#fff', weight: 2, fillOpacity: 0.7 });
-      m.bindPopup('<b>' + s.name + '</b><br/>Level: ' + (s.level || 'N/A') + '<br/>Visits: ' + visits);
-      m.on('click', () => onStoreClick?.(s));
-      m.addTo(map);
-    });
-    if (coords.length > 0) map.fitBounds(L.latLngBounds(coords), { padding: [30,30] });
-    mapRef.current = map;
-    return () => { mapRef.current?.remove(); mapRef.current = null; };
-  }, [stores, visitCounts]);
-  return React.createElement('div', { style: { width:'100%', height:400, borderRadius:12, overflow:'hidden', position:'relative' } },
-    React.createElement('div', { ref: containerRef, style: { width:'100%', height:'100%' } })
   );
 };
 
@@ -192,13 +126,6 @@ const DashboardPage = () => {
   }, []) || [];
 
   const lowStockItems = materialStocks?.filter((s) => s.qty <= s.safety_stock) || [];
-
-  const visitCountMap = React.useMemo(() => {
-    if (!recentVisits) return {};
-    const m = {};
-    recentVisits.forEach(v => { if (v.store_id) m[v.store_id] = (m[v.store_id] || 0) + 1; });
-    return m;
-  }, [recentVisits]);
 
   const recentVisitColumns = [
     { title: 'Store', dataIndex: ['stores', 'name'], key: 'store', ellipsis: true },
@@ -354,27 +281,9 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* Store Visit Heatmap */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24}>
-          <Card title={<span style={{color:"#FFD700"}}>Store Visit Heatmap</span>} extra={
-            <Button size="small" icon={<DownloadOutlined />} onClick={() => {
-              const data = (storeDistribution || []).map(s => ({ name: s.name, level: s.level || "Unrated", visits: visitCountMap[s.id] || 0 }));
-              exportToCSV(data, "stores-heatmap.csv", [{title:"Store", dataIndex:"name"}, {title:"Level", dataIndex:"level"}, {title:"Visits", dataIndex:"visits"}]);
-            }}>Export</Button>
-          }>
-            {storeDistribution?.length > 0 ? (
-              <StoreHeatmap stores={storeDistribution} visitCounts={visitCountMap} onStoreClick={(s) => { window.open("/#/app/stores/" + s.id, "_blank"); }} />
-            ) : (
-              <div style={{textAlign:"center", padding:60, color:"#666"}}>No store data</div>
-            )}
-          </Card>
-        </Col>
-      </Row>
-
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
-          <Card title={<><TeamOutlined /> Rep Performance (Visit Count)</>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repStatsArray, "rep-performance.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Rep", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
+          <Card title={<><TeamOutlined /> Rep Performance (Visit Count)</>}>
             {repStatsArray.length > 0 ? (
               <Table columns={[
                 { title: 'Rank', key: 'rank', width: 60, render: (_, __, i) => i + 1 },
@@ -385,7 +294,7 @@ const DashboardPage = () => {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title={<><StarOutlined /> Top Visited Stores</>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(topStoresArray, "top-stores.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Store", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
+          <Card title={<><StarOutlined /> Top Visited Stores</>}>
             {topStoresArray.length > 0 ? (
               <Table columns={[
                 { title: 'Rank', key: 'rank', width: 60, render: (_, __, i) => i + 1 },

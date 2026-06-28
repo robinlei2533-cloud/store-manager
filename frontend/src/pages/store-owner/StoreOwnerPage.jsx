@@ -25,6 +25,7 @@ const StoreOwnerPage = () => {
   const [claimedCampaigns, setClaimedCampaigns] = useState([]);
   const [reviewModal, setReviewModal] = useState({ open: false, claim: null });
   const [reviewForm, setReviewForm] = useState({ materials_used: 0, effect: "good", feedback: "" });
+  const [materialRequests, setMaterialRequests] = useState([]);
   const [storeMaterials, setStoreMaterials] = useState([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm] = Form.useForm();
@@ -37,6 +38,14 @@ const StoreOwnerPage = () => {
       gsap.from(cards, { opacity: 0, y: 30, stagger: 0.08, duration: 0.6, ease: 'power3.out', clearProps: 'all' });
     }
   }, []);
+
+  // Load material requests
+  useEffect(() => {
+    try {
+      const reqs = localDb.all("material_requests") || [];
+      if (store) setMaterialRequests(reqs.filter(r => r.store_id === store.id));
+    } catch(e) {}
+  }, [store]);
 
   // Load data
   useEffect(() => {
@@ -312,6 +321,14 @@ const StoreOwnerPage = () => {
     setReviewModal({ open: true, claim });
   };
 
+  const handleRequestMaterial = (matName) => {
+    if (!store) return;
+    const req = { id: "mr-" + Date.now(), store_id: store.id, store_name: store.name, material_name: matName, status: "pending", requested_at: new Date().toISOString() };
+    localDb.insert("material_requests", req);
+    setMaterialRequests(prev => [...prev, req]);
+    message.success("Requested: " + matName);
+  };
+
   // ====== Materials Tab ======
   const MaterialsTab = () => (
     <div>
@@ -333,7 +350,7 @@ const StoreOwnerPage = () => {
           </div>
         </div>
         <Divider style={{ borderColor: levelBundle.color + "22", margin: "8px 0" }} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {levelBundle.materials.map((m, i) => {
             const mat = storeMaterials.find((mt) => mt.name === m);
             return (

@@ -4,13 +4,13 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { USE_LOCAL, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ 鎷滆 ============
 
 export async function getVisits(filters = {}) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     let data = localDb.all('visits');
     if (filters.store_id) data = data.filter((v) => v.store_id === filters.store_id);
     if (filters.rep_id) data = data.filter((v) => v.rep_id === filters.rep_id);
@@ -34,7 +34,7 @@ export async function getVisits(filters = {}) {
 
 export async function getVisitById(id) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const visit = localDb.findById('visits', id);
     if (!visit) return null;
     return enrichVisit(visit);
@@ -46,7 +46,7 @@ export async function getVisitById(id) {
 
 export async function createVisit(visit) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.insert('visits', visit);
+  if (isLocal()) return localDb.insert('visits', visit);
   const { data, error } = await supabase.from('visits').insert(visit).select().single();
   if (error) throw error;
   return data;
@@ -54,7 +54,7 @@ export async function createVisit(visit) {
 
 export async function updateVisit(id, visit) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.update('visits', id, visit);
+  if (isLocal()) return localDb.update('visits', id, visit);
   const { data, error } = await supabase.from('visits').update(visit).eq('id', id).select().single();
   if (error) throw error;
   return data;
@@ -64,7 +64,7 @@ export async function updateVisit(id, visit) {
 
 export async function getVisitSales(visitId) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const data = localDb.find('visit_sales', (s) => s.visit_id === visitId);
     return data.map((s) => ({
       ...s,
@@ -78,7 +78,7 @@ export async function getVisitSales(visitId) {
 
 export async function upsertVisitSales(salesData) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     return salesData.map((s) => localDb.upsert('visit_sales', s, 'visit_id_product_id'));
   }
   const { data, error } = await supabase.from('visit_sales').upsert(salesData, { onConflict: 'visit_id,product_id' }).select();
@@ -90,7 +90,7 @@ export async function upsertVisitSales(salesData) {
 
 export async function getVisitPhotos(visitId) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.find('visit_photos', (p) => p.visit_id === visitId);
+  if (isLocal()) return localDb.find('visit_photos', (p) => p.visit_id === visitId);
   const { data, error } = await supabase.from('visit_photos').select('*').eq('visit_id', visitId);
   if (error) throw error;
   return data;
@@ -99,7 +99,7 @@ export async function getVisitPhotos(visitId) {
 export async function uploadVisitPhoto(visitId, file, photoType) {
   ensureLocalInit();
 
-  if (USE_LOCAL) {
+  if (isLocal()) {
     // 鏈湴锛氱敤 FileReader 杞?base64 瀛樺偍鎴栫敤 URL.createObjectURL
     const photoUrl = URL.createObjectURL(file);
     return localDb.insert('visit_photos', {
@@ -121,7 +121,7 @@ export async function uploadVisitPhoto(visitId, file, photoType) {
 
 export async function deleteVisitPhoto(id) {
   ensureLocalInit();
-  if (USE_LOCAL) { localDb.remove('visit_photos', id); return; }
+  if (isLocal()) { localDb.remove('visit_photos', id); return; }
   const { error } = await supabase.from('visit_photos').delete().eq('id', id);
   if (error) throw error;
 }

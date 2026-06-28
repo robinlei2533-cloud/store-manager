@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Tag, Button, Modal, Form, Input, InputNumber, DatePicker, Select, Space, Spin, Empty, Row, Col, Statistic, message, Popconfirm } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -23,6 +23,44 @@ const CampaignDetailPage = () => {
   const [claims, setClaims] = useState([]);
   const [allStores, setAllStores] = useState([]);
   const [reportForm] = Form.useForm();
+  const [deliveryModal, setDeliveryModal] = useState({ open: false, claim: null, storeName: "" });
+  const [deliveryForm] = Form.useForm();
+  const allOutbounds = (localDb.all("material_outbound") || []);
+
+  const getDeliveryStatus = (claimId) => {
+    const obs = allOutbounds.filter(o => o.claim_id === claimId);
+    if (obs.length === 0) return { status: "none", label: "Not Assigned", color: "default" };
+    if (obs.some(o => o.status === "delivered")) return { status: "delivered", label: "Delivered", color: "success" };
+    if (obs.some(o => o.status === "approved")) return { status: "shipping", label: "In Transit", color: "processing" };
+    return { status: "pending", label: "Pending Approval", color: "orange" };
+  };
+
+  const handleAssignMaterial = async () => {
+    const v = await deliveryForm.validateFields();
+    const claim = deliveryModal.claim;
+    localDb.insert("material_outbound", {
+      id: "mo-" + Date.now(),
+      material_id: v.material_id,
+      qty: v.qty,
+      store_id: claim.store_id,
+      claim_id: claim.id,
+      applicant_id: "u-admin",
+      status: "pending",
+      reason: "Campaign: " + (campaign?.name || "") + " - Material delivery",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+    const claimRecord = localDb.findById("campaign_claims", claim.id);
+    if (claimRecord && claimRecord.status === "pending") {
+      localDb.update("campaign_claims", claim.id, { status: "in_progress" });
+    }
+    setClaims(prev => [...prev]);
+    setDeliveryModal({ open: false, claim: null, storeName: "" });
+    deliveryForm.resetFields();
+    message.success("Material assigned for delivery!");
+  };
+
+  const materials = localDb.all("materials") || [];
 
   const { data: campaign, isLoading } = useQuery({ queryKey: ['campaign', id], queryFn: () => getCampaignById(id), enabled: !!id });
 
@@ -87,9 +125,21 @@ const CampaignDetailPage = () => {
                   return st?.name || r.store_id;
                 }},
                 { title: 'Status', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'completed' ? 'success' : s === 'in_progress' ? 'processing' : 'default'}>{s}</Tag> },
+                { title: 'Delivery', key: 'delivery', render: (_, r) => {
+                  const ds = getDeliveryStatus(r.id);
+                  return <Tag color={ds.color}>{ds.label}</Tag>;
+                }},
                 { title: 'Used', dataIndex: 'materials_used', key: 'mat', render: (v) => v || 0 },
                 { title: 'Effect', dataIndex: 'effect', key: 'effect' },
                 { title: 'Claimed', dataIndex: 'claimed_at', key: 'date', render: (d) => d ? new Date(d).toLocaleDateString() : '-' },
+                { title: 'Action', key: 'action', render: (_, r) => {
+                  const ds = getDeliveryStatus(r.id);
+                  if (ds.status === "none") {
+                    const st = allStores.find(s => s.id === r.store_id);
+                    return <Button size="small" type="primary" onClick={() => setDeliveryModal({ open: true, claim: r, storeName: st?.name || r.store_id })}>Assign Materials</Button>;
+                  }
+                  return null;
+                }},
               ]}
             />
           )},
@@ -119,6 +169,27 @@ const CampaignDetailPage = () => {
           <Form.Item name="title" label="Task Title" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="due_date" label="Due Date"><DatePicker style={{ width: '100%' }} /></Form.Item>
           <Form.Item name="status" label="Status"><Select options={[{ label: 'Pending', value: 'pending' }, { label: 'In Progress', value: 'ongoing' }, { label: 'Done', value: 'done' }]} /></Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Delivery Modal */}
+      <Modal
+        title={<span style={{color:"#FFD700"}}>📦  Assign Materials</span>}
+        open={deliveryModal.open}
+        onCancel={() => { setDeliveryModal({ open: false, claim: null, storeName: "" }); deliveryForm.resetFields(); }}
+        onOk={handleAssignMaterial}
+        okText="Assign for Delivery"
+      >
+        <p style={{marginBottom:16,color:"rgba(255,255,255,0.5)"}}>
+          Assigning materials for: <strong style={{color:"#FFD700"}}>{deliveryModal.storeName}</strong>
+        </p>
+        <Form form={deliveryForm} layout="vertical">
+          <Form.Item name="material_id" label="Material" rules={[{ required: true, message: "Required" }]}>
+            <Select placeholder="Select material" options={materials.map(m => ({ label: m.name + " (" + m.sku + ")", value: m.id }))} />
+          </Form.Item>
+          <Form.Item name="qty" label="Quantity" rules={[{ required: true, message: "Required" }]}>
+            <InputNumber min={1} style={{ width: "100%" }} />
+          </Form.Item>
         </Form>
       </Modal>
 

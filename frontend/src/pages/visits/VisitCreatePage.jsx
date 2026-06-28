@@ -6,6 +6,7 @@ import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import useAuthStore from '../../stores/authStore';
+import localDb from '../../services/db/localDb';
 import { getStores, getProducts, createVisit, updateVisit, getVisitById, getVisitSales, getVisitPhotos, upsertVisitSales, uploadVisitPhoto, deleteVisitPhoto } from '../../services/api';
 import { PHOTO_TYPES } from '../../utils/constants';
 
@@ -21,6 +22,8 @@ const VisitCreatePage = () => {
   const [salesRows, setSalesRows] = useState([{ product_id: null, sales_qty: 0, sales_amount: 0, stock_qty: 0 }]);
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedStoreCampaigns, setSelectedStoreCampaigns] = useState([]);
+  const [campaignLoading, setCampaignLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const { data: stores = [] } = useQuery({ queryKey: ['stores-all'], queryFn: () => getStores({}) });
@@ -91,8 +94,36 @@ const VisitCreatePage = () => {
       <Card title={id ? 'Edit Visit' : 'New Visit'}>
         <Form form={form} layout="vertical">
           <Form.Item name="store_id" label="Store" rules={[{ required: true, message: 'Please select a store' }]}>
-            <Select placeholder="Select store" showSearch optionFilterProp="label" options={stores.map(s => ({ label: s.name, value: s.id }))} />
+            <Select placeholder="Select store" showSearch optionFilterProp="label" options={stores.map(s => ({ label: s.name, value: s.id }))}
+              onChange={(val) => {
+                const claims = localDb.find("campaign_claims", (cl) => cl.store_id === val && cl.status !== "cancelled") || [];
+                const campaigns = localDb.all("campaigns") || [];
+                const outbounds = localDb.all("material_outbound") || [];
+                const enriched = claims.map(cl => {
+                  const camp = campaigns.find(ca => ca.id === cl.campaign_id);
+                  const obs = outbounds.filter(o => o.claim_id === cl.id);
+                  const deliveryStatus = obs.length === 0 ? "Not Assigned" : obs.some(o => o.status === "delivered") ? "Delivered" : "Pending";
+                  return { ...cl, campaignName: camp?.name || "Unknown", deliveryStatus };
+                });
+                setSelectedStoreCampaigns(enriched);
+              }}
+            />
           </Form.Item>
+          {selectedStoreCampaigns.length > 0 && (
+            <Card size="small" title="🎯 Active Campaign Deliveries" style={{marginBottom:16,background:"#fffbe6",borderColor:"#FFD700",borderRadius:12}}>
+              {selectedStoreCampaigns.map((cl, idx) => (
+                <div key={idx} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:idx < selectedStoreCampaigns.length-1 ? "1px solid rgba(255,215,0,0.15)" : "none"}}>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:13,color:"#333"}}>{cl.campaignName}</div>
+                    <div style={{fontSize:11,color:"#888"}}>Status: {cl.status} | Effect: {cl.effect}</div>
+                  </div>
+                  <Tag color={cl.deliveryStatus === "Delivered" ? "success" : cl.deliveryStatus === "Pending" ? "orange" : "default"}>
+                    {cl.deliveryStatus}
+                  </Tag>
+                </div>
+              ))}
+            </Card>
+          )}
           <Form.Item name="visit_date" label="Visit Date" rules={[{ required: true, message: 'Required' }]}>
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>

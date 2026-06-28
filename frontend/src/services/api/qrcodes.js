@@ -4,7 +4,7 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
-import { USE_LOCAL, ensureLocalInit } from './helpers';
+import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ QRCODES ============
 // ============ QRCODES ============
@@ -27,7 +27,7 @@ function enrichMaterialStock(stock) {
 
 export async function getQrCodes(filters = {}) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     let data = localDb.all('qr_codes');
     if (filters.product_id) data = data.filter((q) => q.product_id === filters.product_id);
     if (filters.store_id) data = data.filter((q) => q.store_id === filters.store_id);
@@ -44,7 +44,7 @@ export async function getQrCodes(filters = {}) {
 
 export async function createQrCode(qrData) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.insert('qr_codes', { ...qrData, scan_count: 0, is_active: true });
+  if (isLocal()) return localDb.insert('qr_codes', { ...qrData, scan_count: 0, is_active: true });
   const { data, error } = await supabase.from('qr_codes').insert(qrData).select().single();
   if (error) throw error;
   return data;
@@ -52,7 +52,7 @@ export async function createQrCode(qrData) {
 
 export async function updateQrCode(id, qrData) {
   ensureLocalInit();
-  if (USE_LOCAL) return localDb.update('qr_codes', id, qrData);
+  if (isLocal()) return localDb.update('qr_codes', id, qrData);
   const { data, error } = await supabase.from('qr_codes').update(qrData).eq('id', id).select().single();
   if (error) throw error;
   return data;
@@ -60,14 +60,14 @@ export async function updateQrCode(id, qrData) {
 
 export async function deleteQrCode(id) {
   ensureLocalInit();
-  if (USE_LOCAL) { localDb.remove('qr_codes', id); return; }
+  if (isLocal()) { localDb.remove('qr_codes', id); return; }
   const { error } = await supabase.from('qr_codes').delete().eq('id', id);
   if (error) throw error;
 }
 
 export async function scanQrCode(qrCodeId) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     const qr = localDb.findById('qr_codes', qrCodeId);
     if (!qr || !qr.is_active) throw new Error('QR code invalid or disabled');
 
@@ -100,7 +100,7 @@ export async function scanQrCode(qrCodeId) {
 
 export async function getScanRecords(filters = {}) {
   ensureLocalInit();
-  if (USE_LOCAL) {
+  if (isLocal()) {
     let data = localDb.all('scan_records');
     if (filters.store_id) data = data.filter((r) => r.store_id === filters.store_id);
     if (filters.fan_id) data = data.filter((r) => r.fan_id === filters.fan_id);

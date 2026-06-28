@@ -469,7 +469,33 @@ const FanEntryPage = () => {
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <LanguageSwitcher inline={true} />
-          {/* Settings */}
+          {/* Store Entry - Direct Button */}
+          <button
+            onClick={() => window.location.href='store-app.html#/store-owner'}
+            style={{
+              height:38, padding:'0 14px', borderRadius:10, border:'1px solid rgba(255,215,0,0.25)',
+              background: 'rgba(255,215,0,0.1)', color: '#FFD700',
+              fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6,
+              transition:'all .3s',
+              letterSpacing:1,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.2)'; e.currentTarget.style.borderColor = '#FFD700'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,215,0,0.25)'; }}
+          ><span style={{fontSize:16}}>🏪</span> {t('settings_store')}</button>
+          {/* Rep Entry */}
+          <button
+            onClick={() => window.location.href='/#/admin?role=rep'}
+            style={{
+              height:38, padding:'0 14px', borderRadius:10, border:'1px solid rgba(82,196,26,0.25)',
+              background: 'rgba(82,196,26,0.1)', color: '#52c41a',
+              fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6,
+              transition:'all .3s',
+              letterSpacing:1,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(82,196,26,0.2)'; e.currentTarget.style.borderColor = '#52c41a'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(82,196,26,0.1)'; e.currentTarget.style.borderColor = 'rgba(82,196,26,0.25)'; }}
+          >📋 Rep</button>
+          {/* Settings Gear - Admin + Website only */}
           <div style={{ position:'relative' }}>
             <button
               onClick={() => { setSettingsOpen(!settingsOpen); }}
@@ -487,12 +513,7 @@ const FanEntryPage = () => {
                 border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, padding:6, zIndex:100,
                 boxShadow:'0 20px 60px rgba(0,0,0,0.5)',
               }}>
-                <div onClick={() => window.location.href='store-app.html#/store-owner'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
-                  onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
-                  onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🏪</span> {t('settings_store')}
-                </div>
-                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
+                
                 <div onClick={() => window.location.href='/index.html#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
