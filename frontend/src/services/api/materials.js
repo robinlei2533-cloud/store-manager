@@ -1,4 +1,4 @@
-// Domain: materials
+﻿// Domain: materials
 // ============================================================
 
 import { supabase } from '../supabase';
@@ -77,15 +77,17 @@ export async function updateMaterialStock(materialId, qty, safetyStock) {
 export async function createInbound(record) {
   ensureLocalInit();
   if (USE_LOCAL) {
-    const inbound = localDb.insert('material_inbound', record);
-    // 鑷姩澧炲姞搴撳瓨
-    const stocks = localDb.find('material_stocks', (s) => s.material_id === record.material_id);
-    if (stocks.length > 0) {
-      localDb.update('material_stocks', stocks[0].id, { qty: stocks[0].qty + record.qty });
-    } else {
-      localDb.insert('material_stocks', { material_id: record.material_id, warehouse: '榛樿浠撳簱', qty: record.qty, safety_stock: 10 });
-    }
-    return inbound;
+    return localDb.transaction((txnDb) => {
+      const inbound = txnDb.insert('material_inbound', record);
+      // 自动增加库存（原子操作）
+      const stocks = txnDb.find('material_stocks', (s) => s.material_id === record.material_id);
+      if (stocks.length > 0) {
+        txnDb.update('material_stocks', stocks[0].id, { qty: stocks[0].qty + record.qty });
+      } else {
+        txnDb.insert('material_stocks', { material_id: record.material_id, warehouse: '默认仓库', qty: record.qty, safety_stock: 10 });
+      }
+      return inbound;
+    });
   }
   const { data, error } = await supabase.from('material_inbound').insert(record).select().single();
   if (error) throw error;
@@ -142,18 +144,21 @@ export async function getOutbounds(filters = {}) {
 export async function updateOutboundStatus(id, status) {
   ensureLocalInit();
   if (USE_LOCAL) {
-    const record = localDb.findById('material_outbound', id);
-    // 瀹℃壒閫氳繃鏃舵墸鍑忓簱瀛?
-    if (status === 'approved' && record.status === 'pending') {
-      const stocks = localDb.find('material_stocks', (s) => s.material_id === record.material_id);
-      if (stocks.length > 0) {
-        localDb.update('material_stocks', stocks[0].id, { qty: Math.max(0, stocks[0].qty - record.qty) });
+    return localDb.transaction((txnDb) => {
+      const record = txnDb.findById('material_outbound', id);
+      // 审批通过时扣减库存（原子操作）
+      if (status === 'approved' && record.status === 'pending') {
+        const stocks = txnDb.find('material_stocks', (s) => s.material_id === record.material_id);
+        if (stocks.length > 0) {
+          txnDb.update('material_stocks', stocks[0].id, { qty: Math.max(0, stocks[0].qty - record.qty) });
+        }
       }
-    }
-    return localDb.update('material_outbound', id, { status });
+      return txnDb.update('material_outbound', id, { status });
+    });
   }
   const { data, error } = await supabase.from('material_outbound').update({ status }).eq('id', id).select().single();
   if (error) throw error;
   return data;
 }
-
+
+

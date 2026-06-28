@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // 本地数据引擎 — 基于 localStorage 的轻量数据库
 // 无需任何云服务配置，打开浏览器即用
 // ============================================================
@@ -168,7 +168,25 @@ const db = {
   count(table) {
     return loadTable(table).length;
   },
+
+  // 事务：原子化执行多个表操作
+  // callback(txnDb) => 在此函数内执行 insert/update/remove
+  // 如果任意操作抛出异常，自动回滚所有变更
+  transaction(callback) {
+    const tables = TABLE_NAMES;
+    const snapshots = {};
+    tables.forEach((t) => { snapshots[t] = loadTable(t); });
+    try {
+      const result = callback(this);
+      return result;
+    } catch (err) {
+      console.error('[DB] Transaction failed, rolling back:', err);
+      tables.forEach((t) => { saveTable(t, snapshots[t]); });
+      throw err;
+    }
+  }
 };
 
 export default db;
+
 
