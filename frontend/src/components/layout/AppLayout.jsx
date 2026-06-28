@@ -146,10 +146,11 @@ const AppLayout = () => {
       alignItems: 'center',
       justifyContent: 'center',
       fontWeight: 800,
+      textShadow: '0 0 20px rgba(255,215,0,0.15)',
       color: token.colorPrimary,
       borderBottom: `1px solid ${token.colorBorderSecondary}`,
     }}>
-      <div className="layout-brand">UWELL CRM</div>
+      <div className="layout-brand"><ShinyText speed={4}>UWELL CRM</ShinyText></div>
       <div style={{ fontSize: 11, color: token.colorTextTertiary, fontWeight: 500, marginTop: 3 }}>
         粉丝运营与门店增长系统
       </div>
@@ -239,7 +240,7 @@ const AppLayout = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Outlet />
+            <PageTransition><Outlet /></PageTransition>
           </motion.div>
         </Content>
       </Layout>

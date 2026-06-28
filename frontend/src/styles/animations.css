@@ -1,0 +1,75 @@
+/* ===== UWELL Animation Utilities ===== */
+
+@keyframes uwell-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes uwell-gold-shimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+@keyframes uwell-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes uwell-glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,215,0,0.2); }
+  50% { box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+}
+
+@keyframes uwell-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes uwell-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes uwell-pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+@keyframes uwell-gold-sweep {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes uwell-spin-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.uwell-fade-in { animation: uwell-slide-up 0.5s ease-out forwards; }
+.uwell-scale-in { animation: uwell-scale-in 0.4s ease-out forwards; }
+.uwell-float { animation: uwell-float 3s ease-in-out infinite; }
+.uwell-glow-pulse { animation: uwell-glow-pulse 2s ease-in-out infinite; }
+
+.uwell-stagger > * {
+  opacity: 0;
+  animation: uwell-slide-up 0.5s ease-out forwards;
+}
+.uwell-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.uwell-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.uwell-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.uwell-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.uwell-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.uwell-stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.uwell-stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.uwell-stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .uwell-stagger > * {
+    animation: none !important; opacity: 1 !important;
+  }
+}

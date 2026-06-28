@@ -11,6 +11,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 import { motion } from 'framer-motion';
+import BlurText from '../../components/effects/BlurText';
+import CountUp from '../../components/effects/CountUp';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
 import {

@@ -1,8 +1,12 @@
-﻿import useLanguageStore from './stores/languageStore';
+import useLanguageStore from './stores/languageStore';
 import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
 import LanguageSwitcher from './components/common/LanguageSwitcher';
+import PageTransition from './components/common/PageTransition';
+import './styles/animations.css';
+import './styles/glass-morphism.css';
+import './styles/loading-states.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
@@ -109,7 +113,7 @@ const App = () => {
             colorWarning: '#f59e0b',
             colorError: '#dc2626',
             borderRadius: 8,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
+            fontFamily: "'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
           },
           components: {
             Layout: { headerBg: '#0a0a0f', siderBg: '#0d0d15', bodyBg: '#12121a' },

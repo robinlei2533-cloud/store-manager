@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useLanguageStore from '../../stores/languageStore';
 import useAuthStore from '../../stores/authStore';
@@ -7,6 +7,9 @@ import seedData from '../../services/db/seedData';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { motion } from "framer-motion";
 import Galaxy from "../../components/effects/Galaxy";
+import GradientText from '../../components/effects/GradientText';
+import RotatingText from '../../components/effects/RotatingText';
+import DecryptedText from '../../components/effects/DecryptedText';
 import CircularGallery from "../../components/effects/CircularGallery";
 import ClickSpark from "../../components/effects/ClickSpark";
 import Counter from "../../components/effects/Counter";
@@ -539,6 +542,9 @@ const FanEntryPage = () => {
             <p style={{ color:'rgba(255,255,255,0.35)', fontSize:15, lineHeight:1.7, marginBottom:28 }}>
               {t('fan_entry_desc')}
             </p>
+            <div style={{ marginBottom: 20, fontSize: 14, color: '#FFD700', fontWeight: 600 }}>
+              <RotatingText texts={['Check In', 'Scan QR Code', 'Earn Points', 'Redeem Rewards']} period={2500} />
+            </div>
             <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginTop:20 }}>
               {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map((f, idx) => (
                 <div key={f.label} style={{ display:'flex', alignItems:'center', gap:12, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
@@ -703,7 +709,7 @@ const FanEntryPage = () => {
                 />
               </div>
               <div style={{ padding:"6px 10px" }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#e5e5e5", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.n}</div>
+                <div style={{ fontSize:10, fontWeight:700, color:"#e5e5e5", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}><DecryptedText text={p.n} trigger="hover" speed={30} /></div>
                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.3)", marginTop:1 }}>{p.t}</div>
               </div>
             </div>

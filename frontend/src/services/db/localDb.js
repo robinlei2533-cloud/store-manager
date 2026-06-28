@@ -36,8 +36,7 @@ const TABLE_NAMES = [
   'community_posts',
   'community_comments',
   'store_tasks',
-  'material_requests',
-  'scan_records',
+  'material_requests'
 ];
 
 // 生成 UUID

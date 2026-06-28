@@ -1,4 +1,5 @@
 ﻿import useLanguageStore from '../../stores/languageStore';
+import CountUp from '../../components/effects/CountUp';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
@@ -127,7 +128,7 @@ const FanCenterPage = () => {
           </div>
           <div className="fc-points-section">
             <div className="fc-points-display">
-              <div className="fc-points-value">{currentFan.points} <span className="fc-points-unit">pts</span></div>
+              <div className="fc-points-value"><CountUp value={currentFan.points} duration={1.5} /> <span className="fc-points-unit">pts</span></div>
               <Tag color={levelInfo.color} className="fc-points-tag">{levelInfo.label}</Tag>
             </div>
             <Dropdown menu={{

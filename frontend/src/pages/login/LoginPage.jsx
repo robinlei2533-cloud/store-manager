@@ -1,4 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
+import BlurText from '../../components/effects/BlurText';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Form, Input, Button, Card, Typography, message, Modal, Select, Divider, Alert } from 'antd';

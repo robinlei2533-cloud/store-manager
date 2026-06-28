@@ -44,8 +44,26 @@
   --uwell-z-modal: 300;
   --uwell-z-toast: 400;
   --uwell-radius: 10px;
+  /* Font families */
+  --uwell-font-heading: 'Poppins', 'Inter', -apple-system, sans-serif;
+  --uwell-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Glass tokens */
+  --uwell-glass-bg: rgba(255,255,255,0.03);
+  --uwell-glass-border: rgba(255,255,255,0.06);
+
+  /* Spring curve */
+  --uwell-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --uwell-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+
+
+/* Global heading font */
+h1, h2, h3, h4, h5, h6, .ant-typography h1, .ant-typography h2, .ant-typography h3, .ant-typography h4, .ant-typography h5 {
+  font-family: var(--uwell-font-heading) !important;
+}
+
 
 /* Smooth scrolling for entire app */
 html {

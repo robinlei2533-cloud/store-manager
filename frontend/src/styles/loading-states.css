@@ -1,0 +1,23 @@
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: uwell-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+.pulse-loader {
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 40px;
+}
+.pulse-loader .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #FFD700;
+  animation: uwell-pulse-dot 1.2s ease-in-out infinite;
+}
+.pulse-loader .dot:nth-child(2) { animation-delay: 0.2s; }
+.pulse-loader .dot:nth-child(3) { animation-delay: 0.4s; }
+.gold-spinner {
+  width: 32px; height: 32px;
+  border: 2px solid rgba(255,215,0,0.1);
+  border-top-color: #FFD700;
+  border-radius: 50%;
+  animation: uwell-spin-ring 0.8s linear infinite;
+}

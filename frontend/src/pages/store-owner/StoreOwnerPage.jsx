@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
+import BlurText from '../../components/effects/BlurText';
 import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, message, Table, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Progress } from "antd";
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, SettingOutlined, UserOutlined, BarChartOutlined, HistoryOutlined } from "@ant-design/icons";
 import localDb from "../../services/db/localDb";
@@ -428,7 +429,7 @@ const StoreOwnerPage = () => {
       {/* Header */}
       <div className="so-flex-between-mb">
         <div>
-          <Title level={4} className="so-text-gold so-m0">{t('store_title')}</Title>
+          <BlurText as="h4" text={t('store_title')} className="so-text-gold so-m0" />
           <Text className="so-text-white30 so-fs11">{store.name}</Text>
         </div>
         <Tag color={levelBundle.color} className="so-fw600">{levelBundle.icon} {levelBundle.label}</Tag>
