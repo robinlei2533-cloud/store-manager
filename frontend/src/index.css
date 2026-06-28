@@ -1,4 +1,4 @@
-/* UWELL Brand Tokens */
+﻿/* UWELL Brand Tokens */
 :root {
   --uwell-gold: #FFD700;
   --uwell-gold-light: #FFF3B0;
@@ -99,14 +99,7 @@ body {
   margin-bottom: 20px;
 }
 
-.staff-login-copy h1 {
-  max-width: 620px;
-  margin: 0 0 16px !important;
-  color: #0f172a !important;
-  font-size: clamp(32px, 5vw, 56px) !important;
-  line-height: 1.08 !important;
-  letter-spacing: 0 !important;
-}
+
 
 .staff-login-copy .ant-typography {
   display: block;
@@ -307,9 +300,7 @@ body {
     text-align: left;
   }
 
-  .staff-login-copy h1 {
-    font-size: 32px !important;
-  }
+  
 
   .fan-entry-page {
     align-items: flex-start;
@@ -391,3 +382,4 @@ body {
     font-size: 13px !important;
   }
 }
+
