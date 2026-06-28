@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,6 +12,9 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo });
+    // 上报错误到控制台（生产环境可替换为 Sentry/LogRocket）
+    console.error('[ErrorBoundary] Caught error:', error);
+    console.error('[ErrorBoundary] Component stack:', errorInfo?.componentStack);
   }
 
   handleReload = () => {
