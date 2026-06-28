@@ -1,4 +1,46 @@
-﻿import useLanguageStore from '../../stores/languageStore';
+﻿/*
+ * UWELL CRM — 运营仪表盘增强建议
+ *
+ * 以下改进点可在后续迭代中添加到运营仪表盘，以提升数据洞察能力：
+ *
+ * 1. 今日新增粉丝数 (New Fans Today)
+ *    - 在 StatCard 区域新增一张卡片，展示当日新增粉丝数
+ *    - 数据源：getDashboardStats 返回 newFansToday 字段
+ *    - 可与昨日对比显示增长趋势
+ *
+ * 2. 扫码转化率 (Scan Conversion Rate)
+ *    - 计算: (今日扫码数 / 今日访问数) × 100%
+ *    - 以百分比进度环或 StatCard 展示
+ *    - 可附加 7 天平均转化率作为对比基线
+ *
+ * 3. 门店等级分布图 (Store Level Distribution)
+ *    - 当前已有饼图展示门店等级分布 (levelPieData)
+ *    - 建议增强：点击扇形可下钻查看该等级门店列表
+ *    - 建议补充：显示各等级占比百分比标签
+ *
+ * 4. 7 天签到趋势 (7-Day Visit Trend)
+ *    - 当前已有 30 天趋势图 (getVisitTrend)
+ *    - 建议新增 7 天精简视图卡片，便于移动端快速查看
+ *    - 数据源复用 visit-trend query，仅截取近 7 条
+ *
+ * 5. 物料库存预警列表 (Material Stock Alert List)
+ *    - 当前 lowStockItems 已在物料卡片中展示
+ *    - 建议增强：增加红色高亮动画、排序（按缺货严重程度）
+ *    - 建议补充：一键下单补货按钮 / 导出预警清单
+ *
+ * 6. 扫码趋势与访问趋势关联分析 (Scan vs Visit Correlation)
+ *    - 将 scanTrend 和 visitTrend 叠加到同一张复合图
+ *    - 双 Y 轴，左轴访问数，右轴扫码数
+ *
+ * 7. 顶部统计卡片响应式布局优化
+ *    - 当前 xs=12 在极小屏上每行 2 张卡片，可考虑 xs=24 单列模式
+ *    - 卡片内字体大小在小屏上应自适应缩小
+ *
+ * 8. 热力图门店筛选与时间段过滤
+ *    - 当前 heatmap 展示所有门店，建议增加按等级/区域筛选
+ *    - 增加日期范围选择器，过滤指定时间段的访问数据
+ */
+import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useEffect, useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -35,6 +77,7 @@ import {
   getCampaigns, getScanRecords, getMaterialStocks, getScanTrend, IS_LOCAL_MODE,
 } from '../../services/api';
 
+import { useDashboardRealtime } from './useDashboardRealtime';
 const { Title, Text } = Typography;
 
 const exportToCSV = (data, filename, cols) => {
@@ -138,6 +181,7 @@ const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
 
 const DashboardPage = () => {
   const profile = useAuthStore((s) => s.profile);
+  useDashboardRealtime();
 
   const { data: stats, isLoading: statsLoading } = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats });
   const { data: trendData, isLoading: trendLoading } = useQuery({ queryKey: ['visit-trend'], queryFn: () => getVisitTrend(30) });
@@ -398,5 +442,6 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+
 
 

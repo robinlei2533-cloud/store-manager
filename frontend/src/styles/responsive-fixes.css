@@ -1,0 +1,37 @@
+﻿/* UWELL CRM — 移动端响应式修复 */
+@media (max-width: 768px) {
+  /* 粉丝中心适配 */
+  .fc-page { padding: 0 !important; }
+  .fc-topbar { padding: 12px 16px !important; }
+  .fc-tabs-wrapper { padding: 0 12px !important; }
+  .fc-tabs-wrapper .ant-tabs-nav { margin-bottom: 8px !important; }
+  
+  /* 门店管理适配 */
+  .so-page { padding: 12px !important; }
+  
+  /* 管理后台卡片适配 */
+  .ant-card { margin-bottom: 12px !important; }
+  .ant-card-body { padding: 16px !important; }
+  
+  /* 表格适配 - 水平滚动 */
+  .ant-table-wrapper { overflow-x: auto; }
+  
+  /* 统计卡片网格 */
+  .ant-row { margin-left: -4px !important; margin-right: -4px !important; }
+  .ant-col { padding-left: 4px !important; padding-right: 4px !important; }
+  
+  /* 按钮大小优化 */
+  .ant-btn { font-size: 13px !important; }
+  
+  /* 模态框适配 */
+  .ant-modal { max-width: 95vw !important; margin: 10px auto !important; }
+}
+
+/* 深色主题修复 - 所有输入框 */
+.ant-input, .ant-input-affix-wrapper, .ant-select-selector, 
+.ant-picker, .ant-input-number {
+  background-color: #1a1a25 !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  color: #e5e5e5 !important;
+}
+.ant-input::placeholder { color: rgba(255,255,255,0.3) !important; }
