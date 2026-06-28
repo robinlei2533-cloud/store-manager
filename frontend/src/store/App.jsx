@@ -7,6 +7,7 @@ import enUS from 'antd/locale/en_US';
 import arEG from 'antd/locale/ar_EG';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import ProtectedRoute from '../components/common/ProtectedRoute';
 import useLanguageStore from '../stores/languageStore';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
@@ -15,7 +16,7 @@ const StoreOwnerPage = React.lazy(() => import('../pages/store-owner/StoreOwnerP
 
 const router = createHashRouter([
   { path: "/", element: <Navigate to="/store-owner" replace /> },
-  { path: "/store-owner", element: <StoreOwnerPage /> },
+  { path: "/store-owner", element: <ProtectedRoute redirectTo="/admin"><StoreOwnerPage /></ProtectedRoute> },
   { path: "*", element: <Navigate to="/store-owner" replace /> }
 ]);
 

@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+﻿import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import ProtectedRoute from '../components/common/ProtectedRoute';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import useLanguageStore from '../stores/languageStore';
@@ -17,7 +18,7 @@ const FanCenterPage = React.lazy(() => import('../pages/fans/FanCenterPage'));
 const router = createHashRouter([
   { path: "/", element: <Navigate to="/fan-entry" replace /> },
   { path: "/fan-entry", element: <FanEntryPage /> },
-  { path: "/fan-center", element: <FanCenterPage /> },
+  { path: "/fan-center", element: <ProtectedRoute redirectTo="/fan-entry"><FanCenterPage /></ProtectedRoute> },
   { path: "*", element: <Navigate to="/fan-entry" replace /> }
 ]);
 

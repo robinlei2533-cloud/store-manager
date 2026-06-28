@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { Navigate } from 'react-router';
 import useAuthStore from '../../stores/authStore';
 import { Spin } from 'antd';
 
-const ProtectedRoute = ({ children, requiredRole }) => {
+const ProtectedRoute = ({ children, requiredRole, redirectTo }) => {
   const { user, profile, loading } = useAuthStore();
 
   if (loading) {
@@ -15,16 +15,16 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   if (!user) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to={redirectTo || '/admin'} replace />;
   }
 
   if (requiredRole && profile) {
     const roleHierarchy = { admin: 4, manager: 3, rep: 2, fan: 1 };
     if ((roleHierarchy[profile.role] || 0) < (roleHierarchy[requiredRole] || 0)) {
       if (profile.role === 'fan') {
-        return <Navigate to="/fan-center" replace />;
+    return <Navigate to={redirectTo || '/admin'} replace />;
       }
-      return <Navigate to="/app/dashboard" replace />;
+    return <Navigate to={redirectTo || '/admin'} replace />;
     }
   }
 
