@@ -1,5 +1,5 @@
 import useLanguageStore from '../../stores/languageStore';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message, Progress, List, Input, Typography, Divider, Avatar, Dropdown } from 'antd';
 import {
@@ -28,6 +28,9 @@ import CommunityTab from './tabs/CommunityTab';
 import HowItWorksTab from './tabs/HowItWorksTab';
 import MapTab from './tabs/MapTab';
 import CampaignTab from './tabs/CampaignTab';
+
+const FAN_CENTER_BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4';
+
 // ============ Main Fan Center Page ============
 const FanCenterPage = () => {
   const navigate = useNavigate();
@@ -35,11 +38,85 @@ const FanCenterPage = () => {
   const { user, profile, signOut } = useAuthStore();
   const [activeTab, setActiveTab] = useState('checkin');
   const [refreshKey, setRefreshKey] = useState(0);
+  const bgVideoRef = useRef(null);
 
   const { data: fans = [], isLoading } = useQuery({
     queryKey: ['fans', refreshKey],
     queryFn: () => getFans({}),
   });
+
+  useEffect(() => {
+    const video = bgVideoRef.current;
+    if (isLoading || !video) return undefined;
+
+    let rafId = 0;
+    let resetTimer = 0;
+    let isFadingOut = false;
+    let disposed = false;
+
+    const fadeVideo = (targetOpacity, duration = 500) => {
+      cancelAnimationFrame(rafId);
+      const startOpacity = Number.parseFloat(video.style.opacity || '0') || 0;
+      const startedAt = performance.now();
+
+      const tick = (now) => {
+        if (disposed) return;
+        const progress = Math.min((now - startedAt) / duration, 1);
+        video.style.opacity = String(startOpacity + (targetOpacity - startOpacity) * progress);
+        if (progress < 1) {
+          rafId = requestAnimationFrame(tick);
+        }
+      };
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const playVideo = () => {
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
+    };
+
+    const handleCanPlay = () => {
+      playVideo();
+      fadeVideo(1);
+    };
+
+    const handleTimeUpdate = () => {
+      if (!video.duration || isFadingOut) return;
+      if (video.duration - video.currentTime <= 0.55) {
+        isFadingOut = true;
+        fadeVideo(0);
+      }
+    };
+
+    const handleEnded = () => {
+      video.style.opacity = '0';
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        if (disposed) return;
+        video.currentTime = 0;
+        isFadingOut = false;
+        playVideo();
+        fadeVideo(1);
+      }, 100);
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('ended', handleEnded);
+    if (video.readyState >= 3) handleCanPlay();
+
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(rafId);
+      window.clearTimeout(resetTimer);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, [isLoading]);
 
   // Find current fan by user ID or fall back to first fan
   let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
@@ -109,15 +186,25 @@ const FanCenterPage = () => {
   const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
 
   return (
-    <div className='bg-radial-center' style={{ minHeight: '100vh', background: '#000000', paddingBottom: 24, position: 'relative' }}>
+    <div className='fan-center-liquid-shell bg-radial-center' style={{ minHeight: '100vh', background: '#000000', paddingBottom: 24, position: 'relative' }}>
+      <video
+        ref={bgVideoRef}
+        className="fan-center-bg-video"
+        src={FAN_CENTER_BG_VIDEO}
+        muted
+        autoPlay
+        playsInline
+        preload="auto"
+      />
+      <div className="fan-center-bg-scrim" />
       {/* Decorative glow */}
-      <div style={{position:'fixed',top:'-20%',right:'-10%',width:500,height:500,borderRadius:'50%',background:'radial-gradient(circle,rgba(212,168,0,0.06) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
-      <div style={{position:'fixed',bottom:'-10%',left:'-5%',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
+      <div style={{position:'fixed',top:'-20%',right:'-10%',width:500,height:500,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,255,255,0.045) 0%,transparent 70%)',pointerEvents:'none',zIndex:1}} />
+      <div style={{position:'fixed',bottom:'-10%',left:'-5%',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,215,0,0.05) 0%,transparent 70%)',pointerEvents:'none',zIndex:1}} />
       {/* Top Bar */}
-      <div style={{
-        background: '#000000',
+      <div className="fan-center-glass-topbar liquid-glass" style={{
+        background: 'rgba(255,255,255,0.01)',
         padding: '16px 20px', color: '#fff', position: 'sticky', top: 0, zIndex: 100,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.15)', borderBottom: '1px solid rgba(255,215,0,0.08)',
+        boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1)', borderBottom: 'none',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 600, margin: '0 auto' }}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -135,7 +222,6 @@ const FanCenterPage = () => {
             <Dropdown menu={{
               items: [
                 { key: 'owner', icon: <ShopOutlined />, label: '门店入口' },
-                { key: 'admin', icon: <SettingOutlined />, label: '管理后台' },
                 { type: 'divider' },
                 { key: 'lang_zh', icon: <span role='img'>🇨🇳</span>, label: '中文' },
                 { key: 'lang_en', icon: <span role='img'>🇬🇧</span>, label: 'English' },
@@ -145,7 +231,6 @@ const FanCenterPage = () => {
               ],
               onClick: ({ key }) => {
                 if (key === 'owner') window.location.href = 'store-app.html#/store-owner';
-                else if (key === 'admin') window.location.href = '/index.html#/admin';
                 else if (key === 'lang_zh') setLang('zh');
                 else if (key === 'lang_en') setLang('en');
                 else if (key === 'lang_ar') setLang('ar');
@@ -159,8 +244,9 @@ const FanCenterPage = () => {
       </div>
 
       {/* Main Content */}
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
+      <div className="fan-center-content" style={{ maxWidth: 720, margin: '0 auto', padding: '18px 16px 28px' }}>
         <Tabs
+          className="fan-center-tabs"
           activeKey={activeTab}
           onChange={setActiveTab}
           centered
@@ -214,6 +300,5 @@ const FanCenterPage = () => {
 };
 
 export default FanCenterPage;
-
 
 

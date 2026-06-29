@@ -38,7 +38,7 @@ const FanLoginPage = () => {
     setSubmitting(true);
     try {
       await signUp(values.email, values.password, { name: values.name, role: 'fan' });
-      message.success('欢迎加入 UWELL 粉丝俱乐�?);
+      message.success('欢迎加入 UWELL 粉丝俱乐部');
       navigate('/fan-center', { replace: true });
     } catch (err) {
       message.error(err.message || '注册失败');
@@ -70,7 +70,7 @@ const FanLoginPage = () => {
 
         <Title level={1}>你是 UWELL 粉丝吗？</Title>
         <Text className="fan-entry-desc">
-          加入会员、签到积分、扫码认证、兑换奖励，和更�?UWELL 用户一起参与品牌活动�?
+          加入会员、签到积分、扫码认证、兑换奖励，和更多 UWELL 用户一起参与品牌活动。
         </Text>
 
         <Button
@@ -84,15 +84,15 @@ const FanLoginPage = () => {
         </Button>
 
         <Button type="link" className="fan-entry-login" onClick={() => setLoginModalOpen(true)}>
-          已是会员？登录粉丝中�?
+          已是会员？登录粉丝中心
         </Button>
 
         <div className="fan-entry-features">
           {[
             { title: '每日签到', desc: '连续活跃累积积分' },
-            { title: '扫码积分', desc: '购买产品后扫码获得奖�? },
-            { title: '老粉认证', desc: '上传老产品照片升级白�? },
-            { title: '积分商城', desc: '兑换产品与会员权�? },
+            { title: '扫码积分', desc: '购买产品后扫码获得奖励' },
+            { title: '老粉认证', desc: '上传老产品照片升级白银' },
+            { title: '积分商城', desc: '兑换产品与会员权益' },
           ].map((item) => (
             <div className="fan-entry-feature liquid-glass" key={item.title}>
               <strong>{item.title}</strong>
@@ -104,7 +104,7 @@ const FanLoginPage = () => {
 
       <div className="entry-switcher">
         <Button icon={<ShopOutlined />} onClick={() => setOwnerModalOpen(true)}>店主进入</Button>
-        <Button icon={<SafetyCertificateOutlined />} onClick={() => navigate('/admin')}>管理员进�?/Button>
+        <Button icon={<SafetyCertificateOutlined />} onClick={() => navigate('/admin')}>管理员进入</Button>
       </div>
 
       <Modal
@@ -112,16 +112,16 @@ const FanLoginPage = () => {
         open={ownerModalOpen}
         onCancel={() => setOwnerModalOpen(false)}
         footer={[
-          <Button key="close" type="primary" onClick={() => setOwnerModalOpen(false)}>知道�?/Button>,
+          <Button key="close" type="primary" onClick={() => setOwnerModalOpen(false)}>知道了</Button>,
         ]}
       >
         <Text>
-          店主端入口已预留。后续可以用于门店老板查看门店等级、扫码积分、活动任务、物料申请和门店资料确认�?
+          店主端入口已预留。后续可以用于门店老板查看门店等级、扫码积分、活动任务、物料申请和门店资料确认。
         </Text>
       </Modal>
 
       <Modal
-        title="加入 UWELL 粉丝俱乐�?
+        title="加入 UWELL 粉丝俱乐部"
         open={registerModalOpen}
         onCancel={() => setRegisterModalOpen(false)}
         footer={null}
@@ -129,18 +129,18 @@ const FanLoginPage = () => {
         style={{ maxWidth: 420 }}
       >
         <Form form={registerForm} layout="vertical" onFinish={handleRegister} style={{ marginTop: 16 }}>
-          <Form.Item name="name" rules={[{ required: true, message: '请输入姓�? }]}>
+          <Form.Item name="name" rules={[{ required: true, message: '请输入姓名' }]}>
             <Input prefix={<UserOutlined />} placeholder="姓名" size="large" />
           </Form.Item>
-          <Form.Item name="email" rules={[{ required: true, message: '请输入邮�? }, { type: 'email', message: '邮箱格式不正�? }]}>
+          <Form.Item name="email" rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}>
             <Input prefix={<MailOutlined />} placeholder="邮箱" size="large" />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密�? }, { min: 6, message: '至少 6 位字�? }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码，至�?6 �? size="large" />
+          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }, { min: 6, message: '至少 6 位字符' }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="密码，至少 6 位" size="large" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block size="large" loading={submitting} style={{ height: 48 }} icon={<LoginOutlined />}>
-              注册并进�?
+              注册并进入
             </Button>
           </Form.Item>
         </Form>
@@ -155,10 +155,10 @@ const FanLoginPage = () => {
         style={{ maxWidth: 420 }}
       >
         <Form form={loginForm} layout="vertical" onFinish={handleLogin} style={{ marginTop: 16 }}>
-          <Form.Item name="email" rules={[{ required: true, message: '请输入邮�? }]}>
+          <Form.Item name="email" rules={[{ required: true, message: '请输入邮箱' }]}>
             <Input prefix={<MailOutlined />} placeholder="邮箱" size="large" />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密�? }]}>
+          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
             <Input.Password prefix={<LockOutlined />} placeholder="密码" size="large" />
           </Form.Item>
           <Form.Item>
@@ -173,5 +173,3 @@ const FanLoginPage = () => {
 };
 
 export default FanLoginPage;
-
-

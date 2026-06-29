@@ -180,6 +180,7 @@ const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
 };
 
 const DashboardPage = () => {
+  const { t } = useLanguageStore();
   const profile = useAuthStore((s) => s.profile);
   useDashboardRealtime();
 
@@ -258,26 +259,26 @@ const DashboardPage = () => {
   return (
     <div>
       <Title level={4} className="dash-section">
-        <span className="text-gold-gradient"><RiseOutlined /> Dashboard</span>
-        <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>Welcome back, {profile?.name || 'User'}</Text>
+        <span className="text-gold-gradient"><RiseOutlined /> {t('nav_dashboard2')}</span>
+        <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>{t('welcome_back')}, {profile?.name || t('profile')}</Text>
       </Title>
 
       {IS_LOCAL_MODE && (
-        <Alert type="info" message="Local Demo Mode" description="Data is stored in your browser. Configure Supabase to enable cloud mode with multi-user collaboration." showIcon style={{ marginBottom: 16 }} />
+        <Alert type="info" message={t('local_demo')} description={t('local_demo_desc')} showIcon style={{ marginBottom: 16 }} />
       )}
 
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label="Store" value={stats?.storeCount || 0} color="#FFD700" delay={0} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label="Visits" value={stats?.totalVisits || 0} color="#FFD700" delay={1} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label="Fans" value={stats?.totalFans || 0} color="#F5A623" delay={2} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label="Campaigns" value={stats?.activeCampaigns || 0} color="#FFD700" delay={3} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label="Scans" value={stats?.todayScans || 0} color="#FFD700" delay={4} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label="Low Stock" value={stats?.lowStockCount || 0} color={stats?.lowStockCount > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label={t('dash_store')} value={stats?.storeCount || 0} color="#FFD700" delay={0} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label={t('dash_visits')} value={stats?.totalVisits || 0} color="#FFD700" delay={1} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label={t('dash_fans')} value={stats?.totalFans || 0} color="#F5A623" delay={2} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label={t('dash_campaigns')} value={stats?.activeCampaigns || 0} color="#FFD700" delay={3} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label={t('dash_scans')} value={stats?.todayScans || 0} color="#FFD700" delay={4} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label={t('dash_low_stock')} value={stats?.lowStockCount || 0} color={stats?.lowStockCount > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={14}>
-          <Card title={<><CameraOutlined /> <span className="text-gold-gradient">30-Day Visit Trend</span></>}>
+          <Card title={<><CameraOutlined /> <span className="text-gold-gradient">{t('dash_visit_trend_30')}</span></>}>
             {trendLoading ? <div className="dash-loading"><Spin /></div> :
              trendData?.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -286,14 +287,14 @@ const DashboardPage = () => {
                   <XAxis dataKey="visit_date" tick={{ fontSize: 11 }} />
                   <YAxis allowDecimals={false} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="count" stroke="#1677ff" strokeWidth={2} dot={{ r: 3 }} name="Visits" />
+                  <Line type="monotone" dataKey="count" stroke="#1677ff" strokeWidth={2} dot={{ r: 3 }} name={t('dash_visits')} />
                 </LineChart>
               </ResponsiveContainer>
-            ) : <Empty description="No visit data" className="dash-empty" />}
+            ) : <Empty description={t('dash_no_visit_data')} className="dash-empty" />}
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card title={<><StarOutlined /> <span className="text-gold-gradient">Store Level Distribution</span></>}>
+          <Card title={<><StarOutlined /> <span className="text-gold-gradient">{t('dash_store_level_distribution')}</span></>}>
             {levelPieData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -303,7 +304,7 @@ const DashboardPage = () => {
                   <Tooltip /><Legend />
                 </PieChart>
               </ResponsiveContainer>
-            ) : <Empty description="No store data" style={{ padding: '60px 0' }} />}
+            ) : <Empty description={t('dash_no_store_data')} style={{ padding: '60px 0' }} />}
           </Card>
         </Col>
       </Row>
@@ -311,7 +312,7 @@ const DashboardPage = () => {
       {/* Scan Trend */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24}>
-          <Card title={<><QrcodeOutlined /> 30-Day Scan Trend</>}>
+          <Card title={<><QrcodeOutlined /> {t('dash_scan_trend_30')}</>}>
             {scanTrendLoading ? <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div> :
              scanTrend?.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
@@ -320,10 +321,10 @@ const DashboardPage = () => {
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                   <YAxis allowDecimals={false} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="count" stroke="#722ed1" strokeWidth={2} dot={{ r: 3 }} name="Scans" />
+                  <Line type="monotone" dataKey="count" stroke="#722ed1" strokeWidth={2} dot={{ r: 3 }} name={t('dash_scans')} />
                 </LineChart>
               </ResponsiveContainer>
-            ) : <Empty description="No scan data" style={{ padding: '60px 0' }} />}
+            ) : <Empty description={t('dash_no_scan_data')} style={{ padding: '60px 0' }} />}
           </Card>
         </Col>
       </Row>

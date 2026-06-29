@@ -1,4 +1,4 @@
-import useLanguageStore from '../../../stores/languageStore';
+﻿import useLanguageStore from '../../../stores/languageStore';
 import React, { useState, useEffect } from 'react';
 import { message, Button, Card, Statistic, Tag, Progress, Space, Typography, Row, Col, Divider, List, Input, Empty, Avatar } from 'antd';
 import { StarOutlined, CrownOutlined, FireOutlined, CheckCircleOutlined } from '@ant-design/icons';
@@ -73,7 +73,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
     <div style={{ padding: '8px 0' }}>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={12} sm={8}>
-          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16 }}>
+          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)' }}>
             <Statistic title="My Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ color: '#FFD700', fontWeight: 700 }} />
           </Card>
         </Col>
@@ -84,7 +84,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16 }}>
+          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: '#f0f5ff' }}>
             <Statistic title="Streak" value={checkinStreak} suffix="days" prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} valueStyle={{ color: '#ff4d4f' }} />
           </Card>
         </Col>
@@ -123,7 +123,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
           border: 'none',
         }}
       >
-        {todayChecked ? '�?Checked In Today' : '🔥 Check In Now (+5 pts)'}
+        {todayChecked ? '✓ Checked In Today' : '🔥 Check In Now (+5 pts)'}
       </Button>
 
       {/* Level progress */}
@@ -141,4 +141,3 @@ const CheckInTab = ({ fan, onPointsChange }) => {
 };
 
 export default CheckInTab;
-

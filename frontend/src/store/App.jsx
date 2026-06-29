@@ -9,16 +9,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 
 import useLanguageStore from '../stores/languageStore';
-import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import PageTransition from "../components/common/PageTransition";
 
 // Store portal pages only
+const StoreEntryPage = React.lazy(() => import('../pages/store-owner/StoreEntryPage'));
 const StoreOwnerPage = React.lazy(() => import('../pages/store-owner/StoreOwnerPage'));
 
 const router = createHashRouter([
-  { path: "/", element: <Navigate to="/store-owner" replace /> },
+  { path: "/", element: <Navigate to="/store-login" replace /> },
+  { path: "/store-login", element: <StoreEntryPage /> },
   { path: "/store-owner", element: <StoreOwnerPage /> },
-  { path: "*", element: <Navigate to="/store-owner" replace /> }
+  { path: "*", element: <Navigate to="/store-login" replace /> }
 ]);
 
 const queryClient = new QueryClient();
@@ -56,7 +57,6 @@ const StoreApp = () => {
         <AntApp>
           <ErrorBoundary>
             <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#14141e"}}><Spin size="large" /></div>}>
-              <LanguageSwitcher />
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

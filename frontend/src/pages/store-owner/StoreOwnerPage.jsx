@@ -1,21 +1,26 @@
 ﻿import React, { useState, useEffect } from "react";
 import BlurText from '../../components/effects/BlurText';
 import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, message, Table, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Progress } from "antd";
-import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, SettingOutlined, UserOutlined, BarChartOutlined, HistoryOutlined } from "@ant-design/icons";
+import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, SettingOutlined, UserOutlined, BarChartOutlined, HistoryOutlined, LogoutOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
 import useLanguageStore from "../../stores/languageStore";
+import LanguageSwitcher from "../../components/common/LanguageSwitcher";
 
 const { Title, Text } = Typography;
 
+const APP_BG_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4";
+
 // Level-based material bundles
 const LEVEL_MATERIAL_BUNDLES = {
-  S: { label: "\u94c2\u91d1\u793c\u5305", icon: "👑", materials: ["UWELL Door Panel", "UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Staff Vest", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#B9F2FF" },
-  A: { label: "\u9ec4\u91d1\u793c\u5305", icon: "🥇", materials: ["UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#FFD700" },
-  B: { label: "\u767d\u94f6\u793c\u5305", icon: "🥈", materials: ["UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#C0C0C0" },
-  C: { label: "\u9752\u94dc\u793c\u5305", icon: "🥉", materials: ["UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker"], color: "#CD7F32" },
+  S: { labelKey: "store_level_s_pack", icon: "👑", materials: ["UWELL Door Panel", "UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Staff Vest", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#B9F2FF" },
+  A: { labelKey: "store_level_a_pack", icon: "🥇", materials: ["UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#FFD700" },
+  B: { labelKey: "store_level_b_pack", icon: "🥈", materials: ["UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#C0C0C0" },
+  C: { labelKey: "store_level_c_pack", icon: "🥉", materials: ["UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker"], color: "#CD7F32" },
 };
 
 const StoreOwnerPage = () => {
+  const navigate = useNavigate();
   const [store, setStore] = useState(null);
   const [fans, setFans] = useState([]);
   const [scans, setScans] = useState([]);
@@ -28,6 +33,7 @@ const StoreOwnerPage = () => {
   const [materialRequests, setMaterialRequests] = useState([]);
   const [storeMaterials, setStoreMaterials] = useState([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [editForm] = Form.useForm();
   const { t } = useLanguageStore();
 
@@ -43,23 +49,30 @@ const StoreOwnerPage = () => {
 
   // Load data
   useEffect(() => {
+    if (localStorage.getItem("store_owner_logged_in") !== "true") {
+      navigate("/store-login", { replace: true });
+      return;
+    }
+
     const stores = localDb.all("stores") || [];
     const claims = localDb.all("campaign_claims") || [];
     const allMats = localDb.all("materials") || [];
+    const savedStoreId = localStorage.getItem("store_owner_store_id");
+    const activeStore = stores.find((item) => item.id === savedStoreId) || stores[0];
 
-    if (stores.length > 0) {
-      setStore(stores[0]);
+    if (activeStore) {
+      setStore(activeStore);
       editForm.setFieldsValue({
-        name: stores[0].name,
-        phone: stores[0].phone,
-        address: stores[0].address,
-        contact: stores[0].contact
+        name: activeStore.name,
+        phone: activeStore.phone,
+        address: activeStore.address,
+        contact: activeStore.contact
       });
     }
 
-    const storeFans = stores.length > 0 ? (localDb.find("fans", (f) => f.store_id === stores[0].id) || []) : [];
-    const storeScans = stores.length > 0 ? (localDb.find("scan_records", (r) => r.store_id === stores[0].id) || []) : [];
-    const storeClaims = stores.length > 0 ? claims.filter((c) => c.store_id === stores[0].id) : [];
+    const storeFans = activeStore ? (localDb.find("fans", (f) => f.store_id === activeStore.id) || []) : [];
+    const storeScans = activeStore ? (localDb.find("scan_records", (r) => r.store_id === activeStore.id) || []) : [];
+    const storeClaims = activeStore ? claims.filter((c) => c.store_id === activeStore.id) : [];
 
     setFans(storeFans);
     setScans(storeScans);
@@ -74,7 +87,14 @@ const StoreOwnerPage = () => {
       campaigns: storeClaims.filter((c) => c.status === "completed").length,
       claims: storeClaims.length,
     });
-  }, []);
+  }, [editForm, navigate]);
+
+  const handleStoreLogout = () => {
+    localStorage.removeItem("store_owner_logged_in");
+    localStorage.removeItem("store_owner_store_id");
+    message.success(t("logout"));
+    navigate("/store-login", { replace: true });
+  };
 
   // Save store info
   const handleSaveStore = async () => {
@@ -140,6 +160,7 @@ const StoreOwnerPage = () => {
   }
 
   const levelBundle = LEVEL_MATERIAL_BUNDLES[store.level] || LEVEL_MATERIAL_BUNDLES.C;
+  const levelBundleLabel = t(levelBundle.labelKey);
 
   // ====== Dashboard Tab ======
   const Dashboard = () => (
@@ -158,7 +179,7 @@ const StoreOwnerPage = () => {
         <div className="so-flex-between-mb">
           <div>
             <Title level={4} className="so-text-gold so-m0">{store.name}</Title>
-            <Tag color={levelBundle.color} className="so-mt4 so-fw600">{levelBundle.icon} {levelBundle.label}</Tag>
+            <Tag color={levelBundle.color} className="so-mt4 so-fw600">{levelBundle.icon} {levelBundleLabel}</Tag>
           </div>
         </div>
         <div className="so-grid-2">
@@ -200,7 +221,7 @@ const StoreOwnerPage = () => {
       >
         <div className="so-flex-gap8">
           <span className="so-fs20">{levelBundle.icon}</span>
-          <Text strong style={{ color: levelBundle.color, fontSize: 14 }}>{levelBundle.label} - {t('store_materials')}</Text>
+          <Text strong style={{ color: levelBundle.color, fontSize: 14 }}>{levelBundleLabel} - {t('store_materials')}</Text>
         </div>
         <div className="so-flex-wrap">
           {levelBundle.materials.map((m, i) => (
@@ -339,7 +360,7 @@ const StoreOwnerPage = () => {
         <div className="so-flex-gap8">
           <span className="so-fs24">{levelBundle.icon}</span>
           <div>
-            <Text strong style={{ color: levelBundle.color, fontSize: 15, display: "block" }}>{levelBundle.label}{t('material_pack')}</Text>
+            <Text strong style={{ color: levelBundle.color, fontSize: 15, display: "block" }}>{levelBundleLabel}{t('material_pack')}</Text>
             <Text className="so-text-white30 so-fs11">{t('material_bundle_desc')}</Text>
           </div>
         </div>
@@ -425,14 +446,38 @@ const StoreOwnerPage = () => {
   ];
 
   return (
-    <div className="so-page bg-radial-center">
+    <div className="so-page app-liquid-shell store-liquid-shell bg-radial-center">
+      <video className="app-liquid-bg-video" src={APP_BG_VIDEO} muted autoPlay loop playsInline preload="auto" />
+      <div className="app-liquid-bg-scrim" />
       {/* Header */}
-      <div className="so-flex-between-mb">
+      <div className="so-flex-between-mb store-liquid-header liquid-glass">
         <div>
           <BlurText as="h4" text={t('store_title')} className="so-text-gold so-m0" />
           <Text className="so-text-white30 so-fs11">{store.name}</Text>
         </div>
-        <Tag color={levelBundle.color} className="so-fw600">{levelBundle.icon} {levelBundle.label}</Tag>
+        <div className="store-header-actions">
+          <Tag color={levelBundle.color} className="so-fw600">{levelBundle.icon} {levelBundleLabel}</Tag>
+          <div className="store-settings-slot">
+            <button
+              type="button"
+              className={`store-settings-trigger${settingsOpen ? " is-open" : ""}`}
+              onClick={() => setSettingsOpen((value) => !value)}
+              aria-label="Open store settings"
+            >
+              <SettingOutlined />
+            </button>
+            {settingsOpen && (
+              <div className="store-settings-panel liquid-glass">
+                <div className="store-settings-label">{t("settings_language")}</div>
+                <LanguageSwitcher inline showCurrent zIndex={360} />
+                <div className="fe-settings-divider" />
+                <button type="button" className="store-settings-item" onClick={handleStoreLogout}>
+                  <LogoutOutlined /> {t("logout")}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <Tabs
@@ -440,7 +485,7 @@ const StoreOwnerPage = () => {
         onChange={setActiveTab}
         items={tabItems}
         size="small"
-        className="so-text-light"
+        className="so-text-light app-liquid-tabs"
       />
 
       {/* Edit Store Modal */}

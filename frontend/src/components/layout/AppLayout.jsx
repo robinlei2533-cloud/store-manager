@@ -1,6 +1,6 @@
 ﻿import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router';
-import { Layout, Menu, Button, Avatar, Dropdown, Spin, Tag, theme, Grid, Drawer } from 'antd';
+import { Layout, Menu, Button, Avatar, Spin, Tag, theme, Grid, Drawer } from 'antd';
 import {
   DashboardOutlined,
   ShopOutlined,
@@ -29,6 +29,8 @@ import { motion } from 'framer-motion';
 
 const { Header, Sider, Content } = Layout;
 
+const APP_BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4';
+
 const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,6 +40,7 @@ const AppLayout = () => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const contentRef = useRef(null);
   
   if (!profile) {
@@ -99,17 +102,6 @@ const AppLayout = () => {
   const handleLogout = async () => {
     await signOut();
     navigate('/admin');
-  };
-
-  const userMenu = {
-    items: [
-      { key: 'profile', icon: <UserOutlined />, label: `${profile.name || ''} (${ROLE_NAMES[profile.role] || profile.role})` },
-      { type: 'divider' },
-      { key: 'logout', icon: <LogoutOutlined />, label: t('logout'), danger: true },
-    ],
-    onClick: ({ key }) => {
-      if (key === 'logout') handleLogout();
-    },
   };
 
   const getSelectedKey = () => {
@@ -174,7 +166,9 @@ const AppLayout = () => {
 
 
   return (
-    <Layout className="layout-root">
+    <Layout className="layout-root app-liquid-shell admin-liquid-shell">
+      <video className="app-liquid-bg-video" src={APP_BG_VIDEO} muted autoPlay loop playsInline preload="auto" />
+      <div className="app-liquid-bg-scrim" />
       {!isMobile && (
         <Sider width={232} breakpoint="lg" collapsedWidth={0} className="layout-sider">
           {brandBlock}
@@ -217,16 +211,34 @@ const AppLayout = () => {
             )}
             {!isMobile && (
               <span style={{ color: '#b0b0c8', fontSize: 13, letterSpacing: '0.3px' }}>
-                门店拜访 / 活动复盘 / 粉丝积分 / 物料库存
+                {t('app_header_modules')}
               </span>
             )}
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}><LanguageSwitcher inline /><Dropdown menu={userMenu} placement="bottomRight">
-            <Button type="text" className="layout-user-btn">
-              <Avatar size="small" icon={<UserOutlined />} />
-              {!isMobile && <span>{profile.name || '用户'}</span>}
-            </Button>
-          </Dropdown></div>
+          <div className="layout-settings-slot">
+            <button
+              type="button"
+              className={`layout-settings-trigger${settingsOpen ? ' is-open' : ''}`}
+              onClick={() => setSettingsOpen((value) => !value)}
+              aria-label="Open admin settings"
+            >
+              <SettingOutlined />
+            </button>
+            {settingsOpen && (
+              <div className="layout-settings-panel liquid-glass">
+                <div className="layout-settings-profile">
+                  <Avatar size="small" icon={<UserOutlined />} />
+                  <span>{profile.name || '用户'} ({ROLE_NAMES[profile.role] || profile.role})</span>
+                </div>
+                <div className="store-settings-label">{t('settings_language')}</div>
+                <LanguageSwitcher inline showCurrent zIndex={360} />
+                <div className="fe-settings-divider" />
+                <button type="button" className="store-settings-item" onClick={handleLogout}>
+                  <LogoutOutlined /> {t('logout')}
+                </button>
+              </div>
+            )}
+          </div>
         </Header>
         <Content ref={contentRef} className="bg-radial-top" style={{
           margin: isMobile ? 8 : 20,

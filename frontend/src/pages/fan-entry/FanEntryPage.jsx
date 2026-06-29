@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+﻿import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useLanguageStore from '../../stores/languageStore';
 import useAuthStore from '../../stores/authStore';
@@ -7,33 +7,32 @@ import seedData from '../../services/db/seedData';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { motion } from "framer-motion";
 import Galaxy from "../../components/effects/Galaxy";
-import CircularGallery from "../../components/effects/CircularGallery";
 import ClickSpark from "../../components/effects/ClickSpark";
 import Counter from "../../components/effects/Counter";
 import { Spin, message } from 'antd';
 import gsap from 'gsap';
 
-// ============ Product Data (from fan-entry.html) ============
+// ============ Product Data (from myuwell.com CALIBURN page) ============
 const PD = [
-  {n:"CALIBURN AIR",c:"#ff6b35",t:"Flagship Series",i:"/images/caliburnair.svg"},
-  {n:"CALIBURN G5",c:"#457bff",t:"Flagship Series",i:"/images/caliburng5.svg"},
-  {n:"G5 KOKO",c:"#6c5ce7",t:"Flagship Series",i:"/images/g5koko.svg"},
-  {n:"G5 LITE SE",c:"#00b894",t:"Lite Series",i:"/images/g5litese.svg"},
-  {n:"G5 LITE KOKO",c:"#fd79a8",t:"Lite Series",i:"/images/g5litekoko.svg"},
-  {n:"G4 PRO",c:"#a29bfe",t:"Professional Series",i:"/images/g4pro.svg"},
-  {n:"G4 CLASSIC",c:"#fdcb6e",t:"Classic Series",i:"/images/g4classic.svg"},
-  {n:"G4 PRO KOKO",c:"#e17055",t:"KOKO Series",i:"/images/g4prokoko.svg"},
-  {n:"G4 MINI",c:"#00cec9",t:"Mini Series",i:"/images/g4mini.svg"},
-  {n:"G3 PRO",c:"#fd79a8",t:"Professional Series",i:"/images/g3pro.svg"},
-  {n:"G3 PRO KOKO",c:"#6c5ce7",t:"KOKO Series",i:"/images/g3prokoko.svg"},
-  {n:"Caliburn OG",c:"#e17055",t:"Classic Series",i:"/images/caliburnog.svg"},
-  {n:"Crown",c:"#fdcb6e",t:"Pod Series",i:"/images/crown.svg"},
-  {n:"Havok",c:"#00cec9",t:"Pod Series",i:"/images/havok.svg"},
+  {n:"CALIBURN AIR",c:"#ff8a2a",t:"Flagship Series",i:"https://files.myuwell.com/uwell/ow-product-color/Coral%20Orange-20260612162858842.png"},
+  {n:"CALIBURN G5",c:"#00b894",t:"Flagship Series",i:"https://files.myuwell.com/uwell/ow-product-color/Mystic%20Forest-20260421153349339.png"},
+  {n:"CALIBURN G5 KOKO",c:"#00cec9",t:"KOKO Series",i:"https://files.myuwell.com/uwell/ow-product-color/Ocean%20Flame-20260108144455641.png"},
+  {n:"CALIBURN G5 LITE & G5 LITE SE",c:"#caff2f",t:"Lite Series",i:"https://files.myuwell.com/uwell/ow-product-color/7-20251210143156375.png"},
+  {n:"G5 LITE KOKO",c:"#69f5df",t:"Lite Series",i:"https://files.myuwell.com/uwell/ow-product-color/Peacock%20Green-20251210101954130.png"},
+  {n:"CALIBURN G4 PRO KOKO",c:"#d8d1bd",t:"KOKO Series",i:"https://files.myuwell.com/uwell/ow-product-color/Cosmic%20Gray-20250904100830831.png"},
+  {n:"CALIBURN G4 CLASSIC",c:"#e5e5e5",t:"Classic Series",i:"https://files.myuwell.com/uwell/ow-product-color/Classic%20Silver-20250818115904349.png"},
+  {n:"CALIBURN G4 PRO",c:"#4f6bff",t:"Professional Series",i:"https://files.myuwell.com/uwell/ow-product-color/Pearl%20Silver-20250626134143970.png"},
 ];
+const PRODUCT_STRIP_ITEMS = [...PD, ...PD];
 const PROD_INFO = {
-  "CALIBURN AIR":{desc:"Ultra-slim airflow sensor pod",specs:[["Model","CALIBURN AIR"],["Pod Capacity","2.0ml"],["Battery","400mAh"]],icon:"?"},
-  "CALIBURN G5":{desc:"UWELL �����Flagship Series",specs:[["Model","CALIBURN G5"],["Pod Capacity","2.5ml"],["Battery","520mAh"]],icon:"??"},
-  "Caliburn":{desc:"The classic that started the CALIBURN era",specs:[["Model","Caliburn OG"],["Pod Capacity","2.0ml"],["Battery","520mAh"]],icon:"??"},
+  "CALIBURN AIR":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN AIR"],["Series","Flagship"],["Source","myuwell.com"]],icon:"⚡"},
+  "CALIBURN G5":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G5"],["Series","Flagship"],["Source","myuwell.com"]],icon:"🔥"},
+  "CALIBURN G5 KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G5 KOKO"],["Series","KOKO"],["Source","myuwell.com"]],icon:"✨"},
+  "CALIBURN G5 LITE & G5 LITE SE":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","G5 Lite / G5 Lite SE"],["Series","Lite"],["Source","myuwell.com"]],icon:"✨"},
+  "G5 LITE KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","G5 Lite KOKO"],["Series","Lite KOKO"],["Source","myuwell.com"]],icon:"✨"},
+  "CALIBURN G4 PRO KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 PRO KOKO"],["Series","KOKO"],["Source","myuwell.com"]],icon:"✨"},
+  "CALIBURN G4 CLASSIC":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 CLASSIC"],["Series","Classic"],["Source","myuwell.com"]],icon:"🏆"},
+  "CALIBURN G4 PRO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 PRO"],["Series","Professional"],["Source","myuwell.com"]],icon:"🚀"},
 };
 
 const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#0a0a0f' };
@@ -175,7 +174,7 @@ const MeteorShower = () => {
         this.y = -20 - Math.random() * H * 0.3;
         // Speed: fast diagonal toward bottom-left
         const speed = 6 + Math.random() * 10;
-        const angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2; // 27��-63�� from horizontal
+        const angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2; // 27°-63° from horizontal
         this.vx = -Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
         // Add slight gravity
@@ -287,49 +286,6 @@ const MeteorShower = () => {
 };
 
 
-// ============ Shader/Raster Overlay ============
-const ShaderOverlay = () => {
-  const ref = React.useRef(null);
-  React.useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    let W, H, t = 0, id;
-    const resize = () => { W = c.width = window.innerWidth; H = c.height = window.innerHeight; };
-    resize();
-    window.addEventListener("resize", resize);
-    const draw = () => {
-      t += 0.015;
-      ctx.clearRect(0, 0, W, H);
-      const g = ctx.createRadialGradient(W/2+Math.sin(t)*120, H/2+Math.cos(t*0.7)*80, 0, W/2, H/2, Math.max(W,H)*0.7);
-      g.addColorStop(0, "rgba(255,215,0,0.05)");
-      g.addColorStop(0.4, "rgba(255,165,0,0.025)");
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = "rgba(255,215,0,0.012)";
-      ctx.lineWidth = 1.5;
-      for (let i = 0; i < 10; i++) {
-        const y = (H/10)*i + Math.sin(t*0.8+i*1.2)*25;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        for (let x = 0; x < W; x += 4) ctx.lineTo(x, y + Math.sin(x*0.01+t*2.5+i)*2.5);
-        ctx.stroke();
-      }
-      const img = ctx.getImageData(0, 0, W, H);
-      for (let i = 0; i < img.data.length; i += 6) {
-        const n = (Math.random()-0.5)*10;
-        img.data[i] += n; img.data[i+1] += n; img.data[i+2] += n;
-      }
-      ctx.putImageData(img, 0, 0);
-      id = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
-  }, []);
-  return React.createElement("canvas", { ref, style: {position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:1,pointerEvents:"none",opacity:0.7} });
-};
-
 // ============ Main Component ============
 const FanEntryPage = () => {
   const navigate = useNavigate();
@@ -354,33 +310,47 @@ const FanEntryPage = () => {
   useEffect(() => {
     const strip = stripRef.current;
     if (!strip) return;
-    let scrollPos = 0;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
     let rafId;
+    let isPaused = false;
     const step = () => {
-      scrollPos += 0.5;
-      const max = strip.scrollWidth - strip.clientWidth;
-      if (scrollPos >= max) scrollPos = 0;
-      strip.scrollLeft = scrollPos;
+      if (!isPaused) {
+        const loopWidth = strip.scrollWidth / 2;
+        if (loopWidth > 0) {
+          strip.scrollLeft = (strip.scrollLeft + 0.45) % loopWidth;
+        }
+      }
       rafId = requestAnimationFrame(step);
     };
     rafId = requestAnimationFrame(step);
-    const pause = () => cancelAnimationFrame(rafId);
-    const resume = () => { rafId = requestAnimationFrame(step); };
+    const pause = () => { isPaused = true; };
+    const resume = () => { isPaused = false; };
     strip.addEventListener("mouseenter", pause);
     strip.addEventListener("mouseleave", resume);
+    strip.addEventListener("touchstart", pause, { passive: true });
+    strip.addEventListener("touchend", resume, { passive: true });
+    strip.addEventListener("focusin", pause);
+    strip.addEventListener("focusout", resume);
     return () => {
       cancelAnimationFrame(rafId);
       strip.removeEventListener("mouseenter", pause);
       strip.removeEventListener("mouseleave", resume);
+      strip.removeEventListener("touchstart", pause);
+      strip.removeEventListener("touchend", resume);
+      strip.removeEventListener("focusin", pause);
+      strip.removeEventListener("focusout", resume);
     };
   }, []);
 
   // GSAP entrance animation for header
   useEffect(() => {
-    gsap.from('.fe-hero-title', { opacity: 0, y: 40, duration: 1, ease: 'power3.out', delay: 0.3 });
-    gsap.from('.fe-hero-sub', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out', delay: 0.6 });
-    gsap.from('.fe-login-form', { opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: 0.9 });
+    gsap.from('.fe-hero-left h1', { opacity: 0, y: 40, duration: 1, ease: 'power3.out', delay: 0.3 });
+    gsap.from('.fe-hero-left p', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out', delay: 0.6 });
+    gsap.from('.fe-hero-right', { opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: 0.9 });
   }, []);
+
   // Staggered product card entrance
   useEffect(() => {
     const t = setTimeout(() => setVisibleCards(true), 600);
@@ -417,7 +387,7 @@ const FanEntryPage = () => {
       localStorage.setItem("fan_logged_in", "true");
       try { await signInLocal(regEmail, regPassword); } catch(e) {}
       setLoading(false);
-      message.success("Welcome! Registration successful!");
+      message.success(t('fan_entry_register_success'));
       navigate("/fan-center", { replace: true });
     } catch (err) {
       setLoading(false);
@@ -435,16 +405,11 @@ const FanEntryPage = () => {
   };
 
   return (
-  <div className="bg-radial-center" style={{
-      fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif",
-      background: '#000000', color: '#fff', overflowX: 'hidden', overflowY: 'auto', minHeight: '100vh', width: '100vw',
-      WebkitFontSmoothing: 'antialiased',
-    }}>
+  <div className="fe-page">
       {/* Background layers */}
       <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0,
-        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%)' }} />
+        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #14141e 60%, #000 100%)' }} />
       <AuroraCanvas />
-      <ShaderOverlay />
       <ParticleCanvas />
       <MeteorShower />
       <Galaxy color="#FFD700" speed={0.15} opacity={0.2} />
@@ -467,105 +432,91 @@ const FanEntryPage = () => {
           }}>UWELL</motion.span>
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <LanguageSwitcher inline={true} />
+        <div className="fe-header-actions">
+          <div className="fe-language-slot">
+            <LanguageSwitcher inline={true} zIndex={360} />
+          </div>
           {/* Settings */}
-          <div style={{ position:'relative' }}>
+          <div className="fe-settings-slot">
             <button
               onClick={() => { setSettingsOpen(!settingsOpen); }}
-              style={{
-                width:38, height:38, borderRadius:10, border:'1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.04)', color: settingsOpen ? '#FFD700' : 'rgba(255,255,255,0.5)',
-                fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-                transition:'all .3s', transform: settingsOpen ? 'rotate(60deg)' : 'none',
-              }}
-            >?</button>
+              className={`fe-settings-trigger${settingsOpen ? " is-open" : ""}`}
+              aria-label="Open settings"
+            >⚙</button>
             {settingsOpen && (
-              <div style={{
-                position:'absolute', top:'calc(100% + 8px)', right:0, minWidth:200,
-                background:'rgba(20,20,30,0.95)', WebkitBackdropFilter:'blur(20px)', backdropFilter:'blur(20px)',
-                border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, padding:6, zIndex:100,
-                boxShadow:'0 20px 60px rgba(0,0,0,0.5)',
-              }}>
-                <div onClick={() => window.location.href='store-app.html#/store-owner'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
-                  onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
-                  onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>??</span> �ŵ����
+              <div className="fe-settings-panel fe-settings-panel-entry">
+                <div onClick={() => window.location.href='/index.html#/admin'} className="fe-settings-item">
+                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🔐</span> {t('settings_admin')}
                 </div>
-                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
-                <div onClick={() => window.location.href='/index.html#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
-                  onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
-                  onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:"center"}}>??</span> ������̨ Panel
-                </div>
-                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
-                <a href="https://www.myuwell.com" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', textDecoration:'none' }}
-                  onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
-                  onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>??</span> UWELL ����
+                <div className="fe-settings-divider" />
+                <a href="https://www.myuwell.com" target="_blank" rel="noopener noreferrer" className="fe-settings-item">
+                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🌐</span> {t('settings_website')}
                 </a>
               </div>
             )}
           </div>
-          </div>
+        </div>
       </header>
 
       {/* Main Content */}
-      <div style={{ position:'relative', zIndex:20, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'100px 20px 240px' }}>
+      <div className="fe-content-area">
         {/* Hero */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:60, width:'100%', maxWidth:1100, minHeight:'80vh', padding:'60px 0 40px' }}>
-          <div style={{ flex:1, maxWidth:480 }}>
-            <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:20, background:'rgba(255,215,0,0.12)', border:'1px solid rgba(255,215,0,0.25)', fontSize:11, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:20 }}>
-              ? 2026 ��˿���ֲ�
+        <div className="fe-hero-row">
+          <div className="fe-hero-left">
+            <div className="fe-badge">
+              {t('fan_entry_tag')}
             </div>
             <motion.h1 initial={{ filter: "blur(10px)", opacity: 0, y: 20 }} animate={{ filter: "blur(0px)", opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} style={{ fontSize:52, fontWeight:900, lineHeight:1.1, letterSpacing:-2, marginBottom:16, fontFamily:"Instrument Serif, serif", fontStyle:"italic" }}>
-              <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>���� UWELL</span><br />
-              <span style={{ background:'linear-gradient(135deg,#457bff,#6c5ce7)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>��˿���ֲ�</span>
+              <span className="fe-text-gold-grad">{t("fan_entry_join")}</span><br />
+              <span className="fe-text-blue-grad">{t("fan_entry_club")}</span>
             </motion.h1>
             <p style={{ color:'rgba(255,255,255,0.35)', fontSize:15, lineHeight:1.7, marginBottom:28 }}>
-              ǩ���ۻ����֡�ɨ����֤��Ʒ��������Ա�ȼ����һ�ר������ �� ��ȫ�� UWELL ��˿һ��̽������������顣
+              {t('fan_entry_desc')}
             </p>
-            <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
-              {[{label:'ÿ��ǩ��',value:1280,suffix:'+'},{label:'ɨ�����',value:8560,suffix:'+'},{label:'�����̳�',value:520,suffix:'��'},{label:'��Ա�ȼ�',value:6,suffix:'��'}].map(f => (
-                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:8, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
+            <div style={{ marginBottom: 20, fontSize: 14, color: '#FFD700', fontWeight: 600 }}>
+              {t('fan_entry_benefits_line')}
+            </div>
+            <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginTop:20 }}>
+              {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map((f, idx) => (
+                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:12, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
                   <span style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#FFD700,#F5A623)' }} />
                   <Counter from={0} to={f.value} suffix={f.suffix} duration={2} />
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ flex:1, maxWidth:400 }}>
-            <div className="liquid-glass-strong" style={{ borderRadius:24, padding:"36px 32px" }}>
-              <div style={{ width:50, height:3, background:'linear-gradient(90deg,#FFD700,#457bff)', borderRadius:2, margin:'0 auto 18px' }} />
-              <div style={{ textAlign:'center', marginBottom:24 }}>
-                <h2 style={{ fontSize:20, fontWeight:800, letterSpacing:2, color:'#fff', marginBottom:4 }}>��˿��¼</h2>
-                <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, letterSpacing:1 }}>ʹ��������ټ���</p>
+          <div className="fe-hero-right">
+            <div className="fe-login-form fe-form-card">
+              <div className="fe-form-accent" />
+              <div className="fe-form-title">
+                <h2 style={{ fontSize:20, fontWeight:800, letterSpacing:2, color:'#fff', marginBottom:4 }}>{mode === 'login' ? t('fan_entry_login_title') : t('fan_entry_register_title')}</h2>
+                <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, letterSpacing:1 }}>{mode === 'login' ? t('fan_entry_login_subtitle') : t('fan_entry_fill_fields')}</p>
               </div>
-              <div style={{ marginBottom:14 }}>
+              <div className="fe-input-group">
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown}
-                  placeholder="�����ַ" autoComplete="email"
-                  style={{ width:'100%', padding:'12px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' }}
+                  placeholder={t('fan_entry_placeholder_email')} autoComplete="email"
+                  className="fe-input-dark"
                 />
               </div>
               <div style={{ marginBottom:14 }}>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown}
-                  placeholder="����" autoComplete="current-password"
-                  style={{ width:'100%', padding:'12px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' }}
+                  placeholder={t('fan_entry_placeholder_password')} autoComplete="current-password"
+                  className="fe-input-dark"
                 />
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', margin:'16px 0 20px' }}>
-                <label style={{ display:'flex', alignItems:'center', gap:6, color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer' }}>
-                  <input type="checkbox" defaultChecked /> ��ס��
+              <div className="fe-form-row">
+                <label className="fe-form-label">
+                  <input type="checkbox" defaultChecked /> {t('fan_entry_remember')}
                 </label>
-                <a href="#" style={{ color:'rgba(255,255,255,0.3)', fontSize:12, textDecoration:'none' }}>��������?</a>
+                <a href="#" className="fe-form-link">{t('fan_entry_forgot')}</a>
               </div>
               {mode === 'login' && (
               <button onClick={handleLogin} style={{
                 width:'100%', padding:13, border:'none', borderRadius:10,
                 background:'linear-gradient(135deg,#FFD700,#F5A623)',
-                color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
+                color:'#14141e', fontSize:14, fontWeight:700, letterSpacing:2,
                 cursor:'pointer', transition:'all .3s', position:'relative', overflow:'hidden',
-              }}><ClickSpark sparkColor="#FFD700" sparkSize={12} sparkRadius={20} sparkCount={12}>SIGN IN</ClickSpark></button>
+              }}><ClickSpark sparkColor="#FFD700" sparkSize={12} sparkRadius={20} sparkCount={12}>{t('fan_entry_signin_btn')}</ClickSpark></button>
               )}
               {mode === 'register' && (
                 <>
@@ -592,22 +543,22 @@ const FanEntryPage = () => {
                   <button onClick={handleRegister} disabled={loading} style={{
                     width:'100%', padding:13, border:'none', borderRadius:10,
                     background:'linear-gradient(135deg,#FFD700,#F5A623)',
-                    color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
+                    color:'#14141e', fontSize:14, fontWeight:700, letterSpacing:2,
                     cursor: loading ? 'not-allowed' : 'pointer', transition:'all .3s', opacity: loading ? 0.6 : 1,
-                  }}>{loading ? 'Registering...' : 'REGISTER'}</button>
+                  }}>{loading ? t('fan_entry_registering') : t('fan_entry_register_btn')}</button>
                   <div style={{ height:8 }} />
                 </>
               )}
               {mode === 'login' ? (
-                <div style={{ textAlign:"center", marginTop:14 }}>
-                  <a onClick={() => setMode('register')} style={{ color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer', textDecoration:'none' }}>
-                    No account? <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>Register Now</span>
+                <div className="fe-form-toggle">
+                  <a onClick={() => setMode('register')} className="fe-form-link">
+                    {t('fan_entry_no_account')} <span className="fe-btn-secondary">{t('fan_entry_register_now')}</span>
                   </a>
                 </div>
               ) : (
                 <div style={{ textAlign:"center", marginTop:14 }}>
-                  <a onClick={() => setMode('login')} style={{ color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer', textDecoration:'none' }}>
-                    Already have account? <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>Sign In</span>
+                  <a onClick={() => setMode('login')} className="fe-form-link">
+                    {t('fan_entry_have_account')} <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>{t('fan_entry_sign_in')}</span>
                   </a>
                 </div>
               )}
@@ -615,82 +566,33 @@ const FanEntryPage = () => {
           </div>
         </div>
 
-        {/* Product Showcase �� 3D Circular Gallery */}
-        <div style={{ width:'100%', padding:'0 20px', marginTop:40 }}>
-          <div style={{ textAlign:'center', marginBottom:24 }}>
-            <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 14px', borderRadius:20, background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.15)', fontSize:10, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:12 }}>? ��Ʒ����</div>
-            <h2 style={{ fontSize:28, fontWeight:900, letterSpacing:1, marginBottom:8 }}>
-              <span style={{ background:'linear-gradient(135deg,#fff,#FFD700 60%,#F5A623)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>̽�� UWELL ���ǲ�Ʒ</span>
-            </h2>
-            <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>������� �� ����鿴����</p>
-          </div>
-          <div style={{ width:'100%', height:360, position:'relative' }}>
-            <CircularGallery 
-              items={PD.map(p => ({ image: p.i, text: p.n }))}
-              bend={2}
-              textColor="#FFD700"
-              borderRadius={0.08}
-              font="bold 16px Inter"
-            />
-            <div style={{ position:'absolute', bottom:0, left:0, right:0, display:'flex', justifyContent:'center', gap:8, flexWrap:'wrap', padding:'12px 16px' }}>
-              {PD.map(p => (
-                <span key={p.n} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: 'UWELL ���ʲ�Ʒ', icon: '?' })}
-                  style={{ fontSize:10, padding:'3px 10px', borderRadius:12, background:'rgba(255,215,0,0.1)', border:'1px solid rgba(255,215,0,0.2)', color:'#FFD700', cursor:'pointer', transition:'all .2s' }}>
-                  {p.n}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}        {/* Footer */}
-        <div style={{ width:'100%', textAlign:'center', padding:'40px 20px', marginTop:40 }}>
-          <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>UWELL FAN CLUB �� 2026</p>
-        </div>
       </div>
 
       
       {/* === Caliburn Product Strip (Fixed Bottom) === */}
-      <div style={{
-        position:"fixed", bottom:0, left:0, width:"100%", zIndex:25,
-        padding:"8px 0 6px",
-        background: "linear-gradient(0deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.85) 60%, transparent)",
-        borderTop: "1px solid rgba(255,215,0,0.06)",
-        overflowX: "hidden",
-        overflowY: "visible",
-        maxHeight: "220px",
-        pointerEvents: "auto",
-      }}>
-        {/* Gold glow indicator */}
-        <div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:120,height:1,background:"linear-gradient(90deg,transparent,#FFD700,transparent)",opacity:0.3}} />
-        <div ref={stripRef}
-          style={{
-          display:"flex", gap:18,
-          overflowX:"auto", overflowY:"hidden",
-          padding:"0 20px 12px",
-          scrollbarWidth:"none", msOverflowStyle:"none",
-        }}>
-          {PD.map((p, i) => (
-            <div key={i} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "?" })}
-              style={{
-                flex:"0 0 auto", width:140, cursor:"pointer",
-                borderRadius:10, overflow:"hidden",
-                background:"rgba(255,255,255,0.03)",
-                border:"1px solid rgba(255,215,0,0.1)",
-                transition:"all .3s",
+      <div className="fe-product-dock">
+        <div ref={stripRef} className="fe-product-marquee" aria-label="CALIBURN products">
+          {PRODUCT_STRIP_ITEMS.map((p, i) => (
+            <div key={`${p.n}-${i}`} className="fe-product-card" onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "✨" })}
+              style={{ "--product-accent": p.c }}
+              tabIndex={i < PD.length ? 0 : -1}
+              aria-hidden={i >= PD.length}
+              onKeyDown={e => {
+                if (i < PD.length && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "✨" });
+                }
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = p.c; e.currentTarget.style.transform = "translateY(-4px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,215,0,0.1)"; e.currentTarget.style.transform = "none"; }}
             >
-              <div style={{ width:"100%", height:100, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,0.3)", borderRadius:"8px 8px 0 0" }}>
+              <div className="fe-prod-img-wrap">
                 <img src={p.i} alt={p.n}
-                  style={{ width:"100%", height:"100%", objectFit:"contain", padding:6 }}
-                  onError={(e) => { e.target.style.display = "none"; e.target.parentNode.innerHTML = "<div style=\"padding:20px;text-align:center;color:rgba(255,255,255,0.2);font-size:30px\">??</div>"; }}
+                  className="fe-prod-img"
+                  onError={(e) => { e.target.style.display = "none"; e.target.parentNode.innerHTML = "<div style=\"padding:20px;text-align:center;color:rgba(255,255,255,0.2);font-size:30px\">📦</div>"; }}
                 />
               </div>
-              <div style={{ padding:"6px 10px" }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#e5e5e5", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.n}</div>
-                <div style={{ fontSize:8, color:"rgba(255,255,255,0.3)", marginTop:1 }}>{p.t}</div>
+              <div className="fe-prod-info">
+                <div className="fe-prod-name">{p.n}</div>
+                <div className="fe-prod-series">{p.t}</div>
               </div>
             </div>
           ))}
@@ -712,9 +614,9 @@ const FanEntryPage = () => {
               position:'absolute', top:14, right:14, width:32, height:32, borderRadius:'50%', border:'none',
               background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.4)', fontSize:16, cursor:'pointer',
               display:'flex', alignItems:'center', justifyContent:'center',
-            }}>?</button>
-            <div style={{ width:'100%', height:200, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
-              <img src={modalProduct.product.i} alt="" style={{ maxWidth:'90%', maxHeight:'100%', objectFit:'contain', filter:'drop-shadow(0 12px 32px rgba(0,0,0,0.5))' }} />
+            }}>✕</button>
+            <div className="fe-modal-img-area">
+              <img src={modalProduct.product.i} alt="" className="fe-modal-img" />
             </div>
             <h2 style={{ fontSize:24, fontWeight:900, letterSpacing:1, marginBottom:4, color: modalProduct.product.c }}>{modalProduct.info.icon} {modalProduct.product.n}</h2>
             <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)', letterSpacing:1, marginBottom:12 }}>{modalProduct.product.t}</div>
@@ -746,8 +648,4 @@ const FanEntryPage = () => {
 };
 
 export default FanEntryPage;
-
-
-
-
 

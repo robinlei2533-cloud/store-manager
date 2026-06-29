@@ -2,7 +2,6 @@ import useLanguageStore from './stores/languageStore';
 import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
-import LanguageSwitcher from './components/common/LanguageSwitcher';
 import PageTransition from './components/common/PageTransition';
 import './styles/animations.css';
 import './styles/glass-morphism.css';
@@ -47,6 +46,7 @@ const FanGrowthPage = React.lazy(() => import('./pages/fans/FanGrowthPage'));
 const FanEntryPage = React.lazy(() => import('./pages/fan-entry/FanEntryPage'));
 const FanEntryRedirect = React.lazy(() => import('./pages/login/FanEntryRedirect'));
 const FanCenterPage = React.lazy(() => import('./pages/fans/FanCenterPage'));
+const StoreEntryPage = React.lazy(() => import('./pages/store-owner/StoreEntryPage'));
 const StoreOwnerPage = React.lazy(() => import('./pages/store-owner/StoreOwnerPage'));
 
 import { ROLES } from './utils/constants';
@@ -55,6 +55,7 @@ const router = createHashRouter([
   { path: "/", element: <FanEntryRedirect /> },
   { path: "/fan-entry", element: <FanEntryPage /> },
   { path: "/fan-center", element: <FanCenterPage /> },
+  { path: "/store-login", element: <StoreEntryPage /> },
   { path: "/store-owner", element: <StoreOwnerPage /> },
   { path: "/admin", element: <LoginPage /> },
   { path: "/login", element: <LoginPage /> },
@@ -127,7 +128,6 @@ const App = () => {
         <AntApp>
           <ErrorBoundary>
             <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#14141e"}}><Spin size="large" /></div>}>
-              <div style={{position:'relative'}}><LanguageSwitcher inline={true} /></div>
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

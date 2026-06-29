@@ -1,19 +1,69 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UWELL CRM 锟?杩愯惀绠＄悊骞冲彴</title>
+    <title>UWELL CRM — 运营管理平台</title>
     <meta name="theme-color" content="#000000" />
-    <link rel="manifest" href="/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="/images/icon-192.png">
-    <meta name="description" content="UWELL 涓笢闈炲競鍦哄闀胯繍钀ョ郴锟?锟?绮変笣/闂ㄥ簵/鐗╂枡/娲诲姩绠＄悊" />
+    <meta name="description" content="UWELL 中东非市场增长运营系统 — 粉丝/门店/物料/活动管理" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/src/styles/design-system.css">
-
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { background:#000000; color:#e5e5e5; font-family:"Inter",-apple-system,sans-serif; }
+      #root { min-height:100vh; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
+    </style>
+    <style>
+      .liquid-glass {
+        background: rgba(255,255,255,0.03);
+        background-blend-mode: luminosity;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: none;
+        box-shadow: inset 0 1px 1px rgba(255,215,0,0.08);
+        position: relative;
+        overflow: hidden;
+      }
+      .liquid-glass::before {
+        content: "";
+        position: absolute; inset: 0;
+        border-radius: inherit;
+        padding: 1.2px;
+        background: linear-gradient(180deg, rgba(255,215,0,0.3) 0%, rgba(255,215,0,0.1) 20%, transparent 40%, transparent 60%, rgba(255,215,0,0.1) 80%, rgba(255,215,0,0.3) 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .liquid-glass-strong {
+        background: rgba(255,255,255,0.04);
+        background-blend-mode: luminosity;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        position: relative;
+        overflow: hidden;
+      }
+      .liquid-glass-strong::before {
+        content: "";
+        position: absolute; inset: 0;
+        border-radius: inherit;
+        padding: 1.2px;
+        background: linear-gradient(180deg, rgba(255,215,0,0.4) 0%, rgba(255,215,0,0.15) 20%, transparent 40%, transparent 60%, rgba(255,215,0,0.15) 80%, rgba(255,215,0,0.4) 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .font-heading { font-family: 'Instrument Serif', serif; font-style: italic; }
+      .font-body { font-family: 'Barlow', sans-serif; }
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 2px; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
@@ -27,10 +77,11 @@ var N=60,ps=[];for(var i=0;i<N;i++){ps.push({x:Math.random()*W*1.2-W*0.1,y:Math.
 function anim(){x.clearRect(0,0,W,H);for(var i=0;i<ps.length;i++){var p=ps[i];p.x+=p.vx;p.y+=p.vy;p.vx*=0.98;p.vy*=0.98;if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fillStyle="rgba(255,215,0,"+p.o+")";x.fill();for(var j=i+1;j<ps.length;j++){var p2=ps[j],dx=p.x-p2.x,dy=p.y-p2.y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p2.x,p2.y);x.strokeStyle="rgba(255,215,0,"+((1-d/80)*0.08)+")";x.lineWidth=0.5;x.stroke()}}}requestAnimationFrame(anim)}
 anim();})();
 </script>
+
   <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function() {});
   });
 }
 </script>
