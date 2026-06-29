@@ -111,7 +111,7 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
       footer={null}
       width={400}
       destroyOnClose
-      styles={{ content: { background: '#0a0a0f', border: '1px solid rgba(255,215,0,0.15)' } }}
+      styles={{ content: { background: '#14141e', border: '1px solid rgba(255,215,0,0.15)' } }}
     >
       {scanLimitReached ? (
         <div style={{ textAlign: 'center', padding: 40 }}>

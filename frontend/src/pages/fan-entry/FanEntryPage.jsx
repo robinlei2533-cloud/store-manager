@@ -38,7 +38,7 @@ const PROD_INFO = {
   "Caliburn":{desc:"The classic that started the CALIBURN era",specs:[["Model","Caliburn OG"],["Pod Capacity","2.0ml"],["Battery","520mAh"]],icon:"🏆"},
 };
 
-const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#0a0a0f' };
+const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#14141e' };
 
 // ============ Particle Canvas Component ============
 const ParticleCanvas = () => {
@@ -438,7 +438,7 @@ const FanEntryPage = () => {
     }}>
       {/* Background layers */}
       <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0,
-        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%)' }} />
+        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #14141e 60%, #000 100%)' }} />
       <AuroraCanvas />
       <ShaderOverlay />
       <ParticleCanvas />
@@ -583,7 +583,7 @@ const FanEntryPage = () => {
               <button onClick={handleLogin} style={{
                 width:'100%', padding:13, border:'none', borderRadius:10,
                 background:'linear-gradient(135deg,#FFD700,#F5A623)',
-                color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
+                color:'#14141e', fontSize:14, fontWeight:700, letterSpacing:2,
                 cursor:'pointer', transition:'all .3s', position:'relative', overflow:'hidden',
               }}><ClickSpark sparkColor="#FFD700" sparkSize={12} sparkRadius={20} sparkCount={12}>{t('fan_entry_signin_btn')}</ClickSpark></button>
               )}
@@ -612,7 +612,7 @@ const FanEntryPage = () => {
                   <button onClick={handleRegister} disabled={loading} style={{
                     width:'100%', padding:13, border:'none', borderRadius:10,
                     background:'linear-gradient(135deg,#FFD700,#F5A623)',
-                    color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
+                    color:'#14141e', fontSize:14, fontWeight:700, letterSpacing:2,
                     cursor: loading ? 'not-allowed' : 'pointer', transition:'all .3s', opacity: loading ? 0.6 : 1,
                   }}>{loading ? t('fan_entry_registering') : t('fan_entry_register_btn')}</button>
                   <div style={{ height:8 }} />

@@ -109,19 +109,19 @@ const FanCenterPage = () => {
   const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', paddingBottom: 24, position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: '#14141e', paddingBottom: 24, position: 'relative' }}>
       {/* Decorative glow */}
       <div style={{position:'fixed',top:'-20%',right:'-10%',width:500,height:500,borderRadius:'50%',background:'radial-gradient(circle,rgba(212,168,0,0.06) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
       <div style={{position:'fixed',bottom:'-10%',left:'-5%',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
       {/* Top Bar */}
       <div style={{
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a0f 50%, #2a2a0f 100%)',
+        background: 'linear-gradient(135deg, #14141e 0%, #1a1a0f 50%, #2a2a0f 100%)',
         padding: '16px 20px', color: '#fff', position: 'sticky', top: 0, zIndex: 100,
         boxShadow: '0 2px 12px rgba(0,0,0,0.15)', borderBottom: '1px solid rgba(255,215,0,0.08)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 600, margin: '0 auto' }}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <Avatar size={36} icon={<UserOutlined />} style={{background:'#FFD700',color:'#0a0a0f',border:'2px solid rgba(255,215,0,0.3)'}} />
+            <Avatar size={36} icon={<UserOutlined />} style={{background:'#FFD700',color:'#14141e',border:'2px solid rgba(255,215,0,0.3)'}} />
             <div>
               <div style={{fontSize:13,fontWeight:600}}>{currentFan.name || 'Fan'}</div>
               <div style={{fontSize:10,color:'rgba(255,255,255,0.5)'}}>{currentFan.phone || '---'}</div>

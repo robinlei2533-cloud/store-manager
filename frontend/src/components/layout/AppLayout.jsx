@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import { Layout, Menu, Button, Avatar, Dropdown, Spin, Tag, theme, Grid, Drawer } from 'antd';
 import {
@@ -38,6 +38,7 @@ const AppLayout = () => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const contentRef = useRef(null);
   
   if (!profile) {
   
@@ -200,7 +201,7 @@ const AppLayout = () => {
 
       <Layout>
         <Header style={{
-          background: token.colorBgContainer,
+          background: 'linear-gradient(135deg, #16161f 0%, #1a1a24 100%)',
           padding: isMobile ? '0 12px' : '0 24px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -216,7 +217,7 @@ const AppLayout = () => {
               <Button type="text" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} />
             )}
             {!isMobile && (
-              <span style={{ color: token.colorTextSecondary, fontSize: 13 }}>
+              <span style={{ color: '#b0b0c8', fontSize: 13, letterSpacing: '0.3px' }}>
                 门店拜访 / 活动复盘 / 粉丝积分 / 物料库存
               </span>
             )}

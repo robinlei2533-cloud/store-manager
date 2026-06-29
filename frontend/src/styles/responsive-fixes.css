@@ -30,7 +30,7 @@
 /* 深色主题修复 - 所有输入框 */
 .ant-input, .ant-input-affix-wrapper, .ant-select-selector, 
 .ant-picker, .ant-input-number {
-  background-color: #1a1a25 !important;
+  background-color: #1e1e2a !important;
   border-color: rgba(255,255,255,0.1) !important;
   color: #e5e5e5 !important;
 }

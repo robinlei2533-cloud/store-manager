@@ -116,17 +116,17 @@ const App = () => {
             fontFamily: "'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
           },
           components: {
-            Layout: { headerBg: '#0a0a0f', siderBg: '#0d0d15', bodyBg: '#12121a' },
-            Card: { borderRadiusLG: 8 },
-            Menu: { itemBorderRadius: 8, itemSelectedBg: '#2a2000', itemSelectedColor: '#FFD700' },
+            Layout: { headerBg: '#14141e', siderBg: '#11111a', bodyBg: '#1a1a24' },
+            Card: { borderRadiusLG: 12, colorBgContainer: '#1e1e2a', colorBorderSecondary: 'rgba(255,255,255,0.08)' },
+            Menu: { itemBorderRadius: 8, itemSelectedBg: '#2a2000', itemSelectedColor: '#FFD700', itemColor: '#c0c0d0', itemHoverBg: 'rgba(255,215,0,0.08)' },
             Button: { borderRadius: 8 },
-            Table: { headerBg: '#1a1a25' },
+            Table: { headerBg: '#1e1e2a', colorBgContainer: '#1e1e2a', borderColor: 'rgba(255,255,255,0.06)' },
           },
         }}
       >
         <AntApp>
           <ErrorBoundary>
-            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0f"}}><Spin size="large" /></div>}>
+            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#14141e"}}><Spin size="large" /></div>}>
               <div style={{position:'relative'}}><LanguageSwitcher inline={true} /></div>
               <RouterProvider router={router} />
             </Suspense>

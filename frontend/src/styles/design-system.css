@@ -7,7 +7,7 @@
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior: smooth; }
 body {
-  background: #0a0a0f;
+  background: #14141e;
   color: #e5e5e5;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
                'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
@@ -75,7 +75,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #0a0a0f;
+  background: #14141e;
   flex-direction: column;
   gap: 16px;
 }
@@ -94,4 +94,37 @@ body {
   html { font-size: 14px; }
   .ant-table { font-size: 12px !important; }
   .ant-tabs-tab { padding: 8px 12px !important; font-size: 12px !important; }
+}
+
+
+/* ===== 增强暗色主题对比度 ===== */
+.ant-card, .ant-table-wrapper, .ant-tabs { 
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.ant-layout-header span {
+  color: #b0b0c8 !important;
+}
+.ant-input:focus, .ant-input-affix-wrapper-focused {
+  border-color: #FFD700 !important;
+  box-shadow: 0 0 0 2px rgba(255,215,0,0.1) !important;
+}
+.ant-message-notice-content {
+  background: #1e1e2a !important;
+  border: 1px solid rgba(255,215,0,0.15) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+.ant-table-row:hover > td {
+  background: rgba(255,215,0,0.04) !important;
+}
+.ant-divider {
+  border-color: rgba(255,255,255,0.08) !important;
+}
+.ant-tag {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.ant-drawer-content {
+  background: #14141e !important;
+}
+.loading-screen, .ant-spin-nested-loading > div > .ant-spin-blur {
+  background: #14141e !important;
 }

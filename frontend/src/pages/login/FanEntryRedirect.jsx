@@ -18,7 +18,7 @@ const FanEntryRedirect = () => {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      background: '#0a0a0f',
+      background: '#14141e',
     }}>
       <Spin size="large" />
     </div>
