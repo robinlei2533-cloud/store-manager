@@ -30,9 +30,9 @@ const VisitDetailPage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/visits/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Visits</Button>
-      <Card title="Visit Detail">
+      <Card className="liquid-glass" title="Visit Detail">
         <Descriptions column={2} bordered>
           <Descriptions.Item label="Store">{visit?.stores?.name || '-'}</Descriptions.Item>
           <Descriptions.Item label="Date">{visit?.visit_date ? new Date(visit.visit_date).toLocaleDateString('en-US') : '-'}</Descriptions.Item>

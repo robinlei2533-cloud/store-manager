@@ -52,7 +52,7 @@ const CommunityTab = ({ fan }) => {
 
   return (
     <div style={{ padding: '8px 0' }}>
-      <Card size="small" style={{ borderRadius: 12, marginBottom: 16 }}>
+      <Card size="small" className='liquid-glass' style={{ borderRadius: 12, marginBottom: 16 }}>
         <TextArea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
@@ -68,7 +68,7 @@ const CommunityTab = ({ fan }) => {
       <List
         dataSource={posts}
         renderItem={(post) => (
-          <Card size="small" style={{ marginBottom: 12, borderRadius: 12 }}>
+          <Card size="small" className='liquid-glass' style={{ marginBottom: 12, borderRadius: 12 }}>
             <div style={{ display: 'flex', gap: 12 }}>
               <Avatar style={{ background: '#667eea', flexShrink: 0 }}>
                 {post.author_name?.[0]?.toUpperCase() || 'U'}

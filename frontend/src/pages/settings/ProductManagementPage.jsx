@@ -43,7 +43,8 @@ const ProductManagementPage = () => {
 
   return (
     <PageTransition>
-    <Card title="Product Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true); }}>Add Product</Button>}>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title="Product Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true); }}>Add Product</Button>}>
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
        !products.length ? <Empty description="No products" /> :
        <Table rowKey="id" dataSource={products} columns={columns} pagination={{ pageSize: 10 }} />}
@@ -56,6 +57,7 @@ const ProductManagementPage = () => {
         </Form>
       </Modal>
     </Card>
+    </div>
     </PageTransition>);
 };
 

@@ -7,13 +7,11 @@ import seedData from '../../services/db/seedData';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { motion } from "framer-motion";
 import Galaxy from "../../components/effects/Galaxy";
-import GradientText from '../../components/effects/GradientText';
-import RotatingText from '../../components/effects/RotatingText';
-import DecryptedText from '../../components/effects/DecryptedText';
 import CircularGallery from "../../components/effects/CircularGallery";
 import ClickSpark from "../../components/effects/ClickSpark";
 import Counter from "../../components/effects/Counter";
 import { Spin, message } from 'antd';
+import gsap from 'gsap';
 
 // ============ Product Data (from fan-entry.html) ============
 const PD = [
@@ -33,12 +31,12 @@ const PD = [
   {n:"Havok",c:"#00cec9",t:"Pod Series",i:"/images/havok.svg"},
 ];
 const PROD_INFO = {
-  "CALIBURN AIR":{desc:"Ultra-slim airflow sensor pod",specs:[["Model","CALIBURN AIR"],["Pod Capacity","2.0ml"],["Battery","400mAh"]],icon:"⚡"},
-  "CALIBURN G5":{desc:"UWELL 第五代Flagship Series",specs:[["Model","CALIBURN G5"],["Pod Capacity","2.5ml"],["Battery","520mAh"]],icon:"🔥"},
-  "Caliburn":{desc:"The classic that started the CALIBURN era",specs:[["Model","Caliburn OG"],["Pod Capacity","2.0ml"],["Battery","520mAh"]],icon:"🏆"},
+  "CALIBURN AIR":{desc:"Ultra-slim airflow sensor pod",specs:[["Model","CALIBURN AIR"],["Pod Capacity","2.0ml"],["Battery","400mAh"]],icon:"?"},
+  "CALIBURN G5":{desc:"UWELL �����Flagship Series",specs:[["Model","CALIBURN G5"],["Pod Capacity","2.5ml"],["Battery","520mAh"]],icon:"??"},
+  "Caliburn":{desc:"The classic that started the CALIBURN era",specs:[["Model","Caliburn OG"],["Pod Capacity","2.0ml"],["Battery","520mAh"]],icon:"??"},
 };
 
-const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#14141e' };
+const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#0a0a0f' };
 
 // ============ Particle Canvas Component ============
 const ParticleCanvas = () => {
@@ -109,7 +107,7 @@ const ParticleCanvas = () => {
       document.removeEventListener('mouseleave', onLeave);
     };
   }, []);
-  return <canvas ref={canvasRef} className="fe-canvas" />;
+  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:1, pointerEvents:'none' }} />;
 };
 
 // ============ Aurora Canvas Component ============
@@ -151,7 +149,7 @@ const AuroraCanvas = () => {
     animate();
     return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
   }, []);
-  return <canvas ref={canvasRef} className="fe-canvas" />;
+  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0, pointerEvents:'none' }} />;
 };
 
 
@@ -177,7 +175,7 @@ const MeteorShower = () => {
         this.y = -20 - Math.random() * H * 0.3;
         // Speed: fast diagonal toward bottom-left
         const speed = 6 + Math.random() * 10;
-        const angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2; // 27°-63° from horizontal
+        const angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2; // 27��-63�� from horizontal
         this.vx = -Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
         // Add slight gravity
@@ -285,7 +283,7 @@ const MeteorShower = () => {
       window.removeEventListener('resize', resize);
     };
   }, []);
-  return <canvas ref={canvasRef} className="fe-canvas" />;
+  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:2, pointerEvents:'none' }} />;
 };
 
 
@@ -329,7 +327,7 @@ const ShaderOverlay = () => {
     draw();
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
   }, []);
-  return React.createElement("canvas", { ref, className: "fe-canvas" });
+  return React.createElement("canvas", { ref, style: {position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:1,pointerEvents:"none",opacity:0.7} });
 };
 
 // ============ Main Component ============
@@ -377,6 +375,12 @@ const FanEntryPage = () => {
     };
   }, []);
 
+  // GSAP entrance animation for header
+  useEffect(() => {
+    gsap.from('.fe-hero-title', { opacity: 0, y: 40, duration: 1, ease: 'power3.out', delay: 0.3 });
+    gsap.from('.fe-hero-sub', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out', delay: 0.6 });
+    gsap.from('.fe-login-form', { opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: 0.9 });
+  }, []);
   // Staggered product card entrance
   useEffect(() => {
     const t = setTimeout(() => setVisibleCards(true), 600);
@@ -413,7 +417,7 @@ const FanEntryPage = () => {
       localStorage.setItem("fan_logged_in", "true");
       try { await signInLocal(regEmail, regPassword); } catch(e) {}
       setLoading(false);
-      message.success(t('fan_entry_register_success'));
+      message.success("Welcome! Registration successful!");
       navigate("/fan-center", { replace: true });
     } catch (err) {
       setLoading(false);
@@ -431,14 +435,14 @@ const FanEntryPage = () => {
   };
 
   return (
-  <div style={{
+  <div className="bg-radial-center" style={{
       fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif",
-      background: COLORS.dark, color: '#fff', overflowX: 'hidden', overflowY: 'auto', minHeight: '100vh', width: '100vw',
+      background: '#000000', color: '#fff', overflowX: 'hidden', overflowY: 'auto', minHeight: '100vh', width: '100vw',
       WebkitFontSmoothing: 'antialiased',
     }}>
       {/* Background layers */}
       <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0,
-        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #14141e 60%, #000 100%)' }} />
+        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%)' }} />
       <AuroraCanvas />
       <ShaderOverlay />
       <ParticleCanvas />
@@ -455,7 +459,7 @@ const FanEntryPage = () => {
         background: 'linear-gradient(180deg, rgba(10,10,15,0.8) 0%, transparent 100%)',
         WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)',
       }}>
-        <div className="fe-header-left">
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <motion.span initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} style={{
             fontSize:22, fontWeight:900, letterSpacing:3,
             background: 'linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623)',
@@ -463,35 +467,9 @@ const FanEntryPage = () => {
           }}>UWELL</motion.span>
           <span style={{ width:6, height:6, borderRadius:'50%', background:'#FFD700', animation:'pulse 2s ease-in-out infinite' }} />
         </div>
-        <div className="fe-header-right">
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <LanguageSwitcher inline={true} />
-          {/* Store Entry - Direct Button */}
-          <button
-            onClick={() => window.location.href='store-app.html#/store-owner'}
-            style={{
-              height:38, padding:'0 14px', borderRadius:10, border:'1px solid rgba(255,215,0,0.25)',
-              background: 'rgba(255,215,0,0.1)', color: '#FFD700',
-              fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6,
-              transition:'all .3s',
-              letterSpacing:1,
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.2)'; e.currentTarget.style.borderColor = '#FFD700'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,215,0,0.25)'; }}
-          ><span className="fe-settings-icon">🏪</span> {t('settings_store')}</button>
-          {/* Rep Entry */}
-          <button
-            onClick={() => window.location.href='/#/admin?role=rep'}
-            style={{
-              height:38, padding:'0 14px', borderRadius:10, border:'1px solid rgba(82,196,26,0.25)',
-              background: 'rgba(82,196,26,0.1)', color: '#52c41a',
-              fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6,
-              transition:'all .3s',
-              letterSpacing:1,
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(82,196,26,0.2)'; e.currentTarget.style.borderColor = '#52c41a'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(82,196,26,0.1)'; e.currentTarget.style.borderColor = 'rgba(82,196,26,0.25)'; }}
-          >📋 Rep</button>
-          {/* Settings Gear - Admin + Website only */}
+          {/* Settings */}
           <div style={{ position:'relative' }}>
             <button
               onClick={() => { setSettingsOpen(!settingsOpen); }}
@@ -501,7 +479,7 @@ const FanEntryPage = () => {
                 fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
                 transition:'all .3s', transform: settingsOpen ? 'rotate(60deg)' : 'none',
               }}
-            >⚙</button>
+            >?</button>
             {settingsOpen && (
               <div style={{
                 position:'absolute', top:'calc(100% + 8px)', right:0, minWidth:200,
@@ -509,17 +487,22 @@ const FanEntryPage = () => {
                 border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, padding:6, zIndex:100,
                 boxShadow:'0 20px 60px rgba(0,0,0,0.5)',
               }}>
-                
+                <div onClick={() => window.location.href='store-app.html#/store-owner'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
+                  onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
+                  onMouseLeave={e => e.target.style.background='transparent'}>
+                  <span style={{fontSize:16,width:28,textAlign:'center'}}>??</span> �ŵ����
+                </div>
+                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
                 <div onClick={() => window.location.href='/index.html#/admin'} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all .2s' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span className="fe-settings-icon">🔐</span> {t('settings_admin')}
+                  <span style={{fontSize:16,width:28,textAlign:"center"}}>??</span> ������̨ Panel
                 </div>
-                <div className="fe-settings-divider" />
+                <div style={{ height:1, background:'rgba(255,255,255,0.06)', margin:'4px 8px' }} />
                 <a href="https://www.myuwell.com" target="_blank" rel="noopener noreferrer" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:10, color:'rgba(255,255,255,0.6)', fontSize:13, fontWeight:600, cursor:'pointer', textDecoration:'none' }}
                   onMouseEnter={e => e.target.style.background='rgba(255,255,255,0.06)'}
                   onMouseLeave={e => e.target.style.background='transparent'}>
-                  <span className="fe-settings-icon">🌐</span> {t('settings_website')}
+                  <span style={{fontSize:16,width:28,textAlign:'center'}}>??</span> UWELL ����
                 </a>
               </div>
             )}
@@ -528,64 +511,61 @@ const FanEntryPage = () => {
       </header>
 
       {/* Main Content */}
-      <div style={{ position:'relative', zIndex:20, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'120px 40px 260px' }}>
+      <div style={{ position:'relative', zIndex:20, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'100px 20px 240px' }}>
         {/* Hero */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:80, width:'100%', maxWidth:1100, minHeight:'80vh', padding:'60px 0 40px' }}>
-          <div className="fe-hero-left">
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:60, width:'100%', maxWidth:1100, minHeight:'80vh', padding:'60px 0 40px' }}>
+          <div style={{ flex:1, maxWidth:480 }}>
             <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:20, background:'rgba(255,215,0,0.12)', border:'1px solid rgba(255,215,0,0.25)', fontSize:11, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:20 }}>
-              {t('fan_entry_tag')}
+              ? 2026 ��˿���ֲ�
             </div>
             <motion.h1 initial={{ filter: "blur(10px)", opacity: 0, y: 20 }} animate={{ filter: "blur(0px)", opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} style={{ fontSize:52, fontWeight:900, lineHeight:1.1, letterSpacing:-2, marginBottom:16, fontFamily:"Instrument Serif, serif", fontStyle:"italic" }}>
-              <span className="fe-text-gold-grad">{t("fan_entry_join")}</span><br />
-              <span className="fe-text-blue-grad">{t("fan_entry_club")}</span>
+              <span style={{ background:'linear-gradient(135deg,#fff 30%,#FFD700)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>���� UWELL</span><br />
+              <span style={{ background:'linear-gradient(135deg,#457bff,#6c5ce7)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>��˿���ֲ�</span>
             </motion.h1>
             <p style={{ color:'rgba(255,255,255,0.35)', fontSize:15, lineHeight:1.7, marginBottom:28 }}>
-              {t('fan_entry_desc')}
+              ǩ���ۻ����֡�ɨ����֤��Ʒ��������Ա�ȼ����һ�ר������ �� ��ȫ�� UWELL ��˿һ��̽������������顣
             </p>
-            <div style={{ marginBottom: 20, fontSize: 14, color: '#FFD700', fontWeight: 600 }}>
-              <RotatingText texts={['Check In', 'Scan QR Code', 'Earn Points', 'Redeem Rewards']} period={2500} />
-            </div>
-            <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginTop:20 }}>
-              {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map((f, idx) => (
-                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:12, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
+            <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
+              {[{label:'ÿ��ǩ��',value:1280,suffix:'+'},{label:'ɨ�����',value:8560,suffix:'+'},{label:'�����̳�',value:520,suffix:'��'},{label:'��Ա�ȼ�',value:6,suffix:'��'}].map(f => (
+                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:8, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
                   <span style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#FFD700,#F5A623)' }} />
                   <Counter from={0} to={f.value} suffix={f.suffix} duration={2} />
                 </div>
               ))}
             </div>
           </div>
-          <div className="fe-hero-right">
-            <div style={{ background:'rgba(255,255,255,0.04)', WebkitBackdropFilter:'blur(20px)', backdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:'40px 36px', boxShadow:'0 24px 80px rgba(0,0,0,0.5)' }}>
+          <div style={{ flex:1, maxWidth:400 }}>
+            <div className="liquid-glass-strong" style={{ borderRadius:24, padding:"36px 32px" }}>
               <div style={{ width:50, height:3, background:'linear-gradient(90deg,#FFD700,#457bff)', borderRadius:2, margin:'0 auto 18px' }} />
               <div style={{ textAlign:'center', marginBottom:24 }}>
-                <h2 style={{ fontSize:20, fontWeight:800, letterSpacing:2, color:'#fff', marginBottom:4 }}>{mode === 'login' ? t('fan_entry_login_title') : t('fan_entry_register_title')}</h2>
-                <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, letterSpacing:1 }}>{mode === 'login' ? t('fan_entry_login_subtitle') : t('fan_entry_fill_fields')}</p>
+                <h2 style={{ fontSize:20, fontWeight:800, letterSpacing:2, color:'#fff', marginBottom:4 }}>��˿��¼</h2>
+                <p style={{ color:'rgba(255,255,255,0.3)', fontSize:12, letterSpacing:1 }}>ʹ��������ټ���</p>
               </div>
-              <div className="fe-input-group">
+              <div style={{ marginBottom:14 }}>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown}
-                  placeholder={t('fan_entry_placeholder_email')} autoComplete="email"
+                  placeholder="�����ַ" autoComplete="email"
                   style={{ width:'100%', padding:'12px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' }}
                 />
               </div>
               <div style={{ marginBottom:14 }}>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown}
-                  placeholder={t('fan_entry_placeholder_password')} autoComplete="current-password"
+                  placeholder="����" autoComplete="current-password"
                   style={{ width:'100%', padding:'12px 16px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' }}
                 />
               </div>
-              <div className="fe-form-row">
-                <label className="fe-form-label">
-                  <input type="checkbox" defaultChecked /> {t('fan_entry_remember')}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', margin:'16px 0 20px' }}>
+                <label style={{ display:'flex', alignItems:'center', gap:6, color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer' }}>
+                  <input type="checkbox" defaultChecked /> ��ס��
                 </label>
-                <a href="#" className="fe-form-link">{t('fan_entry_forgot')}</a>
+                <a href="#" style={{ color:'rgba(255,255,255,0.3)', fontSize:12, textDecoration:'none' }}>��������?</a>
               </div>
               {mode === 'login' && (
               <button onClick={handleLogin} style={{
                 width:'100%', padding:13, border:'none', borderRadius:10,
                 background:'linear-gradient(135deg,#FFD700,#F5A623)',
-                color:'#14141e', fontSize:14, fontWeight:700, letterSpacing:2,
+                color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
                 cursor:'pointer', transition:'all .3s', position:'relative', overflow:'hidden',
-              }}><ClickSpark sparkColor="#FFD700" sparkSize={12} sparkRadius={20} sparkCount={12}>{t('fan_entry_signin_btn')}</ClickSpark></button>
+              }}><ClickSpark sparkColor="#FFD700" sparkSize={12} sparkRadius={20} sparkCount={12}>SIGN IN</ClickSpark></button>
               )}
               {mode === 'register' && (
                 <>
@@ -612,22 +592,22 @@ const FanEntryPage = () => {
                   <button onClick={handleRegister} disabled={loading} style={{
                     width:'100%', padding:13, border:'none', borderRadius:10,
                     background:'linear-gradient(135deg,#FFD700,#F5A623)',
-                    color:'#14141e', fontSize:14, fontWeight:700, letterSpacing:2,
+                    color:'#0a0a0f', fontSize:14, fontWeight:700, letterSpacing:2,
                     cursor: loading ? 'not-allowed' : 'pointer', transition:'all .3s', opacity: loading ? 0.6 : 1,
-                  }}>{loading ? t('fan_entry_registering') : t('fan_entry_register_btn')}</button>
+                  }}>{loading ? 'Registering...' : 'REGISTER'}</button>
                   <div style={{ height:8 }} />
                 </>
               )}
               {mode === 'login' ? (
-                <div className="fe-form-toggle">
-                  <a onClick={() => setMode('register')} className="fe-form-link">
-                    {t('fan_entry_no_account')} <span className="fe-btn-secondary">{t('fan_entry_register_now')}</span>
+                <div style={{ textAlign:"center", marginTop:14 }}>
+                  <a onClick={() => setMode('register')} style={{ color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer', textDecoration:'none' }}>
+                    No account? <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>Register Now</span>
                   </a>
                 </div>
               ) : (
                 <div style={{ textAlign:"center", marginTop:14 }}>
-                  <a onClick={() => setMode('login')} className="fe-form-link">
-                    {t('fan_entry_have_account')} <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>{t('fan_entry_sign_in')}</span>
+                  <a onClick={() => setMode('login')} style={{ color:'rgba(255,255,255,0.3)', fontSize:12, cursor:'pointer', textDecoration:'none' }}>
+                    Already have account? <span style={{ color:'#FFD700', fontStyle:'normal', fontWeight:600 }}>Sign In</span>
                   </a>
                 </div>
               )}
@@ -635,14 +615,14 @@ const FanEntryPage = () => {
           </div>
         </div>
 
-        {/* Product Showcase — 3D Circular Gallery */}
-        <div style={{ width:'100%', padding:'0 40px', marginTop:40 }}>
+        {/* Product Showcase �� 3D Circular Gallery */}
+        <div style={{ width:'100%', padding:'0 20px', marginTop:40 }}>
           <div style={{ textAlign:'center', marginBottom:24 }}>
-            <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 14px', borderRadius:20, background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.15)', fontSize:10, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:12 }}>{t('fan_product_family')}</div>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 14px', borderRadius:20, background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.15)', fontSize:10, fontWeight:700, letterSpacing:2, color:'#FFD700', textTransform:'uppercase', marginBottom:12 }}>? ��Ʒ����</div>
             <h2 style={{ fontSize:28, fontWeight:900, letterSpacing:1, marginBottom:8 }}>
-              <span style={{ background:'linear-gradient(135deg,#fff,#FFD700 60%,#F5A623)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{t('fan_explore_products')}</span>
+              <span style={{ background:'linear-gradient(135deg,#fff,#FFD700 60%,#F5A623)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>̽�� UWELL ���ǲ�Ʒ</span>
             </h2>
-            <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>{t('fan_entry_scroll_browse')}</p>
+            <p style={{ color:'rgba(255,255,255,0.3)', fontSize:13, letterSpacing:1 }}>������� �� ����鿴����</p>
           </div>
           <div style={{ width:'100%', height:360, position:'relative' }}>
             <CircularGallery 
@@ -654,7 +634,7 @@ const FanEntryPage = () => {
             />
             <div style={{ position:'absolute', bottom:0, left:0, right:0, display:'flex', justifyContent:'center', gap:8, flexWrap:'wrap', padding:'12px 16px' }}>
               {PD.map(p => (
-                <span key={p.n} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: 'UWELL Premium Product', icon: '✨' })}
+                <span key={p.n} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: 'UWELL ���ʲ�Ʒ', icon: '?' })}
                   style={{ fontSize:10, padding:'3px 10px', borderRadius:12, background:'rgba(255,215,0,0.1)', border:'1px solid rgba(255,215,0,0.2)', color:'#FFD700', cursor:'pointer', transition:'all .2s' }}>
                   {p.n}
                 </span>
@@ -664,8 +644,8 @@ const FanEntryPage = () => {
         </div>
 
         {/* Footer */}        {/* Footer */}
-        <div className="fe-footer">
-          <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>{t('fan_entry_footer')}</p>
+        <div style={{ width:'100%', textAlign:'center', padding:'40px 20px', marginTop:40 }}>
+          <p style={{ color:'rgba(255,255,255,0.12)', fontSize:11, letterSpacing:1 }}>UWELL FAN CLUB �� 2026</p>
         </div>
       </div>
 
@@ -691,7 +671,7 @@ const FanEntryPage = () => {
           scrollbarWidth:"none", msOverflowStyle:"none",
         }}>
           {PD.map((p, i) => (
-            <div key={i} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "✨" })}
+            <div key={i} onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "?" })}
               style={{
                 flex:"0 0 auto", width:140, cursor:"pointer",
                 borderRadius:10, overflow:"hidden",
@@ -705,11 +685,11 @@ const FanEntryPage = () => {
               <div style={{ width:"100%", height:100, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,0.3)", borderRadius:"8px 8px 0 0" }}>
                 <img src={p.i} alt={p.n}
                   style={{ width:"100%", height:"100%", objectFit:"contain", padding:6 }}
-                  onError={(e) => { e.target.style.display = "none"; e.target.parentNode.innerHTML = "<div style=\"padding:20px;text-align:center;color:rgba(255,255,255,0.2);font-size:30px\">📦</div>"; }}
+                  onError={(e) => { e.target.style.display = "none"; e.target.parentNode.innerHTML = "<div style=\"padding:20px;text-align:center;color:rgba(255,255,255,0.2);font-size:30px\">??</div>"; }}
                 />
               </div>
               <div style={{ padding:"6px 10px" }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#e5e5e5", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}><DecryptedText text={p.n} trigger="hover" speed={30} /></div>
+                <div style={{ fontSize:10, fontWeight:700, color:"#e5e5e5", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.n}</div>
                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.3)", marginTop:1 }}>{p.t}</div>
               </div>
             </div>
@@ -719,21 +699,29 @@ const FanEntryPage = () => {
 
       {/* Product Modal */}
       {modalOpen && modalProduct && (
-        <div onClick={() => setModalOpen(false)} className="fe-modal-overlay">
-          <div onClick={e => e.stopPropagation()} className="fe-modal-card">
+        <div onClick={() => setModalOpen(false)} style={{
+          position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:200,
+          background:'rgba(0,0,0,0.7)', WebkitBackdropFilter:'blur(16px)', backdropFilter:'blur(16px)',
+          display:'flex', alignItems:'center', justifyContent:'center', padding:20,
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background:'rgba(20,20,30,0.95)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:24, padding:36,
+            maxWidth:520, width:'100%', position:'relative',
+          }}>
             <button onClick={() => setModalOpen(false)} style={{
               position:'absolute', top:14, right:14, width:32, height:32, borderRadius:'50%', border:'none',
               background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.4)', fontSize:16, cursor:'pointer',
               display:'flex', alignItems:'center', justifyContent:'center',
-            }}>✕</button>
+            }}>?</button>
             <div style={{ width:'100%', height:200, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
               <img src={modalProduct.product.i} alt="" style={{ maxWidth:'90%', maxHeight:'100%', objectFit:'contain', filter:'drop-shadow(0 12px 32px rgba(0,0,0,0.5))' }} />
             </div>
             <h2 style={{ fontSize:24, fontWeight:900, letterSpacing:1, marginBottom:4, color: modalProduct.product.c }}>{modalProduct.info.icon} {modalProduct.product.n}</h2>
             <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)', letterSpacing:1, marginBottom:12 }}>{modalProduct.product.t}</div>
-            <div className="fe-modal-specs">
+            <div style={{ color:'rgba(255,255,255,0.45)', fontSize:13, lineHeight:1.8, marginBottom:20 }}>{modalProduct.info.desc}</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               {(modalProduct.info.specs || []).map((spec, i) => (
-                <div key={i} className="fe-modal-spec-item">
+                <div key={i} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.04)', borderRadius:10, padding:'10px 14px' }}>
                   <div style={{ fontSize:9, color:'rgba(255,255,255,0.25)', textTransform:'uppercase', letterSpacing:1, marginBottom:2 }}>{spec[0]}</div>
                   <div style={{ fontSize:13, fontWeight:600 }}>{spec[1]}</div>
                 </div>

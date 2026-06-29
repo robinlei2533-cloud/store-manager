@@ -25,9 +25,9 @@ const StoreDetailPage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/stores/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Stores</Button>
-      <Card title={store?.name || 'Store Detail'}>
+      <Card className="liquid-glass" title={store?.name || 'Store Detail'}>
         <Tabs items={[
           { key: 'info', label: 'Store Info', children: (
             <Descriptions column={2} bordered>

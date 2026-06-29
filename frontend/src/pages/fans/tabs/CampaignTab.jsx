@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Tag, Button, Spin, Empty, Typography, Space, Progress, Modal } from "antd";
 import { GiftOutlined, FireOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import localDb from "../../../services/db/localDb";
@@ -58,13 +58,14 @@ const CampaignTab = ({ fan }) => {
     <div style={{ padding: "4px 0" }}>
       {/* Hero Banner */}
       <div
+        className='liquid-glass'
         style={{
-          background: "linear-gradient(135deg, #1a1a2e 0%, #2a1a0e 100%)",
+          background: '#000000',
           borderRadius: 16,
-          padding: "20px 16px",
+          padding: '20px 16px',
           marginBottom: 16,
-          border: "1px solid rgba(255,215,0,0.15)",
-          textAlign: "center",
+          border: '1px solid rgba(255,215,0,0.15)',
+          textAlign: 'center',
         }}
       >
         <Title level={4} style={{ color: "#FFD700", margin: 0 }}>
@@ -142,11 +143,10 @@ const CampaignTab = ({ fan }) => {
       <Card
         key={c.id}
         size="small"
+        className='liquid-glass'
         style={{
           marginBottom: 10,
           borderRadius: 12,
-          background: isOngoing ? "linear-gradient(135deg, #1a1a2e 0%, #2a1a0e 100%)" : "linear-gradient(135deg, #1a1a25 0%, #1a1a1f 100%)",
-          border: isOngoing ? "1px solid rgba(255,215,0,0.25)" : "1px solid #2a2a35",
           cursor: "pointer",
         }}
         onClick={() => setDetailModal(c)}

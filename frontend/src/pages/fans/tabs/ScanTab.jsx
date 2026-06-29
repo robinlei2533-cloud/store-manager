@@ -297,7 +297,7 @@ const ScanTab = ({ fan, onPointsChange }) => {
 
   return (
     <div style={{ padding: '8px 0' }}>
-      <Card style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16, background: 'linear-gradient(135deg, #722ed110 0%, #FFD70010 100%)' }}>
+      <Card className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <QrcodeOutlined style={{ fontSize: 64, color: '#722ed1', marginBottom: 16 }} />
         <Title level={4}>Scan to Earn Points!</Title>
         <Paragraph type="secondary" style={{ fontSize: 13 }}>
@@ -327,7 +327,7 @@ const ScanTab = ({ fan, onPointsChange }) => {
         {scanning ? 'Processing...' : scansRemaining > 0 ? 'Open Scanner' : 'Limit Reached (3/day)'}
       </Button>
 
-      <Card title="Recent Scans" size="small" style={{ borderRadius: 12 }}>
+      <Card title="Recent Scans" size="small" className='liquid-glass' style={{ borderRadius: 12 }}>
         {myScans.length === 0 ? (
           <Empty description="No scans yet. Buy a UWELL product and scan the QR code!" />
         ) : (

@@ -29,11 +29,13 @@ const UserManagementPage = () => {
 
   return (
     <PageTransition>
-    <Card title="User Management">
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title="User Management">
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div> :
      !profiles.length ? <Empty description="No users" /> :
      <Table rowKey="id" dataSource={profiles} columns={columns} pagination={false} />}
     </Card>
+    </div>
     </PageTransition>);
 };
 

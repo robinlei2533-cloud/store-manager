@@ -63,9 +63,9 @@ const EvalCreatePage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
-      <Card title={id ? 'Edit Evaluation' : 'New Evaluation'}>
+      <Card className="liquid-glass" title={id ? 'Edit Evaluation' : 'New Evaluation'}>
         <Form form={form} layout="vertical">
           <Form.Item name="store_id" label="Store" rules={[{ required: true, message: 'Please select a store' }]}>
             <Select placeholder="Select store" showSearch optionFilterProp="label" options={stores.map(s => ({ label: s.name, value: s.id }))} />
@@ -85,7 +85,7 @@ const EvalCreatePage = () => {
           </div>
         ))}
 
-        <Card size="small" style={{ background: '#f0f5ff', marginBottom: 16 }}>
+        <Card size="small" className="liquid-glass" style={{ marginBottom: 16 }}>
           <Row gutter={16} align="middle">
             <Col span={8}><Statistic title="Total Score" value={total} suffix="/60" /></Col>
             <Col span={8}><Statistic title="Average" value={avg.toFixed(1)} suffix="/10" /></Col>

@@ -56,7 +56,8 @@ const MaterialOutboundPage = () => {
 
   return (
     <PageTransition>
-    <Card title="Outbound / Requisition">
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title="Outbound / Requisition">
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
         { key: 'apply', label: 'New Requisition', children: (
           <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ maxWidth: 500 }}>
@@ -76,6 +77,7 @@ const MaterialOutboundPage = () => {
         { key: 'records', label: 'Outbound Records', children: isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> : <Table rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} /> },
       ]} />
     </Card>
+    </div>
     </PageTransition>);
 };
 

@@ -36,9 +36,9 @@ const EvalDetailPage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Evaluations</Button>
-      <Card title={`Evaluation: ${evalData.stores?.name || ''}`}>
+      <Card className="liquid-glass" title={`Evaluation: ${evalData.stores?.name || ''}`}>
         <Descriptions column={3} bordered style={{ marginBottom: 24 }}>
           <Descriptions.Item label="Store">{evalData.stores?.name}</Descriptions.Item>
           <Descriptions.Item label="Date">{evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString('en-US') : '-'}</Descriptions.Item>
@@ -51,7 +51,7 @@ const EvalDetailPage = () => {
 
         <Row gutter={24}>
           <Col xs={24} lg={12}>
-            <Card title="Radar Chart" size="small">
+            <Card className="liquid-glass" title="Radar Chart" size="small">
               <ResponsiveContainer width="100%" height={350}>
                 <RadarChart data={radarData}>
                   <PolarGrid />
@@ -64,7 +64,7 @@ const EvalDetailPage = () => {
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title="Dimension Scores" size="small">
+            <Card className="liquid-glass" title="Dimension Scores" size="small">
               {dims.map((d, i) => (
                 <div key={i} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>

@@ -123,12 +123,12 @@ const CheckInTab = ({ fan }) => {
     <div>
       <Row gutter={16} className="fg-mb24">
         <Col xs={12} sm={12} lg={6}>
-          <Card size="small">
+          <Card className="liquid-glass" size="small">
             <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: 'var(--uwell-gold)' }} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
-          <Card size="small">
+          <Card className="liquid-glass" size="small">
             <Statistic title="Level" value={levelInfo.label} prefix={<CrownOutlined style={{ color: levelInfo.color }} />} />
           </Card>
         </Col>
@@ -719,7 +719,7 @@ const FanMapTab = ({ fans }) => {
       </Row>
 
       {/* Fans by Store */}
-      <Card title="Fans by Store" size="small">
+      <Card className="liquid-glass" title="Fans by Store" size="small">
         {Object.keys(storeGroups).length > 0 ? (
           <List
             size="small"
@@ -778,20 +778,20 @@ const FanGrowthPage = () => {
 
   if (!fans.length) {
     return (
-      <Card>
+      <Card className="liquid-glass">
         <Empty description="No fan data yet. Please add fans first in the Fans section." />
       </Card>
     );
   }
 
   return (
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Title level={4} className="fg-mb16">
         <ThunderboltOutlined /> Fan Growth Center
       </Title>
 
       {/* Fan selector */}
-      <Card size="small" className="fg-mb16">
+      <Card size="small" className="fg-mb16 liquid-glass">
         <Row gutter={16} align="middle">
           <Col xs={24} sm={12} md={8}>
             <Text strong>Select Fan: </Text>

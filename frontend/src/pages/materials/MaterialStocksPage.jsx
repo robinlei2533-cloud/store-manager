@@ -36,11 +36,13 @@ const MaterialStocksPage = () => {
 
   return (
     <PageTransition>
-    <Card title="Inventory Dashboard">
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title="Inventory Dashboard">
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div> :
      !enrichedStocks.length ? <Empty description="No inventory data" /> :
      <Table rowKey="id" dataSource={enrichedStocks} columns={columns} pagination={{ pageSize: 15, showTotal: (t) => `Total ${t} items` }} rowClassName={(r) => r.qty <= r.safety_stock ? 'low-stock-row' : ''} />}
     </Card>
+    </div>
     </PageTransition>);
 };
 

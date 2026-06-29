@@ -92,7 +92,8 @@ const DataManagement = () => {
 
   return (
     <PageTransition>
-    <Card title={<><DatabaseOutlined /> Data Management</>} style={{ maxWidth: 700 }}>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title={<><DatabaseOutlined /> Data Management</>} style={{ maxWidth: 700 }}>
       {IS_LOCAL_MODE ? (
         <Alert
           type="info"
@@ -158,6 +159,7 @@ const DataManagement = () => {
         </div>
       </Space>
     </Card>
+    </div>
     </PageTransition>);
 };
 

@@ -13,7 +13,8 @@ const SettingsPage = () => {
 
   return (
     <PageTransition>
-    <Card>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass">
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
@@ -41,6 +42,7 @@ const SettingsPage = () => {
         ]}
       />
     </Card>
+    </div>
     </PageTransition>);
 };
 

@@ -48,7 +48,8 @@ const StoreCreatePage = () => {
 
   return (
     <PageTransition>
-    <Card title={id ? 'Edit Store' : 'Add Store'}>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title={id ? 'Edit Store' : 'Add Store'}>
       <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ maxWidth: 600 }}>
         <Form.Item name="name" label="Store Name" rules={[{ required: true, message: 'Please enter store name' }]}>
           <Input placeholder="e.g. Good Store (Downtown)" />
@@ -69,6 +70,7 @@ const StoreCreatePage = () => {
         </Form.Item>
       </Form>
     </Card>
+    </div>
     </PageTransition>);
 };
 

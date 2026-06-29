@@ -34,8 +34,8 @@ const MaterialInboundPage = () => {
 
   return (
     <PageTransition>
-    <div>
-      <Card title="Inbound Management" style={{ marginBottom: 16 }}>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+      <Card className="liquid-glass" title="Inbound Management" style={{ marginBottom: 16 }}>
         <Form form={form} layout="inline" onFinish={handleSubmit} style={{ marginBottom: 16 }}>
           <Form.Item name="material_id" label="Material" rules={[{ required: true, message: 'Required' }]}>
             <Select placeholder="Select material" style={{ width: 200 }} options={materials.map((m) => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
@@ -52,7 +52,7 @@ const MaterialInboundPage = () => {
         </Form>
       </Card>
 
-      <Card title="Inbound History">
+      <Card className="liquid-glass" title="Inbound History">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
          <Table rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }} />}
       </Card>

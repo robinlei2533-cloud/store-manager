@@ -32,9 +32,9 @@ const FanDetailPage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/fans/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Fans</Button>
-      <Card title="Fan Detail">
+      <Card className="liquid-glass" title="Fan Detail">
         <Descriptions column={2} bordered>
           <Descriptions.Item label="Name">{fan?.profiles?.name || `Fan #${fan?.id?.slice(0, 6)}`}</Descriptions.Item>
           <Descriptions.Item label="Store">{fan?.stores?.name || '-'}</Descriptions.Item>
@@ -48,7 +48,7 @@ const FanDetailPage = () => {
           { key: 'level', label: 'Level Info', children: (
             <div>
               {levelRules.map(r => (
-                <Card key={r.id} size="small" style={{ marginBottom: 8, border: r.level === fan?.level ? '2px solid #1677ff' : '1px solid #eee' }}>
+                <Card key={r.id} size="small" className="liquid-glass" style={{ marginBottom: 8, border: r.level === fan?.level ? '2px solid #FFD700' : '1px solid rgba(255,215,0,0.2)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div><Tag color={levelMap[r.level]?.color}>{levelMap[r.level]?.label}</Tag> {r.min_points}+ points</div>
                     <span style={{ color: '#666' }}>{r.benefits}</span>

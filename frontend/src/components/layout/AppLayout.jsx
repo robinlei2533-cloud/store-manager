@@ -150,11 +150,11 @@ const AppLayout = () => {
       justifyContent: 'center',
       fontWeight: 800,
       textShadow: '0 0 20px rgba(255,215,0,0.15)',
-      color: token.colorPrimary,
-      borderBottom: `1px solid ${token.colorBorderSecondary}`,
+      background: 'transparent',
+      borderBottom: '1px solid rgba(255,215,0,0.06)',
     }}>
-      <div className="layout-brand"><ShinyText speed={4}>UWELL CRM</ShinyText></div>
-      <div style={{ fontSize: 11, color: token.colorTextTertiary, fontWeight: 500, marginTop: 3 }}>
+      <div className="layout-brand"><span className="text-gold-gradient"><ShinyText speed={4}>UWELL CRM</ShinyText></span></div>
+      <div className="text-gold-gradient" style={{ fontSize: 11, fontWeight: 500, marginTop: 3 }}>
         {t('app_subtitle')}
       </div>
     </div>
@@ -168,6 +168,7 @@ const AppLayout = () => {
       items={menuItems}
       onClick={handleMenuClick}
       style={{ borderRight: 0, marginTop: 8, padding: '0 8px' }}
+      theme="dark"
     />
   );
 
@@ -192,7 +193,7 @@ const AppLayout = () => {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           width={280}
-          styles={{ body: { padding: 0, background: token.colorBgContainer } }}
+          styles={{ body: { padding: 0, background: '#000000' } }}
         >
           {brandBlock}
           {menu}
@@ -201,12 +202,10 @@ const AppLayout = () => {
 
       <Layout>
         <Header style={{
-          background: 'linear-gradient(135deg, #16161f 0%, #1a1a24 100%)',
           padding: isMobile ? '0 12px' : '0 24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          borderBottom: `1px solid ${token.colorBorderSecondary}`,
           gap: 8,
           position: 'sticky',
           top: 0,
@@ -229,11 +228,11 @@ const AppLayout = () => {
             </Button>
           </Dropdown></div>
         </Header>
-        <Content ref={contentRef} style={{
+        <Content ref={contentRef} className="bg-radial-top" style={{
           margin: isMobile ? 8 : 20,
           padding: isMobile ? 12 : 24,
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadiusLG,
+          background: 'transparent',
+          borderRadius: 12,
           overflow: 'auto',
           boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
         }}>
@@ -252,6 +251,7 @@ const AppLayout = () => {
 };
 
 export default AppLayout;
+
 
 
 

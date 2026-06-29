@@ -37,7 +37,7 @@ const HowItWorksTab = () => {
 
   return (
     <div style={{ padding: '8px 0' }}>
-      <Card style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16, background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)' }}>
+      <Card className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <QuestionCircleOutlined style={{ fontSize: 48, color: '#667eea', marginBottom: 12 }} />
         <Title level={4}>How UWELL Fan Club Works</Title>
         <Text type="secondary">Everything you need to know about earning rewards</Text>
@@ -50,7 +50,7 @@ const HowItWorksTab = () => {
         </Card>
       ))}
 
-      <Card size="small" style={{ borderRadius: 12, background: '#f0f5ff', textAlign: 'center' }}>
+      <Card size="small" className='liquid-glass' style={{ borderRadius: 12, textAlign: 'center' }}>
         <Text style={{ fontSize: 13, color: '#666' }}>
           Need more help? Contact UWELL support on WhatsApp:
           <br />

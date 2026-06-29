@@ -40,6 +40,7 @@ function ensureSeed() {
 }
 
 const CommunityPage = () => {
+  return <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
   const profile = useAuthStore((s) => s.profile);
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
@@ -170,7 +171,7 @@ const CommunityPage = () => {
         {/* Left Column - Posts */}
         <Col xs={24} lg={16}>
           {/* Create Post */}
-          <Card style={{ marginBottom: 16 }}>
+          <Card className="liquid-glass" style={{ marginBottom: 16 }}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Space>
                 <Select
@@ -295,7 +296,7 @@ const CommunityPage = () => {
         <Col xs={24} lg={8}>
           <Space direction="vertical" style={{ width: '100%' }} size={16}>
             {/* Community Stats */}
-            <Card size="small" title="📊 Community Stats">
+            <Card className="liquid-glass" size="small" title="📊 Community Stats">
               <Row gutter={8}>
                 <Col span={8} style={{ textAlign: 'center' }}>
                   <Statistic title="Posts" value={totalPosts} valueStyle={{ fontSize: 20 }} />
@@ -310,7 +311,7 @@ const CommunityPage = () => {
             </Card>
 
             {/* Hot Topics */}
-            <Card size="small" title="🔥 Hot Topics">
+            <Card className="liquid-glass" size="small" title="🔥 Hot Topics">
               {hotTopics.length > 0 ? (
                 <List
                   size="small"
@@ -339,7 +340,7 @@ const CommunityPage = () => {
             </Card>
 
             {/* Active Users */}
-            <Card size="small" title="👥 Active Users">
+            <Card className="liquid-glass" size="small" title="👥 Active Users">
               {activeUsers.length > 0 ? (
                 <List
                   size="small"
@@ -367,4 +368,5 @@ const CommunityPage = () => {
   );
 };
 
+</div>
 export default CommunityPage;

@@ -425,7 +425,7 @@ const StoreOwnerPage = () => {
   ];
 
   return (
-    <div className="so-page">
+    <div className="so-page bg-radial-center">
       {/* Header */}
       <div className="so-flex-between-mb">
         <div>

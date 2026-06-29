@@ -73,7 +73,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
     <div style={{ padding: '8px 0' }}>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={12} sm={8}>
-          <Card size="small" style={{ textAlign: 'center', borderRadius: 16, background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)' }}>
+          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16 }}>
             <Statistic title="My Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ color: '#FFD700', fontWeight: 700 }} />
           </Card>
         </Col>
@@ -84,7 +84,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card size="small" style={{ textAlign: 'center', borderRadius: 16, background: '#f0f5ff' }}>
+          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16 }}>
             <Statistic title="Streak" value={checkinStreak} suffix="days" prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} valueStyle={{ color: '#ff4d4f' }} />
           </Card>
         </Col>
@@ -123,12 +123,12 @@ const CheckInTab = ({ fan, onPointsChange }) => {
           border: 'none',
         }}
       >
-        {todayChecked ? '✓ Checked In Today' : '🔥 Check In Now (+5 pts)'}
+        {todayChecked ? '�?Checked In Today' : '🔥 Check In Now (+5 pts)'}
       </Button>
 
       {/* Level progress */}
       {nextLevel && (
-        <Card size="small" style={{ marginTop: 16, borderRadius: 12 }}>
+        <Card size="small" className='liquid-glass' style={{ marginTop: 16, borderRadius: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <Text>{levelInfo.label}</Text>
             <Text type="secondary">{nextLevel.min_points - (fan?.points || 0)} pts to {nextLevel.label}</Text>

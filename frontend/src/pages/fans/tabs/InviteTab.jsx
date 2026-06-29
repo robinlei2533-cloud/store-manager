@@ -30,7 +30,7 @@ const InviteTab = ({ fan }) => {
 
   return (
     <div style={{ padding: '8px 0' }}>
-      <Card style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16, background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)' }}>
+      <Card className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <TeamOutlined style={{ fontSize: 56, color: '#667eea', marginBottom: 16 }} />
         <Title level={4}>Invite Friends, Earn 30 Points!</Title>
         <Paragraph type="secondary" style={{ fontSize: 13 }}>
@@ -38,7 +38,7 @@ const InviteTab = ({ fan }) => {
         </Paragraph>
       </Card>
 
-      <Card title="Your Referral Code" size="small" style={{ borderRadius: 12, marginBottom: 16 }}>
+      <Card title="Your Referral Code" size="small" className='liquid-glass' style={{ borderRadius: 12, marginBottom: 16 }}>
         <div style={{
           textAlign: 'center', padding: 16, background: '#f5f5f5', borderRadius: 12, marginBottom: 12,
           fontFamily: 'monospace', fontSize: 20, fontWeight: 700, letterSpacing: 2, color: '#667eea',
@@ -52,7 +52,7 @@ const InviteTab = ({ fan }) => {
 
       <Row gutter={16}>
         <Col span={12}>
-          <Card size="small" style={{ textAlign: 'center', borderRadius: 12 }}>
+          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 12 }}>
             <Statistic title="Friends Invited" value={inviteCount} prefix={<UserOutlined />} />
           </Card>
         </Col>
@@ -63,7 +63,7 @@ const InviteTab = ({ fan }) => {
         </Col>
       </Row>
 
-      <Card size="small" style={{ marginTop: 16, borderRadius: 12, background: '#fffbe6' }}>
+      <Card size="small" className='liquid-glass' style={{ marginTop: 16, borderRadius: 12 }}>
         <Text style={{ fontSize: 12, color: '#666' }}>
           💡 <strong>How it works:</strong> Your friend clicks the link, registers as a UWELL fan, and you both earn points. The more friends you invite, the more rewards you unlock!
         </Text>

@@ -165,12 +165,12 @@ const MapTab = ({ fan }) => {
         ))}
       </div>
 
-      <div style={{borderRadius:12,overflow:'hidden',border:'1px solid #2a2a35'}}>
+      <div className='liquid-glass' style={{borderRadius:12,overflow:'hidden'}}>
         <div ref={mapDiv} style={{width:'100%',height:400}} />
       </div>
 
       {selected && (
-        <Card size="small" style={{marginTop:10,background:'#1a1a25',borderColor:'#2a2a35'}}>
+        <Card size="small" className='liquid-glass' style={{marginTop:10}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
             <div>
               <Space>

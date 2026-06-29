@@ -38,7 +38,8 @@ const VisitListPage = () => {
 
   return (
     <PageTransition>
-    <Card className="crud-card" title="Visit Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/visits/create')}>New Visit</Button>}>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <Card className="crud-card liquid-glass" title="Visit Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/visits/create')}>New Visit</Button>}>
       <Space wrap style={{ marginBottom: 16 }}>
         <RangePicker value={dateRange} onChange={setDateRange} />
         <Select placeholder="Status" value={status} onChange={setStatus} allowClear style={{ width: 140 }} options={[
@@ -47,6 +48,7 @@ const VisitListPage = () => {
       </Space>
       <Table columns={columns} dataSource={visits} rowKey="id" loading={isLoading} locale={{ emptyText: <Empty description="No visits found" /> }} pagination={{ pageSize: 15, showTotal: (t) => `Total ${t} visits` }} scroll={{ x: 700 }} />
     </Card>
+    </div>
     </PageTransition>);
 };
 

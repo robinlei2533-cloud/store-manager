@@ -316,7 +316,7 @@ const InboundTab = () => {
           </Form.Item>
         </Form>
       </Card>
-      <Card title="Inbound History">
+      <Card className="liquid-glass" title="Inbound History">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
          <Table rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />}
       </Card>
@@ -366,7 +366,7 @@ const OutboundTab = () => {
 
   return (
     <div>
-      <Card title="New Requisition" style={{ marginBottom: 16 }}>
+      <Card className="liquid-glass" title="New Requisition" style={{ marginBottom: 16 }}>
         <Form form={form} layout="vertical" onFinish={async (v) => { await mutation.mutateAsync({ ...v, applicant_id: profile?.id || 'u-admin', status: 'pending' }); }} style={{ maxWidth: 500 }}>
           <Form.Item name="material_id" label="Material" rules={[{ required: true }]}>
             <Select placeholder="Select material" options={materials.map(m => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
@@ -381,7 +381,7 @@ const OutboundTab = () => {
           <Form.Item><Button type="primary" htmlType="submit" loading={mutation.isPending}>Submit Request</Button></Form.Item>
         </Form>
       </Card>
-      <Card title="Outbound Records">
+      <Card className="liquid-glass" title="Outbound Records">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
          <Table rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />}
       </Card>
@@ -394,7 +394,7 @@ const MaterialListPage = () => {
   const [activeTab, setActiveTab] = useState('catalog');
 
   return (
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}

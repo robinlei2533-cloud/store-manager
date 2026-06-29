@@ -1,10 +1,10 @@
-﻿/* UWELL Brand Tokens */
+/* UWELL Brand Tokens */
 :root {
   --uwell-gold: #FFD700;
   --uwell-gold-light: #FFF3B0;
   --uwell-gold-dark: #D4A800;
-  --uwell-bg-dark: #14141e;
-  --uwell-bg-card: #12121a;
+  --uwell-bg-dark: #000000;
+  --uwell-bg-card: #0a0a0f;
   --uwell-text-primary: #e5e5e5;
   --uwell-border: rgba(255,215,0,0.15);
   --uwell-shadow: 0 4px 24px rgba(0,0,0,0.3);
@@ -12,10 +12,10 @@
   --uwell-shadow-gold: 0 4px 24px rgba(255,215,0,0.15);
   --uwell-gold-glow: rgba(255,215,0,0.25);
   --uwell-gold-subtle: rgba(255,215,0,0.08);
-  --uwell-bg-darker: #06060a;
+  --uwell-bg-darker: #000000;
   --uwell-bg-card-hover: #1a1a28;
-  --uwell-bg-elevated: rgba(18,18,26,0.95);
-  --uwell-bg-overlay: rgba(0,0,0,0.7);
+  --uwell-bg-elevated: rgba(0,0,0,0.95);
+  --uwell-bg-overlay: rgba(0,0,0,0.8);
   --uwell-text-secondary: rgba(255,255,255,0.55);
   --uwell-text-tertiary: rgba(255,255,255,0.3);
   --uwell-text-inverse: #14141e;
@@ -49,8 +49,8 @@
   --uwell-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Glass tokens */
-  --uwell-glass-bg: rgba(255,255,255,0.03);
-  --uwell-glass-border: rgba(255,255,255,0.06);
+  --uwell-glass-bg: rgba(255,255,255,0.01);
+  --uwell-glass-border: rgba(255,215,0,0.08);
 
   /* Spring curve */
   --uwell-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -117,7 +117,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f5f7fb;
+  background: #000000;
 }
 
 * {
@@ -131,9 +131,9 @@ body {
   align-items: center;
   gap: 48px;
   padding: 48px clamp(24px, 7vw, 96px);
-  background:
-    linear-gradient(135deg, rgba(0, 87, 255, 0.08), rgba(22, 163, 74, 0.06)),
-    #f5f7fb;
+  background: #000000;
+
+
 }
 
 .staff-login-copy {
@@ -145,10 +145,11 @@ body {
   align-items: center;
   height: 32px;
   padding: 0 12px;
-  border: 1px solid rgba(0, 87, 255, 0.18);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
-  color: #0057ff;
-  background: rgba(255, 255, 255, 0.72);
+  color: #FFD700;
+  background: rgba(255, 215, 0, 0.06);
+  backdrop-filter: blur(4px);
   font-weight: 800;
   margin-bottom: 20px;
 }
@@ -158,17 +159,17 @@ body {
 .staff-login-copy .ant-typography {
   display: block;
   max-width: 560px;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.65);
   font-size: 16px;
   line-height: 1.8;
 }
 
 .staff-login-card {
   width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 12px;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
 }
+
+
+
 
 .login-icon {
   width: 56px;
@@ -177,10 +178,12 @@ body {
   align-items: center;
   justify-content: center;
   margin-bottom: 14px;
-  border-radius: 12px;
-  color: #0057ff;
-  background: #eef4ff;
+  border-radius: 50%;
+  color: #FFD700;
+  background: rgba(255, 215, 0, 0.08);
   font-size: 26px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 215, 0, 0.15);
 }
 
 .fan-entry-page {
@@ -191,9 +194,9 @@ body {
   justify-content: center;
   padding: 40px 20px 96px;
   overflow: hidden;
-  background:
-    linear-gradient(140deg, rgba(4, 12, 31, 0.96), rgba(10, 32, 80, 0.92)),
-    #06111f;
+  background: #000000;
+
+
 }
 
 .fan-entry-bg {
@@ -1202,3 +1205,4 @@ body {
 /* ===== Statistic Card ===== */
 .ant-statistic-title { color: var(--uwell-text-tertiary) !important; font-size: 12px !important; }
 .ant-statistic-content { font-size: 22px !important; font-weight: 700 !important; }
+

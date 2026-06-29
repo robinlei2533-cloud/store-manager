@@ -48,9 +48,9 @@ const CampaignCreatePage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back</Button>
-      <Card title={id ? 'Edit Campaign' : 'New Campaign'}>
+      <Card className="liquid-glass" title={id ? 'Edit Campaign' : 'New Campaign'}>
         <Form form={form} layout="vertical" style={{ maxWidth: 700 }}>
           <Form.Item name="name" label="Campaign Name" rules={[{ required: true, message: 'Required' }]}><Input placeholder="e.g. Summer Promotion" /></Form.Item>
           <Form.Item name="type" label="Type"><Select options={CAMPAIGN_TYPES.map(t => ({ label: t, value: t }))} /></Form.Item>

@@ -91,9 +91,9 @@ const VisitCreatePage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/visits/list')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Visits</Button>
-      <Card title={id ? 'Edit Visit' : 'New Visit'}>
+      <Card className="liquid-glass" title={id ? 'Edit Visit' : 'New Visit'}>
         <Form form={form} layout="vertical">
           <Form.Item name="store_id" label="Store" rules={[{ required: true, message: 'Please select a store' }]}>
             <Select placeholder="Select store" showSearch optionFilterProp="label" options={stores.map(s => ({ label: s.name, value: s.id }))}
@@ -112,7 +112,7 @@ const VisitCreatePage = () => {
             />
           </Form.Item>
           {selectedStoreCampaigns.length > 0 && (
-            <Card size="small" title="🎯 Active Campaign Deliveries" style={{marginBottom:16,background:"#fffbe6",borderColor:"#FFD700",borderRadius:12}}>
+            <Card className="liquid-glass" size="small" title="🎯 Active Campaign Deliveries" style={{marginBottom:16,background:"#fffbe6",borderColor:"#FFD700",borderRadius:12}}>
               {selectedStoreCampaigns.map((cl, idx) => (
                 <div key={idx} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:idx < selectedStoreCampaigns.length-1 ? "1px solid rgba(255,215,0,0.15)" : "none"}}>
                   <div>

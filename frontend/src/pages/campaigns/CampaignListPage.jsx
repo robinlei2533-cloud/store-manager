@@ -21,8 +21,8 @@ const CampaignListPage = () => {
 
   return (
     <PageTransition>
-    <div>
-      <Card className="crud-card" title="Campaign Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/campaigns/create')}>New Campaign</Button>} style={{ marginBottom: 16 }}>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+      <Card className="crud-card liquid-glass" title="Campaign Management" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/campaigns/create')}>New Campaign</Button>} style={{ marginBottom: 16 }}>
         <Tabs activeKey={statusFilter || 'all'} onChange={(k) => setStatusFilter(k === 'all' ? undefined : k)} items={[
           { key: 'all', label: 'All' }, { key: 'planned', label: 'Planned' }, { key: 'ongoing', label: 'Ongoing' }, { key: 'completed', label: 'Completed' },
         ]} />
@@ -37,7 +37,7 @@ const CampaignListPage = () => {
            const doneTasks = c.tasks?.filter(t => t.status === 'done').length || 0;
            return (
              <Col xs={24} sm={12} lg={8} key={c.id}>
-               <Card hoverable onClick={() => navigate(`/campaigns/${c.id}`)} title={<span>{c.name}</span>} extra={<Badge status={c.status === 'ongoing' ? 'processing' : c.status === 'planned' ? 'default' : 'success'} text={<Tag color={statusConfig[c.status]?.color}>{statusConfig[c.status]?.text}</Tag>} />}>
+               <Card className="liquid-glass" hoverable onClick={() => navigate(`/campaigns/${c.id}`)} title={<span>{c.name}</span>} extra={<Badge status={c.status === 'ongoing' ? 'processing' : c.status === 'planned' ? 'default' : 'success'} text={<Tag color={statusConfig[c.status]?.color}>{statusConfig[c.status]?.text}</Tag>} />}>
                  <p style={{ color: '#666', fontSize: 13, marginBottom: 8 }}>{c.type}</p>
                  <p style={{ marginBottom: 8 }}><Text type="secondary">{c.start_date} ~ {c.end_date}</Text></p>
                  <p style={{ fontSize: 13, color: '#999', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.description}</p>

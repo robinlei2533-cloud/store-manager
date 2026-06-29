@@ -141,7 +141,7 @@ const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
   return (
     <div ref={cardRef} className="dash-stat-card liquid-glass">
       <div className="dash-stat-icon" style={{ color }}>{icon}</div>
-      <div className="dash-stat-value">
+      <div className="dash-stat-value text-gold-gradient">
         {typeof value === 'number' ? animatedValue.toLocaleString() : value}
       </div>
       <div className="dash-stat-label">{label}</div>
@@ -258,7 +258,7 @@ const DashboardPage = () => {
   return (
     <div>
       <Title level={4} className="dash-section">
-        <RiseOutlined /> Dashboard
+        <span className="text-gold-gradient"><RiseOutlined /> Dashboard</span>
         <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>Welcome back, {profile?.name || 'User'}</Text>
       </Title>
 
@@ -277,7 +277,7 @@ const DashboardPage = () => {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={14}>
-          <Card title={<><CameraOutlined /> 30-Day Visit Trend</>}>
+          <Card title={<><CameraOutlined /> <span className="text-gold-gradient">30-Day Visit Trend</span></>}>
             {trendLoading ? <div className="dash-loading"><Spin /></div> :
              trendData?.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -293,7 +293,7 @@ const DashboardPage = () => {
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card title={<><StarOutlined /> Store Level Distribution</>}>
+          <Card title={<><StarOutlined /> <span className="text-gold-gradient">Store Level Distribution</span></>}>
             {levelPieData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -350,7 +350,7 @@ const DashboardPage = () => {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
-          <Card title={<><ThunderboltOutlined /> Campaign Overview</>}>
+          <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">Campaign Overview</span></>}>
             {campaignsLoading ? <div className="dash-loading-sm"><Spin /></div> :
              campaigns?.length > 0 ? (
               <List size="small" dataSource={campaigns.slice(0, 5)} renderItem={(c) => (
@@ -362,7 +362,7 @@ const DashboardPage = () => {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title={<><WarningOutlined /> Low Stock Alerts</>}>
+          <Card title={<><WarningOutlined /> <span className="text-gold-gradient">Low Stock Alerts</span></>}>
             {stockLoading ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div> :
              lowStockItems.length > 0 ? (
               <List size="small" dataSource={lowStockItems} renderItem={(item) => (
@@ -377,12 +377,12 @@ const DashboardPage = () => {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>
-          <Card title={<><CameraOutlined /> Recent Visits</>}>
+          <Card title={<><CameraOutlined /> <span className="text-gold-gradient">Recent Visits</span></>}>
             <Table columns={recentVisitColumns} dataSource={recentVisits?.slice(0, 8) || []} rowKey="id" loading={visitsLoading} pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: 'No visit records' }} />
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card title={<><QrcodeOutlined /> Recent Scans</>}>
+          <Card title={<><QrcodeOutlined /> <span className="text-gold-gradient">Recent Scans</span></>}>
             {scansLoading ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div> :
              scanRecords?.length > 0 ? (
               <List size="small" dataSource={scanRecords.slice(0, 8)} renderItem={(r) => (
@@ -415,7 +415,7 @@ const DashboardPage = () => {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
-          <Card title={<><TeamOutlined /> Rep Performance (Visit Count)</>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repStatsArray, "rep-performance.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Rep", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
+          <Card title={<><TeamOutlined /> <span className="text-gold-gradient">Rep Performance (Visit Count)</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repStatsArray, "rep-performance.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Rep", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
             {repStatsArray.length > 0 ? (
               <Table columns={[
                 { title: 'Rank', key: 'rank', width: 60, render: (_, __, i) => i + 1 },
@@ -426,7 +426,7 @@ const DashboardPage = () => {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title={<><StarOutlined /> Top Visited Stores</>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(topStoresArray, "top-stores.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Store", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
+          <Card title={<><StarOutlined /> <span className="text-gold-gradient">Top Visited Stores</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(topStoresArray, "top-stores.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Store", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
             {topStoresArray.length > 0 ? (
               <Table columns={[
                 { title: 'Rank', key: 'rank', width: 60, render: (_, __, i) => i + 1 },

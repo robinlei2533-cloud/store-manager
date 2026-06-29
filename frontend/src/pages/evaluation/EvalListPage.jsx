@@ -32,14 +32,14 @@ const EvalListPage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} sm={12} md={6}><Card size="small"><Statistic title="Avg Score" value={avgScore} suffix="/60" prefix={<StarOutlined />} /></Card></Col>
-        <Col xs={12} sm={12} md={6}><Card size="small"><Statistic title="Level A" value={aCount} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-        <Col xs={12} sm={12} md={6}><Card size="small"><Statistic title="Level B" value={bCount} valueStyle={{ color: '#1890ff' }} /></Card></Col>
-        <Col xs={12} sm={12} md={6}><Card size="small"><Statistic title="Level C" value={cCount} valueStyle={{ color: '#faad14' }} /></Card></Col>
+        <Col xs={12} sm={12} md={6}><Card className="liquid-glass" size="small"><Statistic title="Avg Score" value={avgScore} suffix="/60" prefix={<StarOutlined />} /></Card></Col>
+        <Col xs={12} sm={12} md={6}><Card className="liquid-glass" size="small"><Statistic title="Level A" value={aCount} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col xs={12} sm={12} md={6}><Card className="liquid-glass" size="small"><Statistic title="Level B" value={bCount} valueStyle={{ color: '#1890ff' }} /></Card></Col>
+        <Col xs={12} sm={12} md={6}><Card className="liquid-glass" size="small"><Statistic title="Level C" value={cCount} valueStyle={{ color: '#faad14' }} /></Card></Col>
       </Row>
-      <Card className="crud-card" title="Store Evaluation" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/evaluation/create')}>New Evaluation</Button>}>
+      <Card className="crud-card liquid-glass" title="Store Evaluation" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/evaluation/create')}>New Evaluation</Button>}>
         <Space wrap style={{ marginBottom: 16 }}>
           <Input placeholder="Search store" prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} allowClear style={{ width: 200 }} />
           <Select placeholder="Level" value={level} onChange={setLevel} allowClear style={{ width: 120 }} options={[{ label: 'A', value: 'A' }, { label: 'B', value: 'B' }, { label: 'C', value: 'C' }]} />

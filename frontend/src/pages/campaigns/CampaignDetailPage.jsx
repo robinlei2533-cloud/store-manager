@@ -90,9 +90,9 @@ const CampaignDetailPage = () => {
 
   return (
     <PageTransition>
-    <div>
+    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
-      <Card title={campaign.name} extra={<Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>}>
+      <Card className="liquid-glass" title={campaign.name} extra={<Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>}>
         <Descriptions column={3} bordered>
           <Descriptions.Item label="Type">{campaign.type}</Descriptions.Item>
           <Descriptions.Item label="Start">{campaign.start_date}</Descriptions.Item>
@@ -148,13 +148,13 @@ const CampaignDetailPage = () => {
           { key: 'report', label: 'Review Report', children: campaign.report ? (
             <div>
               <Row gutter={16} style={{ marginBottom: 16 }}>
-                <Col span={6}><Card size="small"><Statistic title="Total Sales" value={campaign.report.total_sales || 0} prefix="$" /></Card></Col>
-                <Col span={6}><Card size="small"><Statistic title="Total Visits" value={campaign.report.total_visits || 0} /></Card></Col>
-                <Col span={6}><Card size="small"><Statistic title="Total Scans" value={campaign.report.total_scans || 0} /></Card></Col>
-                <Col span={6}><Card size="small"><Statistic title="Achievement" value={campaign.report.achievement_rate || 0} suffix="%" /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Sales" value={campaign.report.total_sales || 0} prefix="$" /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Visits" value={campaign.report.total_visits || 0} /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Scans" value={campaign.report.total_scans || 0} /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Achievement" value={campaign.report.achievement_rate || 0} suffix="%" /></Card></Col>
               </Row>
-              <Card title="Summary" size="small" style={{ marginBottom: 8 }}><p>{campaign.report.summary}</p></Card>
-              <Card title="Improvements" size="small"><p>{campaign.report.improvements}</p></Card>
+              <Card className="liquid-glass" title="Summary" size="small" style={{ marginBottom: 8 }}><p>{campaign.report.summary}</p></Card>
+              <Card className="liquid-glass" title="Improvements" size="small"><p>{campaign.report.improvements}</p></Card>
               <Button type="link" onClick={() => { reportForm.setFieldsValue(campaign.report); setReportModalOpen(true); }}>Edit Report</Button>
             </div>
           ) : (

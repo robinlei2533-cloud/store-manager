@@ -36,7 +36,8 @@ const AuditLogPage = () => {
   if (IS_LOCAL_MODE) {
     return (
       <PageTransition>
-        <Card title={<><DatabaseOutlined /> Audit Log</>}>
+        <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+        <Card className="liquid-glass" title={<><DatabaseOutlined /> Audit Log</>}>
           <Alert
             type="info"
             message="Local Demo Mode"
@@ -44,6 +45,7 @@ const AuditLogPage = () => {
             showIcon
           />
         </Card>
+      </div>
       </PageTransition>
     );
   }

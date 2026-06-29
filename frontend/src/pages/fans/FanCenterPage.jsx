@@ -109,13 +109,13 @@ const FanCenterPage = () => {
   const levelInfo = FAN_LEVELS.find((l) => l.value === currentFan.level) || FAN_LEVELS[0];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#14141e', paddingBottom: 24, position: 'relative' }}>
+    <div className='bg-radial-center' style={{ minHeight: '100vh', background: '#000000', paddingBottom: 24, position: 'relative' }}>
       {/* Decorative glow */}
       <div style={{position:'fixed',top:'-20%',right:'-10%',width:500,height:500,borderRadius:'50%',background:'radial-gradient(circle,rgba(212,168,0,0.06) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
       <div style={{position:'fixed',bottom:'-10%',left:'-5%',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 70%)',pointerEvents:'none',zIndex:0}} />
       {/* Top Bar */}
       <div style={{
-        background: 'linear-gradient(135deg, #14141e 0%, #1a1a0f 50%, #2a2a0f 100%)',
+        background: '#000000',
         padding: '16px 20px', color: '#fff', position: 'sticky', top: 0, zIndex: 100,
         boxShadow: '0 2px 12px rgba(0,0,0,0.15)', borderBottom: '1px solid rgba(255,215,0,0.08)',
       }}>

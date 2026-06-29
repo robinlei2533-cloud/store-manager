@@ -39,7 +39,7 @@ const MallTab = ({ fan, onPointsChange }) => {
 
   return (
     <div style={{ padding: '8px 0' }}>
-      <Card size="small" style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16, background: 'linear-gradient(135deg, #52c41a10 0%, #389e0d10 100%)' }}>
+      <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <Statistic title="Available Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ fontSize: 28, fontWeight: 700, color: '#FFD700' }} />
       </Card>
 
@@ -63,7 +63,7 @@ const MallTab = ({ fan, onPointsChange }) => {
             <Card
               size="small"
               hoverable
-              style={{ borderRadius: 16, textAlign: 'center', overflow: 'hidden' }}
+              className='liquid-glass' style={{ borderRadius: 16, textAlign: 'center', overflow: 'hidden' }}
               cover={
                 <div style={{
                   height: 100, background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
