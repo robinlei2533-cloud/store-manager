@@ -1,0 +1,101 @@
+{
+  "data": [
+    {
+      "id": "page-fan-entry",
+      "title": "粉丝入口",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/fan-entry.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-fan-center",
+      "title": "粉丝中心首页",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/fan-center.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-checkin-points",
+      "title": "签到积分",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 1240,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/checkin-points.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-membership",
+      "title": "会员等级",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 1860,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/membership.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "image-001",
+      "title": "粉丝入口主视觉",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 0,
+        "y": 577
+      },
+      "devMetadata": {
+        "imageSrc": "assets/hero-fan-entry.jpg"
+      }
+    },
+    {
+      "id": "image-002",
+      "title": "粉丝中心头图",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 620,
+        "y": 577
+      },
+      "devMetadata": {
+        "imageSrc": "assets/hero-fan-center.jpg"
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "UWELL 粉丝端"
+  }
+}

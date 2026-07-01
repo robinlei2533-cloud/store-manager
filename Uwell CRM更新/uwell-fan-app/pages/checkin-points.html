@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签到积分</title>
+    <style id="theme-vars">
+:root {
+  /* === UWELL Brand Colors === */
+  --color-brand-primary: #FFD700;
+  --color-brand-primary-light: #FFE44D;
+  --color-brand-primary-dark: #F5A623;
+  --color-brand-deep: #0a0a0f;
+  --color-brand-surface: #1a1a2e;
+  --color-brand-card: rgba(255, 255, 255, 0.04);
+  --color-brand-glass: rgba(255, 255, 255, 0.06);
+  --color-brand-border: rgba(255, 255, 255, 0.08);
+  --color-brand-border-gold: rgba(255, 215, 0, 0.2);
+
+  /* === Neutral Scale === */
+  --color-neutral-0: #000000;
+  --color-neutral-50: rgba(255, 255, 255, 0.06);
+  --color-neutral-100: rgba(255, 255, 255, 0.1);
+  --color-neutral-200: rgba(255, 255, 255, 0.2);
+  --color-neutral-300: rgba(255, 255, 255, 0.35);
+  --color-neutral-400: rgba(255, 255, 255, 0.5);
+  --color-neutral-500: rgba(255, 255, 255, 0.6);
+  --color-neutral-600: rgba(255, 255, 255, 0.7);
+  --color-neutral-700: rgba(255, 255, 255, 0.85);
+  --color-neutral-800: rgba(255, 255, 255, 0.92);
+  --color-neutral-900: #ffffff;
+
+  /* === State Colors === */
+  --state-success: #00b894;
+  --state-warning: #fdcb6e;
+  --state-error: #e17055;
+  --state-info: #457bff;
+
+  /* === Typography === */
+  --font-display: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* === Type Scale === */
+  --text-xs: 0.6875rem;    /* 11px */
+  --text-sm: 0.75rem;      /* 12px */
+  --text-base: 0.875rem;   /* 14px */
+  --text-md: 1rem;         /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+  --text-5xl: 3rem;        /* 48px */
+
+  /* === Font Weights === */
+  --weight-normal: 400;
+  --weight-medium: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* === Line Heights === */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* === Letter Spacing === */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+
+  /* === Radius Scale === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Spacing === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.15);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* === Body Base === */
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-neutral-900);
+  background-color: var(--color-brand-deep);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Gradient Utilities === */
+.gradient-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%);
+}
+
+.gradient-gold-text {
+  background: linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-blue-text {
+  background: linear-gradient(135deg, #457bff, #6c5ce7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === Glass Effect === */
+.glass {
+  background: var(--color-brand-glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-brand-border);
+}
+
+.glass-strong {
+  background: rgba(20, 20, 30, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* === Background Radial === */
+.bg-radial-center {
+  background: radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%);
+}
+
+.bg-radial-top {
+  background: radial-gradient(ellipse at 50% -20%, #1a1a2e 0%, #0a0a0f 50%, #000 100%);
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.2); border-radius: 2px; }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--color-brand-primary);
+    --color-primary-light: var(--color-brand-primary-light);
+    --color-primary-dark: var(--color-brand-primary-dark);
+    --color-background: var(--color-brand-deep);
+    --color-foreground: var(--color-neutral-900);
+    --color-card: var(--color-brand-card);
+    --color-muted: var(--color-neutral-300);
+    --color-border: var(--color-brand-border);
+  }
+  @layer base {
+    body { background: var(--color-background); color: var(--color-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="min-h-screen bg-radial-top pb-24">
+
+      <!-- ===== Header ===== -->
+      <header class="sticky top-0 z-50 flex items-center justify-between px-5 py-4 glass-strong">
+        <button class="flex items-center justify-center w-9 h-9 rounded-full" style="background: var(--color-brand-glass); border: 1px solid var(--color-brand-border);">
+          <i data-icon="chevron-left" style="width: 20px; height: 20px; color: var(--color-neutral-700);"></i>
+        </button>
+        <h1 class="text-lg font-semibold tracking-tight" style="color: var(--color-neutral-900);">签到积分</h1>
+        <button class="flex items-center justify-center w-9 h-9 rounded-full" style="background: var(--color-brand-glass); border: 1px solid var(--color-brand-border);">
+          <i data-icon="bell" style="width: 18px; height: 18px; color: var(--color-neutral-500);"></i>
+        </button>
+      </header>
+
+      <div class="px-5 pt-2">
+
+        <!-- ===== Check-in Calendar Section ===== -->
+        <section class="mt-4">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold" style="color: var(--color-neutral-900);">本周签到</h2>
+            <span class="text-xs font-medium px-2.5 py-1 rounded-full" style="color: var(--color-brand-primary); background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.15);">连续 7 天</span>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1.5">
+            <!-- Mon - completed -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl" style="background: var(--color-brand-glass); border: 1px solid rgba(255, 215, 0, 0.12);">
+              <span class="text-xs" style="color: var(--color-neutral-500);">一</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+            <!-- Tue - completed -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl" style="background: var(--color-brand-glass); border: 1px solid rgba(255, 215, 0, 0.12);">
+              <span class="text-xs" style="color: var(--color-neutral-500);">二</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+            <!-- Wed - completed -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl" style="background: var(--color-brand-glass); border: 1px solid rgba(255, 215, 0, 0.12);">
+              <span class="text-xs" style="color: var(--color-neutral-500);">三</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+            <!-- Thu - completed -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl" style="background: var(--color-brand-glass); border: 1px solid rgba(255, 215, 0, 0.12);">
+              <span class="text-xs" style="color: var(--color-neutral-500);">四</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+            <!-- Fri - completed -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl" style="background: var(--color-brand-glass); border: 1px solid rgba(255, 215, 0, 0.12);">
+              <span class="text-xs" style="color: var(--color-neutral-500);">五</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+            <!-- Sat - completed -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl" style="background: var(--color-brand-glass); border: 1px solid rgba(255, 215, 0, 0.12);">
+              <span class="text-xs" style="color: var(--color-neutral-500);">六</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+            <!-- Sun - TODAY highlighted with gold -->
+            <div class="flex flex-col items-center gap-1.5 py-3 rounded-xl relative" style="background: rgba(255, 215, 0, 0.08); border: 1.5px solid var(--color-brand-primary); box-shadow: 0 0 16px rgba(255, 215, 0, 0.15);">
+              <span class="text-xs font-semibold" style="color: var(--color-brand-primary);">日</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center gradient-gold">
+                <i data-icon="check" style="width: 14px; height: 14px; color: #000;"></i>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Check-in Button ===== -->
+        <section class="mt-6">
+          <button class="w-full py-4 rounded-2xl gradient-gold flex flex-col items-center gap-1.5 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(255, 215, 0, 0.25);">
+            <span class="text-base font-bold tracking-wide" style="color: #000;">今日已签到</span>
+            <span class="text-xs" style="color: rgba(0, 0, 0, 0.55);">已连续签到 7 天，再签 3 天可领取额外奖励</span>
+          </button>
+        </section>
+
+        <!-- ===== Points Summary Card ===== -->
+        <section class="mt-8">
+          <div class="rounded-2xl p-5 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.06) 0%, rgba(255, 215, 0, 0.02) 100%); border: 1px solid rgba(255, 215, 0, 0.12);">
+            <!-- decorative glow -->
+            <div class="absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-20" style="background: radial-gradient(circle, #FFD700 0%, transparent 70%);"></div>
+            <div class="flex items-center gap-2 mb-4">
+              <i data-icon="sparkles" style="width: 18px; height: 18px; color: var(--color-brand-primary);"></i>
+              <h2 class="text-base font-semibold" style="color: var(--color-neutral-900);">我的积分</h2>
+            </div>
+
+            <div class="flex items-end gap-1 mb-5">
+              <span class="font-bold gradient-gold-text" style="font-size: 2.5rem; line-height: 1;">2,580</span>
+              <span class="text-sm mb-1" style="color: var(--color-neutral-500);">积分</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-xl p-3.5" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <i data-icon="trending-up" style="width: 14px; height: 14px; color: var(--state-success);"></i>
+                  <span class="text-xs" style="color: var(--color-neutral-500);">本月获得</span>
+                </div>
+                <span class="text-lg font-bold" style="color: var(--color-neutral-900);">+320</span>
+              </div>
+              <div class="rounded-xl p-3.5" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <i data-icon="gift" style="width: 14px; height: 14px; color: var(--color-brand-primary);"></i>
+                  <span class="text-xs" style="color: var(--color-neutral-500);">可兑换</span>
+                </div>
+                <span class="text-lg font-bold" style="color: var(--color-neutral-900);">1,200</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Points History ===== -->
+        <section class="mt-8">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold" style="color: var(--color-neutral-900);">积分明细</h2>
+            <button class="text-xs" style="color: var(--color-brand-primary);">查看全部</button>
+          </div>
+
+          <div class="rounded-2xl overflow-hidden" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+
+            <!-- Item 1 -->
+            <div class="flex items-center justify-between px-4 py-3.5" style="border-bottom: 1px solid var(--color-brand-border);">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(255, 215, 0, 0.08);">
+                  <i data-icon="calendar-check" style="width: 16px; height: 16px; color: var(--color-brand-primary);"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium" style="color: var(--color-neutral-800);">每日签到</p>
+                  <p class="text-xs mt-0.5" style="color: var(--color-neutral-400);">06-30 09:12</p>
+                </div>
+              </div>
+              <span class="text-sm font-semibold" style="color: var(--state-success);">+10</span>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="flex items-center justify-between px-4 py-3.5" style="border-bottom: 1px solid var(--color-brand-border);">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(69, 123, 255, 0.1);">
+                  <i data-icon="scan-line" style="width: 16px; height: 16px; color: var(--state-info);"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium" style="color: var(--color-neutral-800);">扫码验证</p>
+                  <p class="text-xs mt-0.5" style="color: var(--color-neutral-400);">06-28 14:35</p>
+                </div>
+              </div>
+              <span class="text-sm font-semibold" style="color: var(--state-success);">+50</span>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="flex items-center justify-between px-4 py-3.5" style="border-bottom: 1px solid var(--color-brand-border);">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(225, 112, 85, 0.1);">
+                  <i data-icon="shopping-bag" style="width: 16px; height: 16px; color: var(--state-error);"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium" style="color: var(--color-neutral-800);">积分兑换</p>
+                  <p class="text-xs mt-0.5" style="color: var(--color-neutral-400);">06-25 10:20</p>
+                </div>
+              </div>
+              <span class="text-sm font-semibold" style="color: var(--state-error);">-500</span>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(0, 184, 148, 0.1);">
+                  <i data-icon="user-plus" style="width: 16px; height: 16px; color: var(--state-success);"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium" style="color: var(--color-neutral-800);">邀请好友</p>
+                  <p class="text-xs mt-0.5" style="color: var(--color-neutral-400);">06-22 16:48</p>
+                </div>
+              </div>
+              <span class="text-sm font-semibold" style="color: var(--state-success);">+100</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== Redeem Section ===== -->
+        <section class="mt-8 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold" style="color: var(--color-neutral-900);">热门兑换</h2>
+            <button class="text-xs" style="color: var(--color-brand-primary);">更多奖品</button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+
+            <!-- Reward 1 -->
+            <div class="rounded-xl overflow-hidden relative" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+              <div class="aspect-square flex items-center justify-center" style="background: linear-gradient(160deg, rgba(255, 215, 0, 0.06) 0%, rgba(255, 215, 0, 0.01) 100%);">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.15);">
+                  <i data-icon="shirt" style="width: 24px; height: 24px; color: var(--color-brand-primary);"></i>
+                </div>
+              </div>
+              <div class="p-2.5">
+                <p class="text-xs font-medium leading-tight" style="color: var(--color-neutral-800);">UWELL 限定周边</p>
+                <p class="text-xs font-bold mt-1" style="color: var(--color-brand-primary);">800 积分</p>
+              </div>
+            </div>
+
+            <!-- Reward 2 -->
+            <div class="rounded-xl overflow-hidden relative" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+              <div class="aspect-square flex items-center justify-center" style="background: linear-gradient(160deg, rgba(69, 123, 255, 0.06) 0%, rgba(69, 123, 255, 0.01) 100%);">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(69, 123, 255, 0.1); border: 1px solid rgba(69, 123, 255, 0.15);">
+                  <i data-icon="zap" style="width: 24px; height: 24px; color: var(--state-info);"></i>
+                </div>
+              </div>
+              <div class="p-2.5">
+                <p class="text-xs font-medium leading-tight" style="color: var(--color-neutral-800);">换弹套装</p>
+                <p class="text-xs font-bold mt-1" style="color: var(--color-brand-primary);">500 积分</p>
+              </div>
+            </div>
+
+            <!-- Reward 3 -->
+            <div class="rounded-xl overflow-hidden relative" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+              <div class="aspect-square flex items-center justify-center" style="background: linear-gradient(160deg, rgba(0, 184, 148, 0.06) 0%, rgba(0, 184, 148, 0.01) 100%);">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background: rgba(0, 184, 148, 0.1); border: 1px solid rgba(0, 184, 148, 0.15);">
+                  <i data-icon="package" style="width: 24px; height: 24px; color: var(--state-success);"></i>
+                </div>
+              </div>
+              <div class="p-2.5">
+                <p class="text-xs font-medium leading-tight" style="color: var(--color-neutral-800);">品牌礼盒</p>
+                <p class="text-xs font-bold mt-1" style="color: var(--color-brand-primary);">1,200 积分</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ===== Bottom Navigation ===== -->
+      <nav class="fixed bottom-0 left-0 right-0 z-50 glass-strong">
+        <div class="grid grid-cols-4 gap-1 px-2 pt-2 pb-5">
+          <button class="flex flex-col items-center gap-1 py-1.5">
+            <i data-icon="home" style="width: 20px; height: 20px; color: var(--color-neutral-400);"></i>
+            <span class="text-xs" style="color: var(--color-neutral-400);">首页</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 py-1.5 relative">
+            <div class="absolute -top-1 w-8 h-0.5 rounded-full gradient-gold"></div>
+            <i data-icon="calendar-check" style="width: 20px; height: 20px; color: var(--color-brand-primary);"></i>
+            <span class="text-xs font-medium" style="color: var(--color-brand-primary);">签到</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 py-1.5">
+            <i data-icon="crown" style="width: 20px; height: 20px; color: var(--color-neutral-400);"></i>
+            <span class="text-xs" style="color: var(--color-neutral-400);">会员</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 py-1.5">
+            <i data-icon="user" style="width: 20px; height: 20px; color: var(--color-neutral-400);"></i>
+            <span class="text-xs" style="color: var(--color-neutral-400);">我的</span>
+          </button>
+        </div>
+      </nav>
+
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

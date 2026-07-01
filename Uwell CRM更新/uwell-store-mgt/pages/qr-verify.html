@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫码验证</title>
+    <style id="theme-vars">
+:root {
+  /* === UWELL Brand Colors (Store Management Variant) === */
+  --color-brand-primary: #FFD700;
+  --color-brand-primary-light: #FFE44D;
+  --color-brand-primary-dark: #F5A623;
+  --color-brand-deep: #0a0a0f;
+  --color-brand-surface: #12121e;
+  --color-brand-card: rgba(255, 255, 255, 0.04);
+  --color-brand-glass: rgba(255, 255, 255, 0.06);
+  --color-brand-border: rgba(255, 255, 255, 0.08);
+  --color-brand-border-gold: rgba(255, 215, 0, 0.2);
+
+  /* === Neutral Scale === */
+  --color-neutral-0: #000000;
+  --color-neutral-50: rgba(255, 255, 255, 0.06);
+  --color-neutral-100: rgba(255, 255, 255, 0.1);
+  --color-neutral-200: rgba(255, 255, 255, 0.2);
+  --color-neutral-300: rgba(255, 255, 255, 0.35);
+  --color-neutral-400: rgba(255, 255, 255, 0.5);
+  --color-neutral-500: rgba(255, 255, 255, 0.6);
+  --color-neutral-600: rgba(255, 255, 255, 0.7);
+  --color-neutral-700: rgba(255, 255, 255, 0.85);
+  --color-neutral-800: rgba(255, 255, 255, 0.92);
+  --color-neutral-900: #ffffff;
+
+  /* === State Colors === */
+  --state-success: #00b894;
+  --state-warning: #fdcb6e;
+  --state-error: #e17055;
+  --state-info: #457bff;
+
+  /* === Typography === */
+  --font-display: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* === Type Scale === */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  /* === Font Weights === */
+  --weight-normal: 400;
+  --weight-medium: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* === Line Heights === */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* === Letter Spacing === */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+
+  /* === Radius Scale === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Spacing === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.15);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-neutral-900);
+  background-color: var(--color-brand-deep);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%);
+}
+
+.gradient-gold-text {
+  background: linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: var(--color-brand-glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-brand-border);
+}
+
+.glass-strong {
+  background: rgba(20, 20, 30, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.bg-radial-center {
+  background: radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%);
+}
+
+.bg-radial-top {
+  background: radial-gradient(ellipse at 50% -20%, #1a1a2e 0%, #0a0a0f 50%, #000 100%);
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.2); border-radius: 2px; }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--color-brand-primary);
+    --color-primary-light: var(--color-brand-primary-light);
+    --color-primary-dark: var(--color-brand-primary-dark);
+    --color-background: var(--color-brand-deep);
+    --color-foreground: var(--color-neutral-900);
+    --color-card: var(--color-brand-card);
+    --color-muted: var(--color-neutral-300);
+    --color-border: var(--color-brand-border);
+  }
+  @layer base {
+    body { background: var(--color-background); color: var(--color-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="min-h-screen bg-radial-center">
+
+      <!-- ========== Header ========== -->
+      <header class="sticky top-0 z-50 glass-strong">
+        <div class="flex items-center justify-between px-5 py-4">
+          <button class="flex items-center gap-1 text-[var(--color-neutral-500)] transition-colors duration-150">
+            <i data-lucide="arrow-left" class="size-5"></i>
+            <span class="text-sm">返回</span>
+          </button>
+          <h1 class="text-base font-semibold text-[var(--color-neutral-900)] tracking-tight">扫码验证</h1>
+          <div class="w-14"></div>
+        </div>
+      </header>
+
+      <!-- ========== Scan Area ========== -->
+      <section class="px-5 pt-6 pb-4">
+        <!-- Camera placeholder -->
+        <div class="relative mx-auto w-64 h-64 rounded-xl overflow-hidden" style="background: linear-gradient(180deg, #0d0d18 0%, #08080e 100%); box-shadow: 0 0 40px rgba(255,215,0,0.06);">
+
+          <!-- Gold corner brackets -->
+          <span class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-md" style="border-color: var(--color-brand-primary);"></span>
+          <span class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-md" style="border-color: var(--color-brand-primary);"></span>
+          <span class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-md" style="border-color: var(--color-brand-primary);"></span>
+          <span class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-md" style="border-color: var(--color-brand-primary);"></span>
+
+          <!-- Scanning line animation -->
+          <div class="absolute left-4 right-4 h-[2px] rounded-full" style="background: linear-gradient(90deg, transparent, var(--color-brand-primary), transparent); animation: scanLine 2.4s ease-in-out infinite; top: 20%;"></div>
+
+          <!-- Center icon hint -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <i data-lucide="scan-line" class="size-10" style="color: var(--color-neutral-300);"></i>
+            <span class="text-xs" style="color: var(--color-neutral-400);">将二维码放入框内</span>
+          </div>
+        </div>
+
+        <!-- Scan hint text -->
+        <p class="mt-4 text-center text-sm" style="color: var(--color-neutral-400);">
+          打开手机摄像头，扫描产品上的防伪二维码
+        </p>
+      </section>
+
+      <!-- ========== OR Divider ========== -->
+      <section class="flex items-center gap-4 px-5 py-4">
+        <div class="flex-1 h-px" style="background: var(--color-brand-border);"></div>
+        <span class="text-xs tracking-widest" style="color: var(--color-neutral-400);">或手动输入</span>
+        <div class="flex-1 h-px" style="background: var(--color-brand-border);"></div>
+      </section>
+
+      <!-- ========== Manual Input ========== -->
+      <section class="px-5 pb-5">
+        <div class="flex gap-3">
+          <div class="flex-1 relative rounded-lg px-4 py-3 text-sm" style="background: var(--color-brand-glass); border: 1px solid var(--color-brand-border); color: var(--color-neutral-600);">
+            <input type="text" placeholder="输入产品序列号" class="absolute inset-0 w-full h-full bg-transparent px-4 py-3 text-sm outline-none rounded-lg" style="color: var(--color-neutral-900); caret-color: var(--color-brand-primary);">
+          </div>
+          <button class="gradient-gold px-6 py-3 rounded-lg text-sm font-semibold" style="color: #0a0a0f; box-shadow: var(--shadow-glow);">
+            验证
+          </button>
+        </div>
+      </section>
+
+      <!-- ========== Verification Stats Card ========== -->
+      <section class="px-5 pb-5">
+        <div class="rounded-xl p-4" style="background: var(--color-brand-glass); border: 1px solid var(--color-brand-border);">
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div class="text-xl font-bold" style="color: var(--color-brand-primary);">1,286</div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">总验证数</div>
+            </div>
+            <div>
+              <div class="text-xl font-bold" style="color: var(--state-success);">99.2%</div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">验证通过率</div>
+            </div>
+            <div>
+              <div class="text-xl font-bold" style="color: var(--state-error);">10</div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">疑似假冒</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== Recent Verifications ========== -->
+      <section class="px-5 pb-28">
+        <h2 class="text-sm font-semibold mb-3" style="color: var(--color-neutral-700);">最近验证记录</h2>
+
+        <div class="flex flex-col gap-2">
+
+          <!-- Record 1 -->
+          <div class="flex items-center justify-between rounded-lg px-4 py-3" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium truncate" style="color: var(--color-neutral-800);">CALIBURN AIR</span>
+                <span class="text-xs font-mono" style="color: var(--color-neutral-400);">#UW20260601A001</span>
+              </div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">10:32</div>
+            </div>
+            <span class="shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: rgba(0,184,148,0.15); color: var(--state-success);">验证成功</span>
+          </div>
+
+          <!-- Record 2 -->
+          <div class="flex items-center justify-between rounded-lg px-4 py-3" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium truncate" style="color: var(--color-neutral-800);">CALIBURN G5</span>
+                <span class="text-xs font-mono" style="color: var(--color-neutral-400);">#UW20260601B003</span>
+              </div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">10:28</div>
+            </div>
+            <span class="shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: rgba(0,184,148,0.15); color: var(--state-success);">验证成功</span>
+          </div>
+
+          <!-- Record 3 - Counterfeit -->
+          <div class="flex items-center justify-between rounded-lg px-4 py-3" style="background: rgba(225,112,85,0.06); border: 1px solid rgba(225,112,85,0.15);">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium truncate" style="color: var(--color-neutral-800);">G4 PRO</span>
+                <span class="text-xs font-mono" style="color: var(--color-neutral-400);">#UW20260530C012</span>
+              </div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">昨日</div>
+            </div>
+            <span class="shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: rgba(225,112,85,0.15); color: var(--state-error);">疑似假冒</span>
+          </div>
+
+          <!-- Record 4 -->
+          <div class="flex items-center justify-between rounded-lg px-4 py-3" style="background: var(--color-brand-card); border: 1px solid var(--color-brand-border);">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium truncate" style="color: var(--color-neutral-800);">G5 KOKO</span>
+                <span class="text-xs font-mono" style="color: var(--color-neutral-400);">#UW20260529D008</span>
+              </div>
+              <div class="text-xs mt-1" style="color: var(--color-neutral-400);">06/29</div>
+            </div>
+            <span class="shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style="background: rgba(0,184,148,0.15); color: var(--state-success);">验证成功</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== Bottom Navigation ========== -->
+      <nav class="fixed bottom-0 left-0 right-0 z-50 glass-strong">
+        <div class="flex items-center justify-around py-3 px-2" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
+          <!-- 首页 -->
+          <a href="#" class="flex flex-col items-center gap-1 py-1 px-3" style="color: var(--color-neutral-400);">
+            <i data-lucide="home" class="size-5"></i>
+            <span class="text-xs">首页</span>
+          </a>
+          <!-- 扫码 (active) -->
+          <a href="#" class="flex flex-col items-center gap-1 py-1 px-3" style="color: var(--color-brand-primary);">
+            <i data-lucide="scan-line" class="size-5"></i>
+            <span class="text-xs font-semibold">扫码</span>
+          </a>
+          <!-- 物料 -->
+          <a href="#" class="flex flex-col items-center gap-1 py-1 px-3" style="color: var(--color-neutral-400);">
+            <i data-lucide="package" class="size-5"></i>
+            <span class="text-xs">物料</span>
+          </a>
+          <!-- 我的 -->
+          <a href="#" class="flex flex-col items-center gap-1 py-1 px-3" style="color: var(--color-neutral-400);">
+            <i data-lucide="user" class="size-5"></i>
+            <span class="text-xs">我的</span>
+          </a>
+        </div>
+      </nav>
+
+    </main>
+
+    <!-- Scanning line keyframes (outside main, inside body) -->
+    <style>
+      @keyframes scanLine {
+        0%, 100% { top: 15%; opacity: 0.3; }
+        50% { top: 75%; opacity: 1; }
+      }
+    </style>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

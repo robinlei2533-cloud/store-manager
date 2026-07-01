@@ -1,0 +1,91 @@
+{
+  "data": [
+    {
+      "id": "page-admin-dashboard",
+      "title": "管理后台首页",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": -1956,
+        "y": -240,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/admin-dashboard.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-store-management",
+      "title": "门店管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 420,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/store-management.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-visit-management",
+      "title": "巡店管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 840,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/visit-management.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-campaign-management",
+      "title": "营销活动",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 1260,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/campaign-management.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "image-001",
+      "title": "管理后台头图",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1782872517000,
+      "canvasData": {
+        "x": 0,
+        "y": 1008
+      },
+      "devMetadata": {
+        "imageSrc": "assets/hero-admin-dashboard.jpg"
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": false,
+    "deviceType": "desktop",
+    "projectName": "UWELL 运营管理后台",
+    "windowSize": {
+      "width": 800,
+      "height": 600
+    }
+  }
+}

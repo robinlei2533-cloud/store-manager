@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>门店首页</title>
+    <style id="theme-vars">
+:root {
+  /* === UWELL Brand Colors (Store Management Variant) === */
+  --color-brand-primary: #FFD700;
+  --color-brand-primary-light: #FFE44D;
+  --color-brand-primary-dark: #F5A623;
+  --color-brand-deep: #0a0a0f;
+  --color-brand-surface: #12121e;
+  --color-brand-card: rgba(255, 255, 255, 0.04);
+  --color-brand-glass: rgba(255, 255, 255, 0.06);
+  --color-brand-border: rgba(255, 255, 255, 0.08);
+  --color-brand-border-gold: rgba(255, 215, 0, 0.2);
+
+  /* === Neutral Scale === */
+  --color-neutral-0: #000000;
+  --color-neutral-50: rgba(255, 255, 255, 0.06);
+  --color-neutral-100: rgba(255, 255, 255, 0.1);
+  --color-neutral-200: rgba(255, 255, 255, 0.2);
+  --color-neutral-300: rgba(255, 255, 255, 0.35);
+  --color-neutral-400: rgba(255, 255, 255, 0.5);
+  --color-neutral-500: rgba(255, 255, 255, 0.6);
+  --color-neutral-600: rgba(255, 255, 255, 0.7);
+  --color-neutral-700: rgba(255, 255, 255, 0.85);
+  --color-neutral-800: rgba(255, 255, 255, 0.92);
+  --color-neutral-900: #ffffff;
+
+  /* === State Colors === */
+  --state-success: #00b894;
+  --state-warning: #fdcb6e;
+  --state-error: #e17055;
+  --state-info: #457bff;
+
+  /* === Typography === */
+  --font-display: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* === Type Scale === */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  /* === Font Weights === */
+  --weight-normal: 400;
+  --weight-medium: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* === Line Heights === */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* === Letter Spacing === */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+
+  /* === Radius Scale === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Spacing === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.15);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-neutral-900);
+  background-color: var(--color-brand-deep);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%);
+}
+
+.gradient-gold-text {
+  background: linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: var(--color-brand-glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-brand-border);
+}
+
+.glass-strong {
+  background: rgba(20, 20, 30, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.bg-radial-center {
+  background: radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 60%, #000 100%);
+}
+
+.bg-radial-top {
+  background: radial-gradient(ellipse at 50% -20%, #1a1a2e 0%, #0a0a0f 50%, #000 100%);
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.2); border-radius: 2px; }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--color-brand-primary);
+    --color-primary-light: var(--color-brand-primary-light);
+    --color-primary-dark: var(--color-brand-primary-dark);
+    --color-background: var(--color-brand-deep);
+    --color-foreground: var(--color-neutral-900);
+    --color-card: var(--color-brand-card);
+    --color-muted: var(--color-neutral-300);
+    --color-border: var(--color-brand-border);
+  }
+  @layer base {
+    body { background: var(--color-background); color: var(--color-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="bg-radial-center min-h-screen pb-24">
+        <!-- ===== Top Header ===== -->
+        <header class="sticky top-0 z-50 glass-strong px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="gradient-gold-text text-2xl font-black tracking-wide" style="font-family:var(--font-display);">UWELL</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <span class="text-sm font-semibold text-[var(--color-neutral-700)]">上海南京路旗舰店</span>
+            </div>
+            <div class="flex items-center gap-4 text-[var(--color-neutral-400)]">
+                <i data-icon="bell" class="w-5 h-5"></i>
+                <i data-icon="settings" class="w-5 h-5"></i>
+            </div>
+        </header>
+
+        <div class="px-5 pt-5 space-y-5">
+
+            <!-- ===== Store Info Summary Card ===== -->
+            <section class="glass rounded-2xl p-5 relative overflow-hidden">
+                <!-- subtle gold glow accent -->
+                <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20" style="background:radial-gradient(circle,rgba(255,215,0,0.4),transparent 70%);"></div>
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h1 class="text-lg font-bold text-[var(--color-neutral-900)] leading-tight">上海南京路旗舰店</h1>
+                            <p class="text-xs text-[var(--color-neutral-400)] mt-1 flex items-center gap-1">
+                                <i data-icon="map-pin" class="w-3 h-3"></i>
+                                上海市黄浦区南京东路388号
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0" style="background:rgba(0,184,148,0.15);color:var(--state-success);border:1px solid rgba(0,184,148,0.3);">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background:var(--state-success);"></span>
+                            营业中
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5 mt-3">
+                        <!-- Star icons for rating -->
+                        <i data-icon="star" class="w-4 h-4" style="color:var(--color-brand-primary);fill:var(--color-brand-primary);"></i>
+                        <i data-icon="star" class="w-4 h-4" style="color:var(--color-brand-primary);fill:var(--color-brand-primary);"></i>
+                        <i data-icon="star" class="w-4 h-4" style="color:var(--color-brand-primary);fill:var(--color-brand-primary);"></i>
+                        <i data-icon="star" class="w-4 h-4" style="color:var(--color-brand-primary);fill:var(--color-brand-primary);"></i>
+                        <i data-icon="star" class="w-4 h-4" style="color:var(--color-brand-primary);fill:var(--color-brand-primary);opacity:0.5;"></i>
+                        <span class="text-sm font-bold" style="color:var(--color-brand-primary);">4.8</span>
+                        <span class="text-xs text-[var(--color-neutral-400)] ml-1">门店评分</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Today's Stats Row (2x2 Grid) ===== -->
+            <section>
+                <h2 class="text-sm font-semibold text-[var(--color-neutral-500)] mb-3 tracking-wide">今日概览</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- 扫码次数 -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(69,123,255,0.15);">
+                                <i data-icon="scan-line" class="w-4 h-4" style="color:var(--state-info);"></i>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-black text-[var(--color-neutral-900)] leading-none">68<span class="text-xs font-normal text-[var(--color-neutral-400)] ml-1">次</span></p>
+                        <p class="text-xs text-[var(--color-neutral-500)] mt-1.5">今日扫码</p>
+                        <span class="inline-block text-xs font-semibold mt-1" style="color:var(--state-success);">+12%</span>
+                    </div>
+                    <!-- 今日营收 -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(255,215,0,0.12);">
+                                <i data-icon="trending-up" class="w-4 h-4" style="color:var(--color-brand-primary);"></i>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-black text-[var(--color-neutral-900)] leading-none">&yen;12,580</p>
+                        <p class="text-xs text-[var(--color-neutral-500)] mt-1.5">今日营收</p>
+                        <span class="inline-block text-xs font-semibold mt-1" style="color:var(--state-success);">+8%</span>
+                    </div>
+                    <!-- 待处理 -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(253,203,110,0.12);">
+                                <i data-icon="clock" class="w-4 h-4" style="color:var(--state-warning);"></i>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-black text-[var(--color-neutral-900)] leading-none">5<span class="text-xs font-normal text-[var(--color-neutral-400)] ml-1">件</span></p>
+                        <p class="text-xs text-[var(--color-neutral-500)] mt-1.5">待处理</p>
+                    </div>
+                    <!-- 库存预警 -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(225,112,85,0.12);">
+                                <i data-icon="alert-triangle" class="w-4 h-4" style="color:var(--state-error);"></i>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-black text-[var(--color-neutral-900)] leading-none">2<span class="text-xs font-normal text-[var(--color-neutral-400)] ml-1">件</span></p>
+                        <p class="text-xs text-[var(--color-neutral-500)] mt-1.5">库存预警</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Quick Action Buttons (2x3 Grid) ===== -->
+            <section>
+                <h2 class="text-sm font-semibold text-[var(--color-neutral-500)] mb-3 tracking-wide">快捷操作</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- 扫码验证 -->
+                    <a href="#" class="glass rounded-xl p-4 flex flex-col items-center gap-2.5 hover:border-[var(--color-brand-border-gold)] transition-colors" style="transition:var(--transition-fast);">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(245,166,35,0.1));">
+                            <i data-icon="scan" class="w-5 h-5" style="color:var(--color-brand-primary);"></i>
+                        </div>
+                        <span class="text-xs font-medium text-[var(--color-neutral-700)]">扫码验证</span>
+                    </a>
+                    <!-- 物料管理 -->
+                    <a href="#" class="glass rounded-xl p-4 flex flex-col items-center gap-2.5 hover:border-[var(--color-brand-border-gold)] transition-colors" style="transition:var(--transition-fast);">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(69,123,255,0.12);">
+                            <i data-icon="package" class="w-5 h-5" style="color:var(--state-info);"></i>
+                        </div>
+                        <span class="text-xs font-medium text-[var(--color-neutral-700)]">物料管理</span>
+                    </a>
+                    <!-- 进货申请 -->
+                    <a href="#" class="glass rounded-xl p-4 flex flex-col items-center gap-2.5 hover:border-[var(--color-brand-border-gold)] transition-colors" style="transition:var(--transition-fast);">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(0,184,148,0.12);">
+                            <i data-icon="truck" class="w-5 h-5" style="color:var(--state-success);"></i>
+                        </div>
+                        <span class="text-xs font-medium text-[var(--color-neutral-700)]">进货申请</span>
+                    </a>
+                    <!-- 巡店记录 -->
+                    <a href="#" class="glass rounded-xl p-4 flex flex-col items-center gap-2.5 hover:border-[var(--color-brand-border-gold)] transition-colors" style="transition:var(--transition-fast);">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(253,203,110,0.12);">
+                            <i data-icon="clipboard-list" class="w-5 h-5" style="color:var(--state-warning);"></i>
+                        </div>
+                        <span class="text-xs font-medium text-[var(--color-neutral-700)]">巡店记录</span>
+                    </a>
+                    <!-- 数据报表 -->
+                    <a href="#" class="glass rounded-xl p-4 flex flex-col items-center gap-2.5 hover:border-[var(--color-brand-border-gold)] transition-colors" style="transition:var(--transition-fast);">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(69,123,255,0.12);">
+                            <i data-icon="bar-chart-3" class="w-5 h-5" style="color:var(--state-info);"></i>
+                        </div>
+                        <span class="text-xs font-medium text-[var(--color-neutral-700)]">数据报表</span>
+                    </a>
+                    <!-- 门店设置 -->
+                    <a href="#" class="glass rounded-xl p-4 flex flex-col items-center gap-2.5 hover:border-[var(--color-brand-border-gold)] transition-colors" style="transition:var(--transition-fast);">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,0.06);">
+                            <i data-icon="store" class="w-5 h-5" style="color:var(--color-neutral-400);"></i>
+                        </div>
+                        <span class="text-xs font-medium text-[var(--color-neutral-700)]">门店设置</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ===== Recent Verification Records ===== -->
+            <section>
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-semibold text-[var(--color-neutral-500)] tracking-wide">最近验证记录</h2>
+                    <a href="#" class="text-xs font-medium" style="color:var(--color-brand-primary);">查看全部</a>
+                </div>
+                <div class="glass rounded-2xl overflow-hidden divide-y" style="--tw-divide-opacity:1;divide-color:var(--color-brand-border);">
+                    <!-- Record 1 -->
+                    <div class="px-4 py-3.5 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background:rgba(0,184,148,0.12);">
+                            <i data-icon="check-circle" class="w-4 h-4" style="color:var(--state-success);"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-[var(--color-neutral-800)] truncate">张先生 - CALIBURN AIR</p>
+                            <p class="text-xs text-[var(--state-success)] mt-0.5">验证成功</p>
+                        </div>
+                        <span class="text-xs text-[var(--color-neutral-400)] shrink-0">10:32</span>
+                    </div>
+                    <!-- Record 2 -->
+                    <div class="px-4 py-3.5 flex items-center gap-3" style="border-top:1px solid var(--color-brand-border);">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background:rgba(0,184,148,0.12);">
+                            <i data-icon="check-circle" class="w-4 h-4" style="color:var(--state-success);"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-[var(--color-neutral-800)] truncate">李女士 - CALIBURN G5</p>
+                            <p class="text-xs text-[var(--state-success)] mt-0.5">验证成功</p>
+                        </div>
+                        <span class="text-xs text-[var(--color-neutral-400)] shrink-0">10:28</span>
+                    </div>
+                    <!-- Record 3 -->
+                    <div class="px-4 py-3.5 flex items-center gap-3" style="border-top:1px solid var(--color-brand-border);">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background:rgba(0,184,148,0.12);">
+                            <i data-icon="check-circle" class="w-4 h-4" style="color:var(--state-success);"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-[var(--color-neutral-800)] truncate">王先生 - G5 KOKO</p>
+                            <p class="text-xs text-[var(--state-success)] mt-0.5">验证成功</p>
+                        </div>
+                        <span class="text-xs text-[var(--color-neutral-400)] shrink-0">10:15</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- ===== Bottom Navigation Bar (Fixed) ===== -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 glass-strong" style="border-top:1px solid var(--color-brand-border);">
+            <div class="max-w-[375px] mx-auto flex items-center justify-around py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
+                <!-- 首页 (active) -->
+                <a href="#" class="flex flex-col items-center gap-0.5 px-3 py-1">
+                    <i data-icon="home" class="w-5 h-5" style="color:var(--color-brand-primary);"></i>
+                    <span class="text-[10px] font-semibold" style="color:var(--color-brand-primary);">首页</span>
+                </a>
+                <!-- 扫码 -->
+                <a href="#" class="flex flex-col items-center gap-0.5 px-3 py-1">
+                    <i data-icon="scan" class="w-5 h-5" style="color:var(--color-neutral-400);"></i>
+                    <span class="text-[10px] font-medium text-[var(--color-neutral-400)]">扫码</span>
+                </a>
+                <!-- 物料 -->
+                <a href="#" class="flex flex-col items-center gap-0.5 px-3 py-1">
+                    <i data-icon="package" class="w-5 h-5" style="color:var(--color-neutral-400);"></i>
+                    <span class="text-[10px] font-medium text-[var(--color-neutral-400)]">物料</span>
+                </a>
+                <!-- 我的 -->
+                <a href="#" class="flex flex-col items-center gap-0.5 px-3 py-1">
+                    <i data-icon="user" class="w-5 h-5" style="color:var(--color-neutral-400);"></i>
+                    <span class="text-[10px] font-medium text-[var(--color-neutral-400)]">我的</span>
+                </a>
+            </div>
+        </nav>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

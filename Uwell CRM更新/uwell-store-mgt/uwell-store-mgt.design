@@ -1,0 +1,87 @@
+{
+  "data": [
+    {
+      "id": "page-store-dashboard",
+      "title": "门店首页",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782875564000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/store-dashboard.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-qr-verify",
+      "title": "扫码验证",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782875564000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/qr-verify.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-material-stock",
+      "title": "物料库存",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782875564000,
+      "canvasData": {
+        "x": 1240,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/material-stock.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-store-visit",
+      "title": "巡店记录",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782875564000,
+      "canvasData": {
+        "x": 1860,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/store-visit.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "image-001",
+      "title": "门店管理头图",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1782875564000,
+      "canvasData": {
+        "x": 0,
+        "y": 439
+      },
+      "devMetadata": {
+        "imageSrc": "assets/hero-store-mgt.jpg"
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "UWELL 门店管理端"
+  }
+}

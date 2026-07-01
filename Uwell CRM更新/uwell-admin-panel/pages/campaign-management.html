@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>营销活动</title>
+    <style id="theme-vars">
+:root {
+  /* === UWELL Brand Colors (Admin Variant) === */
+  --color-brand-primary: #FFD700;
+  --color-brand-primary-light: #FFE44D;
+  --color-brand-primary-dark: #F5A623;
+  --color-brand-deep: #0c0c14;
+  --color-brand-surface: #14141f;
+  --color-brand-surface-elevated: #1c1c2e;
+  --color-brand-card: rgba(255, 255, 255, 0.03);
+  --color-brand-glass: rgba(255, 255, 255, 0.05);
+  --color-brand-border: rgba(255, 255, 255, 0.06);
+  --color-brand-border-gold: rgba(255, 215, 0, 0.15);
+
+  /* === Neutral Scale === */
+  --color-neutral-0: #000000;
+  --color-neutral-50: rgba(255, 255, 255, 0.05);
+  --color-neutral-100: rgba(255, 255, 255, 0.1);
+  --color-neutral-200: rgba(255, 255, 255, 0.2);
+  --color-neutral-300: rgba(255, 255, 255, 0.35);
+  --color-neutral-400: rgba(255, 255, 255, 0.5);
+  --color-neutral-500: rgba(255, 255, 255, 0.6);
+  --color-neutral-600: rgba(255, 255, 255, 0.7);
+  --color-neutral-700: rgba(255, 255, 255, 0.85);
+  --color-neutral-800: rgba(255, 255, 255, 0.92);
+  --color-neutral-900: #ffffff;
+
+  /* === State Colors === */
+  --state-success: #00b894;
+  --state-warning: #fdcb6e;
+  --state-error: #e17055;
+  --state-info: #457bff;
+
+  /* === Typography === */
+  --font-display: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* === Type Scale === */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.8125rem;   /* 13px */
+  --text-base: 0.875rem;  /* 14px */
+  --text-md: 1rem;        /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+
+  /* === Font Weights === */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* === Line Heights === */
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* === Letter Spacing === */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+
+  /* === Radius Scale === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Spacing === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 16px rgba(255, 215, 0, 0.1);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.03);
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* === Sidebar === */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 64px;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-neutral-900);
+  background-color: var(--color-brand-deep);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%);
+}
+
+.gradient-gold-text {
+  background: linear-gradient(135deg, #fff 30%, #FFD700 70%, #F5A623);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: var(--color-brand-glass);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-brand-border);
+}
+
+.bg-radial-top {
+  background: radial-gradient(ellipse at 50% -10%, #1a1a2e 0%, #0c0c14 50%, #000 100%);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.15); border-radius: 3px; }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--color-brand-primary);
+    --color-primary-light: var(--color-brand-primary-light);
+    --color-primary-dark: var(--color-brand-primary-dark);
+    --color-background: var(--color-brand-deep);
+    --color-foreground: var(--color-neutral-900);
+    --color-card: var(--color-brand-card);
+    --color-muted: var(--color-neutral-300);
+    --color-border: var(--color-brand-border);
+  }
+  @layer base {
+    body { background: var(--color-background); color: var(--color-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="fixed top-0 left-0 h-screen flex flex-col border-r" style="width:var(--sidebar-width); background:var(--color-brand-surface); border-color:var(--color-brand-border);">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 px-6 py-5 border-b" style="border-color:var(--color-brand-border);">
+                <div class="w-8 h-8 rounded-lg gradient-gold flex items-center justify-center">
+                    <span class="text-black font-bold text-sm">U</span>
+                </div>
+                <span class="text-lg font-bold tracking-tight" style="color:var(--color-neutral-900);">UWELL</span>
+                <span class="text-xs ml-auto px-2 py-0.5 rounded-full" style="background:var(--color-brand-glass); color:var(--color-brand-primary);">Admin</span>
+            </div>
+            <!-- Nav -->
+            <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto no-scrollbar">
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors" style="color:var(--color-neutral-500);">
+                    <i data-icon="layout-dashboard" class="w-5 h-5"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors" style="color:var(--color-neutral-500);">
+                    <i data-icon="users" class="w-5 h-5"></i>
+                    <span>客户管理</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm" style="background:var(--color-brand-glass); color:var(--color-brand-primary); border:1px solid var(--color-brand-border-gold);">
+                    <i data-icon="megaphone" class="w-5 h-5"></i>
+                    <span class="font-medium">营销活动</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors" style="color:var(--color-neutral-500);">
+                    <i data-icon="ticket" class="w-5 h-5"></i>
+                    <span>优惠券</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors" style="color:var(--color-neutral-500);">
+                    <i data-icon="bar-chart-3" class="w-5 h-5"></i>
+                    <span>数据分析</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors" style="color:var(--color-neutral-500);">
+                    <i data-icon="message-square" class="w-5 h-5"></i>
+                    <span>消息中心</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors" style="color:var(--color-neutral-500);">
+                    <i data-icon="settings" class="w-5 h-5"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+            <!-- Sidebar footer -->
+            <div class="px-4 py-4 border-t" style="border-color:var(--color-brand-border);">
+                <div class="flex items-center gap-3 px-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:linear-gradient(135deg,#FFD700,#F5A623); color:#000;">A</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium truncate" style="color:var(--color-neutral-700);">Admin</p>
+                        <p class="text-xs truncate" style="color:var(--color-neutral-400);">admin@uwell.com</p>
+                    </div>
+                    <i data-icon="log-out" class="w-4 h-4 flex-shrink-0" style="color:var(--color-neutral-400);"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 ml-[260px]">
+            <!-- Top Header -->
+            <header class="sticky top-0 z-30 flex items-center justify-between px-8 border-b" style="height:var(--header-height); background:rgba(12,12,20,0.85); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-color:var(--color-brand-border);">
+                <div class="flex items-center gap-2 text-sm" style="color:var(--color-neutral-400);">
+                    <span>首页</span>
+                    <i data-icon="chevron-right" class="w-4 h-4"></i>
+                    <span style="color:var(--color-neutral-700);">营销活动</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <i data-icon="bell" class="w-5 h-5" style="color:var(--color-neutral-400);"></i>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full" style="background:var(--state-error);"></span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:linear-gradient(135deg,#FFD700,#F5A623); color:#000;">A</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="p-8">
+                <!-- Page Title + Action -->
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight" style="color:var(--color-neutral-900);">营销活动</h1>
+                        <p class="text-sm mt-1" style="color:var(--color-neutral-400);">管理和追踪所有营销活动数据</p>
+                    </div>
+                    <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors" style="background:linear-gradient(135deg,#FFD700,#F5A623); color:#000;">
+                        <i data-icon="plus" class="w-4 h-4"></i>
+                        创建活动
+                    </button>
+                </div>
+
+                <!-- KPI Row -->
+                <div class="grid grid-cols-4 gap-5 mb-8">
+                    <!-- KPI 1 -->
+                    <div class="rounded-xl p-5 border" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm" style="color:var(--color-neutral-400);">进行中活动</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(255,215,0,0.1);">
+                                <i data-icon="play-circle" class="w-4 h-4" style="color:var(--color-brand-primary);"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold tracking-tight" style="color:var(--color-neutral-900);">3</p>
+                        <p class="text-xs mt-1" style="color:var(--color-neutral-400);">当前活跃活动</p>
+                    </div>
+                    <!-- KPI 2 -->
+                    <div class="rounded-xl p-5 border" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm" style="color:var(--color-neutral-400);">已完成</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(0,184,148,0.1);">
+                                <i data-icon="check-circle-2" class="w-4 h-4" style="color:var(--state-success);"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold tracking-tight" style="color:var(--color-neutral-900);">15</p>
+                        <p class="text-xs mt-1" style="color:var(--color-neutral-400);">累计完成活动</p>
+                    </div>
+                    <!-- KPI 3 -->
+                    <div class="rounded-xl p-5 border" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm" style="color:var(--color-neutral-400);">总参与人次</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(69,123,255,0.1);">
+                                <i data-icon="users" class="w-4 h-4" style="color:var(--state-info);"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold tracking-tight" style="color:var(--color-neutral-900);">45,680</p>
+                        <p class="text-xs mt-1" style="color:var(--color-neutral-400);">全渠道参与人次</p>
+                    </div>
+                    <!-- KPI 4 -->
+                    <div class="rounded-xl p-5 border" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm" style="color:var(--color-neutral-400);">转化率</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(255,215,0,0.1);">
+                                <i data-icon="trending-up" class="w-4 h-4" style="color:var(--color-brand-primary);"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold tracking-tight" style="color:var(--color-neutral-900);">12.5<span class="text-lg">%</span></p>
+                        <p class="text-xs mt-1" style="color:var(--color-neutral-400);">平均转化率</p>
+                    </div>
+                </div>
+
+                <!-- Tab Filter -->
+                <div class="flex items-center gap-1 mb-6 p-1 rounded-lg inline-flex" style="background:var(--color-brand-glass); border:1px solid var(--color-brand-border);">
+                    <button class="px-4 py-2 rounded-md text-sm" style="color:var(--color-neutral-500);">全部</button>
+                    <button class="px-4 py-2 rounded-md text-sm font-medium" style="background:var(--color-brand-surface-elevated); color:var(--color-brand-primary); box-shadow:var(--shadow-sm);">进行中</button>
+                    <button class="px-4 py-2 rounded-md text-sm" style="color:var(--color-neutral-500);">已结束</button>
+                    <button class="px-4 py-2 rounded-md text-sm" style="color:var(--color-neutral-500);">草稿</button>
+                </div>
+
+                <!-- Campaign Cards Grid -->
+                <div class="grid grid-cols-3 gap-5">
+                    <!-- Card 1: 夏季新品体验 -->
+                    <div class="rounded-xl border overflow-hidden" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <!-- Card Header -->
+                        <div class="p-5 pb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-semibold" style="color:var(--color-neutral-900);">夏季新品体验</h3>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(0,184,148,0.1); color:var(--state-success);">
+                                    <span class="w-1.5 h-1.5 rounded-full" style="background:var(--state-success);"></span>
+                                    进行中
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs mb-4" style="color:var(--color-neutral-400);">
+                                <i data-icon="calendar" class="w-3.5 h-3.5"></i>
+                                <span>2026/06/15 - 2026/07/31</span>
+                            </div>
+                            <!-- Progress Bar -->
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between text-xs mb-1.5">
+                                    <span style="color:var(--color-neutral-400);">活动进度</span>
+                                    <span style="color:var(--color-neutral-600);">46%</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full" style="background:var(--color-brand-glass);">
+                                    <div class="h-full rounded-full" style="width:46%; background:linear-gradient(90deg,#FFD700,#F5A623);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card Footer -->
+                        <div class="px-5 py-3.5 border-t flex items-center justify-between" style="border-color:var(--color-brand-border);">
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">参与人次</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-neutral-800);">12,580</p>
+                                </div>
+                                <div class="w-px h-8" style="background:var(--color-brand-border);"></div>
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">转化率</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-brand-primary);">15.2%</p>
+                                </div>
+                            </div>
+                            <i data-icon="chevron-right" class="w-4 h-4" style="color:var(--color-neutral-300);"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: CALIBURN G5 上市 -->
+                    <div class="rounded-xl border overflow-hidden" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="p-5 pb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-semibold" style="color:var(--color-neutral-900);">CALIBURN G5 上市</h3>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(0,184,148,0.1); color:var(--state-success);">
+                                    <span class="w-1.5 h-1.5 rounded-full" style="background:var(--state-success);"></span>
+                                    进行中
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs mb-4" style="color:var(--color-neutral-400);">
+                                <i data-icon="calendar" class="w-3.5 h-3.5"></i>
+                                <span>2026/06/01 - 2026/08/15</span>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between text-xs mb-1.5">
+                                    <span style="color:var(--color-neutral-400);">活动进度</span>
+                                    <span style="color:var(--color-neutral-600);">23%</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full" style="background:var(--color-brand-glass);">
+                                    <div class="h-full rounded-full" style="width:23%; background:linear-gradient(90deg,#FFD700,#F5A623);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 py-3.5 border-t flex items-center justify-between" style="border-color:var(--color-brand-border);">
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">参与人次</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-neutral-800);">23,100</p>
+                                </div>
+                                <div class="w-px h-8" style="background:var(--color-brand-border);"></div>
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">转化率</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-brand-primary);">11.8%</p>
+                                </div>
+                            </div>
+                            <i data-icon="chevron-right" class="w-4 h-4" style="color:var(--color-neutral-300);"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: 粉丝积分翻倍周 -->
+                    <div class="rounded-xl border overflow-hidden" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="p-5 pb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-semibold" style="color:var(--color-neutral-900);">粉丝积分翻倍周</h3>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(0,184,148,0.1); color:var(--state-success);">
+                                    <span class="w-1.5 h-1.5 rounded-full" style="background:var(--state-success);"></span>
+                                    进行中
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs mb-4" style="color:var(--color-neutral-400);">
+                                <i data-icon="calendar" class="w-3.5 h-3.5"></i>
+                                <span>2026/06/20 - 2026/07/07</span>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between text-xs mb-1.5">
+                                    <span style="color:var(--color-neutral-400);">活动进度</span>
+                                    <span style="color:var(--color-neutral-600);">63%</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full" style="background:var(--color-brand-glass);">
+                                    <div class="h-full rounded-full" style="width:63%; background:linear-gradient(90deg,#FFD700,#F5A623);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 py-3.5 border-t flex items-center justify-between" style="border-color:var(--color-brand-border);">
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">参与人次</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-neutral-800);">8,960</p>
+                                </div>
+                                <div class="w-px h-8" style="background:var(--color-brand-border);"></div>
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">转化率</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-brand-primary);">18.3%</p>
+                                </div>
+                            </div>
+                            <i data-icon="chevron-right" class="w-4 h-4" style="color:var(--color-neutral-300);"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: 春季会员回馈 -->
+                    <div class="rounded-xl border overflow-hidden" style="background:var(--color-brand-card); border-color:var(--color-brand-border);">
+                        <div class="p-5 pb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-semibold" style="color:var(--color-neutral-900);">春季会员回馈</h3>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(255,255,255,0.05); color:var(--color-neutral-400);">
+                                    <span class="w-1.5 h-1.5 rounded-full" style="background:var(--color-neutral-400);"></span>
+                                    已结束
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs mb-4" style="color:var(--color-neutral-400);">
+                                <i data-icon="calendar" class="w-3.5 h-3.5"></i>
+                                <span>2026/03/01 - 2026/03/31</span>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between text-xs mb-1.5">
+                                    <span style="color:var(--color-neutral-400);">活动进度</span>
+                                    <span style="color:var(--color-neutral-600);">100%</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full" style="background:var(--color-brand-glass);">
+                                    <div class="h-full rounded-full" style="width:100%; background:var(--color-neutral-300);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 py-3.5 border-t flex items-center justify-between" style="border-color:var(--color-brand-border);">
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">参与人次</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-neutral-800);">15,200</p>
+                                </div>
+                                <div class="w-px h-8" style="background:var(--color-brand-border);"></div>
+                                <div>
+                                    <p class="text-xs" style="color:var(--color-neutral-400);">转化率</p>
+                                    <p class="text-sm font-semibold" style="color:var(--color-neutral-600);">14.1%</p>
+                                </div>
+                            </div>
+                            <i data-icon="chevron-right" class="w-4 h-4" style="color:var(--color-neutral-300);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
