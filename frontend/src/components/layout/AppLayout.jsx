@@ -1,6 +1,6 @@
 ﻿import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router';
-import { Layout, Menu, Button, Avatar, Spin, Tag, theme, Grid, Drawer } from 'antd';
+import { Layout, Menu, Button, Avatar, Spin, Tag, Grid, Drawer, Input } from 'antd';
 import {
   DashboardOutlined,
   ShopOutlined,
@@ -14,9 +14,16 @@ import {
   ThunderboltOutlined,
   QrcodeOutlined,
   RiseOutlined,
-  MessageOutlined,
   MenuOutlined,
   ApartmentOutlined,
+  SearchOutlined,
+  FileTextOutlined,
+  WarningOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+  AppstoreOutlined,
+  DatabaseOutlined,
+  CustomerServiceOutlined,
 } from '@ant-design/icons';
 import useAuthStore from '../../stores/authStore';
 import useLanguageStore from '../../stores/languageStore';
@@ -26,22 +33,27 @@ import PageTransition from '../../components/common/PageTransition';
 import { ROLES, ROLE_NAMES } from '../../utils/constants';
 import { IS_LOCAL_MODE } from '../../services/api';
 import { motion } from 'framer-motion';
+import { canViewCompanyScope } from '../../utils/uwellRoleAccess';
 
 const { Header, Sider, Content } = Layout;
-
-const APP_BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4';
 
 const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, signOut } = useAuthStore();
-  const { t } = useLanguageStore();
-  const { token } = theme.useToken();
+  const { t, lang } = useLanguageStore();
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const contentRef = useRef(null);
+
+  useEffect(() => {
+    document.body.classList.add('admin-workspace-active');
+    return () => {
+      document.body.classList.remove('admin-workspace-active');
+    };
+  }, []);
   
   if (!profile) {
   
@@ -54,23 +66,27 @@ const AppLayout = () => {
 
   const getMenuItems = () => {
     const isAdmin = profile.role === ROLES.ADMIN;
-    const isManager = profile.role === ROLES.MANAGER;
-    const canViewAllCRM = isAdmin || isManager;
+    const canViewAllCRM = canViewCompanyScope(profile);
 
-    const crmChildren = [];
-    if (canViewAllCRM) {
-      crmChildren.push({ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_stores') });
-    }
-    crmChildren.push({ key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: t('nav_visits') });
-    crmChildren.push({ key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') });
-    if (canViewAllCRM) {
-      crmChildren.push({ key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: t('nav_campaigns') });
-    }
-    crmChildren.push({ key: '/app/materials/list', icon: React.createElement(InboxOutlined), label: t('nav_materials') });
+    const crmChildren = [
+      ...(canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_stores') }] : []),
+      ...(!canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: '负责门店' }] : []),
+      { key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: t('nav_visits') },
+      { key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
+      { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: canViewAllCRM ? t('nav_campaigns') : '活动执行' },
+    ];
+
+    const materialChildren = [
+      { key: '/app/materials/list', icon: React.createElement(InboxOutlined), label: t('nav_material_list') },
+      { key: '/app/materials/stocks', icon: React.createElement(WarningOutlined), label: t('nav_material_stocks') },
+      { key: '/app/materials/inbound', icon: React.createElement(DownloadOutlined), label: t('nav_material_inbound') },
+      { key: '/app/materials/outbound', icon: React.createElement(UploadOutlined), label: t('nav_material_outbound') },
+    ];
 
     const items = [
-      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: t('nav_dashboard2') },
-      { key: 'crm', icon: React.createElement(ApartmentOutlined), label: t('crm_management'), children: crmChildren },
+      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: canViewAllCRM ? t('nav_dashboard2') : '地推工作台' },
+      { key: 'crm', icon: React.createElement(ApartmentOutlined), label: t('nav_crm'), children: crmChildren },
+      { key: 'materials', icon: React.createElement(InboxOutlined), label: t('nav_materials'), children: materialChildren },
     ];
 
     if (canViewAllCRM) {
@@ -80,20 +96,49 @@ const AppLayout = () => {
         label: t('fan_operations'),
         children: [
           { key: '/app/fans/list', icon: React.createElement(TeamOutlined), label: t('nav_fan_list') },
-          { key: '/app/fans/growth', icon: React.createElement(RiseOutlined), label: t('nav_growth') },
+          { key: '/app/fans/growth', icon: React.createElement(RiseOutlined), label: t('nav_fan_growth') },
           { key: '/app/fans/scan', icon: React.createElement(QrcodeOutlined), label: t('nav_fan_scan') },
+          { key: '/app/fans/rules', icon: React.createElement(SettingOutlined), label: t('nav_fan_rules') },
+        ],
+      });
+    } else {
+      items.push({
+        key: 'fan-support',
+        icon: React.createElement(CustomerServiceOutlined),
+        label: '粉丝客诉',
+        children: [
+          { key: '/app/fans/complaints', icon: React.createElement(CustomerServiceOutlined), label: '客诉回复' },
         ],
       });
     }
 
     if (isAdmin) {
-      items.push({ key: '/app/settings/users', icon: React.createElement(SettingOutlined), label: t('nav_settings') });
+      items.push({
+        key: 'settings',
+        icon: React.createElement(SettingOutlined),
+        label: t('nav_settings'),
+        children: [
+          { key: '/app/settings/users', icon: React.createElement(UserOutlined), label: t('nav_users') },
+          { key: '/app/settings/products', icon: React.createElement(AppstoreOutlined), label: t('nav_products') },
+          { key: '/app/settings/data', icon: React.createElement(DatabaseOutlined), label: t('nav_data') },
+          { key: '/app/settings/audit', icon: React.createElement(FileTextOutlined), label: t('audit_log') },
+        ],
+      });
     }
 
     return items;
   };
 
   const menuItems = getMenuItems();
+  const roleLabel = (role) => {
+    const roleKeyMap = {
+      admin: 'set_role_admin',
+      manager: 'set_role_manager',
+      rep: 'set_role_rep',
+      fan: 'set_role_fan',
+    };
+    return t(roleKeyMap[role] || '') || ROLE_NAMES[role] || role;
+  };
 
   const handleMenuClick = ({ key }) => {
     if (key.startsWith('/')) navigate(key);
@@ -111,55 +156,49 @@ const AppLayout = () => {
     if (path.startsWith('/app/visits')) return '/app/visits/list';
     if (path.startsWith('/app/evaluation')) return '/app/evaluation';
     if (path.startsWith('/app/campaigns')) return '/app/campaigns';
+    if (path.startsWith('/app/fans/complaints')) return '/app/fans/complaints';
     if (path.startsWith('/app/fans/scan')) return '/app/fans/scan';
     if (path.startsWith('/app/fans/growth')) return '/app/fans/growth';
+    if (path.startsWith('/app/fans/rules')) return '/app/fans/rules';
     if (path.startsWith('/app/fans')) return '/app/fans/list';
+    if (path.startsWith('/app/materials/stocks')) return '/app/materials/stocks';
+    if (path.startsWith('/app/materials/inbound')) return '/app/materials/inbound';
+    if (path.startsWith('/app/materials/outbound')) return '/app/materials/outbound';
     if (path.startsWith('/app/materials')) return '/app/materials/list';
+    if (path.startsWith('/app/settings/products')) return '/app/settings/products';
+    if (path.startsWith('/app/settings/data')) return '/app/settings/data';
+    if (path.startsWith('/app/settings/audit')) return '/app/settings/audit';
     if (path.startsWith('/app/settings')) return '/app/settings/users';
     return '/app/dashboard';
   };
 
   const getOpenKeys = () => {
-    const path = location.pathname;
-    const keys = [];
-    if (
-      path.startsWith('/app/stores') ||
-      path.startsWith('/app/visits') ||
-      path.startsWith('/app/evaluation') ||
-      path.startsWith('/app/campaigns') ||
-      path.startsWith('/app/materials')
-    ) keys.push('crm');
-    if (path.startsWith('/app/fans')) keys.push('fan-ops');
+    const keys = ['crm', 'materials'];
+    if (canViewCompanyScope(profile)) keys.push('fan-ops');
+    if (!canViewCompanyScope(profile)) keys.push('fan-support');
+    if (profile.role === ROLES.ADMIN) keys.push('settings');
     return keys;
   };
 
   const brandBlock = (
-    <div style={{
-      height: 76,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontWeight: 800,
-      textShadow: '0 0 20px rgba(255,215,0,0.15)',
-      background: 'transparent',
-      borderBottom: '1px solid rgba(255,215,0,0.06)',
-    }}>
-      <div className="layout-brand"><span className="text-gold-gradient"><ShinyText speed={4}>UWELL CRM</ShinyText></span></div>
-      <div className="text-gold-gradient" style={{ fontSize: 11, fontWeight: 500, marginTop: 3 }}>
-        {t('app_subtitle')}
+    <div className="admin-ref-brand">
+      <div className="admin-ref-logo">U</div>
+      <div>
+        <div className="layout-brand"><span className="text-gold-gradient"><ShinyText speed={4}>UWELL</ShinyText></span> <b>CRM</b></div>
+        <div className="admin-ref-brand-sub">{t('app_subtitle')}</div>
       </div>
     </div>
   );
 
   const menu = (
     <Menu
+      key={`${profile.role}-${lang}`}
       mode="inline"
       defaultOpenKeys={getOpenKeys()}
       selectedKeys={[getSelectedKey()]}
       items={menuItems}
       onClick={handleMenuClick}
-      style={{ borderRight: 0, marginTop: 8, padding: '0 8px' }}
+      style={{ borderRight: 0, marginTop: 12, padding: '0 12px' }}
       theme="dark"
     />
   );
@@ -167,10 +206,8 @@ const AppLayout = () => {
 
   return (
     <Layout className="layout-root app-liquid-shell admin-liquid-shell">
-      <video className="app-liquid-bg-video" src={APP_BG_VIDEO} muted autoPlay loop playsInline preload="auto" />
-      <div className="app-liquid-bg-scrim" />
       {!isMobile && (
-        <Sider width={232} breakpoint="lg" collapsedWidth={0} className="layout-sider">
+        <Sider width={260} breakpoint="lg" collapsedWidth={0} className="layout-sider admin-ref-sider">
           {brandBlock}
           {IS_LOCAL_MODE && (
             <div style={{ padding: '10px 16px 2px', textAlign: 'center' }}>
@@ -186,8 +223,12 @@ const AppLayout = () => {
           placement="left"
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
-          width={280}
-          styles={{ body: { padding: 0, background: '#000000' } }}
+          width={292}
+          styles={{
+            body: { padding: 0, background: '#071a2a' },
+            content: { background: '#071a2a' },
+            header: { background: '#071a2a', borderBottom: '1px solid rgba(255,255,255,0.08)' },
+          }}
         >
           {brandBlock}
           {menu}
@@ -195,7 +236,7 @@ const AppLayout = () => {
       )}
 
       <Layout>
-        <Header style={{
+        <Header className="admin-ref-header" style={{
           padding: isMobile ? '0 12px' : '0 24px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -207,12 +248,15 @@ const AppLayout = () => {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
             {isMobile && (
-              <Button type="text" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} />
+              <Button className="admin-mobile-menu-button" type="text" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} />
             )}
             {!isMobile && (
-              <span style={{ color: '#b0b0c8', fontSize: 13, letterSpacing: '0.3px' }}>
-                {t('app_header_modules')}
-              </span>
+              <Input
+                className="admin-ref-search"
+                prefix={<SearchOutlined />}
+                placeholder={t('admin_search_placeholder')}
+                allowClear
+              />
             )}
           </div>
           <div className="layout-settings-slot">
@@ -228,10 +272,10 @@ const AppLayout = () => {
               <div className="layout-settings-panel liquid-glass">
                 <div className="layout-settings-profile">
                   <Avatar size="small" icon={<UserOutlined />} />
-                  <span>{profile.name || '用户'} ({ROLE_NAMES[profile.role] || profile.role})</span>
+                  <span>{profile.name || t('profile')} ({roleLabel(profile.role)})</span>
                 </div>
                 <div className="store-settings-label">{t('settings_language')}</div>
-                <LanguageSwitcher inline showCurrent zIndex={360} />
+                <LanguageSwitcher inline showCurrent zIndex={360} tone="light" />
                 <div className="fe-settings-divider" />
                 <button type="button" className="store-settings-item" onClick={handleLogout}>
                   <LogoutOutlined /> {t('logout')}
@@ -240,13 +284,13 @@ const AppLayout = () => {
             )}
           </div>
         </Header>
-        <Content ref={contentRef} className="bg-radial-top" style={{
-          margin: isMobile ? 8 : 20,
-          padding: isMobile ? 12 : 24,
+        <Content ref={contentRef} className="bg-radial-top admin-ref-content" style={{
+          margin: isMobile ? 8 : 24,
+          padding: isMobile ? 12 : 28,
           background: 'transparent',
-          borderRadius: 12,
+          borderRadius: 18,
           overflow: 'auto',
-          boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+          boxShadow: 'none',
         }}>
           <motion.div
             key={location.pathname}

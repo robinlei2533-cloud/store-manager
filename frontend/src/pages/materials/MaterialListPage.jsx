@@ -1,18 +1,18 @@
 import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Upload, message, Space, Card, Spin, Empty, Popconfirm, Image, Tag, Tabs, InputNumber as Num, Tooltip, Statistic, Row, Col, Progress } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, Upload, message, Space, Card, Spin, Empty, Popconfirm, Image, Tag, Tabs, Tooltip, Statistic, Row, Col, Progress } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, InboxOutlined, WarningOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMaterials, createMaterial, updateMaterial, deleteMaterial, getMaterialStocks, updateMaterialStock, getInbounds, createInbound, getOutbounds, createOutbound, updateOutboundStatus, getStores, IS_LOCAL_MODE } from '../../services/api';
+import { getMaterials, createMaterial, updateMaterial, deleteMaterial, getMaterialStocks, updateMaterialStock, getInbounds, createInbound, getOutbounds, createOutbound, updateOutboundStatus, getStores } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
 import { ROLES } from '../../utils/constants';
-import localDb from '../../services/db/localDb';
 import PageTransition from "../../components/common/PageTransition";
 
 const MATERIAL_CATEGORIES = ['Promotional', 'Display', 'Office Supply', 'Gift', 'Store', 'Uniform', 'Sample', 'Other'];
 
 // ============ Material Catalog Tab ============
 const CatalogTab = () => {
+  const { t } = useLanguageStore();
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
@@ -140,8 +140,8 @@ const CatalogTab = () => {
   ];
 
   return (
-    <Card title={<span style={{ fontSize: 18, fontWeight: 600 }}>Material Catalog</span>} extra={
-      <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>Add Material</Button>
+    <Card title={<span style={{ fontSize: 18, fontWeight: 600 }}>{t('material_catalog')}</span>} extra={
+      <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>{t('add_material')}</Button>
     }>
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div> :
        !materials.length ? <Empty description="No materials yet. Click Add Material to create one." /> :
@@ -391,6 +391,7 @@ const OutboundTab = () => {
 
 // ============ Main Page ============
 const MaterialListPage = () => {
+  const { t } = useLanguageStore();
   const [activeTab, setActiveTab] = useState('catalog');
 
   return (
@@ -399,10 +400,10 @@ const MaterialListPage = () => {
         activeKey={activeTab}
         onChange={setActiveTab}
         items={[
-          { key: 'catalog', label: <span><InboxOutlined /> Catalog & Stock</span>, children: <CatalogTab /> },
-          { key: 'dashboard', label: <span><WarningOutlined /> Stock Dashboard</span>, children: <StockTab /> },
-          { key: 'inbound', label: 'Inbound', children: <InboundTab /> },
-          { key: 'outbound', label: 'Outbound', children: <OutboundTab /> },
+          { key: 'catalog', label: <span><InboxOutlined /> {t('material_catalog_stock')}</span>, children: <CatalogTab /> },
+          { key: 'dashboard', label: <span><WarningOutlined /> {t('stock_dashboard')}</span>, children: <StockTab /> },
+          { key: 'inbound', label: t('material_inbound'), children: <InboundTab /> },
+          { key: 'outbound', label: t('material_outbound'), children: <OutboundTab /> },
         ]}
       />
     </div>

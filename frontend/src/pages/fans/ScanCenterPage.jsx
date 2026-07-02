@@ -1,6 +1,5 @@
-import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
-import { Card, Tabs, Table, Button, Modal, Form, Input, InputNumber, Select, Tag, Space, message, Popconfirm, Row, Col, Statistic, Spin, Empty } from 'antd';
+import { Card, Tabs, Table, Button, Modal, Form, InputNumber, Select, Tag, Space, message, Popconfirm, Row, Col, Statistic, Spin, Empty } from 'antd';
 import { PlusOutlined, QrcodeOutlined, ScanOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getQrCodes, createQrCode, updateQrCode, deleteQrCode, scanQrCode, getScanRecords, getProducts, getStores } from '../../services/api';

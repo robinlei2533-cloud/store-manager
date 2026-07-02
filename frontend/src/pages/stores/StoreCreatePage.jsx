@@ -1,15 +1,13 @@
-import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Form, Input, InputNumber, Select, Button, Card, message, Spin } from 'antd';
-import { createStore, updateStore, getStoreById, getStores } from '../../services/api';
+import { createStore, updateStore, getStoreById } from '../../services/api';
 import { STORE_LEVELS } from '../../utils/constants';
 import PageTransition from "../../components/common/PageTransition";
 
 const StoreCreatePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +22,7 @@ const StoreCreatePage = () => {
         navigate('/app/stores/list');
       }).finally(() => setLoading(false));
     }
-  }, [id]);
+  }, [id, form, navigate]);
 
   const handleSubmit = async (values) => {
     setSubmitting(true);

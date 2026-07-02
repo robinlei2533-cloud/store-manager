@@ -3,26 +3,11 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ Shared Helpers ============
 
 // ============ Enrich helpers ============
-function enrichVisit(visit) {
-  const store = localDb.findById('stores', visit.store_id);
-  const rep = localDb.findById('profiles', visit.rep_id);
-  return { ...visit, stores: store ? { name: store.name } : null, profiles: rep ? { name: rep.name } : null };
-}
-function enrichFan(fan) {
-  const store = localDb.findById('stores', fan.store_id);
-  const profile = fan.user_id ? localDb.findById('profiles', fan.user_id) : null;
-  return { ...fan, stores: store ? { name: store.name } : null, profiles: profile ? { name: profile.name } : null };
-}
-function enrichMaterialStock(stock) {
-  const material = localDb.findById('materials', stock.material_id);
-  return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
-}
 
 // ============ 鏁版嵁鐪嬬洏 ============
 

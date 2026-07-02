@@ -9,7 +9,9 @@ import { motion } from "framer-motion";
 import Galaxy from "../../components/effects/Galaxy";
 import ClickSpark from "../../components/effects/ClickSpark";
 import Counter from "../../components/effects/Counter";
-import { Spin, message } from 'antd';
+import fanEntryHero from '../../assets/design/fan-entry-hero.jpg';
+import { message } from 'antd';
+import { GlobalOutlined, LockOutlined, SettingOutlined, ShopOutlined } from '@ant-design/icons';
 import gsap from 'gsap';
 
 // ============ Product Data (from myuwell.com CALIBURN page) ============
@@ -25,17 +27,15 @@ const PD = [
 ];
 const PRODUCT_STRIP_ITEMS = [...PD, ...PD];
 const PROD_INFO = {
-  "CALIBURN AIR":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN AIR"],["Series","Flagship"],["Source","myuwell.com"]],icon:"⚡"},
-  "CALIBURN G5":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G5"],["Series","Flagship"],["Source","myuwell.com"]],icon:"🔥"},
-  "CALIBURN G5 KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G5 KOKO"],["Series","KOKO"],["Source","myuwell.com"]],icon:"✨"},
-  "CALIBURN G5 LITE & G5 LITE SE":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","G5 Lite / G5 Lite SE"],["Series","Lite"],["Source","myuwell.com"]],icon:"✨"},
-  "G5 LITE KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","G5 Lite KOKO"],["Series","Lite KOKO"],["Source","myuwell.com"]],icon:"✨"},
-  "CALIBURN G4 PRO KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 PRO KOKO"],["Series","KOKO"],["Source","myuwell.com"]],icon:"✨"},
-  "CALIBURN G4 CLASSIC":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 CLASSIC"],["Series","Classic"],["Source","myuwell.com"]],icon:"🏆"},
-  "CALIBURN G4 PRO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 PRO"],["Series","Professional"],["Source","myuwell.com"]],icon:"🚀"},
+  "CALIBURN AIR":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN AIR"],["Series","Flagship"],["Source","myuwell.com"]]},
+  "CALIBURN G5":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G5"],["Series","Flagship"],["Source","myuwell.com"]]},
+  "CALIBURN G5 KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G5 KOKO"],["Series","KOKO"],["Source","myuwell.com"]]},
+  "CALIBURN G5 LITE & G5 LITE SE":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","G5 Lite / G5 Lite SE"],["Series","Lite"],["Source","myuwell.com"]]},
+  "G5 LITE KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","G5 Lite KOKO"],["Series","Lite KOKO"],["Source","myuwell.com"]]},
+  "CALIBURN G4 PRO KOKO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 PRO KOKO"],["Series","KOKO"],["Source","myuwell.com"]]},
+  "CALIBURN G4 CLASSIC":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 CLASSIC"],["Series","Classic"],["Source","myuwell.com"]]},
+  "CALIBURN G4 PRO":{desc:"Official CALIBURN series product from myuwell.com",specs:[["Model","CALIBURN G4 PRO"],["Series","Professional"],["Source","myuwell.com"]]},
 };
-
-const COLORS = { gold: '#FFD700', warmGold: '#F5A623', dark: '#0a0a0f' };
 
 // ============ Particle Canvas Component ============
 const ParticleCanvas = () => {
@@ -293,9 +293,8 @@ const FanEntryPage = () => {
   const { signInLocal } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-      const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
-  const [visibleCards, setVisibleCards] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mode, setMode] = useState("login");
   const [regName, setRegName] = useState("");
@@ -303,7 +302,6 @@ const FanEntryPage = () => {
   const [regPassword, setRegPassword] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [loading, setLoading] = useState(false);
-  const gridRef = useRef(null);
   const stripRef = useRef(null);
   
   // Auto-scroll product strip
@@ -351,23 +349,18 @@ const FanEntryPage = () => {
     gsap.from('.fe-hero-right', { opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: 0.9 });
   }, []);
 
-  // Staggered product card entrance
-  useEffect(() => {
-    const t = setTimeout(() => setVisibleCards(true), 600);
-    return () => clearTimeout(t);
-  }, []);
-
   const handleLogin = useCallback(async () => {
     const userEmail = email || 'fan@UWELLl.com';
-    try { await signInLocal(userEmail, 'fan'); } catch(e) {}
+    try {
+      await signInLocal(userEmail, 'fan');
+    } catch (_e) {
+      // Local fan fallback below keeps the demo entry usable.
+    }
     if (localDb.needsInit()) { localDb.init(seedData); }
-    let savedId = localStorage.getItem('store_manager_current_user');
-    if (!savedId) {
-      const fans = localDb.all('fans');
-      if (fans.length > 0) {
-        savedId = fans[0].id;
-        localStorage.setItem('store_manager_current_user', savedId);
-      }
+    const fans = localDb.all('fans');
+    if (fans.length > 0) {
+      localStorage.setItem('store_manager_current_user', fans[0].id);
+      localStorage.setItem('fan_logged_in', 'true');
     }
     navigate('/fan-center', { replace: true });
   }, [email, navigate, signInLocal]);
@@ -385,15 +378,19 @@ const FanEntryPage = () => {
       localDb.insert("auth", { id: profile.id, email: regEmail, password: regPassword, role: "fan" });
       localStorage.setItem("store_manager_current_user", profile.id);
       localStorage.setItem("fan_logged_in", "true");
-      try { await signInLocal(regEmail, regPassword); } catch(e) {}
+      try {
+        await signInLocal(regEmail, regPassword);
+      } catch (_e) {
+        // Registration already wrote local demo records; continue into fan center.
+      }
       setLoading(false);
       message.success(t('fan_entry_register_success'));
       navigate("/fan-center", { replace: true });
-    } catch (err) {
+    } catch (_err) {
       setLoading(false);
       message.error("Registration failed");
     }
-  }, [regName, regEmail, regPassword, regPhone, navigate, signInLocal]);
+  }, [regName, regEmail, regPassword, regPhone, navigate, signInLocal, t]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') handleLogin();
@@ -408,7 +405,7 @@ const FanEntryPage = () => {
   <div className="fe-page">
       {/* Background layers */}
       <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:0,
-        background: 'radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #14141e 60%, #000 100%)' }} />
+        background: `linear-gradient(180deg, rgba(3,3,8,0.52), rgba(3,3,8,0.9)), url(${fanEntryHero}) center/cover no-repeat, radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #14141e 60%, #000 100%)` }} />
       <AuroraCanvas />
       <ParticleCanvas />
       <MeteorShower />
@@ -442,15 +439,19 @@ const FanEntryPage = () => {
               onClick={() => { setSettingsOpen(!settingsOpen); }}
               className={`fe-settings-trigger${settingsOpen ? " is-open" : ""}`}
               aria-label="Open settings"
-            >⚙</button>
+            ><SettingOutlined /></button>
             {settingsOpen && (
               <div className="fe-settings-panel fe-settings-panel-entry">
+                <div onClick={() => window.location.href = '/store-app.html#/store-login'} className="fe-settings-item">
+                  <ShopOutlined className="fe-settings-icon" /> {t('settings_store')}
+                </div>
+                <div className="fe-settings-divider" />
                 <div onClick={() => window.location.href='/index.html#/admin'} className="fe-settings-item">
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🔐</span> {t('settings_admin')}
+                  <LockOutlined className="fe-settings-icon" /> {t('settings_admin')}
                 </div>
                 <div className="fe-settings-divider" />
                 <a href="https://www.myuwell.com" target="_blank" rel="noopener noreferrer" className="fe-settings-item">
-                  <span style={{fontSize:16,width:28,textAlign:'center'}}>🌐</span> {t('settings_website')}
+                  <GlobalOutlined className="fe-settings-icon" /> {t('settings_website')}
                 </a>
               </div>
             )}
@@ -476,11 +477,11 @@ const FanEntryPage = () => {
             <div style={{ marginBottom: 20, fontSize: 14, color: '#FFD700', fontWeight: 600 }}>
               {t('fan_entry_benefits_line')}
             </div>
-            <div style={{ display:'flex', gap:16, flexWrap:'wrap', marginTop:20 }}>
-              {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map((f, idx) => (
-                <div key={f.label} style={{ display:'flex', alignItems:'center', gap:12, fontSize:14, color:'rgba(255,255,255,0.6)', fontWeight:600, fontFamily:"Barlow, sans-serif" }}>
-                  <span style={{ width:6, height:6, borderRadius:'50%', background:'linear-gradient(135deg,#FFD700,#F5A623)' }} />
-                  <Counter from={0} to={f.value} suffix={f.suffix} duration={2} />
+            <div className="fe-stat-grid">
+              {[{label:t('fan_entry_daily_checkin'),value:1280,suffix:'+'},{label:t('fan_entry_scan_points'),value:8560,suffix:'+'},{label:t('fan_entry_rewards_mall'),value:520,suffix:'+'},{label:t('fan_entry_member_levels'),value:6,suffix:'+'}].map((f) => (
+                <div key={f.label} className="fe-stat-card">
+                  <strong><Counter from={0} to={f.value} suffix={f.suffix} duration={2} /></strong>
+                  <span>{f.label}</span>
                 </div>
               ))}
             </div>
@@ -569,18 +570,22 @@ const FanEntryPage = () => {
       </div>
 
       
-      {/* === Caliburn Product Strip (Fixed Bottom) === */}
+      {/* === Caliburn Product Strip === */}
       <div className="fe-product-dock">
+        <div className="fe-product-heading">
+          <span>{t('fan_product_title')}</span>
+          <a href="https://www.myuwell.com/products/caliburn" target="_blank" rel="noopener noreferrer">{t('view_all')}</a>
+        </div>
         <div ref={stripRef} className="fe-product-marquee" aria-label="CALIBURN products">
           {PRODUCT_STRIP_ITEMS.map((p, i) => (
-            <div key={`${p.n}-${i}`} className="fe-product-card" onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "✨" })}
+            <div key={`${p.n}-${i}`} className="fe-product-card" onClick={() => openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product" })}
               style={{ "--product-accent": p.c }}
               tabIndex={i < PD.length ? 0 : -1}
               aria-hidden={i >= PD.length}
               onKeyDown={e => {
                 if (i < PD.length && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
-                  openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product", icon: "✨" });
+                  openModal(p, PROD_INFO[p.n] || { desc: "UWELL Premium Product" });
                 }
               }}
             >
@@ -618,7 +623,7 @@ const FanEntryPage = () => {
             <div className="fe-modal-img-area">
               <img src={modalProduct.product.i} alt="" className="fe-modal-img" />
             </div>
-            <h2 style={{ fontSize:24, fontWeight:900, letterSpacing:1, marginBottom:4, color: modalProduct.product.c }}>{modalProduct.info.icon} {modalProduct.product.n}</h2>
+            <h2 style={{ fontSize:24, fontWeight:900, letterSpacing:1, marginBottom:4, color: modalProduct.product.c }}>{modalProduct.product.n}</h2>
             <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)', letterSpacing:1, marginBottom:12 }}>{modalProduct.product.t}</div>
             <div style={{ color:'rgba(255,255,255,0.45)', fontSize:13, lineHeight:1.8, marginBottom:20 }}>{modalProduct.info.desc}</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
@@ -648,4 +653,3 @@ const FanEntryPage = () => {
 };
 
 export default FanEntryPage;
-

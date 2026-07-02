@@ -3,7 +3,6 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ 浜у搧 ============
@@ -38,4 +37,4 @@ export async function deleteProduct(id) {
   const { error } = await supabase.from('products').delete().eq('id', id);
   if (error) throw error;
 }
-
+

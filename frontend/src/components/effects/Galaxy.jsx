@@ -5,6 +5,8 @@ import "./Galaxy.css";
 const VERT = `
 attribute vec3 position;
 attribute vec3 random;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
 uniform float uTime;
 uniform float uSpeed;
 varying float vRandom;

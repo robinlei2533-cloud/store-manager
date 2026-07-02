@@ -3,7 +3,6 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ 娲诲姩绠＄悊 ============
@@ -14,6 +13,10 @@ export async function getCampaigns(filters = {}) {
     let data = localDb.all('campaigns');
     if (filters.status) data = data.filter((c) => c.status === filters.status);
     if (filters.type) data = data.filter((c) => c.type === filters.type);
+    if (filters.assigned_store_ids) {
+      const assignedStoreIds = new Set(filters.assigned_store_ids);
+      data = data.filter((c) => (c.target_stores || []).some((storeId) => assignedStoreIds.has(storeId)));
+    }
     return data.map((c) => ({
       ...c,
       store_count: c.target_stores?.length || 0,
@@ -112,4 +115,4 @@ export async function updateCampaignReport(id, report) {
   if (error) throw error;
   return data;
 }
-
+

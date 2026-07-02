@@ -3,9 +3,7 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
-import { enrichFan, enrichVisit, enrichMaterialStock } from './helpers';
 import { addFanPoints } from './fans';
 
 // ============ QRCODES ============
@@ -60,7 +58,7 @@ export async function scanQrCode(qrCodeId) {
     const fan = localDb.find('fans', (f) => f.store_id === qr.store_id)[0];
     if (!fan) throw new Error('No fan account for this store');
 
-    // 澧炲姞鎵爜娆℃暟
+    // Update QR scan count.
     localDb.update('qr_codes', qrCodeId, { scan_count: qr.scan_count + 1 });
 
     // Record scan
@@ -73,11 +71,11 @@ export async function scanQrCode(qrCodeId) {
     });
 
     // Add points
-    const result = await addFanPoints(fan.id, qr.points, 'earn', '鎵爜绉垎', `娑堣垂鑰呮壂鐮?${qr.code}`);
+    const result = await addFanPoints(fan.id, qr.points, 'earn', 'scan', `扫码验证产品 ${qr.code}`);
 
     return { success: true, points: qr.points, fan: result, product: localDb.findById('products', qr.product_id) };
   }
-  // Supabase 閫氳繃 RPC 璋冪敤
+  // Supabase handles scan validation and point creation through RPC.
   const { data, error } = await supabase.rpc('scan_qr_code', { qr_id: qrCodeId });
   if (error) throw error;
   return data;
@@ -100,4 +98,4 @@ export async function getScanRecords(filters = {}) {
   if (error) throw error;
   return data;
 }
-
+

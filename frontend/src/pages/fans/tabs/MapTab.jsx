@@ -1,46 +1,51 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Card, Tag, Button, Spin, Empty, Typography, Space } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
+import { DISPLAY_CATEGORIES, STORE_LEVEL_LABELS, STORE_RECOMMEND_LEVELS, getDisplayCategoryLabel } from '../../../utils/uwellClosedLoop';
 import 'leaflet/dist/leaflet.css';
 
 const { Text } = Typography;
 
 const LVL = {
-  S: { label: 'Platinum', icon: '👑', mark: '#B9F2FF' },
-  A: { label: 'Gold', icon: '🥇', mark: '#FFD700' },
-  B: { label: 'Silver', icon: '🥈', mark: '#C0C0C0' },
-  C: { label: 'Bronze', icon: '⚪', mark: '#CD7F32' },
+  S: { label: '钻石', mark: '#B9F2FF' },
+  A: { label: '黄金', mark: '#FFD700' },
+  B: { label: '白银', mark: '#C0C0C0' },
+  C: { label: '青铜', mark: '#CD7F32' },
 };
 const LVL_KEYS = ['S', 'A', 'B', 'C'];
 
 function makePopup(store) {
   const lv = store.level || 'C';
   const cfg = LVL[lv] || LVL.C;
-  return '<div style=\"font-family:system-ui,sans-serif;min-width:200px;\">' +
-    '<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:6px;\">' +
-    '<span style=\"font-size:22px;\">' + cfg.icon + '</span>' +
-    '<strong style=\"font-size:14px;color:#1a1a2e;\">' + escapeHtml(store.name) + '</strong></div>' +
-    '<div style=\"margin-bottom:6px;\">' +
-    '<span style=\"background:' + cfg.mark + ';color:#000;padding:1px 10px;border-radius:8px;font-size:11px;font-weight:bold;\">' +
-    cfg.label + ' Store</span></div>' +
-    '<div style=\"font-size:12px;color:#666;margin:4px 0;\">\uD83D\uDCDE ' + (store.phone || 'N/A') + '</div>' +
-    '<div style=\"margin-top:8px;\">' +
-    '<a href=\"https://www.google.com/maps/dir/?api=1&destination=' + store.lat + ',' + store.lng + '\" ' +
-    'target=\"_blank\" rel=\"noopener\" ' +
-    'style=\"display:inline-block;background:#1677ff;color:white;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;\">' +
-    '\uD83D\uDDFA\uFE0F Navigate</a>' +
-    '<a href=\"' + (store.address || '#') + '\" target=\"_blank\" rel=\"noopener\" ' +
-    'style=\"display:inline-block;margin-left:6px;background:#f0f0f0;color:#333;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;\">' +
-    '\uD83D\uDCCD Map</a></div></div>';
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`;
+  const mapUrl = store.address?.startsWith('http')
+    ? store.address
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address || store.name || '')}`;
+
+  return `
+    <div style="font-family:system-ui,sans-serif;min-width:200px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:${cfg.mark};color:#000;font-size:12px;font-weight:800;">${lv}</span>
+        <strong style="font-size:14px;color:#1a1a2e;">${escapeHtml(store.name)}</strong>
+      </div>
+      <div style="margin-bottom:6px;">
+        <span style="background:${cfg.mark};color:#000;padding:1px 10px;border-radius:8px;font-size:11px;font-weight:bold;">${cfg.label}门店</span>
+      </div>
+      <div style="font-size:12px;color:#666;margin:4px 0;">Phone: ${escapeHtml(store.phone || 'N/A')}</div>
+      <div style="margin-top:8px;">
+        <a href="${directionsUrl}" target="_blank" rel="noopener" style="display:inline-block;background:#1677ff;color:white;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">Navigate</a>
+        <a href="${mapUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-left:6px;background:#f0f0f0;color:#333;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;">Map</a>
+      </div>
+    </div>`;
 }
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-const MapTab = ({ fan }) => {
+const MapTab = ({ fan: _fan }) => {
   const mapDiv = useRef(null);
   const mapInst = useRef(null);
   const [stores, setStores] = useState([]);
@@ -55,7 +60,7 @@ const MapTab = ({ fan }) => {
         const seed = (await import('../../../services/db/seedData')).default;
         localDb.init(seed);
       }
-      const list = localDb.all('stores').filter(s => s.lat && s.lng);
+      const list = localDb.all('stores').filter(s => s.lat && s.lng && STORE_RECOMMEND_LEVELS.includes(s.level));
       setStores(list);
       setLoading(false);
     })();
@@ -86,7 +91,7 @@ const MapTab = ({ fan }) => {
       attribution: '&copy; OpenStreetMap',
     }).addTo(map);
 
-    const filtered = filter ? stores.filter(s => s.level === filter) : stores;
+    const filtered = filter ? stores.filter(s => s.level === filter) : stores.filter(s => STORE_RECOMMEND_LEVELS.includes(s.level));
     const markers = [];
 
     filtered.forEach(store => {
@@ -136,13 +141,16 @@ const MapTab = ({ fan }) => {
 
   const counts = {};
   stores.forEach(s => { counts[s.level] = (counts[s.level] || 0) + 1; });
+  const selectedDisplays = selected
+    ? (localDb.find('store_display_uploads', (item) => item.store_id === selected.id && item.status === 'approved') || [])
+    : [];
 
   return (
     <div>
       <div style={{display:'flex',gap:6,padding:'8px 0',flexWrap:'wrap',justifyContent:'center'}}>
         <Button size="small" type={!filter ? 'primary' : 'default'}
           onClick={() => setFilter(null)} style={{borderRadius:20,fontSize:12}}>
-          \uD83C\uDFEA All ({stores.length})
+          All ({stores.length})
         </Button>
         {LVL_KEYS.map(k => (
           <Button key={k} size="small" type={filter === k ? 'primary' : 'default'}
@@ -174,20 +182,39 @@ const MapTab = ({ fan }) => {
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
             <div>
               <Space>
-                <span style={{fontSize:20}}>{LVL[selected.level]?.icon || '\uD83C\uDFEA'}</span>
+                <span style={{fontSize:13,fontWeight:800,color:LVL[selected.level]?.mark || LVL.C.mark}}>{selected.level || 'C'}</span>
                 <Text strong style={{color:'#e5e5e5',fontSize:14}}>{selected.name}</Text>
                 <Tag color={LVL[selected.level]?.mark} style={{color:'#000',fontWeight:600}}>
-                  {LVL[selected.level]?.label}
+                  {STORE_LEVEL_LABELS[selected.level]?.label || LVL[selected.level]?.label}
                 </Tag>
               </Space>
               <div style={{fontSize:12,color:'#888',marginTop:4}}>
-                \uD83D\uDCDE {selected.phone || 'N/A'}
+                Phone: {selected.phone || 'N/A'}
               </div>
             </div>
             <a href={`https://www.google.com/maps/dir/?api=1&destination=${selected.lat},${selected.lng}`}
                target="_blank" rel="noopener noreferrer">
               <Button type="primary" icon={<EnvironmentOutlined />} size="small">Navigate</Button>
             </a>
+          </div>
+          <div style={{marginTop:12,display:'grid',gap:10}}>
+            {DISPLAY_CATEGORIES.map((category) => {
+              const images = selectedDisplays.filter((item) => item.category === category.key).slice(0, 3);
+              return (
+                <div key={category.key}>
+                  <Text style={{color:'#d6d6d6',fontSize:12,fontWeight:700}}>{getDisplayCategoryLabel(category.key)}</Text>
+                  {images.length ? (
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginTop:6}}>
+                      {images.map((item) => (
+                        <img key={item.id} src={item.image_url} alt={category.label} style={{width:'100%',aspectRatio:'1 / 1',objectFit:'cover',borderRadius:8,border:'1px solid rgba(255,255,255,0.12)'}} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{fontSize:12,color:'#888',marginTop:4,padding:'8px 10px',border:'1px dashed rgba(255,255,255,0.14)',borderRadius:8}}>暂无审核通过图片</div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </Card>
       )}

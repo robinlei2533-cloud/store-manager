@@ -1,21 +1,18 @@
-import useLanguageStore from '../../stores/languageStore';
-import React, { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import {
   Card, Tabs, Button, Row, Col, Statistic, Tag, Spin, Empty, Space, message,
-  Modal, Progress, List, Avatar, Image, Input, Select, Typography, Tooltip, Badge,
+  Modal, Progress, List, Image, Select, Typography, Badge,
 } from 'antd';
 import {
   CheckCircleOutlined, GiftOutlined, ShoppingOutlined, EnvironmentOutlined,
   TrophyOutlined, StarOutlined, ThunderboltOutlined, CrownOutlined,
-  ReloadOutlined, LockOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import useAuthStore from '../../stores/authStore';
 import localDb from '../../services/db/localDb';
 import {
-  getFans, getFanPointsLog, addFanPoints, getLevelRules, getScanRecords,
+  getFans, getFanPointsLog, addFanPoints, getScanRecords,
 } from '../../services/api';
 import { FAN_LEVELS, LOTTERY_PRIZES, MALL_ITEMS } from '../../utils/constants';
 import PageTransition from "../../components/common/PageTransition";
@@ -33,14 +30,6 @@ function getNextLevel(currentLevel) {
   return FAN_LEVELS[idx + 1];
 }
 
-
-const staggerVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: (i) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.08, type: "spring", stiffness: 200, damping: 20 }
-  })
-};
 
 // ============ Tab 1: Check-in & Points ============
 const CheckInTab = ({ fan }) => {
@@ -197,7 +186,7 @@ const CheckInTab = ({ fan }) => {
             onClick={handleCheckIn}
             style={{ minWidth: 200 }}
           >
-            {todayCheckedIn ? 'Checked In Today ✓' : 'Check In Now'}
+            {todayCheckedIn ? 'Checked In Today' : 'Check In Now'}
           </Button>
         </div>
       </Card>
@@ -221,7 +210,7 @@ const CheckInTab = ({ fan }) => {
                       {item.source}
                     </Space>
                   }
-                  description={`${item.description} · ${new Date(item.created_at).toLocaleString('en-US')}`}
+                  description={`${item.description} - ${new Date(item.created_at).toLocaleString('en-US')}`}
                 />
               </List.Item>
             )}
@@ -423,7 +412,7 @@ const LuckyDrawTab = ({ fan }) => {
             renderItem={(item) => (
               <List.Item>
                 <List.Item.Meta
-                  avatar={<span style={{ fontSize: 24 }}>{LOTTERY_PRIZES.find((p) => p.id === item.prize_id)?.icon || '🎁'}</span>}
+                  avatar={<GiftOutlined style={{ fontSize: 20, color: '#722ed1' }} />}
                   title={
                     <Space>
                       {item.prize_label}
@@ -690,7 +679,7 @@ const FanMapTab = ({ fans }) => {
               dataSource={topFans}
               renderItem={(fan, idx) => {
                 const levelInfo = getLevelInfo(fan.level);
-                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`;
+                const medal = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `${idx + 1}`;
                 return (
                   <List.Item>
                     <List.Item.Meta
@@ -705,7 +694,7 @@ const FanMapTab = ({ fans }) => {
                         <Space>
                           <StarOutlined style={{ color: '#faad14' }} />
                           <strong>{fan.points}</strong> pts
-                          <Text type="secondary" style={{ fontSize: 12 }}>· {fan.stores?.name || '-'}</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>- {fan.stores?.name || '-'}</Text>
                         </Space>
                       }
                     />
@@ -740,7 +729,7 @@ const FanMapTab = ({ fans }) => {
                         const li = getLevelInfo(f.level);
                         return (
                           <Tag key={f.id} color={li.color} className="fg-fan-tag">
-                            {f.profiles?.name || `Fan #${f.id?.slice(0, 4)}`} · {f.points}pts
+                            {f.profiles?.name || `Fan #${f.id?.slice(0, 4)}`} - {f.points}pts
                           </Tag>
                         );
                       })}
@@ -802,7 +791,7 @@ const FanGrowthPage = () => {
               showSearch
               optionFilterProp="label"
               options={fans.map(f => ({
-                label: `${f.profiles?.name || 'Fan #' + (f.id?.slice(-6) || '')} · ${f.points}pts · ${f.level}`,
+                label: `${f.profiles?.name || 'Fan #' + (f.id?.slice(-6) || '')} - ${f.points}pts - ${f.level}`,
                 value: f.id,
               }))}
             />

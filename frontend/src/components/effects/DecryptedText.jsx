@@ -25,7 +25,7 @@ const DecryptedText = ({ text = "", className = "", style = {}, speed = 50, trig
 
   const cleanup = useCallback(() => { clearInterval(intervalRef.current); setDisplayText(text); }, [text]);
 
-  useEffect(() => { if (trigger === "view") start(); return () => clearInterval(intervalRef.current); }, [trigger, text]);
+  useEffect(() => { if (trigger === "view") start(); return () => clearInterval(intervalRef.current); }, [trigger, start]);
 
   return React.createElement("span", {
     className, style: { cursor: trigger === "hover" ? "pointer" : "default", ...style },

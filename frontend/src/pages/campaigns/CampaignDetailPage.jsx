@@ -1,5 +1,4 @@
-import useLanguageStore from '../../stores/languageStore';
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Tag, Button, Modal, Form, Input, InputNumber, DatePicker, Select, Space, Spin, Empty, Row, Col, Statistic, message, Popconfirm } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +14,6 @@ const taskStatusConfig = { pending: 'Pending', ongoing: 'In Progress', done: 'Do
 const CampaignDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
   const queryClient = useQueryClient();
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -65,9 +63,9 @@ const CampaignDetailPage = () => {
 
   const { data: campaign, isLoading } = useQuery({ queryKey: ['campaign', id], queryFn: () => getCampaignById(id), enabled: !!id });
 
-  const campaignClaims = (localDb.all('campaign_claims') || []).filter(c => c.campaign_id === id);
-  const storeList = localDb.all('stores') || [];
-  useEffect(() => { setClaims(campaignClaims); setAllStores(storeList); }, []);
+  const campaignClaims = useMemo(() => (localDb.all('campaign_claims') || []).filter(c => c.campaign_id === id), [id]);
+  const storeList = useMemo(() => localDb.all('stores') || [], []);
+  useEffect(() => { setClaims(campaignClaims); setAllStores(storeList); }, [campaignClaims, storeList]);
   const taskMut = useMutation({ mutationFn: ({ data, taskId }) => taskId ? updateCampaignTask(taskId, data) : createCampaignTask(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task saved'); setTaskModalOpen(false); taskForm.resetFields(); setEditingTask(null); } });
   const deleteTaskMut = useMutation({ mutationFn: deleteCampaignTask, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task deleted'); } });
   const reportMut = useMutation({ mutationFn: ({ data, reportId }) => reportId ? updateCampaignReport(reportId, data) : createCampaignReport(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Report saved'); setReportModalOpen(false); } });
@@ -176,7 +174,7 @@ const CampaignDetailPage = () => {
 
       {/* Delivery Modal */}
       <Modal
-        title={<span style={{color:"#FFD700"}}>📦  Assign Materials</span>}
+        title={<span style={{color:"#FFD700"}}>Assign Materials</span>}
         open={deliveryModal.open}
         onCancel={() => { setDeliveryModal({ open: false, claim: null, storeName: "" }); deliveryForm.resetFields(); }}
         onOk={handleAssignMaterial}

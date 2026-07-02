@@ -3,25 +3,10 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ EVALUATIONS ============
 // ============ EVALUATIONS ============
-function enrichVisit(visit) {
-  const store = localDb.findById('stores', visit.store_id);
-  const rep = localDb.findById('profiles', visit.rep_id);
-  return { ...visit, stores: store ? { name: store.name } : null, profiles: rep ? { name: rep.name } : null };
-}
-function enrichFan(fan) {
-  const store = localDb.findById('stores', fan.store_id);
-  const profile = fan.user_id ? localDb.findById('profiles', fan.user_id) : null;
-  return { ...fan, stores: store ? { name: store.name } : null, profiles: profile ? { name: profile.name } : null };
-}
-function enrichMaterialStock(stock) {
-  const material = localDb.findById('materials', stock.material_id);
-  return { ...stock, materials: material ? { name: material.name, sku: material.sku, unit: material.unit, unit_cost: material.unit_cost } : null };
-}
 
 // ============ EVALUATIONS ============
 
@@ -31,6 +16,10 @@ export async function getEvaluations(filters = {}) {
     let data = localDb.all('store_evaluations');
     if (filters.store_id) data = data.filter((e) => e.store_id === filters.store_id);
     if (filters.level) data = data.filter((e) => e.recommended_level === filters.level);
+    if (filters.assigned_store_ids) {
+      const assignedStoreIds = new Set(filters.assigned_store_ids);
+      data = data.filter((e) => assignedStoreIds.has(e.store_id));
+    }
     return data.map((e) => ({
       ...e,
       stores: localDb.findById('stores', e.store_id),
@@ -39,6 +28,7 @@ export async function getEvaluations(filters = {}) {
   }
   let query = supabase.from('store_evaluations').select('*, stores(name, level), profiles!store_evaluations_evaluator_id_fkey(name)');
   if (filters.store_id) query = query.eq('store_id', filters.store_id);
+  if (filters.level) query = query.eq('recommended_level', filters.level);
   const { data, error } = await query.order('eval_date', { ascending: false });
   if (error) throw error;
   return data;
@@ -62,43 +52,28 @@ export async function getEvaluationById(id) {
 
 export async function createEvaluation(evalData) {
   ensureLocalInit();
-  // Calculate total score and recommend level
-  const total = evalData.score_sales + evalData.score_display + evalData.score_location +
-    evalData.score_cooperation + evalData.score_expansion + evalData.score_appearance;
-  const avg = total / 6;
-  let level = 'C';
-  if (avg >= 8) level = 'A';
-  else if (avg >= 6) level = 'B';
-
-  const record = { ...evalData, total_score: total, recommended_level: level };
+  const record = buildEvaluationRecord(evalData);
 
   if (isLocal()) {
     const result = localDb.insert('store_evaluations', record);
-    // Sync store level
-    localDb.update('stores', evalData.store_id, { level });
+    localDb.update('stores', evalData.store_id, { level: record.recommended_level });
     return result;
   }
-  const { data, error } = await supabase.from('store_evaluations').insert(record).select().single();
+  const { data, error } = await supabase.from('store_evaluations').insert(toSupabaseEvaluationRecord(record)).select().single();
   if (error) throw error;
   return data;
 }
 
 export async function updateEvaluation(id, evalData) {
   ensureLocalInit();
-  const total = evalData.score_sales + evalData.score_display + evalData.score_location +
-    evalData.score_cooperation + evalData.score_expansion + evalData.score_appearance;
-  const avg = total / 6;
-  let level = 'C';
-  if (avg >= 8) level = 'A';
-  else if (avg >= 6) level = 'B';
-  const record = { ...evalData, total_score: total, recommended_level: level };
+  const record = buildEvaluationRecord(evalData);
 
   if (isLocal()) {
     const result = localDb.update('store_evaluations', id, record);
-    localDb.update('stores', evalData.store_id, { level });
+    localDb.update('stores', evalData.store_id, { level: record.recommended_level });
     return result;
   }
-  const { data, error } = await supabase.from('store_evaluations').update(record).eq('id', id).select().single();
+  const { data, error } = await supabase.from('store_evaluations').update(toSupabaseEvaluationRecord(record)).eq('id', id).select().single();
   if (error) throw error;
   return data;
 }
@@ -109,4 +84,61 @@ export async function deleteEvaluation(id) {
   const { error } = await supabase.from('store_evaluations').delete().eq('id', id);
   if (error) throw error;
 }
-
+
+function buildEvaluationRecord(evalData) {
+  if (evalData.score_model === 'bd_store_rating_v1') {
+    const total = Number(evalData.total_score || 0);
+    return {
+      ...evalData,
+      total_score: total,
+      recommended_level: get110PointLevel(total),
+    };
+  }
+
+  const total = Number(evalData.score_sales || 0) + Number(evalData.score_display || 0) + Number(evalData.score_location || 0) +
+    Number(evalData.score_cooperation || 0) + Number(evalData.score_expansion || 0) + Number(evalData.score_appearance || 0);
+  const avg = total / 6;
+  let level = 'C';
+  if (avg >= 8) level = 'A';
+  else if (avg >= 6) level = 'B';
+  return { ...evalData, total_score: total, recommended_level: level };
+}
+
+function get110PointLevel(score) {
+  if (score >= 75) return 'A';
+  if (score >= 50) return 'B';
+  if (score >= 30) return 'C';
+  return 'D';
+}
+
+function toSupabaseEvaluationRecord(record) {
+  const {
+    store_id,
+    eval_date,
+    score_sales,
+    score_display,
+    score_location,
+    score_cooperation,
+    score_expansion,
+    score_appearance,
+    total_score,
+    recommended_level,
+    evaluator_id,
+    notes,
+  } = record;
+  return {
+    store_id,
+    eval_date,
+    score_sales,
+    score_display,
+    score_location,
+    score_cooperation,
+    score_expansion,
+    score_appearance,
+    total_score,
+    recommended_level,
+    evaluator_id,
+    notes,
+  };
+}
+

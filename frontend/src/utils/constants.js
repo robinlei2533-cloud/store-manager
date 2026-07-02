@@ -1,4 +1,4 @@
-export const ROLES = {
+﻿export const ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',
   REP: 'rep',
@@ -19,10 +19,11 @@ export const hasPermission = (profile, requiredRole) => {
 };
 
 export const STORE_LEVELS = [
-  { label: 'S 级重点门店', value: 'S' },
-  { label: 'A 级优质门店', value: 'A' },
-  { label: 'B 级成长门店', value: 'B' },
-  { label: 'C 级基础门店', value: 'C' },
+  { label: 'S 钻石门店', value: 'S' },
+  { label: 'A 黄金门店', value: 'A' },
+  { label: 'B 白银门店', value: 'B' },
+  { label: 'C 青铜门店', value: 'C' },
+  { label: 'D 级待开发门店', value: 'D' },
 ];
 
 export const STORE_LEVEL_COLORS = {
@@ -30,6 +31,7 @@ export const STORE_LEVEL_COLORS = {
   A: 'red',
   B: 'blue',
   C: 'default',
+  D: 'orange',
 };
 
 export const PHOTO_TYPES = [
@@ -46,11 +48,10 @@ export const VISIT_STATUS = {
 };
 
 export const FAN_LEVELS = [
-  { label: 'L1 青铜会员', value: 'bronze', color: '#CD7F32', min_points: 0 },
-  { label: 'L2 白银会员', value: 'silver', color: '#8b949e', min_points: 100 },
-  { label: 'L3 黄金会员', value: 'gold', color: '#d97706', min_points: 500 },
-  { label: 'L4 铂金会员', value: 'platinum', color: '#64748b', min_points: 2000 },
-  { label: 'L5 钻石会员', value: 'diamond', color: '#0891b2', min_points: 5000 },
+  { label: '青铜会员', value: 'bronze', color: '#CD7F32', min_points: 0 },
+  { label: '白银会员', value: 'silver', color: '#8b949e', min_points: 1000 },
+  { label: '黄金会员', value: 'gold', color: '#d97706', min_points: 2500 },
+  { label: '钻石会员', value: 'diamond', color: '#0891b2', min_points: 5000 },
 ];
 
 export const OUTBOUND_STATUS = {
@@ -61,12 +62,12 @@ export const OUTBOUND_STATUS = {
 };
 
 export const EVAL_DIMENSIONS = [
-  { key: 'score_sales', label: '销量与进货频率', desc: '近期销量、补货节奏与动销稳定性' },
-  { key: 'score_display', label: '陈列质量', desc: '产品陈列规范、货架占位和展示完整度' },
+  { key: 'score_sales', label: '进货情况', desc: '近期进货金额、品类结构与动销稳定性' },
+  { key: 'score_display', label: '陈列质量', desc: '产品陈列位置、货架占位和展示完整度' },
   { key: 'score_location', label: '位置与客流', desc: '门店位置、自然客流和周边消费潜力' },
-  { key: 'score_cooperation', label: '老板配合度', desc: '沟通效率、活动参与度和执行意愿' },
-  { key: 'score_expansion', label: '连锁/扩张潜力', desc: '是否具备连锁属性、复制能力和拓店机会' },
-  { key: 'score_appearance', label: '门店形象', desc: '门头、店内整洁度和品牌展示空间' },
+  { key: 'score_cooperation', label: '老板合作意愿', desc: '沟通效率、活动参与度和执行意愿' },
+  { key: 'score_expansion', label: '规模与曝光', desc: '连锁规模、扩张潜力和社交媒体曝光' },
+  { key: 'score_appearance', label: '门店装修与外观', desc: '门头、店内整洁度和品牌展示空间' },
 ];
 
 export const CAMPAIGN_TYPES = [
@@ -100,7 +101,7 @@ export const MALL_ITEMS = [
   { id: 'mall-003', name: 'UWELL 烟弹套装 3 支装', points_cost: 150, image: '', stock: 200, category: 'Pod' },
   { id: 'mall-004', name: 'UWELL T 恤', points_cost: 300, image: '', stock: 100, category: 'Merch' },
   { id: 'mall-005', name: 'UWELL 帽子', points_cost: 200, image: '', stock: 150, category: 'Merch' },
-  { id: 'mall-006', name: '门店优惠券 50SR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
+  { id: 'mall-006', name: '门店优惠券 50 SAR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
   { id: 'mall-007', name: 'UWELL VIP 徽章', points_cost: 1000, image: '', stock: 20, category: 'VIP' },
   { id: 'mall-008', name: 'UWELL 周边打火机', points_cost: 80, image: '', stock: 300, category: 'Merch' },
 ];

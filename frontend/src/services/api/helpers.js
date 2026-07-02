@@ -1,9 +1,8 @@
 // ============================================================
 // Domain: helpers - Shared utilities for all API domain files
-// Provides runtime Supabase→localStorage fallback
+// Provides runtime Supabase to localStorage fallback
 // ============================================================
 
-import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 

@@ -5,6 +5,20 @@ import seedData from '../services/db/seedData';
 import { IS_LOCAL_MODE } from '../services/api';
 import { ensureLocalInit } from '../services/api/helpers';
 
+export const isLocalAuthFallbackEnabled = () => (
+  IS_LOCAL_MODE ||
+  Boolean(import.meta.env?.DEV) ||
+  import.meta.env?.VITE_ALLOW_LOCAL_AUTH_FALLBACK === 'true'
+);
+
+const getFallbackProfile = (user) => ({
+  id: user.id,
+  role: 'fan',
+  name: user.email?.split('@')[0] || 'User',
+  phone: '',
+  avatar: '',
+});
+
 const useAuthStore = create((set, get) => ({
   user: null,
   profile: null,
@@ -15,12 +29,21 @@ const useAuthStore = create((set, get) => ({
   setProfile: (profile) => set({ profile }),
   setLoading: (loading) => set({ loading }),
 
-  signInLocal: async (email, password) => {
+  signInLocal: async (email, _password) => {
     if (localDb.needsInit()) {
       localDb.init(seedData);
     }
     const profiles = localDb.all('profiles');
-    let profile = profiles.find((p) => email && p.name && p.name.includes(email.split('@')[0]));
+    const demoAccountMap = {
+      'admin@uwell.com': 'u-admin',
+      'manager@uwell.com': 'u-manager',
+      'rep1@uwell.com': 'u-rep1',
+      'rep2@uwell.com': 'u-rep2',
+      'rep3@uwell.com': 'u-rep3',
+    };
+    const normalizedEmail = email?.toLowerCase();
+    let profile = profiles.find((p) => demoAccountMap[normalizedEmail] === p.id);
+    if (!profile) profile = profiles.find((p) => email && p.name && p.name.includes(email.split('@')[0]));
     if (!profile) {
       profile = profiles.find((p) => p.role === 'admin') || profiles[0];
     }
@@ -47,26 +70,11 @@ const useAuthStore = create((set, get) => ({
         if (!profileError && profileData) {
           set({ profile: profileData });
         } else {
-          // Profile might not exist yet — create a fallback profile
-          const fallbackProfile = {
-            id: data.user.id,
-            role: 'fan',
-            name: data.user.email?.split('@')[0] || 'User',
-            phone: '',
-            avatar: '',
-          };
-          set({ profile: fallbackProfile });
+          set({ profile: getFallbackProfile(data.user) });
         }
-      } catch (err) {
+      } catch (_err) {
         // If profile fetch fails, use fallback so UI doesn't hang
-        const fallbackProfile = {
-          id: data.user.id,
-          role: 'fan',
-          name: data.user.email?.split('@')[0] || 'User',
-          phone: '',
-          avatar: '',
-        };
-        set({ profile: fallbackProfile });
+        set({ profile: getFallbackProfile(data.user) });
       }
     }
     return data;
@@ -79,8 +87,11 @@ const useAuthStore = create((set, get) => ({
     try {
       return await get().signInSupabase(email, password);
     } catch (e) {
-      console.warn("[Auth] Supabase error, falling back to local mode:", e.message);
-      return get().signInLocal(email, password);
+      if (isLocalAuthFallbackEnabled()) {
+        console.warn("[Auth] Supabase error, falling back to local demo mode:", e.message);
+        return get().signInLocal(email, password);
+      }
+      throw e;
     }
   },
 
@@ -110,13 +121,46 @@ const useAuthStore = create((set, get) => ({
     if (!IS_LOCAL_MODE) {
       try { await supabase.auth.signOut(); } catch(e) { console.error('SignOut error:', e); }
     }
+    localStorage.removeItem('store_manager_current_user');
+    localStorage.removeItem('fan_logged_in');
+    localStorage.removeItem('store_owner_logged_in');
+    localStorage.removeItem('store_owner_store_id');
     set({ user: null, profile: null, isAuthenticated: false });
   },
 
   initialize: async () => {
-    ensureLocalInit();
+    const canUseLocalFallback = isLocalAuthFallbackEnabled();
+    if (canUseLocalFallback) ensureLocalInit();
     set({ loading: true });
-    if (IS_LOCAL_MODE) {
+    if (!IS_LOCAL_MODE) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.user) {
+          set({ user: data.session.user, isAuthenticated: true });
+          try {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', data.session.user.id)
+              .single();
+            set({ profile: profileData || getFallbackProfile(data.session.user) });
+          } catch {
+            set({ profile: getFallbackProfile(data.session.user) });
+          }
+          set({ loading: false });
+          return;
+        }
+      } catch (e) {
+        if (!canUseLocalFallback) {
+          console.error('Init error:', e);
+          set({ loading: false });
+          return;
+        }
+        console.warn('[Auth] Supabase session unavailable, using local demo fallback:', e.message);
+      }
+    }
+
+    if (canUseLocalFallback) {
       const savedProfileId = localStorage.getItem('store_manager_current_user');
       if (savedProfileId && localDb.needsInit()) {
         localDb.init(seedData);
@@ -125,9 +169,8 @@ const useAuthStore = create((set, get) => ({
         const profile = localDb.findById('profiles', savedProfileId);
         if (profile) {
           set({ user: { id: profile.id }, profile, isAuthenticated: true });
-          } else {
-            // Fan login from static HTML fan-entry page
-            // Ensure fan record exists in localDb
+        } else {
+          // Fan login from static HTML fan-entry page.
           if (!localDb.findById('fans', savedProfileId)) {
             localDb.insert('fans', {
               id: savedProfileId,
@@ -137,12 +180,12 @@ const useAuthStore = create((set, get) => ({
               points: 100,
               total_contribution: 0,
               created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
+              updated_at: new Date().toISOString(),
             });
           }
           const fallbackFan = { id: savedProfileId, role: 'fan', name: '粉丝用户', phone: '', avatar: '' };
-            set({ user: { id: savedProfileId }, profile: fallbackFan, isAuthenticated: true });
-          }
+          set({ user: { id: savedProfileId }, profile: fallbackFan, isAuthenticated: true });
+        }
       }
       // Fan login from fan-entry.html - set up a fan session
       if (localStorage.getItem('fan_logged_in') === 'true') {
@@ -159,43 +202,6 @@ const useAuthStore = create((set, get) => ({
       return;
     }
 
-    // Fallback: check localStorage for saved user
-    const savedProfileId = localStorage.getItem('store_manager_current_user');
-    if (savedProfileId) {
-      const profile = localDb.findById('profiles', savedProfileId);
-      if (profile) {
-        set({ user: { id: profile.id }, profile, isAuthenticated: true, loading: false });
-        return;
-      }
-      const fan = localDb.findById('fans', savedProfileId);
-      if (fan) {
-        const fanProfile = { id: fan.id, role: 'fan', name: fan.id, phone: '', avatar: '' };
-        set({ user: { id: fan.id }, profile: fanProfile, isAuthenticated: true, loading: false });
-        return;
-      }
-    }
-
-    // Supabase mode
-    try {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user) {
-        set({ user: data.session.user, isAuthenticated: true });
-        try {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.session.user.id)
-            .single();
-          if (profileData) {
-            set({ profile: profileData });
-          } else {
-            set({ profile: { id: data.session.user.id, role: 'fan', name: data.session.user.email?.split('@')[0] || 'User' } });
-          }
-        } catch {
-          set({ profile: { id: data.session.user.id, role: 'fan', name: data.session.user.email?.split('@')[0] || 'User' } });
-        }
-      }
-    } catch(e) { console.error('Init error:', e); }
     set({ loading: false });
   },
 }));

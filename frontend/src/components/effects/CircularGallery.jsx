@@ -5,7 +5,7 @@ import "./CircularGallery.css";
 function lerp(p1, p2, t) { return p1 + (p2 - p1) * t; }
 
 class Media {
-  constructor({ geometry, gl, image, bend, textColor, borderRadius, font }) {
+  constructor({ gl, image, bend, textColor, borderRadius, font }) {
     this.extra = 0;
     this.image = image;
     this.textColor = textColor;
@@ -57,7 +57,7 @@ class Media {
     img.onload = () => { program.uniforms.tMap.value = new Texture(gl, { image: img }); };
     img.src = image;
   }
-  setScale(width, total) {
+  setScale(width) {
     this.mesh.scale.x = width * 0.7;
     this.mesh.scale.y = width * 0.7 * (9 / 16);
   }
@@ -68,11 +68,8 @@ class Media {
   setRotation(r) {
     this.mesh.rotation.y = r;
   }
-  update(scroll, direction) {
-    this.mesh.position.x += 0;
-  }
   onResize({ viewport }) {
-    this.setScale(viewport.width * 0.18, 1);
+    this.setScale(viewport.width * 0.18);
   }
 }
 
@@ -80,7 +77,9 @@ class App {
   constructor(container, { items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase }) {
     this.container = container;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
+    this.scrollSpeed = scrollSpeed;
     this.onWheel = this.onWheel.bind(this);
+    this.onResize = this.onResize.bind(this);
     this.medias = [];
     this.renderer = new Renderer({ alpha: true, antialias: true });
     const gl = this.renderer.gl;
@@ -99,9 +98,9 @@ class App {
   createMedias(items, opts) {
     const { gl, bend, textColor, borderRadius, font } = opts;
     items.forEach((item, i) => {
-      const media = new Media({ geometry: new Plane(gl), gl, image: item.image, bend, textColor, borderRadius, font });
+      const media = new Media({ gl, image: item.image, bend, textColor, borderRadius, font });
       const width = 1;
-      media.setScale(width, items.length);
+      media.setScale(width);
       media.setPosition(i - (items.length - 1) / 2);
       media.mesh.setParent(this.scene);
       this.medias.push(media);
@@ -109,7 +108,7 @@ class App {
   }
   onWheel(e) {
     e.preventDefault();
-    this.scroll.target += e.deltaY * 0.003;
+    this.scroll.target += e.deltaY * 0.003 * this.scrollSpeed;
   }
   onResize() {
     const width = this.container.clientWidth;
@@ -127,17 +126,19 @@ class App {
     });
     this.renderer.render({ scene: this.scene, camera: this.camera });
     this.scroll.last = this.scroll.current;
-    requestAnimationFrame(() => this.update());
+    this.rafId = requestAnimationFrame(() => this.update());
   }
   addEventListeners() {
     window.addEventListener("wheel", this.onWheel, { passive: false });
-    window.addEventListener("resize", () => this.onResize());
+    window.addEventListener("resize", this.onResize);
   }
   destroy() {
+    cancelAnimationFrame(this.rafId);
     if (this.renderer?.gl?.canvas?.parentNode) {
       this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas);
     }
     window.removeEventListener("wheel", this.onWheel);
+    window.removeEventListener("resize", this.onResize);
   }
 }
 

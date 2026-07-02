@@ -1,4 +1,3 @@
-import useLanguageStore from '../../stores/languageStore';
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Card, Descriptions, Tabs, Table, Tag, Button, Spin, Empty } from 'antd';
@@ -10,7 +9,6 @@ import PageTransition from "../../components/common/PageTransition";
 const FanDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
 
   const { data: fan, isLoading } = useQuery({ queryKey: ['fan', id], queryFn: () => getFanById(id), enabled: !!id });
   const { data: logs = [] } = useQuery({ queryKey: ['fan-logs', id], queryFn: () => getFanPointsLog(id), enabled: !!id });

@@ -3,8 +3,8 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
+import { isAssignedStore } from '../../utils/uwellRoleAccess';
 
 // ============ STORES ============
 
@@ -12,6 +12,7 @@ export async function getStores(filters = {}) {
   ensureLocalInit();
   if (isLocal()) {
     let data = localDb.all('stores');
+    if (filters.assigned_to) data = data.filter((s) => isAssignedStore(filters.assigned_to, s, data));
     if (filters.level) data = data.filter((s) => s.level === filters.level);
     if (filters.chain_id) data = data.filter((s) => s.chain_id === filters.chain_id);
     if (filters.search) data = data.filter((s) => s.name.includes(filters.search));
@@ -57,4 +58,4 @@ export async function deleteStore(id) {
   const { error } = await supabase.from('stores').delete().eq('id', id);
   if (error) throw error;
 }
-
+

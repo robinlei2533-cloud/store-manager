@@ -1,12 +1,12 @@
-import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
 import { Form, Select, InputNumber, Input, Button, Card, Table, Tabs, Tag, message, Spin, Space } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMaterials, getStores, createOutbound, getOutbounds, updateOutboundStatus } from '../../services/api';
-import { OUTBOUND_STATUS } from '../../utils/constants';
 import useAuthStore from '../../stores/authStore';
 import { ROLES } from '../../utils/constants';
 import PageTransition from "../../components/common/PageTransition";
+import localDb from '../../services/db/localDb';
+import { canViewCompanyScope, getAssignedStoreIds } from '../../utils/uwellRoleAccess';
 
 const MaterialOutboundPage = () => {
   const queryClient = useQueryClient();
@@ -15,10 +15,12 @@ const MaterialOutboundPage = () => {
   const [activeTab, setActiveTab] = useState('apply');
 
   const canApprove = profile?.role === ROLES.ADMIN || profile?.role === ROLES.MANAGER;
+  const canManageCompany = canViewCompanyScope(profile);
+  const assignedStoreIds = canManageCompany ? null : getAssignedStoreIds(profile, localDb.all('stores') || []);
 
   const { data: materials = [] } = useQuery({ queryKey: ['materials'], queryFn: getMaterials });
-  const { data: stores = [] } = useQuery({ queryKey: ['stores-all'], queryFn: () => getStores({}) });
-  const { data: outbounds = [], isLoading } = useQuery({ queryKey: ['outbounds'], queryFn: () => getOutbounds({}) });
+  const { data: stores = [] } = useQuery({ queryKey: ['stores-for-outbound', profile?.id], queryFn: () => getStores({ assigned_to: canManageCompany ? null : profile }) });
+  const { data: outbounds = [], isLoading } = useQuery({ queryKey: ['outbounds', profile?.id], queryFn: () => getOutbounds({ assigned_store_ids: assignedStoreIds }) });
 
   const mutation = useMutation({
     mutationFn: createOutbound,

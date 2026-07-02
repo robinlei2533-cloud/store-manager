@@ -3,10 +3,9 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit, enrichMaterialStock } from './helpers';
 
-// ============ 鐗╂枡 ============
+// ============ 物料 ============
 
 export async function getMaterials() {
   ensureLocalInit();
@@ -20,7 +19,7 @@ export async function createMaterial(material) {
   ensureLocalInit();
   if (isLocal()) {
     const m = localDb.insert('materials', material);
-    localDb.insert('material_stocks', { material_id: m.id, warehouse: '榛樿浠撳簱', qty: 0, safety_stock: 10 });
+    localDb.insert('material_stocks', { material_id: m.id, warehouse: '默认仓库', qty: 0, safety_stock: 10 });
     return m;
   }
   const { data, error } = await supabase.from('materials').insert(material).select().single();
@@ -126,6 +125,10 @@ export async function getOutbounds(filters = {}) {
     let data = localDb.all('material_outbound');
     if (filters.status) data = data.filter((r) => r.status === filters.status);
     if (filters.store_id) data = data.filter((r) => r.store_id === filters.store_id);
+    if (filters.assigned_store_ids) {
+      const assignedStoreIds = new Set(filters.assigned_store_ids);
+      data = data.filter((r) => assignedStoreIds.has(r.store_id));
+    }
     return data.map((r) => ({
       ...r,
       materials: localDb.findById('materials', r.material_id),

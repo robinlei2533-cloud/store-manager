@@ -52,13 +52,10 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
-import { motion } from 'framer-motion';
-import BlurText from '../../components/effects/BlurText';
-import CountUp from '../../components/effects/CountUp';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
+import { Card, Row, Col, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
 import {
-  ShopOutlined, CameraOutlined, ClockCircleOutlined, TeamOutlined, InboxOutlined,
+  ShopOutlined, CameraOutlined, TeamOutlined,
   WarningOutlined, RiseOutlined, ThunderboltOutlined, QrcodeOutlined, StarOutlined,
 } from '@ant-design/icons';
 import {
@@ -76,6 +73,7 @@ import {
   getDashboardStats, getVisitTrend, getStoreDistribution, getVisits,
   getCampaigns, getScanRecords, getMaterialStocks, getScanTrend, IS_LOCAL_MODE,
 } from '../../services/api';
+import { canViewCompanyScope, filterByAssignedStores, getAssignedStoreIds } from '../../utils/uwellRoleAccess';
 
 import { useDashboardRealtime } from './useDashboardRealtime';
 const { Title, Text } = Typography;
@@ -106,9 +104,14 @@ const exportToCSV = (data, filename, cols) => {
 const COLORS = ['#FFD700', '#FFD700', '#F5A623', '#D4A800', '#8B7500'];
 const LEVEL_COLORS = { S: '#FFD700', A: '#FFD700', B: '#B8860B', C: '#8B7500', platinum: '#FFD700', gold: '#FFD700', silver: '#B8860B', bronze: '#8B7500' };
 
+const SectionTitle = ({ children }) => (
+  <div className="admin-section-title">
+    <span>{children}</span>
+  </div>
+);
+
 const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
   const cardRef = useRef(null);
-  const { t } = useLanguageStore();
   const [animatedValue, setAnimatedValue] = useState(0);
   
   useGSAP(() => {
@@ -154,7 +157,16 @@ const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
   const containerRef = React.useRef(null);
   React.useEffect(() => {
     if (!stores?.length || !containerRef.current) return;
-    if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+    if (mapRef.current) {
+      try {
+        mapRef.current.off();
+        mapRef.current.remove();
+      } catch {
+        // Leaflet can throw during rapid route teardown while tiles are still loading.
+      }
+      mapRef.current = null;
+    }
+    if (!containerRef.current.isConnected) return;
     const map = L.map(containerRef.current, { center: [24.7136, 46.6753], zoom: 10, zoomControl: true });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 18 }).addTo(map);
     const coords = [];
@@ -170,10 +182,19 @@ const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
       m.on('click', () => onStoreClick?.(s));
       m.addTo(map);
     });
-    if (coords.length > 0) map.fitBounds(L.latLngBounds(coords), { padding: [30,30] });
+    if (coords.length > 0 && containerRef.current?.isConnected) map.fitBounds(L.latLngBounds(coords), { padding: [30,30] });
     mapRef.current = map;
-    return () => { mapRef.current?.remove(); mapRef.current = null; };
-  }, [stores, visitCounts]);
+    return () => {
+      if (!mapRef.current) return;
+      try {
+        mapRef.current.off();
+        mapRef.current.remove();
+      } catch {
+        // Ignore teardown races from Leaflet internals.
+      }
+      mapRef.current = null;
+    };
+  }, [stores, visitCounts, onStoreClick]);
   return React.createElement('div', { style: { width:'100%', height:400, borderRadius:12, overflow:'hidden', position:'relative' } },
     React.createElement('div', { ref: containerRef, style: { width:'100%', height:'100%' } })
   );
@@ -184,7 +205,7 @@ const DashboardPage = () => {
   const profile = useAuthStore((s) => s.profile);
   useDashboardRealtime();
 
-  const { data: stats, isLoading: statsLoading } = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats });
+  const { data: stats } = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats });
   const { data: trendData, isLoading: trendLoading } = useQuery({ queryKey: ['visit-trend'], queryFn: () => getVisitTrend(30) });
   const { data: storeDistribution } = useQuery({ queryKey: ['store-distribution'], queryFn: getStoreDistribution });
   const { data: recentVisits, isLoading: visitsLoading } = useQuery({ queryKey: ['recent-visits'], queryFn: () => getVisits({}) });
@@ -196,36 +217,68 @@ const DashboardPage = () => {
     try {
       const all = localDb.all('campaign_claims') || [];
       setPendingClaims(all.filter(cl => cl.status === 'pending'));
-    } catch(e) {}
+    } catch (_e) {
+      setPendingClaims([]);
+    }
   }, []);
 
   const { data: scanTrend, isLoading: scanTrendLoading } = useQuery({ queryKey: ["scan-trend"], queryFn: () => getScanTrend(30) });
+  const localCounts = React.useMemo(() => {
+    try {
+      return {
+        stores: localDb.all('stores').length,
+        visits: localDb.all('visits').length,
+        fans: localDb.all('fans').length,
+        campaigns: localDb.all('campaigns').filter((item) => item.status === 'ongoing').length,
+        scans: localDb.all('scan_records').length,
+        lowStock: localDb.all('material_stocks').filter((item) => item.qty <= item.safety_stock).length,
+      };
+    } catch {
+      return { stores: 0, visits: 0, fans: 0, campaigns: 0, scans: 0, lowStock: 0 };
+    }
+  }, []);
+  const effectiveStores = React.useMemo(() => {
+    if (storeDistribution?.length) return storeDistribution;
+    try {
+      return localDb.all('stores').map((s) => ({ id: s.id, name: s.name, lat: s.lat, lng: s.lng, level: s.level }));
+    } catch {
+      return [];
+    }
+  }, [storeDistribution]);
+  const effectiveVisits = React.useMemo(() => {
+    if (recentVisits?.length) return recentVisits;
+    try {
+      return localDb.all('visits');
+    } catch {
+      return [];
+    }
+  }, [recentVisits]);
 
   const repStatsArray = React.useMemo(() => {
-    if (!recentVisits) return [];
+    if (!effectiveVisits) return [];
     const map = {};
-    recentVisits.forEach(v => {
+    effectiveVisits.forEach(v => {
       if (v.rep_id) {
         if (!map[v.rep_id]) map[v.rep_id] = { rep_id: v.rep_id, name: v.profiles?.name || v.rep_id, count: 0 };
         map[v.rep_id].count++;
       }
     });
     return Object.values(map).sort((a,b) => b.count - a.count).slice(0, 10);
-  }, [recentVisits]);
+  }, [effectiveVisits]);
 
   const topStoresArray = React.useMemo(() => {
-    if (!recentVisits) return [];
+    if (!effectiveVisits) return [];
     const map = {};
-    recentVisits.forEach(v => {
+    effectiveVisits.forEach(v => {
       if (v.store_id) {
         if (!map[v.store_id]) map[v.store_id] = { store_id: v.store_id, name: v.stores?.name || v.store_id, count: 0 };
         map[v.store_id].count++;
       }
     });
     return Object.values(map).sort((a,b) => b.count - a.count).slice(0, 10);
-  }, [recentVisits]);
+  }, [effectiveVisits]);
 
-  const levelPieData = storeDistribution?.reduce((acc, store) => {
+  const levelPieData = effectiveStores?.reduce((acc, store) => {
     const level = store.level || 'Unrated';
     const existing = acc.find((i) => i.name === level);
     if (existing) existing.value += 1;
@@ -234,32 +287,162 @@ const DashboardPage = () => {
   }, []) || [];
 
   const lowStockItems = materialStocks?.filter((s) => s.qty <= s.safety_stock) || [];
+  const isCompanyScope = canViewCompanyScope(profile);
+  const assignedStoreIds = React.useMemo(
+    () => getAssignedStoreIds(profile, effectiveStores || []),
+    [profile, effectiveStores],
+  );
+  const assignedStores = React.useMemo(
+    () => filterByAssignedStores(profile, effectiveStores || [], effectiveStores || [], (store) => store.id),
+    [profile, effectiveStores],
+  );
+  const assignedVisits = React.useMemo(
+    () => filterByAssignedStores(profile, effectiveVisits || [], effectiveStores || []),
+    [profile, effectiveVisits, effectiveStores],
+  );
+  const assignedCampaigns = React.useMemo(
+    () => (campaigns || []).filter((campaign) => campaign.target_stores?.some((storeId) => assignedStoreIds.includes(storeId))),
+    [campaigns, assignedStoreIds],
+  );
+  const assignedComplaints = React.useMemo(() => {
+    try {
+      return (localDb.all('fan_complaints') || []).filter((item) => assignedStoreIds.includes(item.store_id));
+    } catch {
+      return [];
+    }
+  }, [assignedStoreIds]);
+  const repOpenComplaints = assignedComplaints.filter((item) => item.status === 'open');
+  const repPendingClaims = pendingClaims.filter((claim) => assignedStoreIds.includes(claim.store_id));
+  const pendingDisplayReviews = React.useMemo(() => {
+    try {
+      return (localDb.all('store_display_uploads') || []).filter((item) => item.status === 'pending');
+    } catch {
+      return [];
+    }
+  }, []);
+  const pendingOldFanVerifications = React.useMemo(() => {
+    try {
+      return (localDb.all('old_fan_verifications') || []).filter((item) => item.status === 'pending');
+    } catch {
+      return [];
+    }
+  }, []);
+  const openFanComplaints = React.useMemo(() => {
+    try {
+      return (localDb.all('fan_complaints') || []).filter((item) => item.status === 'open');
+    } catch {
+      return [];
+    }
+  }, []);
+  const adminTodoItems = [
+    ...pendingClaims.map((item) => ({
+      id: `claim-${item.id}`,
+      title: item.campaign_name || '活动物料领取通知',
+      desc: `门店 ${item.store_id || 'N/A'} 等待物料派发`,
+      tag: '活动领取',
+      color: 'gold',
+    })),
+    ...pendingDisplayReviews.map((item) => ({
+      id: `display-${item.id}`,
+      title: item.store_name || '门店展示审核',
+      desc: '门店提交了 UWELL 产品展示图片',
+      tag: '展示审核',
+      color: 'blue',
+    })),
+    ...pendingOldFanVerifications.map((item) => ({
+      id: `oldfan-${item.id}`,
+      title: item.fan_name || '老粉认证',
+      desc: '粉丝提交了老粉认证材料',
+      tag: '粉丝认证',
+      color: 'purple',
+    })),
+    ...openFanComplaints.map((item) => ({
+      id: `complaint-${item.id}`,
+      title: item.fan_name || '粉丝客诉',
+      desc: item.content || '待回复客诉',
+      tag: '客诉',
+      color: 'volcano',
+    })),
+  ];
 
   const visitCountMap = React.useMemo(() => {
-    if (!recentVisits) return {};
+    if (!effectiveVisits) return {};
     const m = {};
-    recentVisits.forEach(v => { if (v.store_id) m[v.store_id] = (m[v.store_id] || 0) + 1; });
+    effectiveVisits.forEach(v => { if (v.store_id) m[v.store_id] = (m[v.store_id] || 0) + 1; });
     return m;
-  }, [recentVisits]);
+  }, [effectiveVisits]);
 
   const recentVisitColumns = [
-    { title: 'Store', dataIndex: ['stores', 'name'], key: 'store', ellipsis: true },
-    { title: 'Rep', dataIndex: ['profiles', 'name'], key: 'rep' },
-    { title: 'Date', dataIndex: 'visit_date', key: 'date', render: (d) => (d ? new Date(d).toLocaleDateString('en-US') : '-'), width: 110 },
+    { title: t('store'), dataIndex: ['stores', 'name'], key: 'store', ellipsis: true },
+    { title: t('rep'), dataIndex: ['profiles', 'name'], key: 'rep' },
+    { title: t('date'), dataIndex: 'visit_date', key: 'date', render: (d) => (d ? new Date(d).toLocaleDateString('en-US') : '-'), width: 110 },
     {
-      title: 'Status', dataIndex: 'status', key: 'status', width: 100,
+      title: t('status'), dataIndex: 'status', key: 'status', width: 100,
       render: (s) => {
-        const map = { draft: { color: 'default', text: 'Draft' }, completed: { color: 'success', text: 'Done' }, cancelled: { color: 'error', text: 'Cancelled' } };
+        const map = { draft: { color: 'default', text: t('draft') }, completed: { color: 'success', text: t('done') }, cancelled: { color: 'error', text: t('cancelled') } };
         const item = map[s] || { color: 'default', text: s };
         return <Tag color={item.color}>{item.text}</Tag>;
       },
     },
   ];
 
+  if (!isCompanyScope) {
+    return (
+      <div className="rep-dashboard">
+        <Title level={4} className="dash-section">
+          <span className="text-gold-gradient"><RiseOutlined /> 地推工作台</span>
+          <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>{profile?.name || t('profile')}</Text>
+        </Title>
+
+        <SectionTitle>我的今日重点</SectionTitle>
+        <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+          <Col xs={12} sm={6}><StatCard icon={<ShopOutlined />} label="负责门店" value={assignedStores.length} color="#FFD700" delay={0} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<CameraOutlined />} label="拜访记录" value={assignedVisits.length} color="#F5A623" delay={1} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<ThunderboltOutlined />} label="活动执行" value={assignedCampaigns.length} color="#FFD700" delay={2} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<WarningOutlined />} label="待回复客诉" value={repOpenComplaints.length} color={repOpenComplaints.length ? '#ff4d4f' : '#52c41a'} delay={3} /></Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col xs={24} lg={12}>
+            <Card title={<><ShopOutlined /> <span className="text-gold-gradient">负责门店状态</span></>}>
+              <List size="small" dataSource={assignedStores.slice(0, 8)} renderItem={(store) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={<span className="dash-card-title-light">{store.name}</span>}
+                    description={`等级 ${store.level || '未评级'} · 近 30 天拜访 ${assignedVisits.filter((visit) => visit.store_id === store.id).length} 次`}
+                  />
+                  <Button size="small" onClick={() => { window.location.href = `/#/app/stores/${store.id}`; }}>查看</Button>
+                </List.Item>
+              )} locale={{ emptyText: t('no_data') }} />
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">待处理事项</span></>}>
+              <List size="small" dataSource={[
+                ...repPendingClaims.map((item) => ({ id: item.id, title: item.campaign_name || '活动领取通知', desc: `门店 ${item.store_id}`, tag: '活动' })),
+                ...repOpenComplaints.map((item) => ({ id: item.id, title: item.fan_name || '粉丝客诉', desc: item.content, tag: '客诉' })),
+              ].slice(0, 8)} renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta title={<span className="dash-card-title-light">{item.title}</span>} description={item.desc} />
+                  <Tag color={item.tag === '客诉' ? 'volcano' : 'gold'}>{item.tag}</Tag>
+                </List.Item>
+              )} locale={{ emptyText: '暂无待办' }} />
+            </Card>
+          </Col>
+        </Row>
+
+        <SectionTitle>最近拜访</SectionTitle>
+        <Card title={<><CameraOutlined /> <span className="text-gold-gradient">我的拜访记录</span></>}>
+          <Table columns={recentVisitColumns} dataSource={assignedVisits.slice(0, 8)} rowKey="id" loading={visitsLoading} pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_visit_records') }} />
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Title level={4} className="dash-section">
-        <span className="text-gold-gradient"><RiseOutlined /> {t('nav_dashboard2')}</span>
+        <span className="text-gold-gradient"><RiseOutlined /> 管理员经营中心</span>
         <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>{t('welcome_back')}, {profile?.name || t('profile')}</Text>
       </Title>
 
@@ -267,15 +450,43 @@ const DashboardPage = () => {
         <Alert type="info" message={t('local_demo')} description={t('local_demo_desc')} showIcon style={{ marginBottom: 16 }} />
       )}
 
+      <SectionTitle>{t('dashboard_section_overview')}</SectionTitle>
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label={t('dash_store')} value={stats?.storeCount || 0} color="#FFD700" delay={0} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label={t('dash_visits')} value={stats?.totalVisits || 0} color="#FFD700" delay={1} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label={t('dash_fans')} value={stats?.totalFans || 0} color="#F5A623" delay={2} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label={t('dash_campaigns')} value={stats?.activeCampaigns || 0} color="#FFD700" delay={3} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label={t('dash_scans')} value={stats?.todayScans || 0} color="#FFD700" delay={4} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label={t('dash_low_stock')} value={stats?.lowStockCount || 0} color={stats?.lowStockCount > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label={t('dash_store')} value={stats?.storeCount || localCounts.stores} color="#FFD700" delay={0} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label={t('dash_visits')} value={stats?.totalVisits ?? stats?.visitCount ?? localCounts.visits} color="#FFD700" delay={1} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label={t('dash_fans')} value={stats?.totalFans ?? stats?.fanCount ?? localCounts.fans} color="#F5A623" delay={2} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label={t('dash_campaigns')} value={stats?.activeCampaigns ?? stats?.ongoingCampaignCount ?? localCounts.campaigns} color="#FFD700" delay={3} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label={t('dash_scans')} value={stats?.todayScans ?? stats?.scanCount ?? localCounts.scans} color="#FFD700" delay={4} /></Col>
+        <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label={t('dash_low_stock')} value={stats?.lowStockCount || localCounts.lowStock} color={(stats?.lowStockCount || localCounts.lowStock) > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
       </Row>
 
+      <SectionTitle>管理待办中心</SectionTitle>
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} lg={10}>
+          <Row gutter={[12, 12]}>
+            <Col xs={12}><StatCard icon={<ThunderboltOutlined />} label="活动领取待派发" value={pendingClaims.length} color="#FFD700" delay={0} /></Col>
+            <Col xs={12}><StatCard icon={<ShopOutlined />} label="门店展示待审" value={pendingDisplayReviews.length} color="#1677ff" delay={1} /></Col>
+            <Col xs={12}><StatCard icon={<TeamOutlined />} label="老粉认证待审" value={pendingOldFanVerifications.length} color="#722ed1" delay={2} /></Col>
+            <Col xs={12}><StatCard icon={<WarningOutlined />} label="粉丝客诉待回" value={openFanComplaints.length} color={openFanComplaints.length ? '#ff4d4f' : '#52c41a'} delay={3} /></Col>
+          </Row>
+        </Col>
+        <Col xs={24} lg={14}>
+          <Card title={<><WarningOutlined /> <span className="text-gold-gradient">全局待办列表</span></>}>
+            <List size="small" dataSource={adminTodoItems.slice(0, 8)} renderItem={(item) => (
+              <List.Item>
+                <List.Item.Meta
+                  avatar={<Badge status={item.color === 'volcano' ? 'error' : 'processing'} />}
+                  title={<span className="dash-card-title-light">{item.title}</span>}
+                  description={item.desc}
+                />
+                <Tag color={item.color}>{item.tag}</Tag>
+              </List.Item>
+            )} locale={{ emptyText: '暂无待办' }} />
+          </Card>
+        </Col>
+      </Row>
+
+      <SectionTitle>{t('dashboard_section_trends')}</SectionTitle>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={14}>
           <Card title={<><CameraOutlined /> <span className="text-gold-gradient">{t('dash_visit_trend_30')}</span></>}>
@@ -333,15 +544,15 @@ const DashboardPage = () => {
       {pendingClaims.length > 0 && (
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24}>
-            <Card title={`📦 Material Dispatch Needed (${pendingClaims.length})`} size="small">
+            <Card title={`${t('material_dispatch_needed')} (${pendingClaims.length})`} size="small">
               <List size="small" dataSource={pendingClaims} renderItem={(cl) => (
                 <List.Item>
                   <List.Item.Meta
                     avatar={<Badge status="processing" />}
-                    title={<span className="dash-card-title-light">{cl.campaign_name || "Campaign"}</span>}
-                    description={`Store: ${cl.store_id || "N/A"} · Claimed: ${new Date(cl.claimed_at).toLocaleDateString()}`}
+                    title={<span className="dash-card-title-light">{cl.campaign_name || t('nav_campaigns')}</span>}
+                    description={`${t('store')}: ${cl.store_id || "N/A"} · ${new Date(cl.claimed_at).toLocaleDateString()}`}
                   />
-                  <Tag color="volcano">Needs Dispatch</Tag>
+                  <Tag color="volcano">{t('needs_dispatch')}</Tag>
                 </List.Item>
               )} />
             </Card>
@@ -349,9 +560,10 @@ const DashboardPage = () => {
         </Row>
       )}
 
+      <SectionTitle>{t('dashboard_section_alerts')}</SectionTitle>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
-          <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">Campaign Overview</span></>}>
+          <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">{t('campaign_overview')}</span></>}>
             {campaignsLoading ? <div className="dash-loading-sm"><Spin /></div> :
              campaigns?.length > 0 ? (
               <List size="small" dataSource={campaigns.slice(0, 5)} renderItem={(c) => (
@@ -359,11 +571,11 @@ const DashboardPage = () => {
                   <List.Item.Meta title={<span><Tag color={c.status === 'ongoing' ? 'processing' : c.status === 'completed' ? 'default' : 'blue'}>{c.status === 'ongoing' ? 'Ongoing' : c.status === 'completed' ? 'Completed' : c.status === 'planned' ? 'Planned' : 'Cancelled'}</Tag>{c.name}</span>} description={`${c.type} · ${c.start_date} ~ ${c.end_date} · ${c.store_count || (c.target_stores?.length || 0)} stores`} />
                 </List.Item>
               )} />
-            ) : <Empty description="No campaigns" className="dash-empty-sm" />}
+            ) : <Empty description={t('no_campaigns')} className="dash-empty-sm" />}
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title={<><WarningOutlined /> <span className="text-gold-gradient">Low Stock Alerts</span></>}>
+          <Card title={<><WarningOutlined /> <span className="text-gold-gradient">{t('low_stock_alerts')}</span></>}>
             {stockLoading ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div> :
              lowStockItems.length > 0 ? (
               <List size="small" dataSource={lowStockItems} renderItem={(item) => (
@@ -371,19 +583,20 @@ const DashboardPage = () => {
                   <List.Item.Meta title={<span><Badge status={item.qty === 0 ? 'error' : 'warning'} />{item.materials?.name}</span>} description={<span>Current: <Text type="danger" strong>{item.qty}</Text> / Safety: {item.safety_stock} {item.materials?.unit}<Progress percent={Math.round((item.qty / (item.safety_stock * 2)) * 100)} size="small" status={item.qty === 0 ? 'exception' : 'active'} style={{ maxWidth: 200, marginTop: 4 }} /></span>} />
                 </List.Item>
               )} />
-            ) : <Empty description="All stock levels are healthy" style={{ padding: '40px 0' }} />}
+            ) : <Empty description={t('all_stock_healthy')} style={{ padding: '40px 0' }} />}
           </Card>
         </Col>
       </Row>
 
+      <SectionTitle>{t('dashboard_section_records')}</SectionTitle>
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>
-          <Card title={<><CameraOutlined /> <span className="text-gold-gradient">Recent Visits</span></>}>
-            <Table columns={recentVisitColumns} dataSource={recentVisits?.slice(0, 8) || []} rowKey="id" loading={visitsLoading} pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: 'No visit records' }} />
+          <Card title={<><CameraOutlined /> <span className="text-gold-gradient">{t('recent_visits')}</span></>}>
+            <Table columns={recentVisitColumns} dataSource={effectiveVisits?.slice(0, 8) || []} rowKey="id" loading={visitsLoading} pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_visit_records') }} />
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card title={<><QrcodeOutlined /> <span className="text-gold-gradient">Recent Scans</span></>}>
+          <Card title={<><QrcodeOutlined /> <span className="text-gold-gradient">{t('recent_scans')}</span></>}>
             {scansLoading ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div> :
              scanRecords?.length > 0 ? (
               <List size="small" dataSource={scanRecords.slice(0, 8)} renderItem={(r) => (
@@ -391,7 +604,7 @@ const DashboardPage = () => {
                   <List.Item.Meta avatar={<QrcodeOutlined style={{ fontSize: 20, color: '#722ed1' }} />} title={`${r.products?.name || 'Unknown'} · +${r.points_earned} pts`} description={`${r.stores?.name || ''} · ${new Date(r.created_at).toLocaleString('en-US')}`} />
                 </List.Item>
               )} />
-            ) : <Empty description="No scan records" style={{ padding: '40px 0' }} />}
+            ) : <Empty description={t('no_scan_records')} style={{ padding: '40px 0' }} />}
           </Card>
         </Col>
       </Row>
@@ -399,42 +612,43 @@ const DashboardPage = () => {
       {/* Store Visit Heatmap */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24}>
-          <Card title={<span className="dash-card-title-gold">Store Visit Heatmap</span>} extra={
+          <Card title={<span className="dash-card-title-gold">{t('store_visit_heatmap')}</span>} extra={
             <Button size="small" icon={<DownloadOutlined />} onClick={() => {
-              const data = (storeDistribution || []).map(s => ({ name: s.name, level: s.level || "Unrated", visits: visitCountMap[s.id] || 0 }));
-              exportToCSV(data, "stores-heatmap.csv", [{title:"Store", dataIndex:"name"}, {title:"Level", dataIndex:"level"}, {title:"Visits", dataIndex:"visits"}]);
-            }}>Export</Button>
+              const data = (effectiveStores || []).map(s => ({ name: s.name, level: s.level || "Unrated", visits: visitCountMap[s.id] || 0 }));
+              exportToCSV(data, "stores-heatmap.csv", [{title:t('store'), dataIndex:"name"}, {title:t('fan_level'), dataIndex:"level"}, {title:t('visit_count'), dataIndex:"visits"}]);
+            }}>{t('export')}</Button>
           }>
-            {storeDistribution?.length > 0 ? (
-              <StoreHeatmap stores={storeDistribution} visitCounts={visitCountMap} onStoreClick={(s) => { window.open("/#/app/stores/" + s.id, "_blank"); }} />
+            {effectiveStores?.length > 0 ? (
+              <StoreHeatmap stores={effectiveStores} visitCounts={visitCountMap} onStoreClick={(s) => { window.open("/#/app/stores/" + s.id, "_blank"); }} />
             ) : (
-              <div className="dash-no-data">No store data</div>
+              <div className="dash-no-data">{t('no_store_heatmap_data')}</div>
             )}
           </Card>
         </Col>
       </Row>
 
+      <SectionTitle>{t('dashboard_section_insights')}</SectionTitle>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
-          <Card title={<><TeamOutlined /> <span className="text-gold-gradient">Rep Performance (Visit Count)</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repStatsArray, "rep-performance.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Rep", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
+          <Card title={<><TeamOutlined /> <span className="text-gold-gradient">{t('rep_performance')}</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repStatsArray, "rep-performance.csv", [{title:t('rank'), key:"rank", render:(_,__,i)=>i+1}, {title:t('rep'), dataIndex:"name"}, {title:t('visit_count'), dataIndex:"count"}])}>{t('export')}</Button>}>
             {repStatsArray.length > 0 ? (
               <Table columns={[
-                { title: 'Rank', key: 'rank', width: 60, render: (_, __, i) => i + 1 },
-                { title: 'Rep', dataIndex: 'name', key: 'name' },
-                { title: 'Visits', dataIndex: 'count', key: 'count', sorter: (a,b) => a.count - b.count, defaultSortOrder: 'descend' },
-              ]} dataSource={repStatsArray} rowKey="rep_id" pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: "No data" }} />
-            ) : <Empty description="No rep activity" style={{ padding: '40px 0' }} />}
+                { title: t('rank'), key: 'rank', width: 60, render: (_, __, i) => i + 1 },
+                { title: t('rep'), dataIndex: 'name', key: 'name' },
+                { title: t('visit_count'), dataIndex: 'count', key: 'count', sorter: (a,b) => a.count - b.count, defaultSortOrder: 'descend' },
+              ]} dataSource={repStatsArray} rowKey="rep_id" pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_data') }} />
+            ) : <Empty description={t('no_rep_activity')} style={{ padding: '40px 0' }} />}
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title={<><StarOutlined /> <span className="text-gold-gradient">Top Visited Stores</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(topStoresArray, "top-stores.csv", [{title:"Rank", key:"rank", render:(_,__,i)=>i+1}, {title:"Store", dataIndex:"name"}, {title:"Visits", dataIndex:"count"}])}>Export</Button>}>
+          <Card title={<><StarOutlined /> <span className="text-gold-gradient">{t('top_visited_stores')}</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(topStoresArray, "top-stores.csv", [{title:t('rank'), key:"rank", render:(_,__,i)=>i+1}, {title:t('store'), dataIndex:"name"}, {title:t('visit_count'), dataIndex:"count"}])}>{t('export')}</Button>}>
             {topStoresArray.length > 0 ? (
               <Table columns={[
-                { title: 'Rank', key: 'rank', width: 60, render: (_, __, i) => i + 1 },
-                { title: 'Store', dataIndex: 'name', key: 'name' },
-                { title: 'Visits', dataIndex: 'count', key: 'count', sorter: (a,b) => a.count - b.count, defaultSortOrder: 'descend' },
-              ]} dataSource={topStoresArray} rowKey="store_id" pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: "No data" }} />
-            ) : <Empty description="No store visits" style={{ padding: '40px 0' }} />}
+                { title: t('rank'), key: 'rank', width: 60, render: (_, __, i) => i + 1 },
+                { title: t('store'), dataIndex: 'name', key: 'name' },
+                { title: t('visit_count'), dataIndex: 'count', key: 'count', sorter: (a,b) => a.count - b.count, defaultSortOrder: 'descend' },
+              ]} dataSource={topStoresArray} rowKey="store_id" pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_data') }} />
+            ) : <Empty description={t('no_store_visits')} style={{ padding: '40px 0' }} />}
           </Card>
         </Col>
       </Row>

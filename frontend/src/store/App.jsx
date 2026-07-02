@@ -37,26 +37,34 @@ const StoreApp = () => {
         locale={locale}
         theme={{
           token: {
-            colorPrimary: '#FFD700',
-            colorInfo: '#FFD700',
+            colorPrimary: '#B98916',
+            colorInfo: '#B98916',
             colorSuccess: '#16a34a',
             colorWarning: '#f59e0b',
             colorError: '#dc2626',
+            colorText: '#181512',
+            colorTextSecondary: '#62594b',
+            colorTextTertiary: '#8a7d68',
+            colorBgBase: '#f6f3ec',
+            colorBgLayout: '#f6f3ec',
+            colorBgContainer: '#ffffff',
+            colorBorder: 'rgba(82,62,24,0.16)',
+            colorBorderSecondary: 'rgba(82,62,24,0.10)',
             borderRadius: 8,
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
           },
           components: {
-            Layout: { headerBg: '#14141e', siderBg: '#11111a', bodyBg: '#1a1a24' },
-            Card: { borderRadiusLG: 8 },
-            Menu: { itemBorderRadius: 8, itemSelectedBg: '#2a2000', itemSelectedColor: '#FFD700' },
+            Layout: { headerBg: '#ffffff', siderBg: '#11100d', bodyBg: '#f6f3ec' },
+            Card: { borderRadiusLG: 8, colorBgContainer: '#ffffff', colorBorderSecondary: 'rgba(82,62,24,0.12)' },
+            Menu: { itemBorderRadius: 8, itemSelectedBg: 'rgba(185,137,22,0.12)', itemSelectedColor: '#B98916' },
             Button: { borderRadius: 8 },
-            Table: { headerBg: '#1a1a25' },
+            Table: { headerBg: '#f1eadb', colorBgContainer: '#ffffff', borderColor: 'rgba(82,62,24,0.12)', headerColor: '#3b2d13', rowHoverBg: '#fff7df' },
           },
         }}
       >
         <AntApp>
           <ErrorBoundary>
-            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#14141e"}}><Spin size="large" /></div>}>
+            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#f6f3ec"}}><Spin size="large" /></div>}>
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

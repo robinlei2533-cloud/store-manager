@@ -1,7 +1,6 @@
-import useLanguageStore from '../../../stores/languageStore';
 import React, { useState, useEffect } from 'react';
-import { message, Card, Button, Input, List, Typography, Avatar, Empty, Space, Tag } from 'antd';
-import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
+import { message, Card, Button, Input, List, Typography, Avatar, Space, Tag } from 'antd';
+import { LikeOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 const { TextArea } = Input;
 const { Text, Paragraph } = Typography;
@@ -35,7 +34,7 @@ const CommunityTab = ({ fan }) => {
     });
     setPosts([post, ...posts]);
     setNewPost('');
-    message.success('Posted! 🎉');
+    message.success('Posted.');
   };
 
   const handleLike = (postId) => {

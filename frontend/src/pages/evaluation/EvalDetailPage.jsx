@@ -1,7 +1,6 @@
-import useLanguageStore from '../../stores/languageStore';
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Card, Descriptions, Tag, Button, Spin, Row, Col, Statistic, Progress, Empty } from 'antd';
+import { Card, Descriptions, Tag, Button, Spin, Row, Col, Progress, Empty, message, Space } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { getEvaluationById } from '../../services/api';
@@ -10,41 +9,83 @@ import PageTransition from "../../components/common/PageTransition";
 const EvalDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
   const { data: evalData, isLoading } = useQuery({ queryKey: ['evaluation', id], queryFn: () => getEvaluationById(id), enabled: !!id });
 
   if (isLoading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
   if (!evalData) return <Empty />;
 
-  const radarData = [
-    { dimension: 'Sales/Orders', score: evalData.score_sales },
-    { dimension: 'Display', score: evalData.score_display },
-    { dimension: 'Location', score: evalData.score_location },
-    { dimension: 'Cooperation', score: evalData.score_cooperation },
-    { dimension: 'Expansion', score: evalData.score_expansion },
-    { dimension: 'Appearance', score: evalData.score_appearance },
-  ];
+  const isBdRating = evalData.score_model === 'bd_store_rating_v1' || Number(evalData.total_score || 0) > 60;
+  const maxScore = isBdRating ? 110 : 60;
+  const radarMax = isBdRating ? 25 : 10;
+  const radarData = evalData.rating_summary?.length
+    ? evalData.rating_summary.map((item) => ({ dimension: item.title.replace(/^\d+\.\s*/, ''), score: item.score, max: item.max }))
+    : [
+      { dimension: 'Sales/Orders', score: evalData.score_sales, max: 10 },
+      { dimension: 'Display', score: evalData.score_display, max: 10 },
+      { dimension: 'Location', score: evalData.score_location, max: 10 },
+      { dimension: 'Cooperation', score: evalData.score_cooperation, max: 10 },
+      { dimension: 'Expansion', score: evalData.score_expansion, max: 10 },
+      { dimension: 'Appearance', score: evalData.score_appearance, max: 10 },
+    ];
 
-  const dims = [
-    { label: 'Sales / Order Frequency', score: evalData.score_sales },
-    { label: 'Display Quality', score: evalData.score_display },
-    { label: 'Location & Traffic', score: evalData.score_location },
-    { label: 'Owner Cooperation', score: evalData.score_cooperation },
-    { label: 'Chain / Expansion', score: evalData.score_expansion },
-    { label: 'Store Appearance', score: evalData.score_appearance },
-  ];
+  const dims = evalData.rating_summary?.length
+    ? evalData.rating_summary.map((item) => ({ label: item.title, score: item.score, max: item.max }))
+    : [
+      { label: 'Sales / Order Frequency', score: evalData.score_sales, max: 10 },
+      { label: 'Display Quality', score: evalData.score_display, max: 10 },
+      { label: 'Location & Traffic', score: evalData.score_location, max: 10 },
+      { label: 'Owner Cooperation', score: evalData.score_cooperation, max: 10 },
+      { label: 'Chain / Expansion', score: evalData.score_expansion, max: 10 },
+      { label: 'Store Appearance', score: evalData.score_appearance, max: 10 },
+    ];
+
+  const levelColor = { A: 'green', B: 'blue', C: 'orange', D: 'red' }[evalData.recommended_level] || 'default';
+
+  const buildCopyText = () => [
+    `UWELL 门店评级结果`,
+    `门店：${evalData.stores?.name || '-'}`,
+    `日期：${evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString() : '-'}`,
+    `评级：${evalData.recommended_level || '-'} 级`,
+    `总分：${evalData.total_score || 0} / ${maxScore}`,
+    '',
+    '分项：',
+    ...dims.map((item) => `- ${item.label}: ${item.score} / ${item.max}`),
+    '',
+    `备注：${evalData.notes || '-'}`,
+  ].join('\n');
+
+  const handleCopy = async () => {
+    const text = buildCopyText();
+    try {
+      await navigator.clipboard.writeText(text);
+      message.success('评分结果已复制');
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      message.success('评分结果已复制');
+    }
+  };
 
   return (
     <PageTransition>
     <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Evaluations</Button>
-      <Card className="liquid-glass" title={`Evaluation: ${evalData.stores?.name || ''}`}>
+      <Card className="crud-card" title={`Store Rating: ${evalData.stores?.name || ''}`} extra={
+        <Space wrap>
+          <Button onClick={() => navigate(`/app/evaluation/create?id=${evalData.id}`)}>编辑评分</Button>
+          <Button type="primary" onClick={handleCopy}>复制评分结果</Button>
+        </Space>
+      }>
         <Descriptions column={3} bordered style={{ marginBottom: 24 }}>
           <Descriptions.Item label="Store">{evalData.stores?.name}</Descriptions.Item>
           <Descriptions.Item label="Date">{evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString('en-US') : '-'}</Descriptions.Item>
-          <Descriptions.Item label="Level"><Tag color={evalData.recommended_level === 'A' ? 'green' : evalData.recommended_level === 'B' ? 'blue' : 'orange'}>{evalData.recommended_level}</Tag></Descriptions.Item>
-          <Descriptions.Item label="Total Score"><span style={{ fontSize: 20, fontWeight: 700 }}>{evalData.total_score}</span> / 60</Descriptions.Item>
-          <Descriptions.Item label="Average">{(evalData.total_score / 6).toFixed(1)} / 10</Descriptions.Item>
+          <Descriptions.Item label="Level"><Tag color={levelColor}>{evalData.recommended_level}</Tag></Descriptions.Item>
+          <Descriptions.Item label="Total Score"><span style={{ fontSize: 20, fontWeight: 700 }}>{evalData.total_score}</span> / {maxScore}</Descriptions.Item>
+          <Descriptions.Item label="Rate">{Math.round((Number(evalData.total_score || 0) / maxScore) * 100)}%</Descriptions.Item>
           <Descriptions.Item label="Evaluator">{evalData.evaluator?.name || '-'}</Descriptions.Item>
           <Descriptions.Item label="Notes" span={3}>{evalData.notes || '-'}</Descriptions.Item>
         </Descriptions>
@@ -56,7 +97,7 @@ const EvalDetailPage = () => {
                 <RadarChart data={radarData}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11 }} />
-                  <PolarRadiusAxis domain={[0, 10]} />
+                  <PolarRadiusAxis domain={[0, radarMax]} />
                   <Radar dataKey="score" stroke="#1677ff" fill="#1677ff" fillOpacity={0.3} />
                   <Tooltip />
                 </RadarChart>
@@ -68,9 +109,9 @@ const EvalDetailPage = () => {
               {dims.map((d, i) => (
                 <div key={i} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span>{d.label}</span><span style={{ fontWeight: 600 }}>{d.score} / 10</span>
+                    <span>{d.label}</span><span style={{ fontWeight: 600 }}>{d.score} / {d.max}</span>
                   </div>
-                  <Progress percent={d.score * 10} size="small" color={d.score >= 8 ? '#52c41a' : d.score >= 6 ? '#1890ff' : '#faad14'} />
+                  <Progress percent={Math.round((Number(d.score || 0) / (d.max || 10)) * 100)} size="small" strokeColor="#d6a84f" />
                 </div>
               ))}
             </Card>

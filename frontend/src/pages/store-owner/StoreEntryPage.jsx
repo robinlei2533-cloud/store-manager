@@ -51,7 +51,16 @@ const StoreEntryPage = () => {
       />
       <div className="app-liquid-bg-scrim" />
       <div className="store-entry-language">
-        <LanguageSwitcher inline zIndex={360} />
+        <LanguageSwitcher
+          inline
+          zIndex={360}
+          showCurrent
+          sourceOnly
+          anchor="end"
+          tone="light"
+          buttonMinWidth={112}
+          menuMinWidth={220}
+        />
       </div>
       <section className="store-entry-card liquid-glass">
         <div className="store-entry-mark">

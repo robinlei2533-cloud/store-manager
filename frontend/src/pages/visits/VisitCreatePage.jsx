@@ -1,9 +1,8 @@
-import useLanguageStore from '../../stores/languageStore';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Upload, message, Spin, Divider, Space, Image } from 'antd';
+import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Upload, message, Spin, Divider, Space, Image, Tag } from 'antd';
 import { PlusOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import useAuthStore from '../../stores/authStore';
 import localDb from '../../services/db/localDb';
@@ -16,7 +15,6 @@ const { TextArea } = Input;
 const VisitCreatePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
   const queryClient = useQueryClient();
   const profile = useAuthStore((s) => s.profile);
   const [form] = Form.useForm();
@@ -24,7 +22,6 @@ const VisitCreatePage = () => {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedStoreCampaigns, setSelectedStoreCampaigns] = useState([]);
-  const [campaignLoading, setCampaignLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const { data: stores = [] } = useQuery({ queryKey: ['stores-all'], queryFn: () => getStores({}) });
@@ -41,7 +38,7 @@ const VisitCreatePage = () => {
     } else {
       form.setFieldsValue({ visit_date: dayjs(), status: 'draft' });
     }
-  }, [id]);
+  }, [id, form]);
 
   const handleAddRow = () => setSalesRows([...salesRows, { product_id: null, sales_qty: 0, sales_amount: 0, stock_qty: 0 }]);
   const handleRemoveRow = (idx) => setSalesRows(salesRows.filter((_, i) => i !== idx));
@@ -79,7 +76,7 @@ const VisitCreatePage = () => {
 
       queryClient.invalidateQueries({ queryKey: ['visits'] });
       message.success(id ? 'Visit updated' : 'Visit created');
-      navigate(`/visits/${visitId}`);
+      navigate(`/app/visits/${visitId}`);
     } catch (err) {
       message.error(err.message || 'Operation failed');
     } finally {
@@ -112,7 +109,7 @@ const VisitCreatePage = () => {
             />
           </Form.Item>
           {selectedStoreCampaigns.length > 0 && (
-            <Card className="liquid-glass" size="small" title="🎯 Active Campaign Deliveries" style={{marginBottom:16,background:"#fffbe6",borderColor:"#FFD700",borderRadius:12}}>
+            <Card className="liquid-glass" size="small" title="Active Campaign Deliveries" style={{marginBottom:16,background:"#fffbe6",borderColor:"#FFD700",borderRadius:12}}>
               {selectedStoreCampaigns.map((cl, idx) => (
                 <div key={idx} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:idx < selectedStoreCampaigns.length-1 ? "1px solid rgba(255,215,0,0.15)" : "none"}}>
                   <div>

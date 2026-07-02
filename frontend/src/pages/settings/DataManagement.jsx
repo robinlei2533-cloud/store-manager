@@ -18,6 +18,7 @@ const TABLES = [
 ];
 
 const DataManagement = () => {
+  const { t } = useLanguageStore();
   // Export all local data as JSON
   const handleExport = () => {
     const allData = {};
@@ -34,7 +35,7 @@ const DataManagement = () => {
     a.download = `store-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    message.success('Data exported successfully');
+    message.success(t('data_export_success'));
   };
 
   // Import data from JSON
@@ -51,10 +52,10 @@ const DataManagement = () => {
             count += data[table].length;
           }
         });
-        message.success(`Import complete: ${count} records restored. Reloading...`);
+        message.success(`${t('data_import_complete')}: ${count}`);
         setTimeout(() => window.location.reload(), 1500);
       } catch (err) {
-        message.error('Invalid backup file: ' + err.message);
+        message.error(`${t('invalid_backup_file')}: ${err.message}`);
       }
     };
     reader.readAsText(file);
@@ -63,26 +64,26 @@ const DataManagement = () => {
 
   // Reset to seed data
   const handleReset = () => {
-    if (window.confirm('This will DELETE all your data and restore demo data. Are you sure?')) {
+    if (window.confirm(t('confirm_reset_data'))) {
       TABLES.forEach(table => {
         localStorage.removeItem('store_manager_db_' + table);
       });
       localStorage.removeItem('store_manager_version');
       localDb.init(seedData);
-      message.success('Data reset to demo. Reloading...');
+      message.success(t('data_reset_success'));
       setTimeout(() => window.location.reload(), 1500);
     }
   };
 
   // Clear all data
   const handleClearAll = () => {
-    if (window.confirm('This will DELETE ALL DATA permanently. Are you absolutely sure?')) {
+    if (window.confirm(t('confirm_clear_all'))) {
       TABLES.forEach(table => {
         localStorage.removeItem('store_manager_db_' + table);
       });
       localStorage.removeItem('store_manager_version');
       localStorage.removeItem('store_manager_current_user');
-      message.success('All data cleared. Reloading...');
+      message.success(t('data_clear_success'));
       setTimeout(() => window.location.reload(), 1500);
     }
   };
@@ -93,37 +94,37 @@ const DataManagement = () => {
   return (
     <PageTransition>
     <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
-    <Card className="liquid-glass" title={<><DatabaseOutlined /> Data Management</>} style={{ maxWidth: 700 }}>
+    <Card className="liquid-glass admin-readable-card" title={<><DatabaseOutlined /> {t('data_management')}</>} style={{ maxWidth: 760 }}>
       {IS_LOCAL_MODE ? (
         <Alert
           type="info"
-          message="Local Demo Mode"
-          description="Your data is stored in this browser only. Export regularly to avoid data loss. To enable cloud sync, configure Supabase."
+          message={t('local_demo')}
+          description={t('local_data_warning')}
           showIcon
           style={{ marginBottom: 16 }}
         />
       ) : (
-        <Alert type="success" message="Cloud Mode (Supabase)" description="Data is synced to the cloud." showIcon style={{ marginBottom: 16 }} />
+        <Alert type="success" message={`${t('cloud_mode')} (Supabase)`} description={t('cloud_mode_desc')} showIcon style={{ marginBottom: 16 }} />
       )}
 
       <div style={{ marginBottom: 16 }}>
-        <Text strong>Total Records: </Text>
+        <Text strong>{t('total_records')}: </Text>
         <Tag color="blue" style={{ fontSize: 14, padding: '2px 12px' }}>{totalRecords}</Tag>
-        <Text type="secondary" style={{ marginLeft: 8 }}>across {TABLES.length} tables</Text>
+        <Text type="secondary" style={{ marginLeft: 8 }}>{TABLES.length} {t('across_tables')}</Text>
       </div>
 
       <Divider />
 
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <div>
-          <h4>Backup & Restore</h4>
+          <h4>{t('backup_restore')}</h4>
           <Paragraph type="secondary" style={{ fontSize: 13 }}>
-            Export your data to a JSON file for backup. Import to restore from a previous backup.
+            {t('backup_restore_desc')}
           </Paragraph>
           <Space>
-            <Button type="primary" icon={<DownloadOutlined />} onClick={handleExport}>Export Data (Backup)</Button>
+            <Button type="primary" icon={<DownloadOutlined />} onClick={handleExport}>{t('export_data_backup')}</Button>
             <Upload accept=".json" showUploadList={false} beforeUpload={handleImport}>
-              <Button icon={<ImportOutlined />}>Import Data (Restore)</Button>
+              <Button icon={<ImportOutlined />}>{t('import_data_restore')}</Button>
             </Upload>
           </Space>
         </div>
@@ -131,20 +132,20 @@ const DataManagement = () => {
         <Divider />
 
         <div>
-          <h4>Reset & Clear</h4>
+          <h4>{t('reset_clear')}</h4>
           <Paragraph type="secondary" style={{ fontSize: 13 }}>
-            Reset restores demo data. Clear removes everything permanently.
+            {t('reset_clear_desc')}
           </Paragraph>
           <Space>
-            <Button onClick={handleReset}>Reset to Demo Data</Button>
-            <Button danger onClick={handleClearAll}>Clear All Data</Button>
+            <Button onClick={handleReset}>{t('reset_demo_data')}</Button>
+            <Button danger onClick={handleClearAll}>{t('clear_all_data')}</Button>
           </Space>
         </div>
 
         <Divider />
 
         <div>
-          <h4><CloudOutlined /> Upgrade to Cloud Mode</h4>
+          <h4><CloudOutlined /> {t('cloud_upgrade')}</h4>
           <Paragraph type="secondary" style={{ fontSize: 13 }}>
             To enable multi-user access, cloud storage, and data persistence:
           </Paragraph>

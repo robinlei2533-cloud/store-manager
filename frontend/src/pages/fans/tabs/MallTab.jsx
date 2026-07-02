@@ -1,6 +1,5 @@
-import useLanguageStore from '../../../stores/languageStore';
 import React, { useState } from 'react';
-import { message, Button, Card, Tag, Space, Row, Col, Empty, Statistic } from 'antd';
+import { message, Button, Card, Tag, Row, Col, Statistic } from 'antd';
 import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
@@ -28,9 +27,9 @@ const MallTab = ({ fan, onPointsChange }) => {
       });
       await addFanPoints(fan.id, -item.points_cost, 'redeem', 'Mall Redemption', `Redeemed: ${item.name}`);
       onPointsChange && onPointsChange();
-      message.success(`Redeemed ${item.name}! -${item.points_cost} points 🎁`);
+      message.success(`Redeemed ${item.name}! -${item.points_cost} points`);
       onPointsChange();
-    } catch (err) {
+    } catch (_err) {
       message.error('Redemption failed');
     } finally {
       setRedeeming(null);
@@ -69,7 +68,7 @@ const MallTab = ({ fan, onPointsChange }) => {
                   height: 100, background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
                 }}>
-                  🎁
+                  <GiftOutlined />
                 </div>
               }
             >

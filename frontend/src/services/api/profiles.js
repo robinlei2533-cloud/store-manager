@@ -3,7 +3,6 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ 用户 ============
@@ -23,4 +22,4 @@ export async function updateProfile(id, profile) {
   if (error) throw error;
   return data;
 }
-
+

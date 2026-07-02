@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint src mvp-current.cjs vite.config.js eslint.config.js",
+    "preview": "vite preview",
+    "mvp:current": "node mvp-current.cjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",

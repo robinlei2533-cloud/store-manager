@@ -1,15 +1,10 @@
-import useLanguageStore from '../../../stores/languageStore';
 import React, { useState, useEffect } from 'react';
-import { message, Button, Card, Statistic, Tag, Space, Row, Col, Typography, Input, Divider, List, Empty } from 'antd';
-import { TeamOutlined, CopyOutlined, GiftOutlined, UserOutlined, StarOutlined } from '@ant-design/icons';
+import { message, Button, Card, Statistic, Row, Col, Typography } from 'antd';
+import { TeamOutlined, CopyOutlined, UserOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
-import { addFanPoints } from '../../../services/api';
-import { useNavigate } from 'react-router';
 const { Text, Title, Paragraph } = Typography;
 const InviteTab = ({ fan }) => {
-  const navigate = useNavigate();
   const [inviteCount, setInviteCount] = useState(0);
-  const { t } = useLanguageStore();
 
   useEffect(() => {
     if (!fan) return;
@@ -22,7 +17,7 @@ const InviteTab = ({ fan }) => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
-      message.success('Link copied! Share with your friends 📤');
+      message.success('Link copied! Share with your friends.');
     }).catch(() => {
       message.info(`Share this code: ${referralCode}`);
     });
@@ -65,7 +60,7 @@ const InviteTab = ({ fan }) => {
 
       <Card size="small" className='liquid-glass' style={{ marginTop: 16, borderRadius: 12 }}>
         <Text style={{ fontSize: 12, color: '#666' }}>
-          💡 <strong>How it works:</strong> Your friend clicks the link, registers as a UWELL fan, and you both earn points. The more friends you invite, the more rewards you unlock!
+          <strong>How it works:</strong> Your friend clicks the link, registers as a UWELL fan, and you both earn points. The more friends you invite, the more rewards you unlock!
         </Text>
       </Card>
     </div>

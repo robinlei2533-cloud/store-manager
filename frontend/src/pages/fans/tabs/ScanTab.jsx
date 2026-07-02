@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { message, Button, Card, Statistic, Tag, Space, Row, Col, Typography, Input, Divider, List, Empty, Modal, Spin, Alert } from 'antd';
-import { QrcodeOutlined, CheckCircleOutlined, ThunderboltOutlined, StarOutlined, CameraOutlined, ScanOutlined, ReloadOutlined } from '@ant-design/icons';
+import { message, Button, Card, Statistic, Row, Col, Typography, Input, Divider, List, Empty, Modal, Spin, Alert } from 'antd';
+import { QrcodeOutlined, CameraOutlined, ScanOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
 
@@ -8,7 +8,6 @@ const { Title, Paragraph, Text } = Typography;
 
 const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState(null);
@@ -87,7 +86,7 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
             return;
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // detection frame error, retry
       }
       if (running) { animRef.current = requestAnimationFrame(detect); }
@@ -239,7 +238,6 @@ const ScanTab = ({ fan, onPointsChange }) => {
       
       let points = 5; // default
       let productId = null;
-      let productName = 'UWELL Product';
       let storeId = null;
 
       if (matchedQr) {
@@ -258,7 +256,6 @@ const ScanTab = ({ fan, onPointsChange }) => {
         if (matchedProduct) {
           points = 5;
           productId = matchedProduct.id;
-          productName = matchedProduct.name;
         } else {
           // Create a new QR code entry for this scan
           const newQr = localDb.insert('qr_codes', {

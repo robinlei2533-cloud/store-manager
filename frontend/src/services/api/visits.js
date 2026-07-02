@@ -3,7 +3,6 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit, enrichVisit } from './helpers';
 
 // ============ 鎷滆 ============
@@ -125,4 +124,4 @@ export async function deleteVisitPhoto(id) {
   const { error } = await supabase.from('visit_photos').delete().eq('id', id);
   if (error) throw error;
 }
-
+

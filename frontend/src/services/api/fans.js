@@ -3,7 +3,6 @@
 
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
-import seedData from '../db/seedData';
 import { isLocal, ensureLocalInit, enrichFan } from './helpers';
 
 // ============ 粉丝 ============
@@ -66,4 +65,4 @@ export async function addFanPoints(fanId, points, type, source, description) {
   if (error) throw error;
   return data;
 }
-
+

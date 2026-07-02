@@ -2,7 +2,6 @@ import useLanguageStore from './stores/languageStore';
 import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
-import PageTransition from './components/common/PageTransition';
 import './styles/animations.css';
 import './styles/glass-morphism.css';
 import './styles/loading-states.css';
@@ -33,6 +32,7 @@ const CampaignDetailPage = React.lazy(() => import('./pages/campaigns/CampaignDe
 const CampaignCreatePage = React.lazy(() => import('./pages/campaigns/CampaignCreatePage'));
 const FanListPage = React.lazy(() => import('./pages/fans/FanListPage'));
 const FanDetailPage = React.lazy(() => import('./pages/fans/FanDetailPage'));
+const ComplaintReplyPage = React.lazy(() => import('./pages/fans/ComplaintReplyPage'));
 const FanRulesPage = React.lazy(() => import('./pages/fans/FanRulesPage'));
 const ScanCenterPage = React.lazy(() => import('./pages/fans/ScanCenterPage'));
 const MaterialListPage = React.lazy(() => import('./pages/materials/MaterialListPage'));
@@ -41,6 +41,8 @@ const MaterialInboundPage = React.lazy(() => import('./pages/materials/MaterialI
 const MaterialOutboundPage = React.lazy(() => import('./pages/materials/MaterialOutboundPage'));
 const UserManagementPage = React.lazy(() => import('./pages/settings/UserManagementPage'));
 const ProductManagementPage = React.lazy(() => import('./pages/settings/ProductManagementPage'));
+const DataManagement = React.lazy(() => import('./pages/settings/DataManagement'));
+const AuditLogPage = React.lazy(() => import('./pages/settings/AuditLogPage'));
 const SettingsPage = React.lazy(() => import('./pages/settings/SettingsPage'));
 const FanGrowthPage = React.lazy(() => import('./pages/fans/FanGrowthPage'));
 const FanEntryPage = React.lazy(() => import('./pages/fan-entry/FanEntryPage'));
@@ -78,6 +80,7 @@ const router = createHashRouter([
       { path: "campaigns/create", element: <CampaignCreatePage /> },
       { path: "campaigns/:id", element: <CampaignDetailPage /> },
       { path: "fans/list", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><FanListPage /></ProtectedRoute> },
+      { path: "fans/complaints", element: <ComplaintReplyPage /> },
       { path: "fans/:id", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><FanDetailPage /></ProtectedRoute> },
       { path: "fans/rules", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><FanRulesPage /></ProtectedRoute> },
       { path: "fans/scan", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><ScanCenterPage /></ProtectedRoute> },
@@ -86,9 +89,11 @@ const router = createHashRouter([
       { path: "materials/stocks", element: <MaterialStocksPage /> },
       { path: "materials/inbound", element: <MaterialInboundPage /> },
       { path: "materials/outbound", element: <MaterialOutboundPage /> },
-      { path: "settings/users", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><SettingsPage /></ProtectedRoute> },
-      { path: "settings/products", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><SettingsPage /></ProtectedRoute> },
-      { path: "settings/data", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><SettingsPage /></ProtectedRoute> },
+      { path: "settings", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><SettingsPage /></ProtectedRoute> },
+      { path: "settings/users", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><UserManagementPage /></ProtectedRoute> },
+      { path: "settings/products", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><ProductManagementPage /></ProtectedRoute> },
+      { path: "settings/data", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><DataManagement /></ProtectedRoute> },
+      { path: "settings/audit", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><AuditLogPage /></ProtectedRoute> },
     ]
   },
   { path: "*", element: <Navigate to="/" replace /> }
@@ -108,26 +113,34 @@ const App = () => {
         locale={lang === 'ar' ? arEG : lang === 'zh' ? zhCN : enUS}
         theme={{
           token: {
-            colorPrimary: '#FFD700',
-            colorInfo: '#FFD700',
+            colorPrimary: '#B98916',
+            colorInfo: '#B98916',
             colorSuccess: '#16a34a',
             colorWarning: '#f59e0b',
             colorError: '#dc2626',
+            colorText: '#181512',
+            colorTextSecondary: '#62594b',
+            colorTextTertiary: '#8a7d68',
+            colorBgBase: '#f6f3ec',
+            colorBgLayout: '#f6f3ec',
+            colorBgContainer: '#ffffff',
+            colorBorder: 'rgba(82,62,24,0.16)',
+            colorBorderSecondary: 'rgba(82,62,24,0.10)',
             borderRadius: 8,
             fontFamily: "'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
           },
           components: {
-            Layout: { headerBg: '#14141e', siderBg: '#11111a', bodyBg: '#1a1a24' },
-            Card: { borderRadiusLG: 12, colorBgContainer: '#1e1e2a', colorBorderSecondary: 'rgba(255,255,255,0.08)' },
-            Menu: { itemBorderRadius: 8, itemSelectedBg: '#2a2000', itemSelectedColor: '#FFD700', itemColor: '#c0c0d0', itemHoverBg: 'rgba(255,215,0,0.08)' },
+            Layout: { headerBg: '#ffffff', siderBg: '#11100d', bodyBg: '#f6f3ec' },
+            Card: { borderRadiusLG: 12, colorBgContainer: '#ffffff', colorBorderSecondary: 'rgba(82,62,24,0.12)' },
+            Menu: { itemBorderRadius: 8, itemSelectedBg: 'rgba(255,215,0,0.16)', itemSelectedColor: '#FFD700', itemColor: 'rgba(255,255,255,0.74)', itemHoverBg: 'rgba(255,215,0,0.08)' },
             Button: { borderRadius: 8 },
-            Table: { headerBg: '#1e1e2a', colorBgContainer: '#1e1e2a', borderColor: 'rgba(255,255,255,0.06)' },
+            Table: { headerBg: '#f1eadb', colorBgContainer: '#ffffff', borderColor: 'rgba(82,62,24,0.12)', headerColor: '#3b2d13', rowHoverBg: '#fff7df' },
           },
         }}
       >
         <AntApp>
           <ErrorBoundary>
-            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#14141e"}}><Spin size="large" /></div>}>
+            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#f6f3ec"}}><Spin size="large" /></div>}>
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

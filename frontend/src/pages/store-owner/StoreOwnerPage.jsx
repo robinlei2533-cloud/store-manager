@@ -1,11 +1,11 @@
 ﻿import React, { useState, useEffect } from "react";
 import BlurText from '../../components/effects/BlurText';
-import { Card, Row, Col, Statistic, Button, Typography, Tag, Space, List, message, Table, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Progress } from "antd";
-import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, SettingOutlined, UserOutlined, BarChartOutlined, HistoryOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Button, Typography, Tag, message, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Upload, Progress } from "antd";
+import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, StarOutlined, SettingOutlined, LogoutOutlined, GlobalOutlined, PictureOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
 import useLanguageStore from "../../stores/languageStore";
-import LanguageSwitcher from "../../components/common/LanguageSwitcher";
+import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
 
 const { Title, Text } = Typography;
 
@@ -13,39 +13,34 @@ const APP_BG_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOtt
 
 // Level-based material bundles
 const LEVEL_MATERIAL_BUNDLES = {
-  S: { labelKey: "store_level_s_pack", icon: "👑", materials: ["UWELL Door Panel", "UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Staff Vest", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#B9F2FF" },
-  A: { labelKey: "store_level_a_pack", icon: "🥇", materials: ["UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#FFD700" },
-  B: { labelKey: "store_level_b_pack", icon: "🥈", materials: ["UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#C0C0C0" },
-  C: { labelKey: "store_level_c_pack", icon: "🥉", materials: ["UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker"], color: "#CD7F32" },
+  S: { label: "钻石门店", labelKey: "store_level_s_pack", Icon: CrownOutlined, materials: ["UWELL Door Panel", "UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Staff Vest", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#B9F2FF" },
+  A: { label: "黄金门店", labelKey: "store_level_a_pack", Icon: CrownOutlined, materials: ["UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#FFD700" },
+  B: { label: "白银门店", labelKey: "store_level_b_pack", Icon: StarOutlined, materials: ["UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#C0C0C0" },
+  C: { label: "青铜门店", labelKey: "store_level_c_pack", Icon: TagOutlined, materials: ["UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker"], color: "#CD7F32" },
 };
 
 const StoreOwnerPage = () => {
   const navigate = useNavigate();
   const [store, setStore] = useState(null);
-  const [fans, setFans] = useState([]);
-  const [scans, setScans] = useState([]);
-  const [stats, setStats] = useState({ fanCount: 0, totalPoints: 0, scanCount: 0, campaigns: 0, claims: 0 });
+  const [stats, setStats] = useState({ campaigns: 0, claims: 0 });
   const [activeTab, setActiveTab] = useState("dashboard");
   const [allCampaigns, setAllCampaigns] = useState([]);
   const [claimedCampaigns, setClaimedCampaigns] = useState([]);
   const [reviewModal, setReviewModal] = useState({ open: false, claim: null });
   const [reviewForm, setReviewForm] = useState({ materials_used: 0, effect: "good", feedback: "" });
-  const [materialRequests, setMaterialRequests] = useState([]);
   const [storeMaterials, setStoreMaterials] = useState([]);
+  const [displayUploads, setDisplayUploads] = useState([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editForm] = Form.useForm();
-  const { t } = useLanguageStore();
+  const { t, lang, setLang } = useLanguageStore();
+  const storeLanguageOptions = [
+    { code: "zh", label: "中文" },
+    { code: "en", label: "English" },
+    { code: "ar", label: "العربية" },
+  ];
 
   // GSAP entrance animation
-
-  // Load material requests
-  useEffect(() => {
-    try {
-      const reqs = localDb.all("material_requests") || [];
-      if (store) setMaterialRequests(reqs.filter(r => r.store_id === store.id));
-    } catch(e) {}
-  }, [store]);
 
   // Load data
   useEffect(() => {
@@ -70,20 +65,14 @@ const StoreOwnerPage = () => {
       });
     }
 
-    const storeFans = activeStore ? (localDb.find("fans", (f) => f.store_id === activeStore.id) || []) : [];
-    const storeScans = activeStore ? (localDb.find("scan_records", (r) => r.store_id === activeStore.id) || []) : [];
     const storeClaims = activeStore ? claims.filter((c) => c.store_id === activeStore.id) : [];
 
-    setFans(storeFans);
-    setScans(storeScans);
     setClaimedCampaigns(storeClaims);
     setAllCampaigns(localDb.all("campaigns") || []);
     setStoreMaterials(allMats);
+    setDisplayUploads(activeStore ? localDb.find("store_display_uploads", (item) => item.store_id === activeStore.id) : []);
 
     setStats({
-      fanCount: storeFans.length,
-      totalPoints: storeFans.reduce((s, f) => s + (f.points || 0), 0),
-      scanCount: storeScans.length,
       campaigns: storeClaims.filter((c) => c.status === "completed").length,
       claims: storeClaims.length,
     });
@@ -148,6 +137,48 @@ const StoreOwnerPage = () => {
     message.success(t('review_submit_success'));
   };
 
+  const refreshDisplayUploads = (storeId = store?.id) => {
+    if (!storeId) return;
+    setDisplayUploads(localDb.find("store_display_uploads", (item) => item.store_id === storeId));
+  };
+
+  const handleDisplayUpload = async (category, file) => {
+    if (!store) return false;
+    if (!file.type?.startsWith("image/")) {
+      message.error("只能上传图片文件");
+      return false;
+    }
+
+    const activeCount = localDb.find(
+      "store_display_uploads",
+      (item) => item.store_id === store.id && item.category === category && item.status !== "rejected"
+    ).length;
+    if (activeCount >= 3) {
+      message.warning(`${getDisplayCategoryLabel(category)}最多上传 3 张待审核或已通过图片`);
+      return false;
+    }
+
+    try {
+      const imageUrl = await readImageAsDataUrl(file);
+      localDb.insert("store_display_uploads", {
+        store_id: store.id,
+        store_name: store.name,
+        category,
+        image_url: imageUrl,
+        status: "pending",
+        submitted_by: store.id,
+        submitted_at: new Date().toISOString(),
+        reviewed_at: null,
+        review_note: "",
+      });
+      refreshDisplayUploads(store.id);
+      message.success("已提交后台人工审核");
+    } catch {
+      message.error("图片读取失败，请换一张较小的图片");
+    }
+    return false;
+  };
+
   if (!store) {
     return (
       <div className="so-spin-center">
@@ -160,76 +191,100 @@ const StoreOwnerPage = () => {
   }
 
   const levelBundle = LEVEL_MATERIAL_BUNDLES[store.level] || LEVEL_MATERIAL_BUNDLES.C;
-  const levelBundleLabel = t(levelBundle.labelKey);
+  const levelBundleLabel = levelBundle.label || t(levelBundle.labelKey);
+  const LevelIcon = levelBundle.Icon;
+  const storeCampaignsForDashboard = allCampaigns.filter((campaign) => campaign.target_stores?.includes(store.id));
+  const activeStoreCampaigns = storeCampaignsForDashboard.filter((campaign) => campaign.status === "ongoing");
+  const pendingCampaignClaims = claimedCampaigns.filter((claim) => ["pending", "in_progress"].includes(claim.status));
+  const displayApproved = displayUploads.filter((item) => item.status === "approved").length;
+  const displayPending = displayUploads.filter((item) => item.status === "pending").length;
+  const stockRows = levelBundle.materials.map((name) => {
+    const material = storeMaterials.find((item) => item.name === name);
+    const stock = material ? localDb.find("material_stocks", (item) => item.material_id === material.id)[0] : null;
+    return {
+      name,
+      qty: stock?.qty ?? 0,
+      safety: stock?.safety_stock ?? 0,
+      unit: material?.unit || "pcs",
+    };
+  });
+  const lowBundleStock = stockRows.filter((item) => item.safety > 0 && item.qty <= item.safety);
 
   // ====== Dashboard Tab ======
   const Dashboard = () => (
-    <div>
-      {/* Store Info Card */}
-      <Card
-        size="small"
-        style={{
-          marginBottom: 12,
-          borderRadius: 12,
-          background: "linear-gradient(135deg, #1a1a2e 0%, #1a1a1f 100%)",
-          border: "1px solid rgba(255,215,0,0.1)",
-        }}
-        extra={<Button type="link" icon={<EditOutlined />} className="so-text-gold" onClick={() => setEditModalOpen(true)}>{t('edit')}</Button>}
-      >
-        <div className="so-flex-between-mb">
+    <div className="store-dashboard-v2">
+      <Card size="small" className="so-card-main store-dashboard-hero" extra={<Button type="link" icon={<EditOutlined />} className="so-text-gold" onClick={() => setEditModalOpen(true)}>{t('edit')}</Button>}>
+        <div className="store-dashboard-hero-grid">
           <div>
+            <Text className="so-text-white30 so-fs11">门店等级</Text>
             <Title level={4} className="so-text-gold so-m0">{store.name}</Title>
-            <Tag color={levelBundle.color} className="so-mt4 so-fw600">{levelBundle.icon} {levelBundleLabel}</Tag>
+            <Tag color={levelBundle.color} className="so-mt4 so-fw600"><LevelIcon /> {levelBundleLabel}</Tag>
+          </div>
+          <div className="store-dashboard-level-mark" style={{ "--store-level-color": levelBundle.color }}>
+            <LevelIcon />
+            <strong>{store.level || "C"}</strong>
           </div>
         </div>
-        <div className="so-grid-2">
-          <div><EnvironmentOutlined /> <span className="so-text-light">{store.address?.substring(0, 40) || "N/A"}</span></div>
-          <div><PhoneOutlined /> <span className="so-text-light">{store.phone || "N/A"}</span></div>
-          <div><ShopOutlined /> ID: <span className="so-text-light">{store.id}</span></div>
-          <div><ClockCircleOutlined /> <span className="so-text-light">{store.created_at ? new Date(store.created_at).toLocaleDateString() : "N/A"}</span></div>
+        <div className="so-grid-2 store-dashboard-meta">
+          <div><EnvironmentOutlined /> <span>{store.address?.substring(0, 44) || "N/A"}</span></div>
+          <div><PhoneOutlined /> <span>{store.phone || "N/A"}</span></div>
+          <div><ShopOutlined /> <span>{store.id}</span></div>
+          <div><ClockCircleOutlined /> <span>{store.created_at ? new Date(store.created_at).toLocaleDateString() : "N/A"}</span></div>
         </div>
       </Card>
 
-      {/* Statistics */}
       <Row gutter={[8, 8]}>
         {[
-          { icon: <UserOutlined />, label: t('dash_total_fans'), value: stats.fanCount, color: "#457bff" },
-          { icon: <GiftOutlined />, label: t('camp_title'), value: stats.claims, color: "#FFD700" },
-          { icon: <CheckCircleOutlined />, label: t('dash_completed_evals'), value: stats.campaigns, color: "#52c41a" },
-          { icon: <BarChartOutlined />, label: t('nav_fan_scan'), value: stats.scanCount, color: "#6c5ce7" },
+          { icon: <FireOutlined />, label: "进行中活动", value: activeStoreCampaigns.length, color: "#FFD700", tab: "campaigns" },
+          { icon: <GiftOutlined />, label: "待处理领取", value: pendingCampaignClaims.length, color: "#F5A623", tab: "campaigns" },
+          { icon: <PictureOutlined />, label: "展示已通过", value: displayApproved, color: "#52c41a", tab: "showcase" },
+          { icon: <UploadOutlined />, label: "展示待审核", value: displayPending, color: "#1677ff", tab: "showcase" },
         ].map((card) => (
           <Col span={12} key={card.label}>
-            <Card size="small" className="so-card-subtle">
-              <div className="so-flex">
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#" + card.color.slice(1) + "15", display: "flex", alignItems: "center", justifyContent: "center", color: card.color, fontSize: 18 }}>
-                  {card.icon}
-                </div>
-                <div>
-                  <div className="so-stat-value">{card.value}</div>
-                  <div className="so-stat-label">{card.label}</div>
-                </div>
-              </div>
-            </Card>
+            <button type="button" className="store-dashboard-stat so-card-subtle" onClick={() => setActiveTab(card.tab)}>
+              <span style={{ color: card.color }}>{card.icon}</span>
+              <strong>{card.value}</strong>
+              <em>{card.label}</em>
+            </button>
           </Col>
         ))}
       </Row>
 
-      {/* Material Bundle */}
-      <Card
-        size="small"
-        style={{ marginTop: 12, borderRadius: 12, background: "linear-gradient(135deg, #1a1a2e 0%, #1a1a0e 100%)", border: "1px solid " + levelBundle.color + "22" }}
-      >
-        <div className="so-flex-gap8">
-          <span className="so-fs20">{levelBundle.icon}</span>
-          <Text strong style={{ color: levelBundle.color, fontSize: 14 }}>{levelBundleLabel} - {t('store_materials')}</Text>
+      <Card size="small" className="so-card-subtle store-dashboard-section" title="活动状态" extra={<Button size="small" onClick={() => setActiveTab("campaigns")}>查看活动</Button>}>
+        {storeCampaignsForDashboard.slice(0, 3).map((campaign) => {
+          const claim = claimedCampaigns.find((item) => item.campaign_id === campaign.id);
+          return (
+            <div key={campaign.id} className="store-dashboard-row">
+              <div>
+                <strong>{campaign.name}</strong>
+                <p>{campaign.description?.substring(0, 72)}</p>
+              </div>
+              <Tag color={claim ? "green" : campaign.status === "ongoing" ? "gold" : "default"}>
+                {claim ? "已领取" : campaign.status === "ongoing" ? "可领取" : campaign.status}
+              </Tag>
+            </div>
+          );
+        })}
+        {storeCampaignsForDashboard.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分配活动" />}
+      </Card>
+
+      <Card size="small" className="so-card-subtle store-dashboard-section" title="物料库存" extra={<Button size="small" onClick={() => setActiveTab("materials")}>登记库存</Button>}>
+        <div className="store-stock-list">
+          {stockRows.slice(0, 5).map((item) => {
+            const percent = item.safety > 0 ? Math.min(100, Math.round((item.qty / (item.safety * 2)) * 100)) : 100;
+            const danger = item.safety > 0 && item.qty <= item.safety;
+            return (
+              <div key={item.name} className="store-stock-row">
+                <div>
+                  <strong>{item.name}</strong>
+                  <span>{item.qty} {item.unit} / 安全 {item.safety}</span>
+                </div>
+                <Progress percent={percent} showInfo={false} status={danger ? "exception" : "normal"} />
+              </div>
+            );
+          })}
         </div>
-        <div className="so-flex-wrap">
-          {levelBundle.materials.map((m, i) => (
-            <Tag key={i} style={{ background: "#" + levelBundle.color.slice(1) + "12", color: levelBundle.color, border: "1px solid " + levelBundle.color + "22", borderRadius: 6, padding: "2px 8px", fontSize: 11 }}>
-              {m}
-            </Tag>
-          ))}
-        </div>
+        {lowBundleStock.length > 0 && <Tag color="volcano">有 {lowBundleStock.length} 项物料低于安全库存</Tag>}
       </Card>
     </div>
   );
@@ -336,14 +391,6 @@ const StoreOwnerPage = () => {
     setReviewModal({ open: true, claim });
   };
 
-  const handleRequestMaterial = (matName) => {
-    if (!store) return;
-    const req = { id: "mr-" + Date.now(), store_id: store.id, store_name: store.name, material_name: matName, status: "pending", requested_at: new Date().toISOString() };
-    localDb.insert("material_requests", req);
-    setMaterialRequests(prev => [...prev, req]);
-    message.success("Requested: " + matName);
-  };
-
   // ====== Materials Tab ======
   const MaterialsTab = () => (
     <div>
@@ -358,7 +405,7 @@ const StoreOwnerPage = () => {
         }}
       >
         <div className="so-flex-gap8">
-          <span className="so-fs24">{levelBundle.icon}</span>
+          <LevelIcon className="so-fs24" style={{ color: levelBundle.color }} />
           <div>
             <Text strong style={{ color: levelBundle.color, fontSize: 15, display: "block" }}>{levelBundleLabel}{t('material_pack')}</Text>
             <Text className="so-text-white30 so-fs11">{t('material_bundle_desc')}</Text>
@@ -396,53 +443,66 @@ const StoreOwnerPage = () => {
     </div>
   );
 
-  // ====== Fans Tab ======
-  const FansTab = () => {
-    const columns = [
-      { title: "ID", dataIndex: "id", key: "id", render: (t) => <Text copyable className="so-table-id">{t}</Text> },
-      { title: t('fan_level'), dataIndex: "level", key: "level", render: (l) => <Tag color={l === "S" ? "purple" : l === "A" ? "red" : l === "B" ? "blue" : "default"}>{l || "C"}</Tag> },
-      { title: t('fan_total_points'), dataIndex: "points", key: "points", render: (p) => <Text strong className="so-table-points">{p || 0}</Text> },
-      { title: t('join_date'), dataIndex: "created_at", key: "created_at", render: (d) => d ? new Date(d).toLocaleDateString() : "-" },
-    ];
-    return (
-      <Table
-        dataSource={fans}
-        columns={columns}
-        rowKey="id"
-        size="small"
-        pagination={{ pageSize: 10, size: "small" }}
-        locale={{ emptyText: <Empty description={t('no_data')} /> }}
-        className="so-bg-transparent"
-      />
-    );
-  };
+  const ShowcaseTab = () => (
+    <div>
+      <Card size="small" className="so-card-subtle" style={{ marginBottom: 12 }}>
+        <div className="so-flex-gap8">
+          <PictureOutlined className="so-fs20" style={{ color: "#FFD700" }} />
+          <div>
+            <Text strong className="so-text-light">UWELL 产品展示</Text>
+            <div className="so-text-white30 so-fs11">上传店内真实展示图，后台审核通过后会出现在粉丝门店推荐里。</div>
+          </div>
+        </div>
+      </Card>
 
-  // ====== Scans Tab ======
-  const ScansTab = () => {
-    const columns = [
-      { title: t('fan_products'), dataIndex: "product_name", key: "product_name", render: (t) => t || "-" },
-      { title: t('fan_id'), dataIndex: "fan_id", key: "fan_id", render: (t) => <Text copyable className="so-fs11">{t}</Text> },
-      { title: t('date'), dataIndex: "created_at", key: "created_at", render: (d) => d ? new Date(d).toLocaleString() : "-" },
-      { title: t('status'), dataIndex: "status", key: "status", render: (s) => <Tag color={s === "verified" ? "green" : "default"}>{s || "pending"}</Tag> },
-    ];
-    return (
-      <Table
-        dataSource={scans}
-        columns={columns}
-        rowKey="id"
-        size="small"
-        pagination={{ pageSize: 10, size: "small" }}
-        locale={{ emptyText: <Empty description={t('no_data')} /> }}
-      />
-    );
-  };
+      <Row gutter={[8, 8]}>
+        {DISPLAY_CATEGORIES.map((category) => {
+          const records = displayUploads.filter((item) => item.category === category.key);
+          const pending = records.filter((item) => item.status === "pending").length;
+          const approved = records.filter((item) => item.status === "approved").length;
+          return (
+            <Col span={24} key={category.key}>
+              <Card size="small" className="so-card-dark-border">
+                <div className="so-flex-between so-mb8">
+                  <div>
+                    <Text strong className="so-text-light">{category.label}</Text>
+                    <div className="so-text-white30 so-fs11">已通过 {approved} / 待审核 {pending}</div>
+                  </div>
+                  <Upload
+                    accept="image/*"
+                    showUploadList={false}
+                    beforeUpload={(file) => handleDisplayUpload(category.key, file)}
+                  >
+                    <Button size="small" icon={<UploadOutlined />}>上传</Button>
+                  </Upload>
+                </div>
+                {records.length > 0 ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                    {records.slice(0, 3).map((item) => (
+                      <div key={item.id} style={{ position: "relative" }}>
+                        <img src={item.image_url} alt={category.label} style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 8, border: "1px solid rgba(255,255,255,0.12)" }} />
+                        <Tag color={item.status === "approved" ? "green" : item.status === "rejected" ? "red" : "gold"} style={{ position: "absolute", left: 4, top: 4, margin: 0 }}>
+                          {item.status === "approved" ? "已通过" : item.status === "rejected" ? "已拒绝" : "待审核"}
+                        </Tag>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无图片" />
+                )}
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
+    </div>
+  );
 
   const tabItems = [
     { key: "dashboard", label: <span><ShopOutlined /> {t('store_dashboard')}</span>, children: <Dashboard /> },
+    { key: "showcase", label: <span><PictureOutlined /> UWELL 展示</span>, children: <ShowcaseTab /> },
     { key: "campaigns", label: <span><FireOutlined /> {t('nav_campaigns')}</span>, children: <CampaignsTab /> },
     { key: "materials", label: <span><GiftOutlined /> {t('store_materials')} ({levelBundle.materials.length})</span>, children: <MaterialsTab /> },
-    { key: "fans", label: <span><UserOutlined /> {t('nav_fans')} ({stats.fanCount})</span>, children: <FansTab /> },
-    { key: "scans", label: <span><FireOutlined /> {t('nav_fan_scan')} ({stats.scanCount})</span>, children: <ScansTab /> },
   ];
 
   return (
@@ -451,12 +511,23 @@ const StoreOwnerPage = () => {
       <div className="app-liquid-bg-scrim" />
       {/* Header */}
       <div className="so-flex-between-mb store-liquid-header liquid-glass">
-        <div>
-          <BlurText as="h4" text={t('store_title')} className="so-text-gold so-m0" />
-          <Text className="so-text-white30 so-fs11">{store.name}</Text>
+        <div className="store-header-info">
+          <div>
+            <BlurText as="h4" text={t('store_title')} className="so-text-gold so-m0" />
+            <Text className="so-text-white30 so-fs11">{store.name}</Text>
+          </div>
+          <div className="store-level-medal" style={{ "--store-level-color": levelBundle.color }}>
+            <div className="store-level-medal-icon">
+              <LevelIcon />
+            </div>
+            <div className="store-level-medal-copy">
+              <span>{levelBundleLabel}</span>
+              <strong>{store.level || "C"}</strong>
+            </div>
+          </div>
         </div>
         <div className="store-header-actions">
-          <Tag color={levelBundle.color} className="so-fw600">{levelBundle.icon} {levelBundleLabel}</Tag>
+          <Tag color={levelBundle.color} className="so-fw600"><LevelIcon /> {levelBundleLabel}</Tag>
           <div className="store-settings-slot">
             <button
               type="button"
@@ -469,7 +540,20 @@ const StoreOwnerPage = () => {
             {settingsOpen && (
               <div className="store-settings-panel liquid-glass">
                 <div className="store-settings-label">{t("settings_language")}</div>
-                <LanguageSwitcher inline showCurrent zIndex={360} />
+                <div className="store-settings-language-list">
+                  {storeLanguageOptions.map((item) => (
+                    <button
+                      key={item.code}
+                      type="button"
+                      className={`store-settings-lang${lang === item.code ? " is-active" : ""}`}
+                      onClick={() => setLang(item.code)}
+                    >
+                      <GlobalOutlined />
+                      <span>{item.label}</span>
+                      {lang === item.code && <CheckCircleOutlined />}
+                    </button>
+                  ))}
+                </div>
                 <div className="fe-settings-divider" />
                 <button type="button" className="store-settings-item" onClick={handleStoreLogout}>
                   <LogoutOutlined /> {t("logout")}
@@ -496,7 +580,7 @@ const StoreOwnerPage = () => {
         onOk={handleSaveStore}
         okText={t('save')}
         cancelText={t('cancel')}
-        styles={{ content: { background: "#1a1a2e", border: "1px solid rgba(255,215,0,0.15)" } }}
+        styles={{ content: { background: "#ffffff", border: "1px solid rgba(82,62,24,0.14)" } }}
       >
         <Form form={editForm} layout="vertical">
           <Form.Item name="name" label={<span className="so-text-light">{t('store_name')}</span>} rules={[{ required: true }]}>
@@ -522,7 +606,7 @@ const StoreOwnerPage = () => {
         onOk={handleSubmitReview}
         okText={reviewModal.claim?.status === "completed" ? t('update_review') : t('submit_review')}
         cancelText={t('cancel')}
-        styles={{ content: { background: "#1a1a2e", border: "1px solid rgba(255,215,0,0.15)" } }}
+        styles={{ content: { background: "#ffffff", border: "1px solid rgba(82,62,24,0.14)" } }}
       >
         {reviewModal.claim && (
           <div>

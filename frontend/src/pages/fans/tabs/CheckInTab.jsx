@@ -1,14 +1,13 @@
 ﻿import useLanguageStore from '../../../stores/languageStore';
-import React, { useState, useEffect } from 'react';
-import { message, Button, Card, Statistic, Tag, Progress, Space, Typography, Row, Col, Divider, List, Input, Empty, Avatar } from 'antd';
-import { StarOutlined, CrownOutlined, FireOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { message, Button, Card, Statistic, Tag, Progress, Typography, Row, Col } from 'antd';
+import { StarOutlined, FireOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
 import { FAN_LEVELS } from '../../../utils/constants';
 const { Text } = Typography;
 const CheckInTab = ({ fan, onPointsChange }) => {
-  const queryClient = useQueryClient();
+  const { t } = useLanguageStore();
   const [checkinStreak, setCheckinStreak] = useState(0);
   const [todayChecked, setTodayChecked] = useState(false);
   const [weekData, setWeekData] = useState([]);
@@ -59,7 +58,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
     setTodayChecked(true);
     setCheckinStreak((s) => s + 1);
     setWeekData((prev) => prev.map((d) => (d.isToday ? { ...d, checked: true } : d)));
-    message.success('Check-in successful! +5 points 🔥');
+    message.success(t('fan_checkin_success').replace('+10', '+5'));
     onPointsChange();
   };
 
@@ -74,24 +73,24 @@ const CheckInTab = ({ fan, onPointsChange }) => {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={12} sm={8}>
           <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)' }}>
-            <Statistic title="My Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ color: '#FFD700', fontWeight: 700 }} />
+            <Statistic title={t('fan_my_points')} value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ color: '#FFD700', fontWeight: 700 }} />
           </Card>
         </Col>
         <Col xs={12} sm={8}>
           <Card size="small" style={{ textAlign: 'center', borderRadius: 16 }}>
-            <div style={{ fontSize: 12, color: '#999' }}>Level</div>
+            <div style={{ fontSize: 12, color: '#999' }}>{t('fan_level')}</div>
             <Tag color={levelInfo.color} style={{ fontSize: 14, padding: '4px 12px', marginTop: 4 }}>{levelInfo.label}</Tag>
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: '#f0f5ff' }}>
-            <Statistic title="Streak" value={checkinStreak} suffix="days" prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} valueStyle={{ color: '#ff4d4f' }} />
+            <Statistic title={t('fan_streak')} value={checkinStreak} suffix={t('days')} prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} valueStyle={{ color: '#ff4d4f' }} />
           </Card>
         </Col>
       </Row>
 
       {/* Week calendar */}
-      <Card title="📅 This Week" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+      <Card title={t('fan_check_in')} size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
         <Row gutter={4}>
           {weekData.map((day, idx) => (
             <Col span={24 / 7} key={idx} style={{ textAlign: 'center' }}>
@@ -123,7 +122,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
           border: 'none',
         }}
       >
-        {todayChecked ? '✓ Checked In Today' : '🔥 Check In Now (+5 pts)'}
+        {todayChecked ? t('fan_already_checked') : `${t('fan_check_in')} (+5 ${t('fan_points_unit')})`}
       </Button>
 
       {/* Level progress */}
@@ -131,7 +130,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
         <Card size="small" className='liquid-glass' style={{ marginTop: 16, borderRadius: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <Text>{levelInfo.label}</Text>
-            <Text type="secondary">{nextLevel.min_points - (fan?.points || 0)} pts to {nextLevel.label}</Text>
+            <Text type="secondary">{nextLevel.min_points - (fan?.points || 0)} {t('fan_points_unit')} {t('fan_next_level')} {nextLevel.label}</Text>
           </div>
           <Progress percent={levelProgress} strokeColor={{ from: '#667eea', to: '#764ba2' }} />
         </Card>
