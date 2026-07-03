@@ -110,6 +110,15 @@ const SectionTitle = ({ children }) => (
   </div>
 );
 
+const ActionEmpty = ({ title, desc }) => (
+  <div className="admin-action-empty">
+    <div>
+      <strong>{title}</strong>
+      <span>{desc}</span>
+    </div>
+  </div>
+);
+
 const StatCard = ({ icon, label, value, color = '#FFD700', delay = 0 }) => {
   const cardRef = useRef(null);
   const [animatedValue, setAnimatedValue] = useState(0);
@@ -501,7 +510,7 @@ const DashboardPage = () => {
                   <Line type="monotone" dataKey="count" stroke="#1677ff" strokeWidth={2} dot={{ r: 3 }} name={t('dash_visits')} />
                 </LineChart>
               </ResponsiveContainer>
-            ) : <Empty description={t('dash_no_visit_data')} className="dash-empty" />}
+            ) : <ActionEmpty title="近 30 天暂无拜访趋势" desc="当地推完成巡店后，这里会自动形成趋势线，方便判断门店覆盖是否稳定。" />}
           </Card>
         </Col>
         <Col xs={24} lg={10}>
@@ -515,7 +524,7 @@ const DashboardPage = () => {
                   <Tooltip /><Legend />
                 </PieChart>
               </ResponsiveContainer>
-            ) : <Empty description={t('dash_no_store_data')} style={{ padding: '60px 0' }} />}
+            ) : <ActionEmpty title="门店评级数据待完善" desc="完成门店评级后，S/A/B/C 分布会在这里展示，帮助判断渠道质量。" />}
           </Card>
         </Col>
       </Row>
@@ -535,7 +544,7 @@ const DashboardPage = () => {
                   <Line type="monotone" dataKey="count" stroke="#722ed1" strokeWidth={2} dot={{ r: 3 }} name={t('dash_scans')} />
                 </LineChart>
               </ResponsiveContainer>
-            ) : <Empty description={t('dash_no_scan_data')} style={{ padding: '60px 0' }} />}
+            ) : <ActionEmpty title="扫码数据正在等待沉淀" desc="粉丝扫码后会在这里显示每日趋势，用来观察活动转化和产品热度。" />}
           </Card>
         </Col>
       </Row>
@@ -571,7 +580,7 @@ const DashboardPage = () => {
                   <List.Item.Meta title={<span><Tag color={c.status === 'ongoing' ? 'processing' : c.status === 'completed' ? 'default' : 'blue'}>{c.status === 'ongoing' ? 'Ongoing' : c.status === 'completed' ? 'Completed' : c.status === 'planned' ? 'Planned' : 'Cancelled'}</Tag>{c.name}</span>} description={`${c.type} · ${c.start_date} ~ ${c.end_date} · ${c.store_count || (c.target_stores?.length || 0)} stores`} />
                 </List.Item>
               )} />
-            ) : <Empty description={t('no_campaigns')} className="dash-empty-sm" />}
+            ) : <ActionEmpty title="当前没有进行中的活动" desc="创建或分配活动后，管理员可以在这里快速查看门店参与情况。" />}
           </Card>
         </Col>
         <Col xs={24} lg={12}>
@@ -583,7 +592,7 @@ const DashboardPage = () => {
                   <List.Item.Meta title={<span><Badge status={item.qty === 0 ? 'error' : 'warning'} />{item.materials?.name}</span>} description={<span>Current: <Text type="danger" strong>{item.qty}</Text> / Safety: {item.safety_stock} {item.materials?.unit}<Progress percent={Math.round((item.qty / (item.safety_stock * 2)) * 100)} size="small" status={item.qty === 0 ? 'exception' : 'active'} style={{ maxWidth: 200, marginTop: 4 }} /></span>} />
                 </List.Item>
               )} />
-            ) : <Empty description={t('all_stock_healthy')} style={{ padding: '40px 0' }} />}
+            ) : <ActionEmpty title="库存状态正常" desc="低于安全库存的物料会自动出现在这里，方便及时补货。" />}
           </Card>
         </Col>
       </Row>
@@ -604,7 +613,7 @@ const DashboardPage = () => {
                   <List.Item.Meta avatar={<QrcodeOutlined style={{ fontSize: 20, color: '#722ed1' }} />} title={`${r.products?.name || 'Unknown'} · +${r.points_earned} pts`} description={`${r.stores?.name || ''} · ${new Date(r.created_at).toLocaleString('en-US')}`} />
                 </List.Item>
               )} />
-            ) : <Empty description={t('no_scan_records')} style={{ padding: '40px 0' }} />}
+            ) : <ActionEmpty title="还没有最新扫码记录" desc="粉丝扫码认证产品后，最新记录会自动出现在这里。" />}
           </Card>
         </Col>
       </Row>

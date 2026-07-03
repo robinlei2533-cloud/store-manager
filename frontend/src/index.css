@@ -4782,6 +4782,101 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   font-size: 12px;
 }
 
+.store-owner-title {
+  display: block;
+  white-space: nowrap;
+  word-break: keep-all;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.fe-stat-grid-after-form {
+  margin-top: 14px;
+}
+
+.fan-entry-flow-note {
+  color: rgba(255,255,255,0.58);
+}
+
+.admin-action-empty {
+  min-height: 210px;
+  display: grid;
+  place-items: center;
+  padding: 28px 18px;
+  color: var(--uw-admin-muted, #5f6b7a);
+  text-align: center;
+}
+
+.admin-action-empty strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--uw-admin-text, #17202b);
+  font-size: 14px;
+}
+
+.admin-action-empty span {
+  display: block;
+  max-width: 320px;
+  line-height: 1.6;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .fe-hero-row {
+    gap: 18px;
+  }
+
+  .fe-hero-left p {
+    display: none;
+  }
+
+  .fe-hero-left h1 {
+    margin-bottom: 8px !important;
+  }
+
+  .fe-stat-grid-after-form {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .fe-stat-grid-after-form .fe-stat-card {
+    min-height: 54px;
+    padding: 8px 6px;
+    border-radius: 12px;
+  }
+
+  .fe-stat-grid-after-form .fe-stat-card strong {
+    font-size: 13px;
+  }
+
+  .fe-stat-grid-after-form .fe-stat-card span {
+    font-size: 10px;
+  }
+
+  .fe-product-dock {
+    margin-top: 18px;
+  }
+
+  .store-liquid-header {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    align-items: start !important;
+  }
+
+  .store-header-info {
+    min-width: 0;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+  }
+
+  .store-owner-title {
+    max-width: 170px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 /* Final MVP contrast pass: keep store/admin settings visible on light glass headers. */
 .admin-liquid-shell .layout-settings-slot,
 .store-liquid-shell .store-settings-slot {
@@ -4838,6 +4933,412 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
     grid-template-areas:
       "status copy"
       "points action";
+  }
+}
+
+/* Warm luxury fan entry */
+.fe-page-luxury {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #fff;
+  background-color: #fff;
+  color: #14120f;
+}
+
+.fe-luxury-header {
+  position: fixed;
+  z-index: 90;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 30px 12px;
+  pointer-events: none;
+}
+
+.fe-luxury-header > * {
+  pointer-events: auto;
+}
+
+.fe-luxury-brand {
+  display: grid;
+  gap: 3px;
+  color: #14120f;
+}
+
+.fe-luxury-brand span {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 500;
+  color: #ffd100;
+}
+
+.fe-luxury-brand small {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(20, 18, 15, 0.56);
+}
+
+.fe-page-luxury .fe-header-actions {
+  gap: 10px;
+}
+
+.fe-page-luxury .fe-language-slot {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.fe-page-luxury .fe-language-slot button {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: rgba(20, 18, 15, 0.82) !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+}
+
+.fe-settings-trigger-light {
+  width: 38px !important;
+  height: 38px !important;
+  background: transparent !important;
+  color: rgba(20, 18, 15, 0.82) !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+
+.fe-settings-trigger-light:hover,
+.fe-settings-trigger-light.is-open {
+  background: rgba(20, 18, 15, 0.05) !important;
+  color: #14120f !important;
+}
+
+.fe-settings-trigger-light .anticon {
+  font-size: 22px;
+}
+
+.fe-settings-panel-light {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(20, 18, 15, 0.12) !important;
+  color: #14120f !important;
+  box-shadow: 0 22px 55px rgba(20, 18, 15, 0.22) !important;
+}
+
+.fe-settings-panel-light .fe-settings-item {
+  color: rgba(20, 18, 15, 0.74) !important;
+}
+
+.fe-settings-panel-light .fe-settings-item:hover {
+  color: #14120f !important;
+  background: rgba(20, 18, 15, 0.05) !important;
+}
+
+.fe-settings-panel-light .fe-settings-divider {
+  background: rgba(20, 18, 15, 0.08);
+}
+
+.fe-luxury-shell {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.fe-luxury-hero {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 48% 52%, #fff 0 28%, rgba(255, 255, 255, 0) 56%),
+    #fff;
+  box-shadow: none;
+}
+
+.fe-luxury-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(20, 18, 15, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 18, 15, 0.014) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.58;
+  mix-blend-mode: multiply;
+}
+
+.fe-luxury-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), transparent 24%, transparent 74%, rgba(255, 255, 255, 0.92)),
+    radial-gradient(circle at 15% 70%, rgba(178, 211, 239, 0.12), transparent 20%),
+    radial-gradient(circle at 86% 28%, rgba(198, 221, 241, 0.14), transparent 18%);
+}
+
+.fe-luxury-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.fe-bio-digital-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.72;
+  mix-blend-mode: multiply;
+}
+
+.fe-luxury-copy {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  width: min(92%, 620px);
+  transform: translate(-50%, -49%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.fe-luxury-copy h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.98;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: #14120f;
+}
+
+.fe-luxury-copy p {
+  margin: 10px 0 0;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 300;
+  color: rgba(39, 35, 30, 0.82);
+}
+
+.fe-luxury-metric {
+  position: absolute;
+  z-index: 5;
+  top: 30px;
+  right: 172px;
+  width: 132px;
+  color: #14120f;
+}
+
+.fe-luxury-metric strong {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  line-height: 0.88;
+  font-weight: 500;
+}
+
+.fe-luxury-metric span {
+  display: block;
+  margin-top: 7px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10px;
+  line-height: 1.12;
+  text-transform: uppercase;
+}
+
+.fe-luxury-join {
+  position: absolute;
+  z-index: 5;
+  left: 38px;
+  bottom: 34px;
+  width: 360px;
+  display: grid;
+  gap: 15px;
+  justify-items: start;
+}
+
+.fe-luxury-join p {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11px;
+  line-height: 1.16;
+  text-transform: uppercase;
+  color: #14120f;
+}
+
+.fe-luxury-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 5px 6px 5px 18px;
+  color: #fff;
+  background: #050505;
+  border: 0;
+  border-radius: 999px;
+  text-transform: uppercase;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(20, 18, 15, 0.18);
+}
+
+.fe-luxury-cta span {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #050505;
+  font-family: system-ui, sans-serif;
+}
+
+.fe-luxury-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.fe-luxury-benefits div {
+  min-height: 108px;
+  padding: 18px;
+  border: 1px solid rgba(20, 18, 15, 0.1);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(20, 18, 15, 0.08);
+}
+
+.fe-luxury-benefits strong,
+.fe-luxury-benefits span {
+  display: block;
+}
+
+.fe-luxury-benefits strong {
+  font-size: 15px;
+  color: #14120f;
+}
+
+.fe-luxury-benefits span {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(20, 18, 15, 0.58);
+}
+
+.fe-product-dock-luxury {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
+  background: rgba(12, 12, 12, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+}
+
+.fe-auth-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 9, 7, 0.48);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.fe-auth-modal {
+  position: relative;
+  width: min(100%, 430px);
+}
+
+.fe-auth-modal .fe-form-card {
+  width: 100%;
+  margin: 0;
+  background: rgba(16, 16, 18, 0.96);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+}
+
+.fe-auth-modal .fe-form-title h2 {
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.fe-auth-modal .fe-form-title p {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.fe-link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.fe-page-luxury .fe-modal-overlay {
+  z-index: 230;
+}
+
+@media (max-width: 860px) {
+  .fe-luxury-shell {
+    padding: 0;
+  }
+
+  .fe-luxury-header {
+    padding: 18px 18px 10px;
+  }
+
+  .fe-luxury-brand span {
+    font-size: 25px;
+  }
+
+  .fe-luxury-hero {
+    min-height: 100vh;
+  }
+
+  .fe-luxury-copy {
+    top: 44%;
+  }
+
+  .fe-luxury-copy h1 {
+    font-size: 43px;
+  }
+
+  .fe-luxury-copy p {
+    font-size: 18px;
+  }
+
+  .fe-luxury-metric {
+    display: none;
+  }
+
+  .fe-luxury-join {
+    left: 22px;
+    right: 22px;
+    bottom: 28px;
+    width: auto;
+  }
+
+  .fe-luxury-benefits {
+    grid-template-columns: 1fr;
   }
 }
 

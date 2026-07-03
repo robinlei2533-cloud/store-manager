@@ -15,6 +15,7 @@ const LanguageSwitcher = ({
   buttonMinWidth,
   anchor,
   tone = 'dark',
+  labelOverride,
 }) => {
   const { lang, setLang, t } = useLanguageStore();
   const [open, setOpen] = useState(false);
@@ -88,7 +89,7 @@ const LanguageSwitcher = ({
         }}
       >
         {!sourceOnly ? current.flag : null}
-        {showCurrent ? current.label : null}
+        {showCurrent ? (labelOverride || current.label) : null}
       </button>
       {open && (
         <div

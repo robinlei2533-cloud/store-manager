@@ -1,5 +1,4 @@
 ﻿import React, { useState, useEffect } from "react";
-import BlurText from '../../components/effects/BlurText';
 import { Card, Row, Col, Button, Typography, Tag, message, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Upload, Progress } from "antd";
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, StarOutlined, SettingOutlined, LogoutOutlined, GlobalOutlined, PictureOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
@@ -513,7 +512,7 @@ const StoreOwnerPage = () => {
       <div className="so-flex-between-mb store-liquid-header liquid-glass">
         <div className="store-header-info">
           <div>
-            <BlurText as="h4" text={t('store_title')} className="so-text-gold so-m0" />
+            <h4 className="so-text-gold so-m0 store-owner-title">{t('store_title')}</h4>
             <Text className="so-text-white30 so-fs11">{store.name}</Text>
           </div>
           <div className="store-level-medal" style={{ "--store-level-color": levelBundle.color }}>

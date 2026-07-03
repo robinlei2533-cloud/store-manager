@@ -51,6 +51,14 @@ import CampaignTab from './tabs/CampaignTab';
 
 const FAN_CENTER_BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4';
 
+const getLocalFanFallback = () => {
+  if (localDb.needsInit()) localDb.init(seedData);
+  const savedFanId = localStorage.getItem('store_manager_current_user');
+  const savedFan = savedFanId ? localDb.findById('fans', savedFanId) : null;
+  if (savedFan) return [savedFan];
+  return localDb.all('fans') || [];
+};
+
 const formatDateTime = (value) => {
   if (!value) return '-';
   try {
@@ -74,10 +82,20 @@ const FanCenterPage = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const bgVideoRef = useRef(null);
+  const localFallbackFans = useMemo(() => getLocalFanFallback(), []);
 
   const { data: fans = [], isLoading } = useQuery({
     queryKey: ['fans', refreshKey],
-    queryFn: () => getFans({}),
+    initialData: localFallbackFans,
+    queryFn: async () => {
+      try {
+        const remoteFans = await getFans({});
+        return remoteFans?.length ? remoteFans : getLocalFanFallback();
+      } catch {
+        return getLocalFanFallback();
+      }
+    },
+    staleTime: 30_000,
   });
 
   useEffect(() => {
@@ -160,8 +178,6 @@ const FanCenterPage = () => {
       queryClient.invalidateQueries({ queryKey: ['fan-points-log'] });
     }
   });
-
-  if (localDb.needsInit()) localDb.init(seedData);
 
   if (!currentFan) {
     const savedFanId = localStorage.getItem('store_manager_current_user');
@@ -595,7 +611,7 @@ const FanCenterPage = () => {
     return renderSecondaryView();
   };
 
-  if (isLoading) {
+  if (isLoading && !currentFan) {
     return <div className="fan-shell-loading"><Spin size="large" /></div>;
   }
 
