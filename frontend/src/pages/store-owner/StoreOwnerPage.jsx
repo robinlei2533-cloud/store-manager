@@ -59,6 +59,7 @@ const StoreOwnerPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editForm] = Form.useForm();
+  const [materialRequesting, setMaterialRequesting] = useState(false);
   const { t, lang, setLang } = useLanguageStore();
   const storeLanguageOptions = [
     { code: "zh", label: "中文" },
@@ -442,7 +443,6 @@ const StoreOwnerPage = () => {
   };
 
   // ====== Materials Tab ======
-  const [materialRequesting, setMaterialRequesting] = useState(false);
   const handleRequestMaterial = async (material) => {
     setMaterialRequesting(true);
     try {
