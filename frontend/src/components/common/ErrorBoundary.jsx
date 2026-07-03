@@ -12,14 +12,27 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo });
-    // 上报错误到控制台（生产环境可替换为 Sentry/LogRocket）
     console.error('[ErrorBoundary] Caught error:', error);
     console.error('[ErrorBoundary] Component stack:', errorInfo?.componentStack);
+    // 上报到 Sentry（如已配置）
+    try {
+      if (window.Sentry) {
+        window.Sentry.captureException(error, { contexts: { react: errorInfo } });
+      }
+    } catch (_e) { /* ignore */ }
   }
 
   handleReload = () => {
     this.setState({ hasError: false, error: null, errorInfo: null });
-    window.location.hash = '#/app/dashboard';
+    // 根据当前路由判断恢复目标
+    const hash = window.location.hash;
+    if (hash.includes('fan-center') || hash.includes('fan-entry')) {
+      window.location.hash = '#/fan-entry';
+    } else if (hash.includes('store-owner') || hash.includes('store-login')) {
+      window.location.hash = '#/store-login';
+    } else {
+      window.location.hash = '#/app/dashboard';
+    }
     window.location.reload();
   };
 
@@ -40,17 +53,18 @@ class ErrorBoundary extends React.Component {
         <div style={{
           display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
           minHeight: '100vh', padding: 24, fontFamily: 'sans-serif',
+          background: '#000000', color: '#e5e5e5',
         }}>
           <div style={{ textAlign: 'center', maxWidth: 500 }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>:(</div>
-            <h2 style={{ marginBottom: 8 }}>页面遇到了一点问题</h2>
-            <p style={{ color: '#666', marginBottom: 24 }}>
+            <div style={{ fontSize: 48, marginBottom: 16, color: '#FFD700' }}>U</div>
+            <h2 style={{ marginBottom: 8, color: '#e5e5e5' }}>页面遇到了一点问题</h2>
+            <p style={{ color: '#888', marginBottom: 24 }}>
               可以先刷新页面。如果仍然无法恢复，清除本地演示数据通常可以解决缓存数据导致的问题。
             </p>
             <div style={{
-              background: '#f5f5f5', padding: 16, borderRadius: 8, marginBottom: 24,
-              textAlign: 'left', fontSize: 12, color: '#999', maxHeight: 200, overflow: 'auto',
-              whiteSpace: 'pre-wrap', fontFamily: 'monospace',
+              background: '#0d0d14', padding: 16, borderRadius: 8, marginBottom: 24,
+              textAlign: 'left', fontSize: 12, color: '#666', maxHeight: 200, overflow: 'auto',
+              whiteSpace: 'pre-wrap', fontFamily: 'monospace', border: '1px solid rgba(255,215,0,0.08)',
             }}>
               {this.state.error?.toString()}
               {this.state.errorInfo?.componentStack}

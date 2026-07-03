@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Select, InputNumber, Input, Button, Card, Table, Tabs, Tag, message, Spin, Space } from 'antd';
+import { Form, Select, InputNumber, Input, Button, Card, Table, Tabs, Tag, message, Spin, Space, Empty } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMaterials, getStores, createOutbound, getOutbounds, updateOutboundStatus } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
@@ -76,7 +76,7 @@ const MaterialOutboundPage = () => {
             <Form.Item><Button type="primary" htmlType="submit" loading={mutation.isPending}>Submit Request</Button></Form.Item>
           </Form>
         )},
-        { key: 'records', label: 'Outbound Records', children: isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> : <Table rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} /> },
+        { key: 'records', label: 'Outbound Records', children: isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> : <Table rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} locale={{ emptyText: <Empty description="No outbound records yet" /> }} /> },
       ]} />
     </Card>
     </div>

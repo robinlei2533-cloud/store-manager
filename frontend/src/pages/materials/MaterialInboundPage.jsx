@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Select, InputNumber, Input, Button, Card, Table, message, Spin } from 'antd';
+import { Form, Select, InputNumber, Input, Button, Card, Table, message, Spin, Empty } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMaterials, createInbound, getInbounds } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
@@ -53,7 +53,8 @@ const MaterialInboundPage = () => {
 
       <Card className="liquid-glass" title="Inbound History">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
-         <Table rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }} />}
+         <Table rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }}
+           locale={{ emptyText: <Empty description="No inbound records yet" /> }} />}
       </Card>
     </div>
     </PageTransition>);

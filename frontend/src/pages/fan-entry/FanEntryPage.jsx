@@ -213,6 +213,10 @@ const FanEntryPage = () => {
             </label>
             <a href="#" className="fe-form-link">{t('fan_entry_forgot')}</a>
           </div>
+          <label className="fe-form-label fe-consent-line" style={{marginBottom:12}}>
+            <input type="checkbox" defaultChecked />
+            I confirm I am of legal age in my region.
+          </label>
           <button onClick={handleLogin} className="fe-btn-primary">{t('fan_entry_signin_btn')}</button>
           <div className="fe-form-toggle">
             <button type="button" onClick={() => setMode('register')} className="fe-form-link fe-link-button">
@@ -268,7 +272,7 @@ const FanEntryPage = () => {
           </label>
           <label className="fe-form-label fe-consent-line">
             <input type="checkbox" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)} />
-            I agree to the privacy notice and member terms.
+            I agree to the <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:'#FFD700',textDecoration:'underline'}}>privacy notice</a> and <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{color:'#FFD700',textDecoration:'underline'}}>member terms</a>.
           </label>
           <p className="fe-form-helper">You will enter your member center after sign-up.</p>
           <button onClick={handleRegister} disabled={loading} className="fe-btn-primary">{loading ? t('fan_entry_registering') : t('fan_entry_register_btn')}</button>

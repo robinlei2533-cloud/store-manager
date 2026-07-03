@@ -164,6 +164,12 @@ const StoreEntryPage = () => {
             <Button type="primary" size="large" loading={loading} onClick={handleLogin} block>
               {t("store_entry_button")}
             </Button>
+            <div style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>
+              By logging in, you confirm you are of legal age. See our{' '}
+              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Privacy Policy</a>
+              {' '}and{' '}
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Terms</a>.
+            </div>
           </div>
         )}
         {mode === "register" && (
@@ -183,6 +189,12 @@ const StoreEntryPage = () => {
             <Button type="primary" size="large" loading={loading} onClick={handleRegister} block>
               Submit for review
             </Button>
+            <div style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>
+              By registering, you confirm you are of legal age and agree to our{' '}
+              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Privacy Policy</a>
+              {' '}and{' '}
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Terms of Service</a>.
+            </div>
           </div>
         )}
       </section>

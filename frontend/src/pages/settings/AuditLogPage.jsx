@@ -121,7 +121,7 @@ const AuditLogPage = () => {
     <PageTransition>
       <Card title={<><DatabaseOutlined /> Audit Log</>}>
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: 48 }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div>
         ) : !logs.length ? (
           <Empty description="No audit logs found" />
         ) : (

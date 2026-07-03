@@ -34,6 +34,7 @@ import { ROLES, ROLE_NAMES } from '../../utils/constants';
 import { IS_LOCAL_MODE } from '../../services/api';
 import { motion } from 'framer-motion';
 import { canViewCompanyScope } from '../../utils/uwellRoleAccess';
+import { DeviceProvider } from '../../contexts/DeviceContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -210,6 +211,7 @@ const AppLayout = () => {
 
 
   return (
+    <DeviceProvider>
     <Layout className="layout-root app-liquid-shell admin-liquid-shell">
       {!isMobile && (
         <Sider width={260} breakpoint="lg" collapsedWidth={0} className="layout-sider admin-ref-sider">
@@ -308,6 +310,7 @@ const AppLayout = () => {
         </Content>
       </Layout>
     </Layout>
+    </DeviceProvider>
   );
 };
 
