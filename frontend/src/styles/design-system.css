@@ -86,3 +86,38 @@ h1, h2, h3, .ant-typography h1, .ant-typography h2, .ant-typography h3 { font-fa
 @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 .shimmer { position: relative; overflow: hidden; }
 .shimmer::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,215,0,0.03), transparent); animation: shimmer 3s ease-in-out infinite; pointer-events: none; }
+
+/* ============ Dashboard Insight Cards ============ */
+.dash-insight-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.dash-insight-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.dash-insight-card .ant-card-body { padding: 16px !important; }
+
+/* ============ Responsive fixes for dashboard ============ */
+@media (max-width: 768px) {
+  .dash-stat-value { font-size: 1.5rem !important; }
+  .dash-stat-label { font-size: 0.7rem !important; }
+  .dash-insight-card .ant-card-body { padding: 12px !important; }
+}
+
+/* ============ Empty State Animation ============ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.admin-action-empty { animation: fadeInUp 0.5s ease-out; }
+
+/* ============ Table Row Hover Enhancement ============ */
+.ant-table-row { transition: background-color 0.2s ease; }
+
+/* ============ Card Title Gold Gradient ============ */
+.dash-card-title-gold { background: linear-gradient(135deg, #FFD700, #FFF3B0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600; }
+.dash-card-title-light { color: #e5e5e5; font-weight: 500; }
+
+/* ============ Loading States ============ */
+.dash-loading { display: flex; justify-content: center; align-items: center; padding: 60px 0; }
+.dash-loading-sm { display: flex; justify-content: center; align-items: center; padding: 40px 0; }
+.dash-no-data { display: flex; justify-content: center; align-items: center; padding: 60px 0; color: #888; font-size: 14px; }
+
+/* ============ Rep Dashboard ============ */
+.rep-dashboard { padding: 0; }
+.rep-dashboard .dash-section { margin-bottom: 16px; }

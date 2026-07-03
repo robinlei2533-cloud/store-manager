@@ -63,8 +63,8 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 
-import { Button, message } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { Button, message, DatePicker, Segmented } from 'antd';
+import { DownloadOutlined, ArrowUpOutlined, ArrowDownOutlined, EyeOutlined } from '@ant-design/icons';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import localDb from "../../services/db/localDb";
@@ -77,6 +77,37 @@ import { canViewCompanyScope, filterByAssignedStores, getAssignedStoreIds } from
 
 import { useDashboardRealtime } from './useDashboardRealtime';
 const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
+
+// ============ 新增：数据对比计算工具 ============
+const calculateGrowth = (current, previous) => {
+  if (!previous || previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100);
+};
+
+const getYesterdayCount = (records, dateField = 'visit_date') => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yStr = yesterday.toISOString().split('T')[0];
+  return records.filter((r) => r[dateField] === yStr || r.created_at?.startsWith(yStr)).length;
+};
+
+const getLast7DaysCount = (records, dateField = 'visit_date') => {
+  let count = 0;
+  const now = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dStr = d.toISOString().split('T')[0];
+    count += records.filter((r) => r[dateField] === dStr || r.created_at?.startsWith(dStr)).length;
+  }
+  return count;
+};
+
+const getTodayCount = (records, dateField = 'visit_date') => {
+  const todayStr = new Date().toISOString().split('T')[0];
+  return records.filter((r) => r[dateField] === todayStr || r.created_at?.startsWith(todayStr)).length;
+};
 
 const exportToCSV = (data, filename, cols) => {
   if (!data || !data.length) { message?.warning?.('No data'); return; }
@@ -213,13 +244,24 @@ const DashboardPage = () => {
   const { t } = useLanguageStore();
   const profile = useAuthStore((s) => s.profile);
   useDashboardRealtime();
+  const [trendPeriod, setTrendPeriod] = useState('30');
+  const [heatmapLevelFilter, setHeatmapLevelFilter] = useState('all');
 
   const { data: stats } = useQuery({ queryKey: ['dashboard-stats'], queryFn: getDashboardStats });
   const { data: trendData, isLoading: trendLoading } = useQuery({ queryKey: ['visit-trend'], queryFn: () => getVisitTrend(30) });
+  const { data: trend7Data } = useQuery({ queryKey: ['visit-trend-7'], queryFn: () => getVisitTrend(7) });
+  const { data: trend90Data } = useQuery({ queryKey: ['visit-trend-90'], queryFn: () => getVisitTrend(90) });
   const { data: storeDistribution } = useQuery({ queryKey: ['store-distribution'], queryFn: getStoreDistribution });
   const { data: recentVisits, isLoading: visitsLoading } = useQuery({ queryKey: ['recent-visits'], queryFn: () => getVisits({}) });
   const { data: campaigns, isLoading: campaignsLoading } = useQuery({ queryKey: ['dashboard-campaigns'], queryFn: () => getCampaigns({}) });
   const { data: scanRecords, isLoading: scansLoading } = useQuery({ queryKey: ['dashboard-scans'], queryFn: () => getScanRecords({}) });
+  const { data: fanRecords } = useQuery({ queryKey: ['dashboard-fans-all'], queryFn: () => {
+    if (IS_LOCAL_MODE) {
+      ensureLocalInit();
+      return localDb.all('fans');
+    }
+    return [];
+  } });
   const { data: materialStocks, isLoading: stockLoading } = useQuery({ queryKey: ['dashboard-stocks'], queryFn: getMaterialStocks });
   const [pendingClaims, setPendingClaims] = useState([]);
   useEffect(() => {
@@ -232,6 +274,7 @@ const DashboardPage = () => {
   }, []);
 
   const { data: scanTrend, isLoading: scanTrendLoading } = useQuery({ queryKey: ["scan-trend"], queryFn: () => getScanTrend(30) });
+  const { data: scanTrend7 } = useQuery({ queryKey: ["scan-trend-7"], queryFn: () => getScanTrend(7) });
   const localCounts = React.useMemo(() => {
     try {
       return {
@@ -294,6 +337,70 @@ const DashboardPage = () => {
     else acc.push({ name: level, value: 1 });
     return acc;
   }, []) || [];
+
+  // ============ 新增：数据洞察计算 ============
+  const allFans = fanRecords || [];
+  const allVisits = effectiveVisits || [];
+  const allScans = scanRecords || [];
+  const allStores = effectiveStores || [];
+
+  const todayNewFans = getTodayCount(allFans, 'created_at');
+  const yesterdayNewFans = getYesterdayCount(allFans, 'created_at');
+  const fanGrowthRate = calculateGrowth(todayNewFans, yesterdayNewFans);
+
+  const todayScans = getTodayCount(allScans, 'created_at');
+  const yesterdayScans = getYesterdayCount(allScans, 'created_at');
+  const scanGrowthRate = calculateGrowth(todayScans, yesterdayScans);
+
+  const todayVisits = getTodayCount(allVisits, 'visit_date');
+  const yesterdayVisits = getYesterdayCount(allVisits, 'visit_date');
+  const visitGrowthRate = calculateGrowth(todayVisits, yesterdayVisits);
+
+  const last7DayScans = getLast7DaysCount(allScans, 'created_at');
+  const last7DayVisits = getLast7DaysCount(allVisits, 'visit_date');
+  const scanConversionRate = last7DayVisits > 0 ? Math.round((last7DayScans / last7DayVisits) * 100) : 0;
+
+  const levelPercentages = React.useMemo(() => {
+    const total = allStores.length;
+    if (!total) return {};
+    const counts = {};
+    allStores.forEach(s => {
+      const lvl = s.level || 'Unrated';
+      counts[lvl] = (counts[lvl] || 0) + 1;
+    });
+    const result = {};
+    Object.entries(counts).forEach(([lvl, count]) => {
+      result[lvl] = { count, pct: Math.round((count / total) * 100) };
+    });
+    return result;
+  }, [allStores]);
+
+  const activeCampaigns = (campaigns || []).filter(c => c.status === 'ongoing');
+  const completedCampaigns = (campaigns || []).filter(c => c.status === 'completed');
+  const campaignExecutionRate = campaigns?.length > 0 ? Math.round((completedCampaigns.length / campaigns.length) * 100) : 0;
+
+  const repPerformanceEnhanced = React.useMemo(() => {
+    if (!allVisits.length) return [];
+    const map = {};
+    allVisits.forEach(v => {
+      if (v.rep_id) {
+        if (!map[v.rep_id]) {
+          map[v.rep_id] = { rep_id: v.rep_id, name: v.profiles?.name || v.rep_id, visits: 0, stores: new Set(), lastVisit: null };
+        }
+        map[v.rep_id].visits++;
+        if (v.store_id) map[v.rep_id].stores.add(v.store_id);
+        const vd = v.visit_date || v.created_at;
+        if (vd && (!map[v.rep_id].lastVisit || vd > map[v.rep_id].lastVisit)) {
+          map[v.rep_id].lastVisit = vd;
+        }
+      }
+    });
+    return Object.values(map).map(r => ({
+      ...r,
+      storeCount: r.stores.size,
+      stores: undefined,
+    })).sort((a, b) => b.visits - a.visits).slice(0, 10);
+  }, [allVisits]);
 
   const lowStockItems = materialStocks?.filter((s) => s.qty <= s.safety_stock) || [];
   const isCompanyScope = canViewCompanyScope(profile);
@@ -460,13 +567,104 @@ const DashboardPage = () => {
       )}
 
       <SectionTitle>{t('dashboard_section_overview')}</SectionTitle>
-            <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<ShopOutlined />} label={t('dash_store')} value={stats?.storeCount || localCounts.stores} color="#FFD700" delay={0} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<CameraOutlined />} label={t('dash_visits')} value={stats?.totalVisits ?? stats?.visitCount ?? localCounts.visits} color="#FFD700" delay={1} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<TeamOutlined />} label={t('dash_fans')} value={stats?.totalFans ?? stats?.fanCount ?? localCounts.fans} color="#F5A623" delay={2} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<ThunderboltOutlined />} label={t('dash_campaigns')} value={stats?.activeCampaigns ?? stats?.ongoingCampaignCount ?? localCounts.campaigns} color="#FFD700" delay={3} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<QrcodeOutlined />} label={t('dash_scans')} value={stats?.todayScans ?? stats?.scanCount ?? localCounts.scans} color="#FFD700" delay={4} /></Col>
-        <Col xs={12} sm={8} lg={3}><StatCard icon={<WarningOutlined />} label={t('dash_low_stock')} value={stats?.lowStockCount || localCounts.lowStock} color={(stats?.lowStockCount || localCounts.lowStock) > 0 ? '#ff4d4f' : '#52c41a'} delay={5} /></Col>
+      <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+        <Col xs={12} sm={8} lg={4}>
+          <StatCard icon={<ShopOutlined />} label={t('dash_store')} value={stats?.storeCount || localCounts.stores} color="#FFD700" delay={0} />
+        </Col>
+        <Col xs={12} sm={8} lg={4}>
+          <StatCard icon={<CameraOutlined />} label={t('dash_visits')} value={stats?.totalVisits ?? stats?.visitCount ?? localCounts.visits} color="#FFD700" delay={1} />
+        </Col>
+        <Col xs={12} sm={8} lg={4}>
+          <StatCard icon={<TeamOutlined />} label={t('dash_fans')} value={stats?.totalFans ?? stats?.fanCount ?? localCounts.fans} color="#F5A623" delay={2} />
+        </Col>
+        <Col xs={12} sm={8} lg={4}>
+          <StatCard icon={<ThunderboltOutlined />} label={t('dash_campaigns')} value={stats?.activeCampaigns ?? stats?.ongoingCampaignCount ?? localCounts.campaigns} color="#FFD700" delay={3} />
+        </Col>
+        <Col xs={12} sm={8} lg={4}>
+          <StatCard icon={<QrcodeOutlined />} label={t('dash_scans')} value={stats?.todayScans ?? stats?.scanCount ?? localCounts.scans} color="#FFD700" delay={4} />
+        </Col>
+        <Col xs={12} sm={8} lg={4}>
+          <StatCard icon={<WarningOutlined />} label={t('dash_low_stock')} value={stats?.lowStockCount || localCounts.lowStock} color={(stats?.lowStockCount || localCounts.lowStock) > 0 ? '#ff4d4f' : '#52c41a'} delay={5} />
+        </Col>
+      </Row>
+
+      {/* ============ 新增：核心数据洞察卡片 ============ */}
+      <SectionTitle>核心数据洞察</SectionTitle>
+      <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+        <Col xs={12} sm={6} lg={3}>
+          <Card size="small" className="dash-insight-card" style={{ background: 'rgba(255,215,0,0.03)', border: '1px solid rgba(255,215,0,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>今日新增粉丝</Text>
+              {fanGrowthRate >= 0 ? <ArrowUpOutlined style={{ color: '#52c41a', fontSize: 12 }} /> : <ArrowDownOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />}
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#FFD700', fontFamily: "'Instrument Serif', serif" }}>{todayNewFans}</div>
+            <div style={{ fontSize: 11, color: fanGrowthRate >= 0 ? '#52c41a' : '#ff4d4f' }}>
+              {fanGrowthRate >= 0 ? '+' : ''}{fanGrowthRate}% 较昨日
+            </div>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <Card size="small" className="dash-insight-card" style={{ background: 'rgba(114,46,209,0.03)', border: '1px solid rgba(114,46,209,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>今日扫码数</Text>
+              {scanGrowthRate >= 0 ? <ArrowUpOutlined style={{ color: '#52c41a', fontSize: 12 }} /> : <ArrowDownOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />}
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#722ed1', fontFamily: "'Instrument Serif', serif" }}>{todayScans}</div>
+            <div style={{ fontSize: 11, color: scanGrowthRate >= 0 ? '#52c41a' : '#ff4d4f' }}>
+              {scanGrowthRate >= 0 ? '+' : ''}{scanGrowthRate}% 较昨日
+            </div>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <Card size="small" className="dash-insight-card" style={{ background: 'rgba(22,119,255,0.03)', border: '1px solid rgba(22,119,255,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>今日拜访数</Text>
+              {visitGrowthRate >= 0 ? <ArrowUpOutlined style={{ color: '#52c41a', fontSize: 12 }} /> : <ArrowDownOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />}
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#1677ff', fontFamily: "'Instrument Serif', serif" }}>{todayVisits}</div>
+            <div style={{ fontSize: 11, color: visitGrowthRate >= 0 ? '#52c41a' : '#ff4d4f' }}>
+              {visitGrowthRate >= 0 ? '+' : ''}{visitGrowthRate}% 较昨日
+            </div>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <Card size="small" className="dash-insight-card" style={{ background: 'rgba(245,166,35,0.03)', border: '1px solid rgba(245,166,35,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>7天扫码转化率</Text>
+              <EyeOutlined style={{ color: '#F5A623', fontSize: 12 }} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#F5A623', fontFamily: "'Instrument Serif', serif" }}>{scanConversionRate}%</div>
+            <div style={{ fontSize: 11, color: '#888' }}>
+              {last7DayScans} 扫码 / {last7DayVisits} 拜访
+            </div>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <Card size="small" className="dash-insight-card" style={{ background: 'rgba(255,77,79,0.03)', border: '1px solid rgba(255,77,79,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>活动执行率</Text>
+              <ThunderboltOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#ff4d4f', fontFamily: "'Instrument Serif', serif" }}>{campaignExecutionRate}%</div>
+            <div style={{ fontSize: 11, color: '#888' }}>
+              {completedCampaigns.length} 完成 / {campaigns?.length || 0} 总活动
+            </div>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <Card size="small" className="dash-insight-card" style={{ background: 'rgba(82,196,26,0.03)', border: '1px solid rgba(82,196,26,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>待审核门店</Text>
+              <ShopOutlined style={{ color: '#52c41a', fontSize: 12 }} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#52c41a', fontFamily: "'Instrument Serif', serif" }}>
+              {allStores.filter(s => s.status === 'pending_review').length}
+            </div>
+            <div style={{ fontSize: 11, color: '#888' }}>
+              新注册待审核
+            </div>
+          </Card>
+        </Col>
       </Row>
 
       <SectionTitle>管理待办中心</SectionTitle>
@@ -514,14 +712,25 @@ const DashboardPage = () => {
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card title={<><StarOutlined /> <span className="text-gold-gradient">{t('dash_store_level_distribution')}</span></>}>
+          <Card title={<><StarOutlined /> <span className="text-gold-gradient">{t('dash_store_level_distribution')}</span></>}
+            extra={
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {Object.entries(levelPercentages).map(([lvl, data]) => (
+                  <Tag key={lvl} color={LEVEL_COLORS[lvl] || 'default'} style={{ fontSize: 11 }}>
+                    {lvl}: {data.pct}%
+                  </Tag>
+                ))}
+              </div>
+            }
+          >
             {levelPieData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={levelPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={100} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
+                  <Pie data={levelPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={100} dataKey="value" label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}>
                     {levelPieData.map((entry, index) => <Cell key={`cell-${index}`} fill={LEVEL_COLORS[entry.name] || COLORS[index % COLORS.length]} />)}
                   </Pie>
-                  <Tooltip /><Legend />
+                  <Tooltip formatter={(value, name) => [`${value} 家`, `${name} 等级`]} />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             ) : <ActionEmpty title="门店评级数据待完善" desc="完成门店评级后，S/A/B/C 分布会在这里展示，帮助判断渠道质量。" />}
@@ -639,13 +848,22 @@ const DashboardPage = () => {
       <SectionTitle>{t('dashboard_section_insights')}</SectionTitle>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={12}>
-          <Card title={<><TeamOutlined /> <span className="text-gold-gradient">{t('rep_performance')}</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repStatsArray, "rep-performance.csv", [{title:t('rank'), key:"rank", render:(_,__,i)=>i+1}, {title:t('rep'), dataIndex:"name"}, {title:t('visit_count'), dataIndex:"count"}])}>{t('export')}</Button>}>
-            {repStatsArray.length > 0 ? (
+          <Card title={<><TeamOutlined /> <span className="text-gold-gradient">地推表现排行榜</span></>} extra={<Button size="small" icon={<DownloadOutlined />} onClick={() => exportToCSV(repPerformanceEnhanced, "rep-performance-enhanced.csv", [{title:t('rank'), key:"rank", render:(_,__,i)=>i+1}, {title:t('rep'), dataIndex:"name"}, {title:"拜访数", dataIndex:"visits"}, {title:"覆盖门店", dataIndex:"storeCount"}, {title:"最近拜访", dataIndex:"lastVisit", render:(d)=>d?new Date(d).toLocaleDateString('en-US'):'-'}])}>{t('export')}</Button>}>
+            {repPerformanceEnhanced.length > 0 ? (
               <Table columns={[
-                { title: t('rank'), key: 'rank', width: 60, render: (_, __, i) => i + 1 },
-                { title: t('rep'), dataIndex: 'name', key: 'name' },
-                { title: t('visit_count'), dataIndex: 'count', key: 'count', sorter: (a,b) => a.count - b.count, defaultSortOrder: 'descend' },
-              ]} dataSource={repStatsArray} rowKey="rep_id" pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_data') }} />
+                { title: t('rank'), key: 'rank', width: 50, render: (_, __, i) => (
+                  <span style={{ fontWeight: 700, color: i < 3 ? '#FFD700' : '#888', fontSize: 16 }}>{i + 1}</span>
+                )},
+                { title: t('rep'), dataIndex: 'name', key: 'name', render: (name, record) => (
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{name}</div>
+                    <div style={{ fontSize: 11, color: '#888' }}>{record.rep_id}</div>
+                  </div>
+                )},
+                { title: '拜访数', dataIndex: 'visits', key: 'visits', width: 80, sorter: (a,b) => a.visits - b.visits, defaultSortOrder: 'descend', render: (v) => <Tag color="gold">{v}</Tag> },
+                { title: '覆盖门店', dataIndex: 'storeCount', key: 'storeCount', width: 90, render: (v) => <Tag color="blue">{v} 家</Tag> },
+                { title: '最近拜访', dataIndex: 'lastVisit', key: 'lastVisit', width: 110, render: (d) => d ? new Date(d).toLocaleDateString('en-US') : '-' },
+              ]} dataSource={repPerformanceEnhanced} rowKey="rep_id" pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_data') }} />
             ) : <Empty description={t('no_rep_activity')} style={{ padding: '40px 0' }} />}
           </Card>
         </Col>
