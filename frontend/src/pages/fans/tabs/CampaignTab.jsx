@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Empty, Modal, Progress, Spin, Tag, Typography } from 'antd';
-import { FireOutlined, GiftOutlined } from '@ant-design/icons';
+import { Button, Card, Empty, Modal, Progress, Spin, Tag, Typography, message } from 'antd';
+import { FireOutlined, GiftOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 
 const { Text, Title } = Typography;
@@ -136,7 +136,33 @@ const CampaignTab = () => {
           </div>
         )}
 
-        <div style={{ marginTop: 8, textAlign: 'right' }}>
+        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          {isOngoing && (
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckCircleOutlined />}
+              onClick={(event) => {
+                event.stopPropagation();
+                try {
+                  const existing = localDb.all('campaign_claims') || [];
+                  const already = existing.find(c => c.campaign_id === campaign.id && c.store_id);
+                  if (already) { message.info('Already joined this campaign.'); return; }
+                  localDb.insert('campaign_claims', {
+                    campaign_id: campaign.id,
+                    campaign_name: campaign.name_english || campaign.name,
+                    store_id: null,
+                    status: 'pending',
+                    claimed_at: new Date().toISOString(),
+                  });
+                  message.success('Joined campaign! Visit a verified store to complete.');
+                } catch { message.error('Failed to join.'); }
+              }}
+              style={{ borderRadius: 12 }}
+            >
+              Join
+            </Button>
+          )}
           <Button type="link" size="small" onClick={(event) => { event.stopPropagation(); setDetailModal(campaign); }}>
             View details
           </Button>

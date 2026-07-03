@@ -442,9 +442,33 @@ const StoreOwnerPage = () => {
   };
 
   // ====== Materials Tab ======
+  const [materialRequesting, setMaterialRequesting] = useState(false);
+  const handleRequestMaterial = async (material) => {
+    setMaterialRequesting(true);
+    try {
+      localDb.insert('material_requests', {
+        store_id: store?.id,
+        material_id: material.id,
+        material_name: material.name,
+        qty: 1,
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+      });
+      // Also create an outbound record
+      localDb.insert('material_outbound', {
+        store_id: store?.id,
+        material_id: material.id,
+        qty: 1,
+        status: 'pending',
+        reason: 'Store material request',
+        created_at: new Date().toISOString(),
+      });
+      message.success(`Requested ${material.name}. Pending approval.`);
+    } catch { message.error('Request failed.'); }
+    finally { setMaterialRequesting(false); }
+  };
   const MaterialsTab = () => (
     <div>
-      {/* Current Material Bundle */}
       <Card
         size="small"
         style={{
@@ -475,7 +499,6 @@ const StoreOwnerPage = () => {
         </div>
       </Card>
 
-      {/* All Materials */}
       <Text strong className="so-text-white50 so-fs12 so-dblock so-mb8">
         {t('store_materials')}
       </Text>
@@ -486,7 +509,18 @@ const StoreOwnerPage = () => {
               <Text className="so-text-light so-fs13">{m.name}</Text>
               <Tag className="so-ml8 so-fs10 so-tag-material-sm">{m.category}</Tag>
             </div>
-            <Text className="so-text-gold so-fs12">{m.unit_cost} SAR</Text>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Text className="so-text-gold so-fs12">{m.unit_cost} SAR</Text>
+              <Button
+                size="small"
+                type="primary"
+                loading={materialRequesting}
+                onClick={() => handleRequestMaterial(m)}
+                style={{ borderRadius: 8, fontSize: 11 }}
+              >
+                Request
+              </Button>
+            </div>
           </div>
         </Card>
       ))}

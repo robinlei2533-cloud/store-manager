@@ -1,8 +1,36 @@
+# UWELL CRM — Netlify Deployment Config
+# Three-portal SPA: admin (index.html), fan (fan-app.html), store (store-app.html)
+
 [build]
-  command = "cd frontend && npm install && npm run build"
+  command = "cd frontend && pnpm install && pnpm run build"
   publish = "frontend/dist"
+
+[[redirects]]
+  from = "/fan-app.html"
+  to = "/fan-app.html"
+  status = 200
+
+[[redirects]]
+  from = "/store-app.html"
+  to = "/store-app.html"
+  status = 200
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

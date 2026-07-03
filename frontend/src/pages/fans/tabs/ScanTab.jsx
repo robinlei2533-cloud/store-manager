@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { message, Button, Card, Statistic, Row, Col, Typography, Input, Divider, List, Empty, Modal, Spin, Alert } from 'antd';
 import { QrcodeOutlined, CameraOutlined, ScanOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
-import { addFanPoints } from '../../../services/api';
+import { addFanPoints, scanQrCode } from '../../../services/api';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -232,56 +232,55 @@ const ScanTab = ({ fan, onPointsChange }) => {
     if (!code || scansRemaining <= 0) return;
     setScanning(true);
     try {
-      // Look up the scanned code in qr_codes or products
-      const allQrCodes = localDb.all('qr_codes') || [];
-      let matchedQr = allQrCodes.find(q => q.code === code || q.id === code);
-      
-      let points = 5; // default
+      // Try the standard API first (works for both local and Supabase)
+      let points = 5;
       let productId = null;
       let storeId = null;
+      let matchedQr = null;
 
-      if (matchedQr) {
-        points = matchedQr.points || 5;
-        productId = matchedQr.product_id;
-        storeId = matchedQr.store_id || null;
-        // Update scan count
-        localDb.update('qr_codes', matchedQr.id, { scan_count: (matchedQr.scan_count || 0) + 1 });
-      } else {
-        // Try to find by product SKU or name
-        const matchedProduct = products.find(p =>
-          code.toLowerCase().includes(p.sku?.toLowerCase() || '') ||
-          p.sku?.toLowerCase().includes(code.toLowerCase()) ||
-          code.toLowerCase().includes(p.name?.toLowerCase() || '')
-        );
-        if (matchedProduct) {
-          points = 5;
-          productId = matchedProduct.id;
-        } else {
-          // Create a new QR code entry for this scan
-          const newQr = localDb.insert('qr_codes', {
-            code: code,
-            points: 5,
-            is_active: true,
-            scan_count: 1,
-            product_id: null,
-            store_id: null,
-          });
-          if (newQr && newQr.id) matchedQr = newQr;
+      try {
+        const apiResult = await scanQrCode(code, fan.id);
+        if (apiResult) {
+          points = apiResult.points_earned || apiResult.points || 5;
+          productId = apiResult.product_id || null;
+          storeId = apiResult.store_id || null;
+          matchedQr = { id: apiResult.qr_code_id || code, code: code };
         }
+      } catch (_apiErr) {
+        // Fallback: direct localDb lookup
+        const allQrCodes = localDb.all('qr_codes') || [];
+        matchedQr = allQrCodes.find(q => q.code === code || q.id === code);
+
+        if (matchedQr) {
+          points = matchedQr.points || 5;
+          productId = matchedQr.product_id;
+          storeId = matchedQr.store_id || null;
+          localDb.update('qr_codes', matchedQr.id, { scan_count: (matchedQr.scan_count || 0) + 1 });
+        } else {
+          const products = localDb.all('products') || [];
+          const matchedProduct = products.find(p =>
+            code.toLowerCase().includes(p.sku?.toLowerCase() || '') ||
+            p.sku?.toLowerCase().includes(code.toLowerCase())
+          );
+          if (matchedProduct) {
+            points = 5;
+            productId = matchedProduct.id;
+          }
+          const newQr = localDb.insert('qr_codes', { code, points: 5, is_active: true, scan_count: 1, product_id: productId, store_id: null });
+          if (newQr?.id) matchedQr = newQr;
+        }
+
+        // Record locally if API failed
+        localDb.insert('scan_records', {
+          qr_code_id: matchedQr?.id || code,
+          fan_id: fan.id,
+          product_id: productId,
+          store_id: storeId,
+          points_earned: points,
+        });
       }
 
-      // Record the scan
-      localDb.insert('scan_records', {
-        qr_code_id: matchedQr?.id || code,
-        fan_id: fan.id,
-        product_id: productId,
-        store_id: storeId,
-        points_earned: points,
-      });
-
-      // Add points to fan
       await addFanPoints(fan.id, points, 'earn', 'QR Scan', 'Scanned: ' + (matchedQr?.code || code));
-
       message.success('Scan successful! +' + points + ' points');
       setRefreshKey(k => k + 1);
       if (onPointsChange) onPointsChange();

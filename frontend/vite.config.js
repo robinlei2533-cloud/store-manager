@@ -22,10 +22,12 @@ export default defineConfig({
           if (id.includes('node_modules/zustand') || id.includes('node_modules/@tanstack')) return 'vendor-state';
           if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'vendor-charts';
           if (id.includes('node_modules/ogl')) return 'vendor-effects';
+          if (id.includes('node_modules/framer-motion')) return 'vendor-motion';
+          if (id.includes('node_modules/leaflet')) return 'vendor-leaflet';
           if (id.includes('localDb') || id.includes('seedData')) return 'database';
         },
       },
     },
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 300,
   },
 })

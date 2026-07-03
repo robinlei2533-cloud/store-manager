@@ -13,7 +13,7 @@ const InviteTab = ({ fan }) => {
   }, [fan]);
 
   const referralCode = fan ? `UWELL-${fan.id?.slice(-8).toUpperCase()}` : 'UWELL-FAN';
-  const referralLink = `${window.location.origin}/#/register?ref=${referralCode}`;
+  const referralLink = `${window.location.origin}/fan-app.html#/fan-entry?ref=${referralCode}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink).then(() => {

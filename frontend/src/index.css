@@ -3247,7 +3247,7 @@ html[dir="rtl"] .ant-tabs {
   min-height: 100vh;
   background:
     linear-gradient(90deg, rgba(5,5,10,0.96), rgba(5,5,10,0.82)),
-    url('./assets/design/admin-hero.jpg') center/cover fixed no-repeat,
+    url('./assets/design/admin-hero.webp') center/cover fixed no-repeat,
     #050507 !important;
 }
 

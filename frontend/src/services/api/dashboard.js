@@ -38,13 +38,16 @@ export async function getDashboardStats() {
     };
   }
 
-  const [storeCount, visitCount, todayVisits, fanCount, materialCount, lowStockCount] = await Promise.all([
+  const [storeCount, visitCount, todayVisits, fanCount, materialCount, lowStockCount, campaignCount, ongoingCampaignCount, scanCount] = await Promise.all([
     supabase.from('stores').select('*', { count: 'exact', head: true }),
     supabase.from('visits').select('*', { count: 'exact', head: true }),
     supabase.from('visits').select('*', { count: 'exact', head: true }).gte('visit_date', new Date().toISOString().split('T')[0]),
     supabase.from('fans').select('*', { count: 'exact', head: true }),
     supabase.from('materials').select('*', { count: 'exact', head: true }),
     supabase.rpc('get_low_stock_count'),
+    supabase.from('campaigns').select('*', { count: 'exact', head: true }),
+    supabase.from('campaigns').select('*', { count: 'exact', head: true }).eq('status', 'ongoing'),
+    supabase.from('scan_records').select('*', { count: 'exact', head: true }),
   ]);
   return {
     storeCount: storeCount.count || 0,
@@ -52,7 +55,10 @@ export async function getDashboardStats() {
     todayVisits: todayVisits.count || 0,
     fanCount: fanCount.count || 0,
     materialCount: materialCount.count || 0,
-    lowStockCount: lowStockCount.data || 0,
+    lowStockCount: (lowStockCount?.data) || (lowStockCount?.count) || 0,
+    campaignCount: campaignCount.count || 0,
+    ongoingCampaignCount: ongoingCampaignCount.count || 0,
+    scanCount: scanCount.count || 0,
   };
 }
 
@@ -99,7 +105,29 @@ export async function getScanTrend(days = 30) {
     }
     return result;
   }
-  return [];
+  // Supabase mode: try RPC first, fall back to client-side aggregation
+  try {
+    const { data, error } = await supabase.rpc('get_scan_trend', { days_count: days });
+    if (!error && data) return data;
+  } catch (_rpcErr) { /* fall through to client-side */ }
+
+  try {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    const { data: scans } = await supabase.from('scan_records').select('created_at').gte('created_at', since.toISOString());
+    if (!scans?.length) return [];
+    const result = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const count = scans.filter((s) => s.created_at?.startsWith(dateStr)).length;
+      if (count > 0) result.push({ date: dateStr, count });
+    }
+    return result;
+  } catch {
+    return [];
+  }
 }
 
 // 
