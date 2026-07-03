@@ -25,7 +25,7 @@ const ErrorState = ({ title = '加载失败', message, onRetry, onBack }) => {
         extra={
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             {onRetry && (
-              <Button type="primary" onClick={onRetry} style={{ background: '#B98916', borderColor: '#B98916' }}>
+              <Button type="primary" onClick={onRetry} style={{ background: '#FFD700', borderColor: '#FFD700', color: '#14141e' }}>
                 重试
               </Button>
             )}

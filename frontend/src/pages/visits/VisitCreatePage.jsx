@@ -109,12 +109,12 @@ const VisitCreatePage = () => {
             />
           </Form.Item>
           {selectedStoreCampaigns.length > 0 && (
-            <Card className="liquid-glass" size="small" title="Active Campaign Deliveries" style={{marginBottom:16,background:"#fffbe6",borderColor:"#FFD700",borderRadius:12}}>
+            <Card className="liquid-glass" size="small" title="Active Campaign Deliveries" style={{marginBottom:16,background:"rgba(255,215,0,0.06)",borderColor:"rgba(255,215,0,0.2)",borderRadius:12}}>
               {selectedStoreCampaigns.map((cl, idx) => (
                 <div key={idx} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:idx < selectedStoreCampaigns.length-1 ? "1px solid rgba(255,215,0,0.15)" : "none"}}>
                   <div>
-                    <div style={{fontWeight:600,fontSize:13,color:"#333"}}>{cl.campaignName}</div>
-                    <div style={{fontSize:11,color:"#888"}}>Status: {cl.status} | Effect: {cl.effect}</div>
+                    <div style={{fontWeight:600,fontSize:13,color:"var(--uw-text-primary)"}}>{cl.campaignName}</div>
+                    <div style={{fontSize:11,color:"var(--uw-text-secondary)"}}>Status: {cl.status} | Effect: {cl.effect}</div>
                   </div>
                   <Tag color={cl.deliveryStatus === "Delivered" ? "success" : cl.deliveryStatus === "Pending" ? "orange" : "default"}>
                     {cl.deliveryStatus}

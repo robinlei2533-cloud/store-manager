@@ -47,7 +47,7 @@
   --uwell-z-toast: 400;
   --uwell-radius: 10px;
   /* Font families */
-  --uwell-font-heading: 'Poppins', 'Inter', -apple-system, sans-serif;
+  --uwell-font-heading: 'Barlow', 'Inter', -apple-system, sans-serif;
   --uwell-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Glass tokens */
@@ -58,30 +58,25 @@
   --uwell-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --uwell-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Light workspace tokens: used everywhere except the fan entry landing page. */
-  --uw-surface-bg: #f6f3ec;
-  --uw-surface-bg-soft: #fbfaf7;
-  --uw-surface-card: rgba(255,255,255,0.9);
-  --uw-surface-card-strong: #ffffff;
-  --uw-surface-muted: #eee7d9;
-  --uw-text-primary: #181512;
-  --uw-text-secondary: #62594b;
-  --uw-text-muted: #8a7d68;
-  --uw-border-soft: rgba(82, 62, 24, 0.14);
-  --uw-border-strong: rgba(82, 62, 24, 0.24);
-  --uw-brand-gold: #b98916;
-  --uw-brand-gold-soft: rgba(185, 137, 22, 0.12);
-  --uw-shadow-soft: 0 16px 44px rgba(60,45,20,0.10);
+  /* Light workspace tokens — remapped to dark for unified dark theme */
+  --uw-surface-bg: #0a0a0f;
+  --uw-surface-bg-soft: #0a0a0f;
+  --uw-surface-card: rgba(255,255,255,0.02);
+  --uw-surface-card-strong: #111118;
+  --uw-surface-muted: #1a1a24;
+  --uw-text-primary: #e5e5e5;
+  --uw-text-secondary: rgba(255,255,255,0.65);
+  --uw-text-muted: rgba(255,255,255,0.35);
+  --uw-border-soft: rgba(255,255,255,0.08);
+  --uw-border-strong: rgba(255,255,255,0.12);
+  --uw-brand-gold: #FFD700;
+  --uw-brand-gold-soft: rgba(255,215,0,0.12);
+  --uw-shadow-soft: 0 16px 44px rgba(0,0,0,0.4);
 }
 
 
 
-/* Global heading font */
-h1, h2, h3, h4, h5, h6, .ant-typography h1, .ant-typography h2, .ant-typography h3, .ant-typography h4, .ant-typography h5 {
-  font-family: var(--uwell-font-heading) !important;
-}
-
-
+/* Typography — design-system.css provides definitive heading hierarchy */
 /* Smooth scrolling for entire app */
 html {
   scroll-behavior: smooth;
@@ -301,7 +296,7 @@ html {
 }
 
 .fan-center-liquid-shell .ant-progress-bg {
-  background: linear-gradient(90deg, #5b8cff, #8f63d8) !important;
+  background: linear-gradient(90deg, #FFD700, #FFF3B0) !important;
 }
 
 .fan-center-liquid-shell .ant-progress-inner {
@@ -310,9 +305,9 @@ html {
 
 .fan-center-liquid-shell .ant-btn-primary {
   border: none !important;
-  color: #ffffff !important;
-  background: linear-gradient(135deg, rgba(91,140,255,0.96), rgba(143,99,216,0.92)) !important;
-  box-shadow: 0 18px 44px rgba(91,140,255,0.28) !important;
+  color: #14141e !important;
+  background: linear-gradient(135deg, #FFD700, #FFF3B0) !important;
+  box-shadow: 0 18px 44px rgba(255,215,0,0.28) !important;
 }
 
 .fan-center-liquid-shell .ant-btn-primary:hover {
@@ -562,22 +557,22 @@ body {
 
 /* Low stock row highlight */
 .row-danger {
-  background-color: #fff1f0 !important;
+  background-color: rgba(220,38,38,0.12) !important;
 }
 .row-danger:hover > td {
-  background-color: #ffccc7 !important;
+  background-color: rgba(220,38,38,0.18) !important;
 }
 .row-warning {
-  background-color: #fffbe6 !important;
+  background-color: rgba(245,158,11,0.08) !important;
 }
 .row-warning:hover > td {
-  background-color: #fff1b8 !important;
+  background-color: rgba(245,158,11,0.14) !important;
 }
 .low-stock-row {
-  background-color: #fffbe6 !important;
+  background-color: rgba(245,158,11,0.08) !important;
 }
 .low-stock-row:hover > td {
-  background-color: #fff1b8 !important;
+  background-color: rgba(245,158,11,0.14) !important;
 }
 
 /* Login page */
@@ -586,7 +581,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a0a0f 0%, #111118 100%);
 }
 
 /* ============ Mobile responsive ============ */
@@ -2211,7 +2206,7 @@ body {
 /* Lottery section */
 .fg-lotto-card {
   text-align: center; margin-bottom: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%);
 }
 .fg-lotto-body { padding: 40px 20px; }
 .fg-lotto-wheel { font-size: 48px; }

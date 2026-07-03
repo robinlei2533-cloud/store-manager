@@ -79,11 +79,11 @@ const ComplaintReplyPage = () => {
                   <strong>{item.fan?.name || item.fan_name || '粉丝'}</strong>
                   <Tag>{item.store?.name || item.store_name || '未关联门店'}</Tag>
                   <Tag color={statusMap[item.status]?.color}>{statusMap[item.status]?.text || item.status}</Tag>
-                  <span style={{ color: '#8a7d68', fontSize: 12 }}>{new Date(item.created_at).toLocaleString()}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12 }}>{new Date(item.created_at).toLocaleString()}</span>
                 </Space>
-                <p style={{ margin: '10px 0 12px', color: '#3f3526' }}>{item.content}</p>
+                <p style={{ margin: '10px 0 12px', color: 'var(--uw-text-primary)' }}>{item.content}</p>
                 {item.status === 'replied' ? (
-                  <div style={{ padding: 10, borderRadius: 8, background: '#f6f3ec' }}>
+                  <div style={{ padding: 10, borderRadius: 8, background: 'rgba(255,215,0,0.06)' }}>
                     <strong>回复：</strong>{item.reply || '-'}
                   </div>
                 ) : (

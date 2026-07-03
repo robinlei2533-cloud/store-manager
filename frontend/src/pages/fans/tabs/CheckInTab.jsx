@@ -83,7 +83,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: '#f0f5ff' }}>
+          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'rgba(59,130,246,0.08)' }}>
             <Statistic title={t('fan_streak')} value={checkinStreak} suffix={t('days')} prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} valueStyle={{ color: '#ff4d4f' }} />
           </Card>
         </Col>
@@ -97,11 +97,11 @@ const CheckInTab = ({ fan, onPointsChange }) => {
               <div style={{
                 padding: '12px 2px',
                 borderRadius: 12,
-                background: day.checked ? 'linear-gradient(135deg, #52c41a20 0%, #389e0d20 100%)' : day.isToday ? '#FFD70010' : '#fafafa',
-                border: day.isToday ? '2px solid #FFD700' : '1px solid #f0f0f0',
+                background: day.checked ? 'linear-gradient(135deg, rgba(22,163,74,0.15) 0%, rgba(56,157,13,0.15) 100%)' : day.isToday ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.02)',
+                border: day.isToday ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.08)',
               }}>
-                <div style={{ fontSize: 11, color: '#999' }}>{day.weekday}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: day.checked ? '#52c41a' : '#333', margin: '4px 0' }}>{day.date}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{day.weekday}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: day.checked ? '#52c41a' : 'var(--uw-text-primary)', margin: '4px 0' }}>{day.date}</div>
                 {day.checked ? <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 16 }} /> : <div style={{ height: 16 }} />}
               </div>
             </Col>
@@ -118,7 +118,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
         onClick={handleCheckIn}
         style={{
           height: 56, fontSize: 18, fontWeight: 700, borderRadius: 16,
-          background: todayChecked ? '#d9d9d9' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: todayChecked ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, rgba(102,126,234,0.6) 0%, rgba(118,75,162,0.6) 100%)',
           border: 'none',
         }}
       >
@@ -132,7 +132,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
             <Text>{levelInfo.label}</Text>
             <Text type="secondary">{nextLevel.min_points - (fan?.points || 0)} {t('fan_points_unit')} {t('fan_next_level')} {nextLevel.label}</Text>
           </div>
-          <Progress percent={levelProgress} strokeColor={{ from: '#667eea', to: '#764ba2' }} />
+          <Progress percent={levelProgress} strokeColor={{ from: '#FFD700', to: '#FFF3B0' }} />
         </Card>
       )}
     </div>

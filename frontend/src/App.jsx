@@ -2,6 +2,8 @@ import useLanguageStore from './stores/languageStore';
 import React, { Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
+import './styles/tokens.css';
+import './styles/design-system.css';
 import './styles/animations.css';
 import './styles/glass-morphism.css';
 import './styles/loading-states.css';
@@ -113,34 +115,34 @@ const App = () => {
         locale={lang === 'ar' ? arEG : lang === 'zh' ? zhCN : enUS}
         theme={{
           token: {
-            colorPrimary: '#B98916',
-            colorInfo: '#B98916',
+            colorPrimary: '#FFD700',
+            colorInfo: '#FFD700',
             colorSuccess: '#16a34a',
             colorWarning: '#f59e0b',
             colorError: '#dc2626',
-            colorText: '#181512',
-            colorTextSecondary: '#62594b',
-            colorTextTertiary: '#8a7d68',
-            colorBgBase: '#f6f3ec',
-            colorBgLayout: '#f6f3ec',
-            colorBgContainer: '#ffffff',
-            colorBorder: 'rgba(82,62,24,0.16)',
-            colorBorderSecondary: 'rgba(82,62,24,0.10)',
+            colorText: '#e5e5e5',
+            colorTextSecondary: 'rgba(255,255,255,0.65)',
+            colorTextTertiary: 'rgba(255,255,255,0.35)',
+            colorBgBase: '#000000',
+            colorBgLayout: '#0a0a0f',
+            colorBgContainer: '#111118',
+            colorBorder: 'rgba(255,255,255,0.08)',
+            colorBorderSecondary: 'rgba(255,255,255,0.06)',
             borderRadius: 8,
-            fontFamily: "'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
+            fontFamily: "'Barlow', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif",
           },
           components: {
-            Layout: { headerBg: '#ffffff', siderBg: '#11100d', bodyBg: '#f6f3ec' },
-            Card: { borderRadiusLG: 12, colorBgContainer: '#ffffff', colorBorderSecondary: 'rgba(82,62,24,0.12)' },
+            Layout: { headerBg: '#0a0a0f', siderBg: '#000000', bodyBg: '#0a0a0f' },
+            Card: { borderRadiusLG: 12, colorBgContainer: 'rgba(255,255,255,0.02)', colorBorderSecondary: 'rgba(255,215,0,0.08)' },
             Menu: { itemBorderRadius: 8, itemSelectedBg: 'rgba(255,215,0,0.16)', itemSelectedColor: '#FFD700', itemColor: 'rgba(255,255,255,0.74)', itemHoverBg: 'rgba(255,215,0,0.08)' },
             Button: { borderRadius: 8 },
-            Table: { headerBg: '#f1eadb', colorBgContainer: '#ffffff', borderColor: 'rgba(82,62,24,0.12)', headerColor: '#3b2d13', rowHoverBg: '#fff7df' },
+            Table: { headerBg: 'rgba(255,215,0,0.06)', colorBgContainer: '#0a0a0f', borderColor: 'rgba(255,255,255,0.08)', headerColor: '#e5e5e5', rowHoverBg: 'rgba(255,215,0,0.06)' },
           },
         }}
       >
         <AntApp>
           <ErrorBoundary>
-            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#f6f3ec"}}><Spin size="large" /></div>}>
+            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#000000"}}><Spin size="large" /></div>}>
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

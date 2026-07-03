@@ -155,21 +155,21 @@ const CheckInTab = ({ fan }) => {
                 style={{
                   padding: '12px 4px',
                   borderRadius: 8,
-                  border: day.isToday ? '2px solid #1677ff' : '1px solid #eee',
-                  background: day.checkedIn ? '#f6ffed' : day.date < todayStr ? '#fafafa' : '#fff',
+                  border: day.isToday ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)',
+                  background: day.checkedIn ? 'rgba(22,163,74,0.12)' : day.date < todayStr ? 'rgba(255,255,255,0.03)' : 'transparent',
                   cursor: day.isToday && !day.checkedIn ? 'pointer' : 'default',
                   opacity: day.date > todayStr ? 0.5 : 1,
                 }}
                 onClick={() => day.isToday && !day.checkedIn && handleCheckIn()}
               >
-                <div style={{ fontSize: 11, color: '#999' }}>{weekDayLabels[idx]}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{weekDayLabels[idx]}</div>
                 <div style={{ fontSize: 18, fontWeight: 600, margin: '4px 0' }}>
                   {new Date(day.date).getDate()}
                 </div>
                 {day.checkedIn ? (
                   <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 20 }} />
                 ) : day.date > todayStr ? (
-                  <LockOutlined style={{ color: '#ccc' }} />
+                  <LockOutlined style={{ color: 'rgba(255,255,255,0.2)' }} />
                 ) : (
                   <div className="fg-day-spacer" />
                 )}
@@ -321,7 +321,7 @@ const LuckyDrawTab = ({ fan }) => {
       </Row>
 
       {/* Draw Area */}
-      <Card style={{ textAlign: 'center', marginBottom: 24, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      <Card style={{ textAlign: 'center', marginBottom: 24, background: 'linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%)' }}>
         <div style={{ padding: '40px 20px' }}>
           <div
             style={{
@@ -329,7 +329,7 @@ const LuckyDrawTab = ({ fan }) => {
               height: 200,
               margin: '0 auto 24px',
               borderRadius: '50%',
-              background: drawing ? 'conic-gradient(from 0deg, #ff4d4f, #faad14, #52c41a, #1677ff, #722ed1, #ff4d4f)' : '#fff',
+              background: drawing ? 'conic-gradient(from 0deg, #ff4d4f, #faad14, #52c41a, #1677ff, #722ed1, #ff4d4f)' : 'rgba(255,255,255,0.05)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -343,7 +343,7 @@ const LuckyDrawTab = ({ fan }) => {
                 width: 160,
                 height: 160,
                 borderRadius: '50%',
-                background: '#fff',
+                background: 'rgba(255,255,255,0.08)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -536,7 +536,9 @@ const MallTab = ({ fan }) => {
                   <div
                     style={{
                       height: 120,
-                      background: `linear-gradient(135deg, ${canAfford ? '#f0f5ff' : '#f5f5f5'} 0%, ${canAfford ? '#e6f7ff' : '#fafafa'} 100%)`,
+                      background: canAfford
+                        ? 'linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.03) 100%)'
+                        : 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -546,7 +548,7 @@ const MallTab = ({ fan }) => {
                     {item.image ? (
                       <Image src={item.image} width={80} height={80} style={{ objectFit: 'cover', borderRadius: 8 }} />
                     ) : (
-                      <ShoppingOutlined style={{ fontSize: 48, color: canAfford ? '#1677ff' : '#ccc' }} />
+                      <ShoppingOutlined style={{ fontSize: 48, color: canAfford ? '#FFD700' : 'rgba(255,255,255,0.2)' }} />
                     )}
                     <Tag
                       color={item.category === 'VIP' ? 'purple' : item.category === 'Device' ? 'blue' : 'default'}
