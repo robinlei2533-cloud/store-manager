@@ -12,13 +12,21 @@ const { Title, Text } = Typography;
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { t } = useLanguageStore();
+  const { t, setLang } = useLanguageStore();
   const { user, loading, signIn, signUp } = useAuthStore();
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
+
+  const ensureChineseFirst = () => {
+    setLang('zh');
+  };
+
+  useEffect(() => {
+    ensureChineseFirst();
+  }, []);
 
   useEffect(() => {
     if (user && !loading) navigate('/app/dashboard', { replace: true });

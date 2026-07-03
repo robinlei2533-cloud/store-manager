@@ -13,11 +13,38 @@ const TYPE_COLORS = {
   promotion: '#fdcb6e',
 };
 
+const TYPE_LABELS = {
+  product_launch: 'New product',
+  holiday: 'Holiday offer',
+  channel: 'Store experience',
+  community: 'Community',
+  promotion: 'Promotion',
+  新品上市: 'New product',
+  节日营销: 'Holiday offer',
+  渠道建设: 'Store experience',
+  社群运营: 'Community',
+  促销活动: 'Promotion',
+};
+
+const TYPE_COLOR_KEYS = {
+  新品上市: 'product_launch',
+  节日营销: 'holiday',
+  渠道建设: 'channel',
+  社群运营: 'community',
+  促销活动: 'promotion',
+};
+
 const STATUS_MAP = {
   ongoing: { label: 'Ongoing', color: 'gold' },
   completed: { label: 'Completed', color: 'default' },
   planned: { label: 'Planned', color: 'blue' },
 };
+
+const FAN_CAMPAIGN_STEPS = [
+  { title: 'Find a verified store', desc: 'Open the store map and choose a UWELL location with a stronger display.' },
+  { title: 'Scan your product code', desc: 'Scan after purchase so your campaign points can be recorded.' },
+  { title: 'Claim rewards', desc: 'Use your points in the rewards shop or keep collecting for higher tiers.' },
+];
 
 function daysLeft(endDate) {
   const diff = new Date(endDate) - new Date();
@@ -29,6 +56,21 @@ function getCampaignProgress(campaign) {
   if (!Number.isFinite(total) || total <= 0) return 0;
   const elapsed = Date.now() - new Date(campaign.start_date);
   return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+}
+
+function getCampaignTypeMeta(type) {
+  const colorKey = TYPE_COLOR_KEYS[type] || type;
+  return {
+    label: TYPE_LABELS[type] || 'Campaign',
+    color: TYPE_COLORS[colorKey] || '#8a7d68',
+  };
+}
+
+function getConsumerCampaign(campaign) {
+  return {
+    name: campaign.name_english || campaign.name || 'UWELL campaign',
+    description: campaign.description_english || campaign.description || 'Complete the activity steps and collect member rewards.',
+  };
 }
 
 const CampaignTab = () => {
@@ -55,7 +97,8 @@ const CampaignTab = () => {
 
   const renderCampaignCard = (campaign, isOngoing) => {
     const days = daysLeft(campaign.end_date);
-    const typeColor = TYPE_COLORS[campaign.type] || '#8a7d68';
+    const typeMeta = getCampaignTypeMeta(campaign.type);
+    const campaignCopy = getConsumerCampaign(campaign);
     const statusConfig = STATUS_MAP[campaign.status] || { label: campaign.status, color: 'default' };
     const progress = getCampaignProgress(campaign);
 
@@ -69,7 +112,7 @@ const CampaignTab = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
           <div>
-            <Tag color={typeColor}>{campaign.type || 'Campaign'}</Tag>
+            <Tag color={typeMeta.color}>{typeMeta.label}</Tag>
             <Tag color={statusConfig.color}>{statusConfig.label}</Tag>
           </div>
           {isOngoing && days <= 7 && days > 0 && (
@@ -79,11 +122,11 @@ const CampaignTab = () => {
 
         <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 4 }}>
           <GiftOutlined style={{ marginRight: 6, color: '#B98916' }} />
-          {campaign.name}
+          {campaignCopy.name}
         </Text>
         <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>
-          {campaign.description?.substring(0, 100)}
-          {campaign.description?.length > 100 ? '...' : ''}
+          {campaignCopy.description.substring(0, 100)}
+          {campaignCopy.description.length > 100 ? '...' : ''}
         </Text>
 
         {isOngoing && (
@@ -106,7 +149,15 @@ const CampaignTab = () => {
     <div style={{ padding: '4px 0' }}>
       <Card className="liquid-glass" style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}><FireOutlined /> UWELL Brand Activities</Title>
-        <Text type="secondary" style={{ fontSize: 12 }}>Join campaigns and earn extra rewards.</Text>
+        <Text type="secondary" style={{ fontSize: 12 }}>Join campaigns, scan at verified stores, and earn extra rewards.</Text>
+        <div className="fan-campaign-mini-steps">
+          {FAN_CAMPAIGN_STEPS.map((step, index) => (
+            <div key={step.title}>
+              <span>Step {index + 1}</span>
+              <strong>{step.title}</strong>
+            </div>
+          ))}
+        </div>
       </Card>
 
       {ongoing.length > 0 && (
@@ -133,7 +184,7 @@ const CampaignTab = () => {
       {campaigns.length === 0 && <Empty description="No campaigns" />}
 
       <Modal
-        title={<span><GiftOutlined /> {detailModal?.name}</span>}
+        title={<span><GiftOutlined /> {detailModal ? getConsumerCampaign(detailModal).name : ''}</span>}
         open={!!detailModal}
         onCancel={() => setDetailModal(null)}
         footer={<Button onClick={() => setDetailModal(null)}>Close</Button>}
@@ -141,11 +192,20 @@ const CampaignTab = () => {
       >
         {detailModal && (
           <div>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{detailModal.description}</Text>
+            <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{getConsumerCampaign(detailModal).description}</Text>
+            <div className="fan-campaign-guide">
+              {FAN_CAMPAIGN_STEPS.map((step, index) => (
+                <div key={step.title} className="fan-campaign-guide-step">
+                  <span>Step {index + 1}</span>
+                  <strong>{step.title}</strong>
+                  <p>{step.desc}</p>
+                </div>
+              ))}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12 }}>
               <div><Text type="secondary">Start:</Text> {new Date(detailModal.start_date).toLocaleDateString()}</div>
               <div><Text type="secondary">End:</Text> {new Date(detailModal.end_date).toLocaleDateString()}</div>
-              <div><Text type="secondary">Budget:</Text> SAR {detailModal.budget?.toLocaleString?.() || 0}</div>
+              <div><Text type="secondary">Reward:</Text> Extra member points</div>
               <div><Text type="secondary">Status:</Text> <Tag color={STATUS_MAP[detailModal.status]?.color}>{STATUS_MAP[detailModal.status]?.label || detailModal.status}</Tag></div>
             </div>
           </div>

@@ -71,6 +71,8 @@ const StoreDetailPage = () => {
             <Descriptions column={2} bordered>
               <Descriptions.Item label="Name">{store?.name}</Descriptions.Item>
               <Descriptions.Item label="Level"><Tag color={levelColorMap[store?.level] || 'default'}>{store?.level || '-'}</Tag></Descriptions.Item>
+              <Descriptions.Item label="Status"><Tag color={store?.status === 'pending_review' ? 'orange' : 'green'}>{store?.status || 'active'}</Tag></Descriptions.Item>
+              <Descriptions.Item label="City">{store?.city ? `${store.city}, ${store.country || ''}` : '-'}</Descriptions.Item>
               <Descriptions.Item label="Address">{store?.address}</Descriptions.Item>
               <Descriptions.Item label="Phone">{store?.phone}</Descriptions.Item>
               <Descriptions.Item label="Chain">{store?.chain_name || '-'}</Descriptions.Item>

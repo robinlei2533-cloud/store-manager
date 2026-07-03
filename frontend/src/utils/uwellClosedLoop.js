@@ -13,11 +13,11 @@ export const STORE_LEVEL_LABELS = {
 };
 
 export const FAN_LEVEL_LABELS = {
-  bronze: '青铜',
-  silver: '白银',
-  gold: '黄金',
-  platinum: '钻石',
-  diamond: '钻石',
+  bronze: 'Bronze',
+  silver: 'Silver',
+  gold: 'Gold',
+  platinum: 'Diamond',
+  diamond: 'Diamond',
 };
 
 export const STORE_RECOMMEND_LEVELS = ['S', 'A', 'B', 'C'];

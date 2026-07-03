@@ -48,10 +48,10 @@ export const VISIT_STATUS = {
 };
 
 export const FAN_LEVELS = [
-  { label: '青铜会员', value: 'bronze', color: '#CD7F32', min_points: 0 },
-  { label: '白银会员', value: 'silver', color: '#8b949e', min_points: 1000 },
-  { label: '黄金会员', value: 'gold', color: '#d97706', min_points: 2500 },
-  { label: '钻石会员', value: 'diamond', color: '#0891b2', min_points: 5000 },
+  { label: 'Bronze member', value: 'bronze', color: '#CD7F32', min_points: 0 },
+  { label: 'Silver member', value: 'silver', color: '#8b949e', min_points: 1000 },
+  { label: 'Gold member', value: 'gold', color: '#d97706', min_points: 2500 },
+  { label: 'Diamond member', value: 'diamond', color: '#0891b2', min_points: 5000 },
 ];
 
 export const OUTBOUND_STATUS = {
@@ -96,12 +96,12 @@ export const LOTTERY_PRIZES = [
 ];
 
 export const MALL_ITEMS = [
-  { id: 'mall-001', name: 'UWELL G4 主机', points_cost: 800, image: '', stock: 50, category: 'Device' },
-  { id: 'mall-002', name: 'UWELL KOKO 主机', points_cost: 500, image: '', stock: 80, category: 'Device' },
-  { id: 'mall-003', name: 'UWELL 烟弹套装 3 支装', points_cost: 150, image: '', stock: 200, category: 'Pod' },
-  { id: 'mall-004', name: 'UWELL T 恤', points_cost: 300, image: '', stock: 100, category: 'Merch' },
-  { id: 'mall-005', name: 'UWELL 帽子', points_cost: 200, image: '', stock: 150, category: 'Merch' },
-  { id: 'mall-006', name: '门店优惠券 50 SAR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
-  { id: 'mall-007', name: 'UWELL VIP 徽章', points_cost: 1000, image: '', stock: 20, category: 'VIP' },
-  { id: 'mall-008', name: 'UWELL 周边打火机', points_cost: 80, image: '', stock: 300, category: 'Merch' },
+  { id: 'mall-001', name: 'UWELL G4 Device', points_cost: 800, image: '', stock: 50, category: 'Device' },
+  { id: 'mall-002', name: 'UWELL KOKO Device', points_cost: 500, image: '', stock: 80, category: 'Device' },
+  { id: 'mall-003', name: 'UWELL Pod Pack · 3 pcs', points_cost: 150, image: '', stock: 200, category: 'Pod' },
+  { id: 'mall-004', name: 'UWELL T-shirt', points_cost: 300, image: '', stock: 100, category: 'Merch' },
+  { id: 'mall-005', name: 'UWELL Cap', points_cost: 200, image: '', stock: 150, category: 'Merch' },
+  { id: 'mall-006', name: 'Store voucher · 50 SAR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
+  { id: 'mall-007', name: 'UWELL VIP Badge', points_cost: 1000, image: '', stock: 20, category: 'VIP' },
+  { id: 'mall-008', name: 'UWELL Lighter', points_cost: 80, image: '', stock: 300, category: 'Merch' },
 ];

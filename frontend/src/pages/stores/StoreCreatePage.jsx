@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { Form, Input, InputNumber, Select, Button, Card, message, Spin } from 'antd';
 import { createStore, updateStore, getStoreById } from '../../services/api';
 import { STORE_LEVELS } from '../../utils/constants';
+import { cityOptionsForCountry, countryOptions } from '../../utils/trialOps';
 import PageTransition from "../../components/common/PageTransition";
 
 const StoreCreatePage = () => {
@@ -11,6 +12,7 @@ const StoreCreatePage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const selectedCountry = Form.useWatch('country', form);
 
   useEffect(() => {
     if (id) {
@@ -54,6 +56,25 @@ const StoreCreatePage = () => {
         </Form.Item>
         <Form.Item name="address" label="Address">
           <Input placeholder="e.g. 123 Main Street" />
+        </Form.Item>
+        <Form.Item name="country" label="Country" rules={[{ required: true, message: 'Please select country' }]}>
+          <Select
+            placeholder="Select country"
+            options={countryOptions}
+            onChange={() => form.setFieldValue('city', undefined)}
+          />
+        </Form.Item>
+        <Form.Item name="city" label="City" rules={[{ required: true, message: 'Please select city' }]}>
+          <Select placeholder="Select city" options={cityOptionsForCountry(selectedCountry)} disabled={!selectedCountry} />
+        </Form.Item>
+        <Form.Item name="status" label="Store Status" initialValue="active">
+          <Select
+            options={[
+              { value: 'active', label: 'Active' },
+              { value: 'pending_review', label: 'Pending review' },
+              { value: 'inactive', label: 'Inactive' },
+            ]}
+          />
         </Form.Item>
         <Form.Item name="lat" label="Latitude"><InputNumber style={{ width: '100%' }} placeholder="39.9087" /></Form.Item>
         <Form.Item name="lng" label="Longitude"><InputNumber style={{ width: '100%' }} placeholder="116.3974" /></Form.Item>

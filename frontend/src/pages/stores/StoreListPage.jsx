@@ -6,6 +6,7 @@ import { PlusOutlined, SearchOutlined, ImportOutlined, DownloadOutlined, StarOut
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getStores, createStore, updateStore, getEvaluations } from '../../services/api';
 import { STORE_LEVELS } from '../../utils/constants';
+import { cityOptionsForCountry, countryOptions } from '../../utils/trialOps';
 import PageTransition from "../../components/common/PageTransition";
 import localDb from '../../services/db/localDb';
 import { getDisplayCategoryLabel, getStoreLevelLabel } from '../../utils/uwellClosedLoop';
@@ -23,6 +24,9 @@ const StoreListPage = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [level, setLevel] = useState(undefined);
+  const [country, setCountry] = useState(undefined);
+  const [city, setCity] = useState(undefined);
+  const [status, setStatus] = useState(undefined);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [reviewRefresh, setReviewRefresh] = useState(0);
   const [localDataReadyTick, setLocalDataReadyTick] = useState(0);
@@ -36,17 +40,20 @@ const StoreListPage = () => {
   }, [activeProfile?.id]);
 
   const { data: stores = [], isLoading } = useQuery({
-    queryKey: ['stores', { search, level, profileId: activeProfile?.id, role: activeProfile?.role }],
-    queryFn: () => getStores({ search, level, assigned_to: canManageCompany ? null : activeProfile }),
+    queryKey: ['stores', { search, level, country, city, status, profileId: activeProfile?.id, role: activeProfile?.role }],
+    queryFn: () => getStores({ search, level, country, city, status, assigned_to: canManageCompany ? null : activeProfile }),
   });
 
   const visibleStores = useMemo(() => {
     let data = stores.length ? stores : (localDb.all('stores') || []);
     if (!canManageCompany) data = filterByAssignedStores(activeProfile, data, localDb.all('stores') || []);
     if (level) data = data.filter((store) => store.level === level);
+    if (country) data = data.filter((store) => store.country === country);
+    if (city) data = data.filter((store) => store.city === city);
+    if (status) data = data.filter((store) => store.status === status);
     if (search) data = data.filter((store) => store.name?.toLowerCase().includes(search.toLowerCase()));
     return data;
-  }, [activeProfile, canManageCompany, level, localDataReadyTick, search, stores]);
+  }, [activeProfile, canManageCompany, city, country, level, localDataReadyTick, search, status, stores]);
 
   const tableStores = canManageCompany
     ? visibleStores
@@ -250,6 +257,8 @@ const StoreListPage = () => {
       render: (text, record) => <a onClick={() => navigate(`/app/stores/${record.id}`)}>{text}</a>,
     },
     { title: t('address'), dataIndex: 'address', key: 'address', ellipsis: true },
+    { title: 'City', dataIndex: 'city', key: 'city', width: 130, render: (value, record) => value ? `${value}, ${record.country || ''}` : '-' },
+    { title: t('status'), dataIndex: 'status', key: 'status', width: 130, render: (value) => <Tag color={value === 'pending_review' ? 'orange' : value === 'inactive' ? 'default' : 'green'}>{value || 'active'}</Tag> },
     { title: t('level'), dataIndex: 'level', key: 'level', width: 120, render: (level) => <Tag color={levelColorMap[level] || 'default'}>{level ? getStoreLevelLabel(level) : '-'}</Tag> },
     {
       title: '最新评级',
@@ -314,10 +323,24 @@ const StoreListPage = () => {
         <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/stores/create')}>{t('add_store')}</Button>
       </Space>
     ) : null}>
-      <Space wrap style={{ marginBottom: 16 }}>
-        <Input placeholder={t('search_store_name')} prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} allowClear style={{ width: 240 }} />
-        <Select placeholder={t('store_level')} value={level} onChange={setLevel} allowClear style={{ width: 140 }} options={STORE_LEVELS} />
-      </Space>
+        <Space wrap style={{ marginBottom: 16 }}>
+         <Input placeholder={t('search_store_name')} prefix={<SearchOutlined />} value={search} onChange={(e) => setSearch(e.target.value)} allowClear style={{ width: 240 }} />
+         <Select placeholder={t('store_level')} value={level} onChange={setLevel} allowClear style={{ width: 140 }} options={STORE_LEVELS} />
+          <Select placeholder="Country" value={country} onChange={(value) => { setCountry(value); setCity(undefined); }} allowClear style={{ width: 180 }} options={countryOptions} />
+          <Select placeholder="City" value={city} onChange={setCity} allowClear disabled={!country} style={{ width: 160 }} options={cityOptionsForCountry(country)} />
+          <Select
+            placeholder="Status"
+            value={status}
+            onChange={setStatus}
+            allowClear
+            style={{ width: 160 }}
+            options={[
+              { value: 'active', label: 'Active' },
+              { value: 'pending_review', label: 'Pending review' },
+              { value: 'inactive', label: 'Inactive' },
+            ]}
+          />
+        </Space>
       {canManageCompany && <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} lg={12}>
           <Card size="small" title={`门店展示审核（${storeDisplayReviews.filter((item) => item.status === 'pending').length} 待审）`}>

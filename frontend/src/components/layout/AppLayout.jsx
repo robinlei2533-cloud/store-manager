@@ -41,14 +41,19 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, signOut } = useAuthStore();
-  const { t, lang } = useLanguageStore();
+  const { t, lang, setLang } = useLanguageStore();
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const contentRef = useRef(null);
 
+  const ensureChineseFirst = () => {
+    setLang('zh');
+  };
+
   useEffect(() => {
+    ensureChineseFirst();
     document.body.classList.add('admin-workspace-active');
     return () => {
       document.body.classList.remove('admin-workspace-active');

@@ -1349,9 +1349,48 @@ body {
   line-height: 1.6;
 }
 .store-entry-form {
-  display: grid;
-  gap: 12px;
-}
+    display: grid;
+    gap: 12px;
+  }
+  .store-entry-mode-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .store-entry-mode-switch button {
+    min-height: 38px;
+    border: 0;
+    border-radius: 999px;
+    color: rgba(255,255,255,0.68);
+    background: transparent;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .store-entry-mode-switch button.is-active {
+    color: #2f230c;
+    background: linear-gradient(180deg, rgba(255,238,170,1), rgba(185,137,22,1));
+  }
+  .store-entry-select,
+  .fe-select-dark {
+    appearance: none;
+    cursor: pointer;
+  }
+  .store-entry-select:disabled,
+  .fe-select-dark:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .fe-consent-line {
+    align-items: flex-start;
+    margin: 0 0 10px;
+    line-height: 1.45;
+    text-align: left;
+  }
 .so-flex { display: flex; align-items: center; gap: 10px; }
 .so-flex-between { display: flex; justify-content: space-between; align-items: center; }
 .so-flex-between-mb { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -1824,6 +1863,21 @@ body {
 .fe-form-title { text-align: center; margin-bottom: 24px; }
 .fe-form-title h2 { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #fff; margin-bottom: 4px; }
 .fe-form-title p { color: rgba(255,255,255,0.3); font-size: 12px; letter-spacing: 1px; }
+.fe-member-benefits {
+  display: grid;
+  gap: 8px;
+  margin: -8px 0 18px;
+}
+.fe-member-benefits span {
+  min-height: 30px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.76);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  font-size: 12px;
+  font-weight: 700;
+}
 .fe-input-group { margin-bottom: 14px; }
 .fe-input-dark {
   width: 100%; padding: 12px 16px;
@@ -1851,6 +1905,12 @@ body {
 .fe-form-toggle { text-align: center; margin-top: 14px; }
 .fe-form-toggle a { color: rgba(255,255,255,0.3); font-size: 12px; cursor: pointer; }
 .fe-form-toggle a:hover { color: #FFD700; }
+.fe-form-helper {
+  margin: 10px 0 14px;
+  color: rgba(255,255,255,0.56);
+  font-size: 12px;
+  line-height: 1.5;
+}
 
 /* Product strip */
 .fe-strip-section { width: 100%; padding: 0 40px; margin-top: 40px; }
@@ -2833,11 +2893,11 @@ html[dir="rtl"] .ant-tabs {
   right: 0;
   bottom: 0;
   z-index: 90;
-  min-height: 74px;
-  padding: 8px max(16px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));
+  min-height: 68px;
+  padding: 7px max(10px, env(safe-area-inset-left)) calc(7px + env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
   background: rgba(14,14,23,0.94);
   border-top: 1px solid rgba(255,255,255,0.09);
   backdrop-filter: blur(18px);
@@ -2845,7 +2905,8 @@ html[dir="rtl"] .ant-tabs {
 }
 
 .fan-bottom-nav button {
-  min-height: 56px;
+  min-width: 0;
+  min-height: 52px;
   color: rgba(255,255,255,0.58);
   background: transparent;
   border: 0;
@@ -2854,16 +2915,21 @@ html[dir="rtl"] .ant-tabs {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
 }
 
 .fan-bottom-nav button svg {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .fan-bottom-nav button span {
-  font-size: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fan-bottom-nav button.is-active {
@@ -4539,6 +4605,44 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   font-weight: 800;
 }
 
+.fan-next-action-panel {
+  margin-bottom: 18px;
+  padding: 20px;
+  border-radius: 18px;
+  color: #1f1a12;
+  border: 1px solid rgba(185, 137, 22, 0.18);
+  background:
+    radial-gradient(circle at 96% 0%, rgba(255, 214, 10, 0.20), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,250,238,0.94));
+  box-shadow: 0 16px 38px rgba(82, 62, 24, 0.10);
+}
+
+.fan-next-action-panel > span {
+  color: #8a5d00;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.fan-next-action-panel h2 {
+  margin: 5px 0 6px;
+  color: #1f1a12;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.fan-next-action-panel p {
+  margin: 0;
+  color: #665c4c;
+  line-height: 1.55;
+}
+
+.fan-next-action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .fan-campaign-poster,
 .fan-task-hero,
 .fan-store-hero {
@@ -4557,6 +4661,56 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   grid-template-columns: 1fr auto;
   gap: 16px;
   align-items: end;
+}
+
+.fan-campaign-step-strip,
+.fan-campaign-mini-steps,
+.fan-campaign-guide {
+  display: grid;
+  gap: 10px;
+}
+
+.fan-campaign-step-strip,
+.fan-campaign-mini-steps {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-column: 1 / -1;
+}
+
+.fan-campaign-step-strip div,
+.fan-campaign-mini-steps div,
+.fan-campaign-guide-step {
+  padding: 11px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.78);
+  border: 1px solid rgba(82, 62, 24, 0.10);
+}
+
+.fan-campaign-step-strip span,
+.fan-campaign-mini-steps span,
+.fan-campaign-guide-step span {
+  display: block;
+  color: #8a5d00;
+  font-size: 11px;
+  font-weight: 850;
+  margin-bottom: 3px;
+}
+
+.fan-campaign-step-strip strong,
+.fan-campaign-mini-steps strong,
+.fan-campaign-guide-step strong {
+  color: #1f1a12;
+  font-size: 12px;
+}
+
+.fan-campaign-guide {
+  margin-bottom: 14px;
+}
+
+.fan-campaign-guide-step p {
+  margin: 4px 0 0;
+  color: #665c4c;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .fan-campaign-poster h3,
@@ -4616,10 +4770,16 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
 }
 
 .fan-store-card span,
+.fan-store-card small,
 .fan-store-card em,
 .fan-task-card p {
   color: #665c4c;
   font-style: normal;
+}
+
+.fan-store-card small {
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .fan-reward-grid-home {
@@ -4925,6 +5085,12 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   }
 
   .fan-campaign-poster {
+    grid-template-columns: 1fr;
+  }
+
+  .fan-next-action-buttons,
+  .fan-campaign-step-strip,
+  .fan-campaign-mini-steps {
     grid-template-columns: 1fr;
   }
 

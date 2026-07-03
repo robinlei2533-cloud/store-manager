@@ -14,6 +14,9 @@ export async function getStores(filters = {}) {
     let data = localDb.all('stores');
     if (filters.assigned_to) data = data.filter((s) => isAssignedStore(filters.assigned_to, s, data));
     if (filters.level) data = data.filter((s) => s.level === filters.level);
+    if (filters.country) data = data.filter((s) => s.country === filters.country);
+    if (filters.city) data = data.filter((s) => s.city === filters.city);
+    if (filters.status) data = data.filter((s) => s.status === filters.status);
     if (filters.chain_id) data = data.filter((s) => s.chain_id === filters.chain_id);
     if (filters.search) data = data.filter((s) => s.name.includes(filters.search));
     return data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -21,6 +24,9 @@ export async function getStores(filters = {}) {
 
   let query = supabase.from('stores').select('*');
   if (filters.level) query = query.eq('level', filters.level);
+  if (filters.country) query = query.eq('country', filters.country);
+  if (filters.city) query = query.eq('city', filters.city);
+  if (filters.status) query = query.eq('status', filters.status);
   if (filters.chain_id) query = query.eq('chain_id', filters.chain_id);
   if (filters.search) query = query.ilike('name', `%${filters.search}%`);
   const { data, error } = await query.order('created_at', { ascending: false });

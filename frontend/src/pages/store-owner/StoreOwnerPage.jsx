@@ -3,6 +3,7 @@ import { Card, Row, Col, Button, Typography, Tag, message, Tabs, Modal, Empty, I
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, StarOutlined, SettingOutlined, LogoutOutlined, GlobalOutlined, PictureOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
+import { getStoreById } from "../../services/api";
 import useLanguageStore from "../../stores/languageStore";
 import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
 
@@ -12,10 +13,36 @@ const APP_BG_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOtt
 
 // Level-based material bundles
 const LEVEL_MATERIAL_BUNDLES = {
-  S: { label: "钻石门店", labelKey: "store_level_s_pack", Icon: CrownOutlined, materials: ["UWELL Door Panel", "UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Staff Vest", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#B9F2FF" },
-  A: { label: "黄金门店", labelKey: "store_level_a_pack", Icon: CrownOutlined, materials: ["UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#FFD700" },
-  B: { label: "白银门店", labelKey: "store_level_b_pack", Icon: StarOutlined, materials: ["UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#C0C0C0" },
-  C: { label: "青铜门店", labelKey: "store_level_c_pack", Icon: TagOutlined, materials: ["UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker"], color: "#CD7F32" },
+  S: { label: "Platinum Store", labelKey: "store_level_s_pack", Icon: CrownOutlined, materials: ["UWELL Door Panel", "UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Staff Vest", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#B9F2FF" },
+  A: { label: "Gold Store", labelKey: "store_level_a_pack", Icon: CrownOutlined, materials: ["UWELL Lightbox", "UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#FFD700" },
+  B: { label: "Silver Store", labelKey: "store_level_b_pack", Icon: StarOutlined, materials: ["UWELL Acrylic Stand", "UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker", "UWELL Sample Pod"], color: "#C0C0C0" },
+  C: { label: "Bronze Store", labelKey: "store_level_c_pack", Icon: TagOutlined, materials: ["UWELL Poster A2", "UWELL Product Catalog", "UWELL Sticker"], color: "#CD7F32" },
+};
+
+const campaignStatusLabel = (status) => {
+  const labels = {
+    ongoing: 'Active',
+    completed: 'Ended',
+    draft: 'Draft',
+    cancelled: 'Cancelled',
+  };
+  return labels[status] || status || 'To confirm';
+};
+
+const storeStatusLabel = (status) => {
+  const labels = {
+    active: 'Active',
+    pending_review: 'Pending approval',
+    inactive: 'Inactive',
+    rejected: 'Rejected',
+  };
+  return labels[status] || 'Active';
+};
+
+const formatStoreLocation = (store) => {
+  if (store?.city) return [store.city, store.country].filter(Boolean).join(', ');
+  if (store?.address?.startsWith('http')) return 'Map address recorded';
+  return store?.address || 'Address pending';
 };
 
 const StoreOwnerPage = () => {
@@ -39,10 +66,20 @@ const StoreOwnerPage = () => {
     { code: "ar", label: "العربية" },
   ];
 
+  const ensureEnglishFirst = () => {
+    setLang("en");
+  };
+
+  useEffect(() => {
+    ensureEnglishFirst();
+  }, []);
+
   // GSAP entrance animation
 
   // Load data
   useEffect(() => {
+    let disposed = false;
+    const loadStoreOwnerData = async () => {
     if (localStorage.getItem("store_owner_logged_in") !== "true") {
       navigate("/store-login", { replace: true });
       return;
@@ -52,7 +89,16 @@ const StoreOwnerPage = () => {
     const claims = localDb.all("campaign_claims") || [];
     const allMats = localDb.all("materials") || [];
     const savedStoreId = localStorage.getItem("store_owner_store_id");
-    const activeStore = stores.find((item) => item.id === savedStoreId) || stores[0];
+    let activeStore = stores.find((item) => item.id === savedStoreId) || null;
+    if (savedStoreId && !activeStore) {
+      try {
+        activeStore = await getStoreById(savedStoreId);
+      } catch {
+        activeStore = null;
+      }
+    }
+    if (!activeStore) activeStore = stores[0];
+    if (disposed) return;
 
     if (activeStore) {
       setStore(activeStore);
@@ -75,6 +121,11 @@ const StoreOwnerPage = () => {
       campaigns: storeClaims.filter((c) => c.status === "completed").length,
       claims: storeClaims.length,
     });
+    };
+    loadStoreOwnerData();
+    return () => {
+      disposed = true;
+    };
   }, [editForm, navigate]);
 
   const handleStoreLogout = () => {
@@ -144,7 +195,7 @@ const StoreOwnerPage = () => {
   const handleDisplayUpload = async (category, file) => {
     if (!store) return false;
     if (!file.type?.startsWith("image/")) {
-      message.error("只能上传图片文件");
+      message.error("Please upload an image file");
       return false;
     }
 
@@ -153,7 +204,7 @@ const StoreOwnerPage = () => {
       (item) => item.store_id === store.id && item.category === category && item.status !== "rejected"
     ).length;
     if (activeCount >= 3) {
-      message.warning(`${getDisplayCategoryLabel(category)}最多上传 3 张待审核或已通过图片`);
+      message.warning(`${getDisplayCategoryLabel(category)} accepts up to 3 pending or approved images`);
       return false;
     }
 
@@ -171,9 +222,9 @@ const StoreOwnerPage = () => {
         review_note: "",
       });
       refreshDisplayUploads(store.id);
-      message.success("已提交后台人工审核");
+      message.success("Submitted for admin review");
     } catch {
-      message.error("图片读取失败，请换一张较小的图片");
+      message.error("Image could not be read. Please choose a smaller image");
     }
     return false;
   };
@@ -215,7 +266,7 @@ const StoreOwnerPage = () => {
       <Card size="small" className="so-card-main store-dashboard-hero" extra={<Button type="link" icon={<EditOutlined />} className="so-text-gold" onClick={() => setEditModalOpen(true)}>{t('edit')}</Button>}>
         <div className="store-dashboard-hero-grid">
           <div>
-            <Text className="so-text-white30 so-fs11">门店等级</Text>
+            <Text className="so-text-white30 so-fs11">Store Level</Text>
             <Title level={4} className="so-text-gold so-m0">{store.name}</Title>
             <Tag color={levelBundle.color} className="so-mt4 so-fw600"><LevelIcon /> {levelBundleLabel}</Tag>
           </div>
@@ -225,7 +276,7 @@ const StoreOwnerPage = () => {
           </div>
         </div>
         <div className="so-grid-2 store-dashboard-meta">
-          <div><EnvironmentOutlined /> <span>{store.address?.substring(0, 44) || "N/A"}</span></div>
+            <div><EnvironmentOutlined /> <span>{formatStoreLocation(store)}</span></div>
           <div><PhoneOutlined /> <span>{store.phone || "N/A"}</span></div>
           <div><ShopOutlined /> <span>{store.id}</span></div>
           <div><ClockCircleOutlined /> <span>{store.created_at ? new Date(store.created_at).toLocaleDateString() : "N/A"}</span></div>
@@ -234,10 +285,10 @@ const StoreOwnerPage = () => {
 
       <Row gutter={[8, 8]}>
         {[
-          { icon: <FireOutlined />, label: "进行中活动", value: activeStoreCampaigns.length, color: "#FFD700", tab: "campaigns" },
-          { icon: <GiftOutlined />, label: "待处理领取", value: pendingCampaignClaims.length, color: "#F5A623", tab: "campaigns" },
-          { icon: <PictureOutlined />, label: "展示已通过", value: displayApproved, color: "#52c41a", tab: "showcase" },
-          { icon: <UploadOutlined />, label: "展示待审核", value: displayPending, color: "#1677ff", tab: "showcase" },
+          { icon: <FireOutlined />, label: "Active campaigns", value: activeStoreCampaigns.length, color: "#FFD700", tab: "campaigns" },
+          { icon: <GiftOutlined />, label: "Pending claims", value: pendingCampaignClaims.length, color: "#F5A623", tab: "campaigns" },
+          { icon: <PictureOutlined />, label: "Approved displays", value: displayApproved, color: "#52c41a", tab: "showcase" },
+          { icon: <UploadOutlined />, label: "Displays in review", value: displayPending, color: "#1677ff", tab: "showcase" },
         ].map((card) => (
           <Col span={12} key={card.label}>
             <button type="button" className="store-dashboard-stat so-card-subtle" onClick={() => setActiveTab(card.tab)}>
@@ -249,7 +300,7 @@ const StoreOwnerPage = () => {
         ))}
       </Row>
 
-      <Card size="small" className="so-card-subtle store-dashboard-section" title="活动状态" extra={<Button size="small" onClick={() => setActiveTab("campaigns")}>查看活动</Button>}>
+      <Card size="small" className="so-card-subtle store-dashboard-section" title="Campaign status" extra={<Button size="small" onClick={() => setActiveTab("campaigns")}>View campaigns</Button>}>
         {storeCampaignsForDashboard.slice(0, 3).map((campaign) => {
           const claim = claimedCampaigns.find((item) => item.campaign_id === campaign.id);
           return (
@@ -259,15 +310,15 @@ const StoreOwnerPage = () => {
                 <p>{campaign.description?.substring(0, 72)}</p>
               </div>
               <Tag color={claim ? "green" : campaign.status === "ongoing" ? "gold" : "default"}>
-                {claim ? "已领取" : campaign.status === "ongoing" ? "可领取" : campaign.status}
+                {claim ? "Claimed" : campaign.status === "ongoing" ? "Available" : campaignStatusLabel(campaign.status)}
               </Tag>
             </div>
           );
         })}
-        {storeCampaignsForDashboard.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分配活动" />}
+        {storeCampaignsForDashboard.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No assigned campaigns yet" />}
       </Card>
 
-      <Card size="small" className="so-card-subtle store-dashboard-section" title="物料库存" extra={<Button size="small" onClick={() => setActiveTab("materials")}>登记库存</Button>}>
+      <Card size="small" className="so-card-subtle store-dashboard-section" title="Material inventory" extra={<Button size="small" onClick={() => setActiveTab("materials")}>Register stock</Button>}>
         <div className="store-stock-list">
           {stockRows.slice(0, 5).map((item) => {
             const percent = item.safety > 0 ? Math.min(100, Math.round((item.qty / (item.safety * 2)) * 100)) : 100;
@@ -276,14 +327,14 @@ const StoreOwnerPage = () => {
               <div key={item.name} className="store-stock-row">
                 <div>
                   <strong>{item.name}</strong>
-                  <span>{item.qty} {item.unit} / 安全 {item.safety}</span>
+                  <span>{item.qty} {item.unit} / safety {item.safety}</span>
                 </div>
                 <Progress percent={percent} showInfo={false} status={danger ? "exception" : "normal"} />
               </div>
             );
           })}
         </div>
-        {lowBundleStock.length > 0 && <Tag color="volcano">有 {lowBundleStock.length} 项物料低于安全库存</Tag>}
+        {lowBundleStock.length > 0 && <Tag color="volcano">{lowBundleStock.length} materials below safety stock</Tag>}
       </Card>
     </div>
   );
@@ -319,7 +370,7 @@ const StoreOwnerPage = () => {
                     <div className="so-flex-1">
                       <div className="so-flex-gap6">
                         <Text strong className="so-text-light so-fs13">{camp.name}</Text>
-                        <Tag color={camp.status === "ongoing" ? "gold" : "default"} className="so-fs10">{camp.status === "ongoing" ? t('camp_active') : camp.status}</Tag>
+                        <Tag color={camp.status === "ongoing" ? "gold" : "default"} className="so-fs10">{campaignStatusLabel(camp.status)}</Tag>
                       </div>
                       <Text className="so-text-white30 so-fs11">{camp.description?.substring(0, 80)}</Text>
                       {claimed && (
@@ -448,8 +499,8 @@ const StoreOwnerPage = () => {
         <div className="so-flex-gap8">
           <PictureOutlined className="so-fs20" style={{ color: "#FFD700" }} />
           <div>
-            <Text strong className="so-text-light">UWELL 产品展示</Text>
-            <div className="so-text-white30 so-fs11">上传店内真实展示图，后台审核通过后会出现在粉丝门店推荐里。</div>
+            <Text strong className="so-text-light">UWELL Display</Text>
+            <div className="so-text-white30 so-fs11">Upload real in-store display photos. Approved photos can appear in fan store recommendations.</div>
           </div>
         </div>
       </Card>
@@ -465,14 +516,14 @@ const StoreOwnerPage = () => {
                 <div className="so-flex-between so-mb8">
                   <div>
                     <Text strong className="so-text-light">{category.label}</Text>
-                    <div className="so-text-white30 so-fs11">已通过 {approved} / 待审核 {pending}</div>
+                    <div className="so-text-white30 so-fs11">Approved {approved} / In review {pending}</div>
                   </div>
                   <Upload
                     accept="image/*"
                     showUploadList={false}
                     beforeUpload={(file) => handleDisplayUpload(category.key, file)}
                   >
-                    <Button size="small" icon={<UploadOutlined />}>上传</Button>
+                    <Button size="small" icon={<UploadOutlined />}>Upload</Button>
                   </Upload>
                 </div>
                 {records.length > 0 ? (
@@ -481,13 +532,13 @@ const StoreOwnerPage = () => {
                       <div key={item.id} style={{ position: "relative" }}>
                         <img src={item.image_url} alt={category.label} style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 8, border: "1px solid rgba(255,255,255,0.12)" }} />
                         <Tag color={item.status === "approved" ? "green" : item.status === "rejected" ? "red" : "gold"} style={{ position: "absolute", left: 4, top: 4, margin: 0 }}>
-                          {item.status === "approved" ? "已通过" : item.status === "rejected" ? "已拒绝" : "待审核"}
+                          {item.status === "approved" ? "Approved" : item.status === "rejected" ? "Rejected" : "In review"}
                         </Tag>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无图片" />
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No photos yet" />
                 )}
               </Card>
             </Col>
@@ -499,7 +550,7 @@ const StoreOwnerPage = () => {
 
   const tabItems = [
     { key: "dashboard", label: <span><ShopOutlined /> {t('store_dashboard')}</span>, children: <Dashboard /> },
-    { key: "showcase", label: <span><PictureOutlined /> UWELL 展示</span>, children: <ShowcaseTab /> },
+    { key: "showcase", label: <span><PictureOutlined /> UWELL Display</span>, children: <ShowcaseTab /> },
     { key: "campaigns", label: <span><FireOutlined /> {t('nav_campaigns')}</span>, children: <CampaignsTab /> },
     { key: "materials", label: <span><GiftOutlined /> {t('store_materials')} ({levelBundle.materials.length})</span>, children: <MaterialsTab /> },
   ];
@@ -524,10 +575,11 @@ const StoreOwnerPage = () => {
               <strong>{store.level || "C"}</strong>
             </div>
           </div>
-        </div>
-        <div className="store-header-actions">
-          <Tag color={levelBundle.color} className="so-fw600"><LevelIcon /> {levelBundleLabel}</Tag>
-          <div className="store-settings-slot">
+          </div>
+          <div className="store-header-actions">
+            {store.status === "pending_review" && <Tag color="orange" className="so-fw600">{storeStatusLabel(store.status)}</Tag>}
+            <Tag color={levelBundle.color} className="so-fw600"><LevelIcon /> {levelBundleLabel}</Tag>
+            <div className="store-settings-slot">
             <button
               type="button"
               className={`store-settings-trigger${settingsOpen ? " is-open" : ""}`}

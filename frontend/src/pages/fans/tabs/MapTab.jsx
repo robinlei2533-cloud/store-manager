@@ -8,10 +8,10 @@ import 'leaflet/dist/leaflet.css';
 const { Text } = Typography;
 
 const LVL = {
-  S: { label: '钻石', mark: '#B9F2FF' },
-  A: { label: '黄金', mark: '#FFD700' },
-  B: { label: '白银', mark: '#C0C0C0' },
-  C: { label: '青铜', mark: '#CD7F32' },
+  S: { label: 'Platinum', mark: '#B9F2FF' },
+  A: { label: 'Gold', mark: '#FFD700' },
+  B: { label: 'Silver', mark: '#C0C0C0' },
+  C: { label: 'Bronze', mark: '#CD7F32' },
 };
 const LVL_KEYS = ['S', 'A', 'B', 'C'];
 
@@ -30,7 +30,7 @@ function makePopup(store) {
         <strong style="font-size:14px;color:#1a1a2e;">${escapeHtml(store.name)}</strong>
       </div>
       <div style="margin-bottom:6px;">
-        <span style="background:${cfg.mark};color:#000;padding:1px 10px;border-radius:8px;font-size:11px;font-weight:bold;">${cfg.label}门店</span>
+        <span style="background:${cfg.mark};color:#000;padding:1px 10px;border-radius:8px;font-size:11px;font-weight:bold;">${cfg.label} store</span>
       </div>
       <div style="font-size:12px;color:#666;margin:4px 0;">Phone: ${escapeHtml(store.phone || 'N/A')}</div>
       <div style="margin-top:8px;">
@@ -210,7 +210,7 @@ const MapTab = ({ fan: _fan }) => {
                       ))}
                     </div>
                   ) : (
-                    <div style={{fontSize:12,color:'#888',marginTop:4,padding:'8px 10px',border:'1px dashed rgba(255,255,255,0.14)',borderRadius:8}}>暂无审核通过图片</div>
+                    <div style={{fontSize:12,color:'#888',marginTop:4,padding:'8px 10px',border:'1px dashed rgba(255,255,255,0.14)',borderRadius:8}}>No approved photos yet</div>
                   )}
                 </div>
               );

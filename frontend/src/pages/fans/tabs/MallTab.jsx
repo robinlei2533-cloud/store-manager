@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { message, Button, Card, Tag, Row, Col, Statistic } from 'antd';
+import { message, Button, Card, Tag, Row, Col, Statistic, Alert } from 'antd';
 import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
@@ -41,6 +41,14 @@ const MallTab = ({ fan, onPointsChange }) => {
       <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <Statistic title="Available Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ fontSize: 28, fontWeight: 700, color: '#FFD700' }} />
       </Card>
+      <Alert
+        className="fan-reward-help"
+        type="info"
+        showIcon
+        message="How rewards work"
+        description="Choose a reward, redeem with points, then show the redemption record to a verified UWELL store or support staff."
+        style={{ marginBottom: 16 }}
+      />
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {categories.map((cat) => (
@@ -74,6 +82,9 @@ const MallTab = ({ fan, onPointsChange }) => {
             >
               <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, minHeight: 36 }}>{item.name}</div>
               <Tag color="orange" style={{ marginBottom: 8 }}>{item.points_cost} pts</Tag>
+              <div style={{ minHeight: 30, fontSize: 11, color: 'rgba(255,255,255,0.62)', marginBottom: 8 }}>
+                {(fan?.points || 0) >= item.points_cost ? 'Ready to redeem' : `${item.points_cost - (fan?.points || 0)} more points needed`}
+              </div>
               <br />
               <Button
                 size="small"

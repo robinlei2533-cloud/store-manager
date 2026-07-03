@@ -39,6 +39,7 @@ import { IS_LOCAL_MODE } from '../../services/api';
 import { FAN_LEVELS, MALL_ITEMS } from '../../utils/constants';
 import { FAN_LEVEL_LABELS, readImageAsDataUrl } from '../../utils/uwellClosedLoop';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
+import { filterStoresForFanCity } from '../../utils/trialOps';
 
 import CheckInTab from './tabs/CheckInTab';
 import ScanTab from './tabs/ScanTab';
@@ -70,12 +71,12 @@ const formatDateTime = (value) => {
 
 const LevelBadge = ({ levelInfo }) => (
   <Tag className="fan-shell-level-tag" color={levelInfo?.color || 'gold'}>
-    <CrownOutlined /> {FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label || '黄金'}
+    <CrownOutlined /> {FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label || 'Gold'}
   </Tag>
 );
 
 const FanCenterPage = () => {
-  const { t } = useLanguageStore();
+  const { t, setLang } = useLanguageStore();
   const { user, signOut } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState('home');
@@ -83,6 +84,14 @@ const FanCenterPage = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const bgVideoRef = useRef(null);
   const localFallbackFans = useMemo(() => getLocalFanFallback(), []);
+
+  const ensureEnglishFirst = () => {
+    setLang('en');
+  };
+
+  useEffect(() => {
+    ensureEnglishFirst();
+  }, []);
 
   const { data: fans = [], isLoading } = useQuery({
     queryKey: ['fans', refreshKey],
@@ -212,12 +221,24 @@ const FanCenterPage = () => {
     () => FAN_LEVELS.find((level) => level.value === normalizedFanLevel) || FAN_LEVELS[0],
     [normalizedFanLevel],
   );
+  const levelIndex = useMemo(
+    () => FAN_LEVELS.findIndex((level) => level.value === levelInfo?.value),
+    [levelInfo?.value],
+  );
   const nextLevel = useMemo(
-    () => FAN_LEVELS.find((level) => level.min_points > (currentFan?.points || 0)),
-    [currentFan?.points],
+    () => (levelIndex >= 0 ? FAN_LEVELS[levelIndex + 1] : null),
+    [levelIndex],
   );
   const levelProgress = nextLevel
-    ? Math.min(100, Math.round(((currentFan?.points || 0) / nextLevel.min_points) * 100))
+    ? Math.min(
+      100,
+      Math.max(
+        0,
+        Math.round(
+          (((currentFan?.points || 0) - levelInfo.min_points) / (nextLevel.min_points - levelInfo.min_points)) * 100,
+        ),
+      ),
+    )
     : 100;
 
   const pointLogs = (() => {
@@ -241,7 +262,7 @@ const FanCenterPage = () => {
 
   const recommendedStores = (() => {
     try {
-      return (localDb.all('stores') || [])
+      return filterStoresForFanCity(localDb.all('stores') || [], currentFan)
         .filter((store) => store.lat && store.lng && ['S', 'A', 'B'].includes(store.level))
         .slice(0, 3);
     } catch {
@@ -259,10 +280,64 @@ const FanCenterPage = () => {
     }
   })();
 
+  const displayCampaign = featuredCampaign ? {
+    ...featuredCampaign,
+    name: featuredCampaign.name_english || 'UWELL Store Display Challenge',
+    description: featuredCampaign.description_english || 'Visit a verified UWELL store, check the latest CALIBURN display, and complete the activity steps to earn extra rewards.',
+  } : null;
+
+  const fanNavItems = [
+    { key: 'home', label: 'Home', icon: <HomeOutlined /> },
+    { key: 'tasks', label: 'Tasks', icon: <CalendarOutlined /> },
+    { key: 'mall', label: 'Rewards', icon: <GiftOutlined /> },
+    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined /> },
+    { key: 'profile', label: 'Me', icon: <UserOutlined /> },
+  ];
+
+  const fanFeatureItems = [
+    { key: 'tasks', label: 'Today', icon: <CalendarOutlined />, tone: 'gold' },
+    { key: 'scan', label: 'Scan', icon: <QrcodeOutlined />, tone: 'blue' },
+    { key: 'campaigns', label: 'Rewards', icon: <FireOutlined />, tone: 'red' },
+    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined />, tone: 'teal' },
+  ];
+
+  const fanTaskCards = [
+    { key: 'checkin', title: 'Daily check-in', desc: 'Open your member center each day to collect base points.', points: '+10', done: true, action: 'Start here' },
+    { key: 'scan', title: 'Scan for points', desc: 'Scan your UWELL product code after purchase. Points go straight to your account.', points: '+20', done: true, action: 'Scan now' },
+    { key: 'campaigns', title: "Join this week's activity", desc: 'See the active brand activity and complete the steps for extra rewards.', points: '+50', done: false, action: 'View activity' },
+    { key: 'stores', title: 'Visit a verified store', desc: 'Find reviewed UWELL stores with better displays and member benefits.', points: 'Store perks', done: false, action: 'Find stores' },
+  ];
+
+  const campaignSteps = [
+    { label: 'Step 1', title: 'Find a verified store', desc: 'Choose a recommended UWELL store near your registered city.' },
+    { label: 'Step 2', title: 'Scan your product code', desc: 'Scan after purchase so points are recorded in your member center.' },
+    { label: 'Step 3', title: 'Claim rewards', desc: 'Use points for devices, pods, coupons, or campaign gifts.' },
+  ];
+
+  const activityCopy = {
+    每日签到: 'Daily check-in',
+    扫码验证: 'Product scan',
+    积分兑换: 'Reward redemption',
+    限量UWELL周边礼包: 'Limited UWELL gift pack',
+    '限量 UWELL 周边礼包': 'Limited UWELL gift pack',
+    完成拜访: 'Visit completed',
+    上传照片: 'Shelf photo uploaded',
+    提交动销数据: 'Sales data submitted',
+    '完成门店拜访 s-001': 'Store visit completed',
+    拜访上传货架照片: 'Shelf photo uploaded',
+  };
+
+  const getFanActivityText = (value, fallback = '-') => {
+    if (!value) return fallback;
+    if (String(value).startsWith('完成门店拜访')) return 'Store visit completed';
+    if (String(value).startsWith('提交动销数据')) return 'Sales data submitted';
+    return activityCopy[value] || value;
+  };
+
   const handleOldFanUpload = async (file) => {
     if (!currentFan) return false;
     if (!file.type?.startsWith('image/')) {
-      message.error('只能上传图片文件');
+      message.error('Please upload an image file.');
       return false;
     }
     try {
@@ -276,33 +351,33 @@ const FanCenterPage = () => {
         reviewed_at: null,
         review_note: '',
       });
-      message.success('老粉验证已提交，等待后台人工审核');
+      message.success('Your verification image has been submitted for review.');
       setRefreshKey((k) => k + 1);
     } catch {
-      message.error('图片读取失败，请换一张较小的图片');
+      message.error('The image could not be read. Please try a smaller image.');
     }
     return false;
   };
 
   const navItems = [
-    { key: 'home', label: '首页', icon: <HomeOutlined /> },
-    { key: 'tasks', label: '任务', icon: <CalendarOutlined /> },
-    { key: 'stores', label: '门店', icon: <EnvironmentOutlined /> },
-    { key: 'profile', label: '我的', icon: <UserOutlined /> },
+    { key: 'home', label: 'Home', icon: <HomeOutlined /> },
+    { key: 'tasks', label: 'Tasks', icon: <CalendarOutlined /> },
+    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined /> },
+    { key: 'profile', label: 'Me', icon: <UserOutlined /> },
   ];
 
   const featureItems = [
-    { key: 'tasks', label: '今日任务', icon: <CalendarOutlined />, tone: 'gold' },
-    { key: 'scan', label: '扫码积分', icon: <QrcodeOutlined />, tone: 'blue' },
-    { key: 'campaigns', label: '活动奖励', icon: <FireOutlined />, tone: 'red' },
-    { key: 'stores', label: '推荐门店', icon: <EnvironmentOutlined />, tone: 'teal' },
+    { key: 'tasks', label: 'Today', icon: <CalendarOutlined />, tone: 'gold' },
+    { key: 'scan', label: 'Scan', icon: <QrcodeOutlined />, tone: 'blue' },
+    { key: 'campaigns', label: 'Rewards', icon: <FireOutlined />, tone: 'red' },
+    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined />, tone: 'teal' },
   ];
 
   const taskCards = [
-    { key: 'checkin', title: '每日签到', desc: '每天打开会员中心即可领取基础积分。', points: '+10', done: true, action: '去签到' },
-    { key: 'scan', title: '扫码累积积分', desc: '购买 UWELL 产品后扫码，积分自动进入账户。', points: '+20', done: true, action: '去扫码' },
-    { key: 'campaigns', title: '参加本周活动', desc: '查看正在进行的品牌活动，完成后可获得额外奖励。', points: '+50', done: false, action: '看活动' },
-    { key: 'stores', title: '到可信门店领取福利', desc: '优先推荐已审核展示和等级更高的门店。', points: '门店福利', done: false, action: '找门店' },
+    { key: 'checkin', title: 'Daily check-in', desc: 'Open your member center each day to collect base points.', points: '+10', done: true, action: 'Check in' },
+    { key: 'scan', title: 'Scan for points', desc: 'Scan your UWELL product code after purchase. Points go straight to your account.', points: '+20', done: true, action: 'Scan now' },
+    { key: 'campaigns', title: 'Join this week activity', desc: 'See the active brand activity and complete the steps for extra rewards.', points: '+50', done: false, action: 'View activity' },
+    { key: 'stores', title: 'Visit a verified store', desc: 'Find reviewed UWELL stores with better displays and member benefits.', points: 'Store perks', done: false, action: 'Find stores' },
   ];
 
   const renderShellHeader = () => (
@@ -320,17 +395,14 @@ const FanCenterPage = () => {
           </button>
           {settingsOpen && (
             <div className="store-settings-panel liquid-glass">
-              <div className="store-settings-label">{t('settings_language')}</div>
+              <div className="store-settings-label">Language</div>
               <LanguageSwitcher inline showCurrent sourceOnly anchor="end" tone="light" buttonMinWidth={52} menuMinWidth={180} />
               <div className="fe-settings-divider" />
-              <button type="button" className="store-settings-item" onClick={() => { window.location.href = '/store-app.html#/store-login'; }}>
-                <HomeOutlined /> 门店入口
-              </button>
               <button type="button" className="store-settings-item" onClick={() => setActiveView('oldfan')}>
-                <UploadOutlined /> 我的认证
+                <UploadOutlined /> My verification
               </button>
               <button type="button" className="store-settings-item" onClick={handleLogout}>
-                <LogoutOutlined /> {t('logout')}
+                <LogoutOutlined /> Sign out
               </button>
             </div>
           )}
@@ -371,8 +443,17 @@ const FanCenterPage = () => {
   const renderHome = () => (
     <>
       {renderMemberHero()}
+      <section className="fan-next-action-panel">
+        <span>Your next best action</span>
+        <h2>Start here</h2>
+        <p>Scan a UWELL product or open the weekly activity. Your points, tasks, and rewards are saved in this member center.</p>
+        <div className="fan-next-action-buttons">
+          <Button type="primary" onClick={() => setActiveView('scan')}>Scan product</Button>
+          <Button onClick={() => setActiveView('campaigns')}>View activity</Button>
+        </div>
+      </section>
       <section className="fan-feature-grid fan-feature-grid-primary">
-        {featureItems.map((item) => (
+        {fanFeatureItems.map((item) => (
           <button key={item.key} type="button" className={`fan-feature-card tone-${item.tone}`} onClick={() => setActiveView(item.key)}>
             <span>{item.icon}</span>
             <strong>{item.label}</strong>
@@ -380,52 +461,61 @@ const FanCenterPage = () => {
         ))}
       </section>
       <section className="fan-panel fan-today-panel">
-        <div className="fan-section-title"><StarOutlined /> 今日任务 <span>2/4</span></div>
-        {taskCards.slice(0, 3).map((task) => (
+        <div className="fan-section-title"><StarOutlined /> Today's tasks <span>2/4</span></div>
+        {fanTaskCards.slice(0, 3).map((task) => (
           <div key={task.key} className={`fan-task-row${task.done ? ' is-done' : ''}`}>
             <CheckCircleOutlined />
             <span>{task.title}</span>
             <strong>{task.points}</strong>
           </div>
         ))}
-        <Button block type="primary" onClick={() => setActiveView('tasks')}>查看全部任务</Button>
+        <Button block type="primary" onClick={() => setActiveView('tasks')}>View all tasks</Button>
       </section>
-      {featuredCampaign && (
+      {displayCampaign && (
         <section className="fan-campaign-poster">
           <div>
-            <span className="fan-mini-label">本周推荐活动</span>
-            <h3>{featuredCampaign.name}</h3>
-            <p>{featuredCampaign.description}</p>
+            <span className="fan-mini-label">Featured this week</span>
+            <h3>{displayCampaign.name}</h3>
+            <p>{displayCampaign.description}</p>
           </div>
-          <Button type="primary" onClick={() => setActiveView('campaigns')}>查看步骤与奖励</Button>
+          <div className="fan-campaign-step-strip">
+            {campaignSteps.map((step) => (
+              <div key={step.label}>
+                <span>{step.label}</span>
+                <strong>{step.title}</strong>
+              </div>
+            ))}
+          </div>
+          <Button type="primary" onClick={() => setActiveView('campaigns')}>See steps and rewards</Button>
         </section>
       )}
       <section className="fan-section-block">
         <div className="fan-section-heading">
-          <span>可信门店</span>
-          <button type="button" onClick={() => setActiveView('stores')}>查看地图</button>
+          <span>Trusted stores</span>
+          <button type="button" onClick={() => setActiveView('stores')}>View map</button>
         </div>
         <div className="fan-store-strip">
           {recommendedStores.map((store) => (
             <button type="button" key={store.id} className="fan-store-card" onClick={() => setActiveView('stores')}>
               <strong>{store.name}</strong>
-              <span>{store.level || 'C'} 级门店</span>
-              <em>{store.phone || '门店信息待补充'}</em>
+              <span>{store.level || 'C'} level store</span>
+              <small>Recommended because it matches your city or has a stronger UWELL display.</small>
+              <em>{store.phone || 'Store information pending'}</em>
             </button>
           ))}
         </div>
       </section>
       <section className="fan-section-block">
         <div className="fan-section-heading">
-          <span>热门兑换</span>
-          <button type="button" onClick={() => setActiveView('mall')}>进入积分商城</button>
+          <span>Popular rewards</span>
+          <button type="button" onClick={() => setActiveView('mall')}>Open rewards shop</button>
         </div>
         <div className="fan-reward-grid fan-reward-grid-home">
           {MALL_ITEMS.slice(0, 3).map((item) => (
             <button type="button" key={item.id} className="fan-reward-card" onClick={() => setActiveView('mall')}>
               <GiftOutlined />
               <strong>{item.name}</strong>
-              <span>{item.points_cost.toLocaleString()} 积分</span>
+              <span>{item.points_cost.toLocaleString()} points</span>
             </button>
           ))}
         </div>
@@ -444,8 +534,8 @@ const FanCenterPage = () => {
             <div key={item.id} className="fan-activity-card">
               <span className="fan-activity-icon"><CalendarOutlined /></span>
               <div>
-                <strong>{item.source || item.type || t('fan_points_changed')}</strong>
-                <p>{item.description || item.reason || '-'}</p>
+                    <strong>{getFanActivityText(item.source || item.type, t('fan_points_changed'))}</strong>
+                    <p>{getFanActivityText(item.description || item.reason)}</p>
                 <em>{formatDateTime(item.created_at)}</em>
               </div>
               <b className={item.points >= 0 ? 'is-positive' : 'is-negative'}>{item.points > 0 ? `+${item.points}` : item.points}</b>
@@ -459,12 +549,21 @@ const FanCenterPage = () => {
   const renderTasks = () => (
     <>
       <section className="fan-panel fan-task-hero">
-        <span className="fan-mini-label">今日任务</span>
-        <h2>先做最容易的三件事</h2>
-        <p>签到、扫码和查看活动是粉丝最常用的路径，完成后积分与奖励会自动记录在个人中心。</p>
+        <span className="fan-mini-label">Today's tasks</span>
+        <h2>Start with the three easiest actions</h2>
+        <p>Check in, scan your product, and view current activities. Points and rewards are recorded automatically in your member center.</p>
+      </section>
+      <section className="fan-campaign-guide">
+        {campaignSteps.map((step) => (
+          <div key={step.label} className="fan-campaign-guide-step">
+            <span>{step.label}</span>
+            <strong>{step.title}</strong>
+            <p>{step.desc}</p>
+          </div>
+        ))}
       </section>
       <section className="fan-task-card-list">
-        {taskCards.map((task) => (
+            {fanTaskCards.map((task) => (
           <button key={task.key} type="button" className={`fan-task-card${task.done ? ' is-done' : ''}`} onClick={() => setActiveView(task.key)}>
             <span className="fan-task-status">{task.done ? <CheckCircleOutlined /> : <StarOutlined />}</span>
             <div>
@@ -482,9 +581,9 @@ const FanCenterPage = () => {
   const renderStores = () => (
     <>
       <section className="fan-panel fan-store-hero">
-        <span className="fan-mini-label">推荐门店</span>
-        <h2>优先去已审核、等级更高的 UWELL 门店</h2>
-        <p>这里会展示门店等级、导航入口和审核通过的真实陈列图，粉丝更容易判断去哪家店领取活动权益。</p>
+        <span className="fan-mini-label">Recommended stores</span>
+        <h2>Visit verified UWELL stores first</h2>
+        <p>Store recommendations prioritize reviewed locations, stronger displays, and higher store ratings so fans know where to claim campaign benefits.</p>
       </section>
       <MapTab fan={currentFan} />
     </>
@@ -535,41 +634,41 @@ const FanCenterPage = () => {
       <section className="fan-profile-actions">
         <button type="button" onClick={() => setActiveView('invite')}><TeamOutlined /> {t('fan_invite')}</button>
         <button type="button" onClick={() => setActiveView('community')}><MessageOutlined /> {t('fan_community')}</button>
-        <button type="button" onClick={() => setActiveView('oldfan')}><UploadOutlined /> 我的认证</button>
-        <button type="button" onClick={() => setActiveView('mall')}><GiftOutlined /> 积分兑换</button>
+        <button type="button" onClick={() => setActiveView('oldfan')}><UploadOutlined /> My verification</button>
+        <button type="button" onClick={() => setActiveView('mall')}><GiftOutlined /> Redeem points</button>
         <button type="button" onClick={() => setActiveView('help')}><QuestionCircleOutlined /> {t('fan_help')}</button>
-        <button type="button" className="is-danger" onClick={handleLogout}><LogoutOutlined /> {t('logout')}</button>
+        <button type="button" className="is-danger" onClick={handleLogout}><LogoutOutlined /> Sign out</button>
       </section>
     </>
   );
 
   const renderOldFanVerification = () => {
     const latest = oldFanVerifications[0];
-    const statusText = latest?.status === 'approved' ? '已通过' : latest?.status === 'rejected' ? '已拒绝' : latest ? '待审核' : '未提交';
+    const statusText = latest?.status === 'approved' ? 'Approved' : latest?.status === 'rejected' ? 'Rejected' : latest ? 'Pending review' : 'Not submitted';
     const statusColor = latest?.status === 'approved' ? 'green' : latest?.status === 'rejected' ? 'red' : 'gold';
     return (
       <section className="fan-section-block">
-        <div className="fan-section-heading"><span>老粉验证</span></div>
+        <div className="fan-section-heading"><span>Fan verification</span></div>
         <Card className="fan-panel">
           <p style={{ color: 'rgba(255,255,255,0.72)', marginTop: 0 }}>
-            上传至少包含 4 个 UWELL 老产品的证明图片，后台人工审核通过后奖励 100 积分。
+            Upload an image showing at least 4 older UWELL products. After manual review, approved fans receive 100 bonus points.
           </p>
           <Tag color={statusColor} style={{ marginBottom: 12 }}>{statusText}</Tag>
           <Upload accept="image/*" showUploadList={false} beforeUpload={handleOldFanUpload}>
-            <Button type="primary" icon={<UploadOutlined />}>上传证明图片</Button>
+            <Button type="primary" icon={<UploadOutlined />}>Upload proof image</Button>
           </Upload>
           <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
             {oldFanVerifications.length ? oldFanVerifications.map((item) => (
               <div key={item.id} className="fan-activity-card">
-                <img src={item.image_url} alt="老粉验证" style={{ width: 54, height: 54, objectFit: 'cover', borderRadius: 10 }} />
+                <img src={item.image_url} alt="Fan verification" style={{ width: 54, height: 54, objectFit: 'cover', borderRadius: 10 }} />
                 <div>
-                  <strong>老粉验证图片</strong>
-                  <p>{item.status === 'approved' ? '审核通过，积分已发放' : item.status === 'rejected' ? '审核未通过' : '等待后台审核'}</p>
+                  <strong>Verification image</strong>
+                  <p>{item.status === 'approved' ? 'Approved. Points have been added.' : item.status === 'rejected' ? 'Not approved' : 'Waiting for admin review'}</p>
                   <em>{formatDateTime(item.submitted_at || item.created_at)}</em>
                 </div>
                 <b className={item.status === 'approved' ? 'is-positive' : ''}>{item.status === 'approved' ? '+100' : ''}</b>
               </div>
-            )) : <Empty description="暂无提交记录" />}
+            )) : <Empty description="No submissions yet" />}
           </div>
         </Card>
       </section>
@@ -583,8 +682,8 @@ const FanCenterPage = () => {
       invite: { title: t('fan_invite'), content: <InviteTab fan={currentFan} /> },
       community: { title: t('fan_community'), content: <CommunityTab fan={currentFan} /> },
       campaigns: { title: t('fan_activities'), content: <CampaignTab fan={currentFan} /> },
-      oldfan: { title: '老粉验证', content: renderOldFanVerification() },
-      map: { title: '门店推荐', content: renderStores() },
+      oldfan: { title: 'Fan verification', content: renderOldFanVerification() },
+      map: { title: 'Store recommendations', content: renderStores() },
       help: { title: t('fan_help'), content: <HowItWorksTab /> },
     };
     const selected = viewMap[activeView];
@@ -626,7 +725,7 @@ const FanCenterPage = () => {
     );
   }
 
-  const activeNavKey = navItems.some((item) => item.key === activeView) ? activeView : 'home';
+  const activeNavKey = fanNavItems.some((item) => item.key === activeView) ? activeView : 'home';
 
   return (
     <div className="fan-shell">
@@ -645,7 +744,7 @@ const FanCenterPage = () => {
         {renderContent()}
       </main>
       <nav className="fan-bottom-nav" aria-label="Fan center navigation">
-        {navItems.map((item) => (
+          {fanNavItems.map((item) => (
           <button
             key={item.key}
             type="button"
