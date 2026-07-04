@@ -22,7 +22,7 @@ test('fan registration form uses polished English consumer-facing labels', () =>
   assert.match(source, />Country \*</);
   assert.match(source, />City \*</);
   assert.match(source, /I confirm I am of legal age in my region\./);
-  assert.match(source, /I agree to the privacy notice and member terms\./);
+  assert.match(source, /I agree to the <a[\s\S]*privacy notice[\s\S]*member terms[\s\S]*<\/a>\./);
 });
 test('fan registration respects Supabase Auth-created profiles before writing fan records', () => {
   assert.doesNotMatch(source, /from\("profiles"\)\.upsert/);
