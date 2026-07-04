@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 const source = readFileSync(new URL('./FanEntryPage.jsx', import.meta.url), 'utf8');
 
 test('fan entry visible copy has no mojibake characters', () => {
-  assert.doesNotMatch(source, /鈫|脳|宸|浣|璧|枡|悗|鍙/);
+  const mojibakePattern = /[\u95c1\u95bc\u940e\u9420\u95bb]/;
+  assert.doesNotMatch(source, mojibakePattern);
 });
 
 test('fan registration form uses polished English consumer-facing labels', () => {
@@ -22,4 +23,9 @@ test('fan registration form uses polished English consumer-facing labels', () =>
   assert.match(source, />City \*</);
   assert.match(source, /I confirm I am of legal age in my region\./);
   assert.match(source, /I agree to the privacy notice and member terms\./);
+});
+test('fan registration respects Supabase Auth-created profiles before writing fan records', () => {
+  assert.doesNotMatch(source, /from\("profiles"\)\.upsert/);
+  assert.match(source, /from\("profiles"\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/);
+  assert.match(source, /from\("fans"\)\.insert\(records\.fan\)/);
 });

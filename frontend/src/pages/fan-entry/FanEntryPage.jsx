@@ -155,8 +155,16 @@ const FanEntryPage = () => {
             country: regCountry,
             city: regCity,
           });
-          const { error: profileError } = await supabase.from("profiles").upsert(records.profile);
-          if (profileError) throw profileError;
+          const { data: existingProfile, error: profileReadError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", records.profile.id)
+            .maybeSingle();
+          if (profileReadError) throw profileReadError;
+          if (!existingProfile) {
+            const { error: profileError } = await supabase.from("profiles").insert(records.profile);
+            if (profileError) throw profileError;
+          }
           const { error: fanError } = await supabase.from("fans").insert(records.fan);
           if (fanError) throw fanError;
           localStorage.setItem("store_manager_current_user", data.user.id);
