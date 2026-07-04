@@ -66,3 +66,18 @@ test('fan city filters recommended stores before falling back to all stores', ()
   assert.deepEqual(filterStoresForFanCity(stores, { city: 'Jeddah' }).map((store) => store.id), ['s-2', 's-3']);
   assert.deepEqual(filterStoresForFanCity(stores, { city: 'Makkah' }).map((store) => store.id), ['s-1', 's-2', 's-3']);
 });
+
+test('store registration record lets Supabase assign uuid ids', () => {
+  const record = buildStoreRegistrationRecord({
+    name: 'Riyadh Trial Store',
+    contact: 'Aisha',
+    phone: '500000000',
+    country: 'Saudi Arabia',
+    city: 'Riyadh',
+  });
+
+  assert.equal(Object.hasOwn(record, 'id'), false);
+  assert.equal(record.status, 'pending_review');
+  assert.equal(record.country, 'Saudi Arabia');
+  assert.equal(record.city, 'Riyadh');
+});
