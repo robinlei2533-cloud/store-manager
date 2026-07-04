@@ -10,33 +10,37 @@ import { isLocal, ensureLocalInit } from './helpers';
 
 // ============ EVALUATIONS ============
 
+const USE_TRIAL_LOCAL_EVALUATIONS = true;
+
 export async function getEvaluations(filters = {}) {
   ensureLocalInit();
-  if (isLocal()) {
+  const localEvaluations = () => {
     let data = localDb.all('store_evaluations');
     if (filters.store_id) data = data.filter((e) => e.store_id === filters.store_id);
     if (filters.level) data = data.filter((e) => e.recommended_level === filters.level);
-    if (filters.assigned_store_ids) {
-      const assignedStoreIds = new Set(filters.assigned_store_ids);
-      data = data.filter((e) => assignedStoreIds.has(e.store_id));
-    }
-    return data.map((e) => ({
-      ...e,
-      stores: localDb.findById('stores', e.store_id),
-      evaluator: localDb.findById('profiles', e.evaluator_id),
-    })).sort((a, b) => new Date(b.eval_date) - new Date(a.eval_date));
+    data = filterAssignedStores(data, filters);
+    return data.map(enrichEvaluation).sort((a, b) => new Date(b.eval_date || 0) - new Date(a.eval_date || 0));
+  };
+  if (isLocal() || USE_TRIAL_LOCAL_EVALUATIONS) {
+    return localEvaluations();
   }
   let query = supabase.from('store_evaluations').select('*, stores(name, level), profiles!store_evaluations_evaluator_id_fkey(name)');
   if (filters.store_id) query = query.eq('store_id', filters.store_id);
   if (filters.level) query = query.eq('recommended_level', filters.level);
   const { data, error } = await query.order('eval_date', { ascending: false });
-  if (error) throw error;
-  return data;
+  if (!error) return data || [];
+
+  let plainQuery = supabase.from('store_evaluations').select('*');
+  if (filters.store_id) plainQuery = plainQuery.eq('store_id', filters.store_id);
+  if (filters.level) plainQuery = plainQuery.eq('recommended_level', filters.level);
+  const plain = await plainQuery.order('eval_date', { ascending: false });
+  if (!plain.error) return filterAssignedStores(plain.data || [], filters).map(enrichEvaluation);
+  return localEvaluations();
 }
 
 export async function getEvaluationById(id) {
   ensureLocalInit();
-  if (isLocal()) {
+  if (isLocal() || USE_TRIAL_LOCAL_EVALUATIONS) {
     const evalRecord = localDb.findById('store_evaluations', id);
     if (!evalRecord) return null;
     return {
@@ -46,8 +50,12 @@ export async function getEvaluationById(id) {
     };
   }
   const { data, error } = await supabase.from('store_evaluations').select('*, stores(*), profiles!store_evaluations_evaluator_id_fkey(name)').eq('id', id).single();
-  if (error) throw error;
-  return data;
+  if (!error) return data;
+
+  const plain = await supabase.from('store_evaluations').select('*').eq('id', id).single();
+  if (!plain.error && plain.data) return enrichEvaluation(plain.data);
+  const evalRecord = localDb.findById('store_evaluations', id);
+  return evalRecord ? enrichEvaluation(evalRecord) : null;
 }
 
 export async function createEvaluation(evalData) {
@@ -109,6 +117,20 @@ function get110PointLevel(score) {
   if (score >= 50) return 'B';
   if (score >= 30) return 'C';
   return 'D';
+}
+
+function enrichEvaluation(evalRecord) {
+  return {
+    ...evalRecord,
+    stores: localDb.findById('stores', evalRecord.store_id),
+    evaluator: localDb.findById('profiles', evalRecord.evaluator_id),
+  };
+}
+
+function filterAssignedStores(data, filters = {}) {
+  if (!filters.assigned_store_ids) return data;
+  const assignedStoreIds = new Set(filters.assigned_store_ids);
+  return data.filter((e) => assignedStoreIds.has(e.store_id));
 }
 
 function toSupabaseEvaluationRecord(record) {

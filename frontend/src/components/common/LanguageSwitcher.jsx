@@ -9,6 +9,7 @@ const LanguageSwitcher = ({
   zIndex = 1000,
   inline = false,
   style,
+  className,
   showCurrent = false,
   sourceOnly = false,
   menuMinWidth = 170,
@@ -52,6 +53,7 @@ const LanguageSwitcher = ({
 
   return (
     <div
+      className={className}
       style={{
         ...(style || {}),
         position: inline ? 'relative' : (position || 'fixed'),
@@ -131,7 +133,7 @@ const LanguageSwitcher = ({
               >
                 {!sourceOnly && <span style={{ fontSize: 18 }}>{item.flag}</span>}
                 <span>{item.label}</span>
-                {selected && <span style={{ marginLeft: 'auto', color: '#B98916' }}>✓</span>}
+                {selected && <span style={{ marginLeft: 'auto', color: '#B98916' }}>&#10003;</span>}
               </div>
             );
           })}

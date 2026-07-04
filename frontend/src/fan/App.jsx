@@ -6,7 +6,6 @@ import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import arEG from 'antd/locale/ar_EG';
 import ErrorBoundary from '../components/common/ErrorBoundary';
-import ProtectedRoute from '../components/common/ProtectedRoute';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import useLanguageStore from '../stores/languageStore';
@@ -18,6 +17,12 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5 
 const FanEntryPage = React.lazy(() => import('../pages/fan-entry/FanEntryPage'));
 const FanCenterPage = React.lazy(() => import('../pages/fans/FanCenterPage'));
 
+const FanProtectedRoute = ({ children }) => {
+  const hasFanSession = window.localStorage.getItem('fan_logged_in') === 'true'
+    || Boolean(window.localStorage.getItem('store_manager_current_user'));
+  return hasFanSession ? children : <Navigate to="/fan-entry" replace />;
+};
+
 const StoreLoginBridge = () => {
   React.useEffect(() => {
     window.location.replace('store-app.html#/store-login');
@@ -28,7 +33,7 @@ const StoreLoginBridge = () => {
 const router = createHashRouter([
   { path: "/", element: <Navigate to="/fan-entry" replace /> },
   { path: "/fan-entry", element: <FanEntryPage /> },
-  { path: "/fan-center", element: <ProtectedRoute redirectTo="/fan-entry"><FanCenterPage /></ProtectedRoute> },
+  { path: "/fan-center", element: <FanProtectedRoute><FanCenterPage /></FanProtectedRoute> },
   { path: "/store-login", element: <StoreLoginBridge /> },
   { path: "*", element: <Navigate to="/fan-entry" replace /> }
 ]);

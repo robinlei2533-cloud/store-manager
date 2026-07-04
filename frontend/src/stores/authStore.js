@@ -19,6 +19,16 @@ const getFallbackProfile = (user) => ({
   avatar: '',
 });
 
+const DEMO_STAFF_EMAILS = new Set([
+  'admin@uwell.com',
+  'manager@uwell.com',
+  'rep1@uwell.com',
+  'rep2@uwell.com',
+  'rep3@uwell.com',
+]);
+
+const isDemoStaffEmail = (email) => DEMO_STAFF_EMAILS.has(String(email || '').toLowerCase());
+
 const useAuthStore = create((set, get) => ({
   user: null,
   profile: null,
@@ -81,7 +91,7 @@ const useAuthStore = create((set, get) => ({
   },
 
   signIn: async (email, password) => {
-    if (IS_LOCAL_MODE) {
+    if (IS_LOCAL_MODE || (isLocalAuthFallbackEnabled() && isDemoStaffEmail(email))) {
       return get().signInLocal(email, password);
     }
     try {

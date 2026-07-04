@@ -7,6 +7,44 @@ import { isLocal, ensureLocalInit, enrichMaterialStock } from './helpers';
 
 // ============ 物料 ============
 
+const USE_TRIAL_LOCAL_MATERIAL_RELATIONS = true;
+
+const sortByCreatedDesc = (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0);
+
+const enrichInbound = (record) => ({
+  ...record,
+  materials: localDb.findById('materials', record.material_id),
+  profiles: localDb.findById('profiles', record.operator_id),
+});
+
+const enrichOutbound = (record) => ({
+  ...record,
+  materials: localDb.findById('materials', record.material_id),
+  profiles: localDb.findById('profiles', record.applicant_id),
+  stores: localDb.findById('stores', record.store_id),
+});
+
+function localMaterialStocks() {
+  return localDb.all('material_stocks').map(enrichMaterialStock).sort((a, b) => a.qty - b.qty);
+}
+
+function applyInboundFilters(data, filters = {}) {
+  let result = data;
+  if (filters.material_id) result = result.filter((r) => r.material_id === filters.material_id);
+  return result;
+}
+
+function applyOutboundFilters(data, filters = {}) {
+  let result = data;
+  if (filters.status) result = result.filter((r) => r.status === filters.status);
+  if (filters.store_id) result = result.filter((r) => r.store_id === filters.store_id);
+  if (filters.assigned_store_ids) {
+    const assignedStoreIds = new Set(filters.assigned_store_ids);
+    result = result.filter((r) => assignedStoreIds.has(r.store_id));
+  }
+  return result;
+}
+
 export async function getMaterials() {
   ensureLocalInit();
   if (isLocal()) return localDb.all('materials').sort((a, b) => a.name.localeCompare(b.name));
@@ -44,13 +82,15 @@ export async function deleteMaterial(id) {
 
 export async function getMaterialStocks() {
   ensureLocalInit();
-  if (isLocal()) {
-    const data = localDb.all('material_stocks');
-    return data.map(enrichMaterialStock).sort((a, b) => a.qty - b.qty);
+  if (isLocal() || USE_TRIAL_LOCAL_MATERIAL_RELATIONS) {
+    return localMaterialStocks();
   }
-  const { data, error } = await supabase.from('material_stocks').select('*, materials(name, sku, unit, unit_cost)').order('qty', { ascending: true });
-  if (error) throw error;
-  return data;
+  const joined = await supabase.from('material_stocks').select('*, materials(name, sku, unit, unit_cost)').order('qty', { ascending: true });
+  if (!joined.error) return joined.data || [];
+
+  const plain = await supabase.from('material_stocks').select('*').order('qty', { ascending: true });
+  if (!plain.error) return (plain.data || []).map(enrichMaterialStock);
+  return localMaterialStocks();
 }
 
 export async function updateMaterialStock(materialId, qty, safetyStock) {
@@ -95,20 +135,19 @@ export async function createInbound(record) {
 
 export async function getInbounds(filters = {}) {
   ensureLocalInit();
-  if (isLocal()) {
-    let data = localDb.all('material_inbound');
-    if (filters.material_id) data = data.filter((r) => r.material_id === filters.material_id);
-    return data.map((r) => ({
-      ...r,
-      materials: localDb.findById('materials', r.material_id),
-      profiles: localDb.findById('profiles', r.operator_id),
-    })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  if (isLocal() || USE_TRIAL_LOCAL_MATERIAL_RELATIONS) {
+    return applyInboundFilters(localDb.all('material_inbound'), filters).map(enrichInbound).sort(sortByCreatedDesc);
   }
   let query = supabase.from('material_inbound').select('*, materials(name, sku, unit), profiles!material_inbound_operator_id_fkey(name)');
   if (filters.material_id) query = query.eq('material_id', filters.material_id);
   const { data, error } = await query.order('created_at', { ascending: false });
-  if (error) throw error;
-  return data;
+  if (!error) return data || [];
+
+  let plainQuery = supabase.from('material_inbound').select('*');
+  if (filters.material_id) plainQuery = plainQuery.eq('material_id', filters.material_id);
+  const plain = await plainQuery.order('created_at', { ascending: false });
+  if (!plain.error) return (plain.data || []).map(enrichInbound);
+  return applyInboundFilters(localDb.all('material_inbound'), filters).map(enrichInbound).sort(sortByCreatedDesc);
 }
 
 export async function createOutbound(record) {
@@ -121,27 +160,21 @@ export async function createOutbound(record) {
 
 export async function getOutbounds(filters = {}) {
   ensureLocalInit();
-  if (isLocal()) {
-    let data = localDb.all('material_outbound');
-    if (filters.status) data = data.filter((r) => r.status === filters.status);
-    if (filters.store_id) data = data.filter((r) => r.store_id === filters.store_id);
-    if (filters.assigned_store_ids) {
-      const assignedStoreIds = new Set(filters.assigned_store_ids);
-      data = data.filter((r) => assignedStoreIds.has(r.store_id));
-    }
-    return data.map((r) => ({
-      ...r,
-      materials: localDb.findById('materials', r.material_id),
-      profiles: localDb.findById('profiles', r.applicant_id),
-      stores: localDb.findById('stores', r.store_id),
-    })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  if (isLocal() || USE_TRIAL_LOCAL_MATERIAL_RELATIONS) {
+    return applyOutboundFilters(localDb.all('material_outbound'), filters).map(enrichOutbound).sort(sortByCreatedDesc);
   }
   let query = supabase.from('material_outbound').select('*, materials(name, sku, unit), profiles!material_outbound_applicant_id_fkey(name), stores(name)');
   if (filters.status) query = query.eq('status', filters.status);
   if (filters.store_id) query = query.eq('store_id', filters.store_id);
   const { data, error } = await query.order('created_at', { ascending: false });
-  if (error) throw error;
-  return data;
+  if (!error) return data || [];
+
+  let plainQuery = supabase.from('material_outbound').select('*');
+  if (filters.status) plainQuery = plainQuery.eq('status', filters.status);
+  if (filters.store_id) plainQuery = plainQuery.eq('store_id', filters.store_id);
+  const plain = await plainQuery.order('created_at', { ascending: false });
+  if (!plain.error) return applyOutboundFilters(plain.data || [], filters).map(enrichOutbound);
+  return applyOutboundFilters(localDb.all('material_outbound'), filters).map(enrichOutbound).sort(sortByCreatedDesc);
 }
 
 export async function updateOutboundStatus(id, status) {

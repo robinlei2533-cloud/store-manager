@@ -21,7 +21,7 @@ import caliburnBubble3 from '../../assets/products/caliburn-bubble-3.png';
 import caliburnBubble4 from '../../assets/products/caliburn-bubble-4.png';
 import caliburnBubble5 from '../../assets/products/caliburn-bubble-5.png';
 import caliburnBubble6 from '../../assets/products/caliburn-bubble-6.png';
-import { message } from 'antd';
+import { App } from 'antd';
 import { GlobalOutlined, LockOutlined, SettingOutlined, ShopOutlined } from '@ant-design/icons';
 
 const PD = [
@@ -44,6 +44,7 @@ const FanEntryPage = () => {
   const navigate = useNavigate();
   const { t, setLang } = useLanguageStore();
   const { setProfile, setUser, signIn, signInLocal } = useAuthStore();
+  const { message } = App.useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -58,6 +59,7 @@ const FanEntryPage = () => {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [enteringDemo, setEnteringDemo] = useState(false);
 
   const ensureEnglishFirst = useCallback(() => {
     setLang('en');
@@ -67,15 +69,32 @@ const FanEntryPage = () => {
     ensureEnglishFirst();
   }, [ensureEnglishFirst]);
 
+  const enterDemoFan = useCallback(() => {
+    setEnteringDemo(true);
+    setAuthOpen(false);
+    if (localDb.needsInit()) { localDb.init(seedData); }
+    const fans = localDb.all('fans');
+    const demoFan = fans[0];
+    if (demoFan) {
+      localStorage.setItem('store_manager_current_user', demoFan.id);
+      localStorage.setItem('fan_logged_in', 'true');
+    }
+    window.setTimeout(() => navigate('/fan-center', { replace: true }), 80);
+  }, [navigate]);
+
   const handleLogin = useCallback(async () => {
-    const userEmail = email || 'fan@UWELLl.com';
+    if (!email || !password) {
+      message.warning('Please enter your email and password, or continue as a demo fan.');
+      return;
+    }
+    const userEmail = email;
     let authUserId = null;
     try {
-      const result = await signIn(userEmail, password || 'fan');
+      const result = await signIn(userEmail, password);
       authUserId = result?.user?.id || null;
     } catch (_e) {
       try {
-        const result = await signInLocal(userEmail, 'fan');
+        const result = await signInLocal(userEmail, password);
         authUserId = result?.user?.id || null;
       } catch {
         message.error('Login failed. Please check your email and password.');
@@ -226,6 +245,7 @@ const FanEntryPage = () => {
             I confirm I am of legal age in my region.
           </label>
           <button onClick={handleLogin} className="fe-btn-primary">{t('fan_entry_signin_btn')}</button>
+          <button type="button" onClick={enterDemoFan} className="fe-demo-link">Continue as demo fan</button>
           <div className="fe-form-toggle">
             <button type="button" onClick={() => setMode('register')} className="fe-form-link fe-link-button">
               {t('fan_entry_no_account')} <span className="fe-btn-secondary">{t('fan_entry_register_now')}</span>
@@ -361,6 +381,11 @@ const FanEntryPage = () => {
             <button type="button" className="fe-modal-close" onClick={() => setAuthOpen(false)} aria-label="Close">x</button>
             {authForm}
           </div>
+        </div>
+      )}
+      {enteringDemo && (
+        <div className="fe-auth-modal-backdrop fe-entry-loading" aria-live="polite">
+          <div className="fe-entry-loading-card">Entering member center...</div>
         </div>
       )}
     </div>

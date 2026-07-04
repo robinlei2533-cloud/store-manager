@@ -235,7 +235,7 @@ const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
       mapRef.current = null;
     };
   }, [stores, visitCounts, onStoreClick]);
-  return React.createElement('div', { style: { width:'100%', height:400, borderRadius:12, overflow:'hidden', position:'relative' } },
+  return React.createElement('div', { className: 'admin-heatmap-frame', style: { width:'100%', height:400, borderRadius:12, overflow:'hidden', position:'relative' } },
     React.createElement('div', { ref: containerRef, style: { width:'100%', height:'100%' } })
   );
 };

@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Button, Typography, Tag, message, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Upload, Progress } from "antd";
+import { App, Card, Row, Col, Button, Typography, Tag, Tabs, Modal, Empty, Input, InputNumber, Select, Form, Divider, Upload, Progress } from "antd";
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, StarOutlined, SettingOutlined, LogoutOutlined, GlobalOutlined, PictureOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
@@ -59,6 +59,7 @@ const StoreOwnerPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editForm] = Form.useForm();
+  const { message } = App.useApp();
   const [materialRequesting, setMaterialRequesting] = useState(false);
   const { t, lang, setLang } = useLanguageStore();
   const storeLanguageOptions = [
@@ -583,10 +584,10 @@ const StoreOwnerPage = () => {
   );
 
   const tabItems = [
-    { key: "dashboard", label: <span><ShopOutlined /> {t('store_dashboard')}</span>, children: <Dashboard /> },
-    { key: "showcase", label: <span><PictureOutlined /> UWELL Display</span>, children: <ShowcaseTab /> },
-    { key: "campaigns", label: <span><FireOutlined /> {t('nav_campaigns')}</span>, children: <CampaignsTab /> },
-    { key: "materials", label: <span><GiftOutlined /> {t('store_materials')} ({levelBundle.materials.length})</span>, children: <MaterialsTab /> },
+    { key: "dashboard", label: <span><ShopOutlined /> Overview</span>, children: <Dashboard /> },
+    { key: "showcase", label: <span><PictureOutlined /> Display</span>, children: <ShowcaseTab /> },
+    { key: "campaigns", label: <span><FireOutlined /> Campaigns</span>, children: <CampaignsTab /> },
+    { key: "materials", label: <span><GiftOutlined /> Materials ({levelBundle.materials.length})</span>, children: <MaterialsTab /> },
   ];
 
   return (
@@ -661,6 +662,7 @@ const StoreOwnerPage = () => {
       <Modal
         title={<span className="so-text-gold"><EditOutlined /> {t('store_edit')}</span>}
         open={editModalOpen}
+        forceRender
         onCancel={() => setEditModalOpen(false)}
         onOk={handleSaveStore}
         okText={t('save')}

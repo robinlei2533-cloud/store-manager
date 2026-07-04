@@ -315,23 +315,34 @@ const FanCenterPage = () => {
   ];
 
   const activityCopy = {
-    每日签到: 'Daily check-in',
-    扫码验证: 'Product scan',
-    积分兑换: 'Reward redemption',
-    限量UWELL周边礼包: 'Limited UWELL gift pack',
-    '限量 UWELL 周边礼包': 'Limited UWELL gift pack',
-    完成拜访: 'Visit completed',
-    上传照片: 'Shelf photo uploaded',
-    提交动销数据: 'Sales data submitted',
-    '完成门店拜访 s-001': 'Store visit completed',
-    拜访上传货架照片: 'Shelf photo uploaded',
+    '\u6bcf\u65e5\u7b7e\u5230': 'Daily check-in',
+    '\u626b\u7801\u9a8c\u8bc1': 'Product scan',
+    '\u79ef\u5206\u5151\u6362': 'Reward redemption',
+    '\u9650\u91cfUWELL\u5468\u8fb9\u793c\u5305': 'Limited UWELL gift pack',
+    '\u9650\u91cf UWELL \u5468\u8fb9\u793c\u5305': 'Limited UWELL gift pack',
+    '\u5b8c\u6210\u62dc\u8bbf': 'Visit completed',
+    '\u4e0a\u4f20\u7167\u7247': 'Shelf photo uploaded',
+    '\u63d0\u4ea4\u52a8\u9500\u6570\u636e': 'Sales data submitted',
+    '\u5b8c\u6210\u95e8\u5e97\u62dc\u8bbf s-001': 'Store visit completed',
+    '\u62dc\u8bbf\u4e0a\u4f20\u8d27\u67b6\u7167\u7247': 'Shelf photo uploaded',
+    '\u59e3\u5fd4\u68e9\u7edb\u60e7\u57cc': 'Daily check-in',
+    '\u93b5\ue0a4\u721c\u6960\u5c83\u7609': 'Product scan',
+    '\u7ec9\ue21a\u578e\u934f\u621e\u5d32': 'Reward redemption',
+    '\u95c4\u6130\u567aUWELL\u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'Limited UWELL gift pack',
+    '\u95c4\u6130\u567a UWELL \u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'Limited UWELL gift pack',
+    '\u7039\u5c7e\u579a\u93b7\u6ec6\ue196': 'Visit completed',
+    '\u6d93\u5a41\u7d36\u9413\u0445\u5896': 'Shelf photo uploaded',
+    '\u93bb\u612a\u6c26\u9354\u3129\u6522\u93c1\u7248\u5d41': 'Sales data submitted',
+    '\u7039\u5c7e\u579a\u95c2\u3125\u7c35\u93b7\u6ec6\ue196 s-001': 'Store visit completed',
+    '\u93b7\u6ec6\ue196\u6d93\u5a41\u7d36\u7490\u0444\u7066\u9413\u0445\u5896': 'Shelf photo uploaded',
   };
 
   const getFanActivityText = (value, fallback = '-') => {
     if (!value) return fallback;
-    if (String(value).startsWith('完成门店拜访')) return 'Store visit completed';
-    if (String(value).startsWith('提交动销数据')) return 'Sales data submitted';
-    return activityCopy[value] || value;
+    const text = String(value);
+    if (text.startsWith('\u5b8c\u6210\u95e8\u5e97\u62dc\u8bbf') || text.startsWith('\u7039\u5c7e\u579a\u95c2\u3125\u7c35\u93b7\u6ec6\ue196')) return 'Store visit completed';
+    if (text.startsWith('\u63d0\u4ea4\u52a8\u9500\u6570\u636e') || text.startsWith('\u93bb\u612a\u6c26\u9354\u3129\u6522\u93c1\u7248\u5d41')) return 'Sales data submitted';
+    return activityCopy[text] || text;
   };
 
   const handleOldFanUpload = async (file) => {
@@ -359,13 +370,6 @@ const FanCenterPage = () => {
     return false;
   };
 
-  const navItems = [
-    { key: 'home', label: 'Home', icon: <HomeOutlined /> },
-    { key: 'tasks', label: 'Tasks', icon: <CalendarOutlined /> },
-    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined /> },
-    { key: 'profile', label: 'Me', icon: <UserOutlined /> },
-  ];
-
   const featureItems = [
     { key: 'tasks', label: 'Today', icon: <CalendarOutlined />, tone: 'gold' },
     { key: 'scan', label: 'Scan', icon: <QrcodeOutlined />, tone: 'blue' },
@@ -384,6 +388,17 @@ const FanCenterPage = () => {
     <header className="fan-shell-header">
       <div className="fan-shell-brand"><strong>UWELL</strong><span>{t('fan_center_label')}</span></div>
       <div className="fan-shell-actions">
+        <LanguageSwitcher
+          inline
+          showCurrent
+          sourceOnly
+          anchor="end"
+          tone="light"
+          labelOverride="Language"
+          buttonMinWidth={96}
+          menuMinWidth={180}
+          className="fan-header-language"
+        />
         <div className="store-settings-slot">
           <button
             type="button"
@@ -391,13 +406,11 @@ const FanCenterPage = () => {
             onClick={() => setSettingsOpen((value) => !value)}
             aria-label="Open fan settings"
           >
-            <SettingOutlined />
+            <SettingOutlined /><span className="sr-only">Settings</span>
           </button>
           {settingsOpen && (
             <div className="store-settings-panel liquid-glass">
-              <div className="store-settings-label">Language</div>
-              <LanguageSwitcher inline showCurrent sourceOnly anchor="end" tone="light" buttonMinWidth={52} menuMinWidth={180} />
-              <div className="fe-settings-divider" />
+              <div className="store-settings-label">Fan settings</div>
               <button type="button" className="store-settings-item" onClick={() => setActiveView('oldfan')}>
                 <UploadOutlined /> My verification
               </button>
@@ -407,7 +420,7 @@ const FanCenterPage = () => {
             </div>
           )}
         </div>
-        <Avatar className="fan-shell-avatar">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+        <Avatar className="fan-shell-avatar" aria-hidden="true">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
       </div>
     </header>
   );

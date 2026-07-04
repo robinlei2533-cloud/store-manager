@@ -8,6 +8,8 @@ import { addFanPoints } from './fans';
 
 // ============ QRCODES ============
 
+const USE_TRIAL_LOCAL_SCAN_RECORDS = true;
+
 export async function getQrCodes(filters = {}) {
   ensureLocalInit();
   if (isLocal()) {
@@ -83,19 +85,34 @@ export async function scanQrCode(qrCodeId) {
 
 export async function getScanRecords(filters = {}) {
   ensureLocalInit();
-  if (isLocal()) {
+  const localScanRecords = () => {
     let data = localDb.all('scan_records');
     if (filters.store_id) data = data.filter((r) => r.store_id === filters.store_id);
     if (filters.fan_id) data = data.filter((r) => r.fan_id === filters.fan_id);
-    return data.map((r) => ({
-      ...r,
-      products: localDb.findById('products', r.product_id),
-      stores: localDb.findById('stores', r.store_id),
-      fans: localDb.findById('fans', r.fan_id),
-    })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return data.map(enrichScanRecord).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  };
+  if (isLocal() || USE_TRIAL_LOCAL_SCAN_RECORDS) {
+    return localScanRecords();
   }
-  const { data, error } = await supabase.from('scan_records').select('*, products(name), stores(name), fans(level, points)').order('created_at', { ascending: false });
-  if (error) throw error;
-  return data;
+  let query = supabase.from('scan_records').select('*, products(name), stores(name), fans(level, points)');
+  if (filters.store_id) query = query.eq('store_id', filters.store_id);
+  if (filters.fan_id) query = query.eq('fan_id', filters.fan_id);
+  const { data, error } = await query.order('created_at', { ascending: false });
+  if (!error) return data || [];
+
+  let plainQuery = supabase.from('scan_records').select('*');
+  if (filters.store_id) plainQuery = plainQuery.eq('store_id', filters.store_id);
+  if (filters.fan_id) plainQuery = plainQuery.eq('fan_id', filters.fan_id);
+  const plain = await plainQuery.order('created_at', { ascending: false });
+  if (!plain.error) return (plain.data || []).map(enrichScanRecord);
+  return localScanRecords();
 }
 
+function enrichScanRecord(record) {
+  return {
+    ...record,
+    products: localDb.findById('products', record.product_id),
+    stores: localDb.findById('stores', record.store_id),
+    fans: localDb.findById('fans', record.fan_id),
+  };
+}

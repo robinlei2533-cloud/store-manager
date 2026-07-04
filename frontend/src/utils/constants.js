@@ -98,10 +98,10 @@ export const LOTTERY_PRIZES = [
 export const MALL_ITEMS = [
   { id: 'mall-001', name: 'UWELL G4 Device', points_cost: 800, image: '', stock: 50, category: 'Device' },
   { id: 'mall-002', name: 'UWELL KOKO Device', points_cost: 500, image: '', stock: 80, category: 'Device' },
-  { id: 'mall-003', name: 'UWELL Pod Pack · 3 pcs', points_cost: 150, image: '', stock: 200, category: 'Pod' },
+  { id: 'mall-003', name: 'UWELL Pod Pack - 3 pcs', points_cost: 150, image: '', stock: 200, category: 'Pod' },
   { id: 'mall-004', name: 'UWELL T-shirt', points_cost: 300, image: '', stock: 100, category: 'Merch' },
   { id: 'mall-005', name: 'UWELL Cap', points_cost: 200, image: '', stock: 150, category: 'Merch' },
-  { id: 'mall-006', name: 'Store voucher · 50 SAR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
+  { id: 'mall-006', name: 'Store voucher - 50 SAR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
   { id: 'mall-007', name: 'UWELL VIP Badge', points_cost: 1000, image: '', stock: 20, category: 'VIP' },
   { id: 'mall-008', name: 'UWELL Lighter', points_cost: 80, image: '', stock: 300, category: 'Merch' },
 ];

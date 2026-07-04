@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Input, message } from "antd";
+import { App, Button, Input } from "antd";
 import { ShopOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import LanguageSwitcher from "../../components/common/LanguageSwitcher";
@@ -17,6 +17,7 @@ import {
 const StoreEntryPage = () => {
   const navigate = useNavigate();
   const { t, setLang } = useLanguageStore();
+  const { message } = App.useApp();
   const [mode, setMode] = useState("login");
   const [storeCode, setStoreCode] = useState("");
   const [phone, setPhone] = useState("");

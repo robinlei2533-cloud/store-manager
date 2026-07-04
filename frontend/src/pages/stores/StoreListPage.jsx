@@ -253,17 +253,17 @@ const StoreListPage = () => {
 
   const columns = [
     {
-      title: t('store_name'), dataIndex: 'name', key: 'name', width: 200,
+      title: t('store_name'), dataIndex: 'name', key: 'name', width: 150,
       render: (text, record) => <a onClick={() => navigate(`/app/stores/${record.id}`)}>{text}</a>,
     },
-    { title: t('address'), dataIndex: 'address', key: 'address', ellipsis: true },
-    { title: 'City', dataIndex: 'city', key: 'city', width: 130, render: (value, record) => value ? `${value}, ${record.country || ''}` : '-' },
-    { title: t('status'), dataIndex: 'status', key: 'status', width: 130, render: (value) => <Tag color={value === 'pending_review' ? 'orange' : value === 'inactive' ? 'default' : 'green'}>{value || 'active'}</Tag> },
-    { title: t('level'), dataIndex: 'level', key: 'level', width: 120, render: (level) => <Tag color={levelColorMap[level] || 'default'}>{level ? getStoreLevelLabel(level) : '-'}</Tag> },
+    { title: t('address'), dataIndex: 'address', key: 'address', width: 140, ellipsis: true },
+    { title: 'City', dataIndex: 'city', key: 'city', width: 90, render: (value, record) => value ? `${value}, ${record.country || ''}` : '-' },
+    { title: t('status'), dataIndex: 'status', key: 'status', width: 90, render: (value) => <Tag color={value === 'pending_review' ? 'orange' : value === 'inactive' ? 'default' : 'green'}>{value || 'active'}</Tag> },
+    { title: t('level'), dataIndex: 'level', key: 'level', width: 70, render: (level) => <Tag color={levelColorMap[level] || 'default'}>{level ? getStoreLevelLabel(level) : '-'}</Tag> },
     {
       title: '最新评级',
       key: 'rating',
-      width: 180,
+      width: 110,
       render: (_, record) => {
         const latest = latestEvalByStore.get(record.id);
         if (!latest) {
@@ -285,28 +285,28 @@ const StoreListPage = () => {
         );
       },
     },
-    { title: t('chain'), dataIndex: 'chain_name', key: 'chain_name', width: 150 },
-    { title: t('chain_stores'), dataIndex: 'chain_store_count', key: 'chain_store_count', width: 110 },
-    { title: t('phone'), dataIndex: 'phone', key: 'phone', width: 130 },
+    { title: t('chain'), dataIndex: 'chain_name', key: 'chain_name', width: 80, ellipsis: true },
+    { title: t('chain_stores'), dataIndex: 'chain_store_count', key: 'chain_store_count', width: 60 },
+    { title: t('phone'), dataIndex: 'phone', key: 'phone', width: 80 },
     ...(canManageCompany ? [{
       title: '负责地推',
       key: 'rep',
-      width: 170,
+      width: 100,
       render: (_, record) => (
         <Select
           size="small"
           value={getStoreRepId(record, localDb.all('stores') || []) || undefined}
           placeholder="指定地推"
-          style={{ width: 140 }}
+          style={{ width: 92 }}
           options={reps.map((rep) => ({ label: rep.name, value: rep.id }))}
           onChange={(value) => handleAssignRep(record, value)}
         />
       ),
     }] : []),
     {
-      title: t('actions'), key: 'action', width: 160,
+      title: t('actions'), key: 'action', width: 100,
       render: (_, record) => (
-        <Space>
+        <Space size={4} wrap>
           <Button type="link" size="small" onClick={() => navigate(`/app/stores/${record.id}`)}>{t('view')}</Button>
           {canManageCompany && <Button type="link" size="small" onClick={() => navigate(`/app/stores/create?id=${record.id}`)}>{t('edit')}</Button>}
           <Button type="link" size="small" onClick={() => navigate(`/app/evaluation/create?store_id=${record.id}`)}>评分</Button>
@@ -353,7 +353,7 @@ const StoreListPage = () => {
           </Card>
         </Col>
       </Row>}
-      <Table columns={columns} dataSource={tableStores} rowKey="id" loading={isLoading && !tableStores.length} locale={{ emptyText: <Empty description={t('no_stores_found')} /> }} pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (total) => `${t('total')} ${total}` }} scroll={{ x: 900 }} />
+      <Table columns={columns} dataSource={tableStores} rowKey="id" loading={isLoading && !tableStores.length} locale={{ emptyText: <Empty description={t('no_stores_found')} /> }} pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (total) => `${t('total')} ${total}` }} scroll={{ x: 1070 }} />
 
       {/* Import Modal */}
       {importModalOpen && (

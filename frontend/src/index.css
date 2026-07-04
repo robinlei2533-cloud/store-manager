@@ -5030,6 +5030,29 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .store-liquid-shell .app-liquid-tabs .ant-tabs-nav {
+    max-width: 100%;
+    overflow: hidden;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .store-liquid-shell .app-liquid-tabs .ant-tabs-nav-wrap {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+  }
+
+  .store-liquid-shell .app-liquid-tabs .ant-tabs-nav-wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  .store-liquid-shell .app-liquid-tabs .ant-tabs-tab {
+    margin: 0 2px !important;
+    padding: 8px 8px 10px !important;
+    font-size: 12px;
+  }
 }
 
 /* Final MVP contrast pass: keep store/admin settings visible on light glass headers. */
@@ -5454,6 +5477,51 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   background: transparent;
 }
 
+.fe-demo-link {
+  width: 100%;
+  margin-top: 10px;
+  min-height: 42px;
+  border: 1px solid rgba(255, 215, 0, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fe-demo-link:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  color: #fff;
+}
+
+.fe-entry-loading {
+  z-index: 260;
+}
+
+.fe-entry-loading-card {
+  min-width: 220px;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 215, 0, 0.24);
+  border-radius: 8px;
+  background: rgba(18, 17, 15, 0.9);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.fan-shell .store-settings-slot {
+  position: relative;
+  z-index: 80;
+}
+
+.fan-shell .store-settings-panel {
+  z-index: 120;
+}
+
 .fe-page-luxury .fe-modal-overlay {
   z-index: 230;
 }
@@ -5674,4 +5742,106 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
     font-size: 10px;
     white-space: nowrap;
   }
+}
+
+/* Fan center header controls: make language and settings clear on light glass. */
+.fan-shell .fan-header-language {
+  z-index: 6200;
+}
+
+.fan-shell .fan-header-language > button {
+  min-height: 38px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  color: #3b2d13 !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(82, 62, 24, 0.18) !important;
+  box-shadow: 0 8px 20px rgba(82, 62, 24, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.fan-shell .fan-header-language > button:hover,
+.fan-shell .fan-header-language > button[aria-expanded="true"] {
+  color: #7a5600 !important;
+  background: rgba(255, 215, 0, 0.22) !important;
+  border-color: rgba(122, 86, 0, 0.34) !important;
+}
+
+@media (max-width: 430px) {
+  .fan-shell .fan-shell-actions {
+    gap: 8px;
+  }
+
+  .fan-shell .fan-header-language > button {
+    min-width: 84px !important;
+    height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+  }
+
+  .fan-shell .store-settings-trigger,
+  .fan-shell .fan-shell-avatar {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+  }
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Admin audit overflow containment: keep map tiles and wide tables inside their panels. */
+.admin-liquid-shell .leaflet-container {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  contain: paint;
+}
+
+.admin-liquid-shell .leaflet-pane,
+.admin-liquid-shell .leaflet-tile-pane,
+.admin-liquid-shell .leaflet-overlay-pane,
+.admin-liquid-shell .leaflet-marker-pane,
+.admin-liquid-shell .leaflet-shadow-pane {
+  max-width: 100% !important;
+}
+
+.admin-liquid-shell .ant-table-wrapper,
+.admin-liquid-shell .ant-table-container,
+.admin-liquid-shell .ant-table-content {
+  max-width: 100% !important;
+}
+
+.admin-liquid-shell .ant-table-content {
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.admin-liquid-shell .ant-table-content > table {
+  max-width: none;
+}
+
+.admin-liquid-shell .admin-heatmap-frame {
+  width: calc(100% - 2px) !important;
+  max-width: calc(100% - 2px) !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  contain: layout paint;
+}
+
+.admin-liquid-shell .admin-heatmap-frame .leaflet-container,
+.admin-liquid-shell .admin-heatmap-frame .leaflet-map-pane,
+.admin-liquid-shell .admin-heatmap-frame .leaflet-pane {
+  width: 100% !important;
+  max-width: 100% !important;
 }
