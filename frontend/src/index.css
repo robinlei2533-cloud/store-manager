@@ -5845,3 +5845,339 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   width: 100% !important;
   max-width: 100% !important;
 }
+
+
+/* UWELL trial UI motion refinement */
+.uw-panel-rise,
+.app-liquid-shell .ant-card,
+.admin-liquid-shell .ant-card,
+.fan-shell .ant-card {
+  animation: uwPanelRise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.uw-pressable,
+.fe-luxury-cta,
+.store-entry-main-action,
+.staff-login-card .ant-btn-primary,
+.store-entry-mode-switch button,
+.fe-settings-trigger,
+.layout-settings-trigger,
+.store-settings-trigger {
+  transition: transform 180ms ease, box-shadow 220ms ease, background 220ms ease, border-color 220ms ease, color 220ms ease;
+}
+
+.uw-pressable:hover,
+.fe-luxury-cta:hover,
+.store-entry-main-action:hover,
+.staff-login-card .ant-btn-primary:hover,
+.fe-settings-trigger:hover,
+.layout-settings-trigger:hover,
+.store-settings-trigger:hover {
+  transform: translateY(-1px);
+}
+
+.uw-pressable:active,
+.fe-luxury-cta:active,
+.store-entry-main-action:active,
+.staff-login-card .ant-btn-primary:active,
+.store-entry-mode-switch button:active,
+.fe-settings-trigger:active,
+.layout-settings-trigger:active,
+.store-settings-trigger:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.uw-shine-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.uw-shine-button::after {
+  content: "";
+  position: absolute;
+  inset: -30% auto -30% -70%;
+  z-index: 0;
+  width: 58%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.38), transparent);
+  opacity: 0;
+  transition: left 520ms ease, opacity 260ms ease;
+  pointer-events: none;
+}
+
+.uw-shine-button:hover::after {
+  left: 120%;
+  opacity: 1;
+}
+
+.uw-shine-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+.uw-split-reveal h1 span,
+.uw-split-reveal p span {
+  display: inline-block;
+  margin-right: 0.18em;
+  animation: uwSplitReveal 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--uw-word-index, 0) * 86ms);
+}
+
+.uw-split-reveal h1 span:last-child,
+.uw-split-reveal p span:last-child {
+  margin-right: 0;
+}
+
+.store-entry-card {
+  color: #241b10 !important;
+}
+
+.store-entry-kicker {
+  color: #d6a900 !important;
+  text-shadow: none !important;
+}
+
+.store-entry-card h1 {
+  color: #241b10 !important;
+  text-shadow: 0 10px 28px rgba(192, 147, 12, 0.13) !important;
+}
+
+.store-entry-card p {
+  color: rgba(36, 27, 16, 0.68) !important;
+  font-weight: 600;
+}
+
+.store-entry-mode-switch {
+  background: rgba(255,255,255,0.7) !important;
+  border: 1px solid rgba(82,62,24,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+.store-entry-mode-switch button {
+  color: rgba(36,27,16,0.62) !important;
+}
+
+.store-entry-mode-switch button.is-active {
+  color: #1f170c !important;
+  background: linear-gradient(180deg, #ffe88a, #d6a900) !important;
+  box-shadow: 0 10px 24px rgba(176, 132, 0, 0.2) !important;
+}
+
+.store-entry-form .ant-input,
+.store-entry-form .ant-input-affix-wrapper,
+.store-entry-form .ant-select-selector,
+.store-entry-form select.so-input-dark {
+  color: #241b10 !important;
+  background: rgba(255,255,255,0.94) !important;
+  border-color: rgba(82,62,24,0.12) !important;
+}
+
+.store-entry-form .ant-input::placeholder,
+.store-entry-form .ant-input-affix-wrapper input::placeholder {
+  color: rgba(36,27,16,0.44) !important;
+}
+
+.store-entry-card .so-text-white50,
+.store-entry-card .so-text-white30,
+.store-entry-card .store-entry-legal {
+  color: rgba(36,27,16,0.62) !important;
+}
+
+.store-entry-main-action.ant-btn-primary {
+  color: #16120a !important;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffe88a, #d2a100) !important;
+  border: 0 !important;
+  box-shadow: 0 14px 28px rgba(176, 132, 0, 0.24) !important;
+}
+
+.uw-route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  color: #2b2114;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255,255,255,0.96), transparent 32%),
+    linear-gradient(135deg, #fbfaf7 0%, #f4efe4 48%, #ece4d3 100%);
+}
+
+.uw-route-loading span {
+  font-size: 13px;
+  letter-spacing: 0;
+  color: rgba(43,33,20,0.62);
+  font-weight: 700;
+}
+
+@keyframes uwSplitReveal {
+  0% { opacity: 0; transform: translateY(18px); filter: blur(10px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes uwPanelRise {
+  0% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uw-panel-rise,
+  .app-liquid-shell .ant-card,
+  .admin-liquid-shell .ant-card,
+  .fan-shell .ant-card,
+  .uw-split-reveal h1 span,
+  .uw-split-reveal p span {
+    animation: none !important;
+  }
+  .uw-pressable,
+  .fe-luxury-cta,
+  .store-entry-main-action,
+  .staff-login-card .ant-btn-primary,
+  .store-entry-mode-switch button,
+  .fe-settings-trigger,
+  .layout-settings-trigger,
+  .store-settings-trigger {
+    transition: none !important;
+  }
+}
+
+
+/* UWELL trial readability pass after motion */
+.so-page,
+.store-liquid-shell,
+.app-liquid-shell {
+  color: #261d11 !important;
+}
+
+.store-liquid-shell .ant-typography,
+.store-liquid-shell .ant-card,
+.store-liquid-shell .ant-card .ant-typography,
+.store-liquid-shell .ant-list-item,
+.store-liquid-shell .ant-tabs-tab,
+.store-liquid-shell .ant-btn-link,
+.store-liquid-shell .ant-statistic-title,
+.store-liquid-shell .ant-statistic-content,
+.store-liquid-shell .so-text-light,
+.store-liquid-shell .so-text-white50,
+.store-liquid-shell .so-text-white30,
+.store-liquid-shell .so-material-name,
+.store-liquid-shell .so-stat-value {
+  color: #2c2114 !important;
+}
+
+.store-liquid-shell .so-text-gold,
+.store-liquid-shell .ant-btn-link.so-text-gold {
+  color: #b98a00 !important;
+}
+
+.store-liquid-shell .so-card-main,
+.store-liquid-shell .so-card-dark,
+.store-liquid-shell .so-card-subtle,
+.store-liquid-shell .so-card-green,
+.store-liquid-shell .so-card-gold-border,
+.store-liquid-shell .ant-card {
+  background: rgba(255,255,255,0.76) !important;
+  border-color: rgba(82,62,24,0.14) !important;
+}
+
+.store-liquid-shell .store-dashboard-stat,
+.store-liquid-shell .store-dashboard-section,
+.store-liquid-shell .store-material-row {
+  background: rgba(255,255,255,0.62) !important;
+  border-color: rgba(82,62,24,0.12) !important;
+}
+
+.store-liquid-shell .store-dashboard-stat .anticon,
+.store-liquid-shell .store-dashboard-stat strong,
+.store-liquid-shell .store-dashboard-stat span,
+.store-liquid-shell .store-material-row span,
+.store-liquid-shell .store-material-row strong,
+.store-liquid-shell .store-dashboard-section p,
+.store-liquid-shell .store-dashboard-section span {
+  color: #2c2114 !important;
+}
+
+.store-liquid-shell .ant-progress-bg {
+  box-shadow: 0 0 0 1px rgba(82,62,24,0.08) inset;
+}
+
+.store-liquid-shell .ant-tag {
+  border-color: rgba(82,62,24,0.12) !important;
+  font-weight: 700;
+}
+
+.staff-login-page,
+.admin-liquid-shell .staff-login-page {
+  color: #231a0f !important;
+}
+
+.staff-login-page h1,
+.staff-login-page .staff-login-hero h1,
+.staff-login-page .staff-login-copy h1,
+.staff-login-page .ant-typography h1,
+.staff-login-page .ant-typography,
+.staff-login-card h1,
+.staff-login-card h2,
+.staff-login-card h3,
+.staff-login-card .ant-typography {
+  color: #241b10 !important;
+  text-shadow: none !important;
+}
+
+.staff-login-page p,
+.staff-login-page .staff-login-copy p,
+.staff-login-card p,
+.staff-login-card .ant-typography-secondary {
+  color: rgba(36,27,16,0.68) !important;
+  font-weight: 600;
+}
+
+.staff-login-card {
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(214,169,0,0.45) !important;
+}
+
+.staff-login-card .ant-input,
+.staff-login-card .ant-input-affix-wrapper {
+  color: #241b10 !important;
+  background: rgba(255,255,255,0.96) !important;
+  border-color: rgba(82,62,24,0.12) !important;
+}
+
+
+/* UWELL store owner final contrast tune */
+.store-liquid-shell .store-dashboard-section-title,
+.store-liquid-shell .store-dashboard-section h3,
+.store-liquid-shell .store-dashboard-section h4,
+.store-liquid-shell .store-dashboard-section strong,
+.store-liquid-shell .store-dashboard-section .ant-typography,
+.store-liquid-shell .store-material-row .ant-typography,
+.store-liquid-shell .store-dashboard-hero .ant-typography,
+.store-liquid-shell .store-dashboard-hero span,
+.store-liquid-shell .store-dashboard-stat .ant-typography {
+  color: #2a2014 !important;
+}
+
+.store-liquid-shell .ant-tag,
+.store-liquid-shell .ant-tag span,
+.store-liquid-shell .store-dashboard-hero .ant-tag,
+.store-liquid-shell .store-dashboard-section .ant-tag {
+  color: #2a2014 !important;
+  background: rgba(255,255,255,0.72) !important;
+  border-color: rgba(82,62,24,0.16) !important;
+}
+
+.store-liquid-shell .ant-tag-gold,
+.store-liquid-shell .ant-tag-yellow {
+  color: #6f5200 !important;
+  background: rgba(255,236,150,0.64) !important;
+  border-color: rgba(214,169,0,0.28) !important;
+}
+
+.store-liquid-shell .store-dashboard-hero [class*="so-text-white"],
+.store-liquid-shell .store-dashboard-stat [class*="so-text-white"],
+.store-liquid-shell .store-dashboard-section [class*="so-text-white"],
+.store-liquid-shell .store-material-row [class*="so-text-white"] {
+  color: rgba(42,32,20,0.68) !important;
+}

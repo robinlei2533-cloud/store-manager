@@ -135,7 +135,7 @@ const StoreEntryPage = () => {
           menuMinWidth={220}
         />
       </div>
-      <section className="store-entry-card liquid-glass">
+      <section className="store-entry-card liquid-glass uw-panel-rise">
         <div className="store-entry-mark">
           <ShopOutlined />
         </div>
@@ -162,7 +162,7 @@ const StoreEntryPage = () => {
               className="so-input-dark"
               size="large"
             />
-            <Button type="primary" size="large" loading={loading} onClick={handleLogin} block>
+            <Button type="primary" size="large" loading={loading} onClick={handleLogin} block className="uw-pressable uw-shine-button store-entry-main-action">
               {t("store_entry_button")}
             </Button>
             <div style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>
@@ -187,7 +187,7 @@ const StoreEntryPage = () => {
               {cityOptionsForCountry(country).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
             <Input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Address (optional)" className="so-input-dark" size="large" />
-            <Button type="primary" size="large" loading={loading} onClick={handleRegister} block>
+            <Button type="primary" size="large" loading={loading} onClick={handleRegister} block className="uw-pressable uw-shine-button store-entry-main-action">
               Submit for review
             </Button>
             <div style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>

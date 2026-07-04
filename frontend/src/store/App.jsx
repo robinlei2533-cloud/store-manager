@@ -64,7 +64,7 @@ const StoreApp = () => {
       >
         <AntApp>
           <ErrorBoundary>
-            <Suspense fallback={<div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#000000"}}><Spin size="large" /></div>}>
+            <Suspense fallback={<div className="uw-route-loading"><Spin size="large" /><span>Loading store portal...</span></div>}>
               <RouterProvider router={router} />
             </Suspense>
           </ErrorBoundary>

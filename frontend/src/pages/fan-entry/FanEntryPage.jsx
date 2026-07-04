@@ -357,9 +357,17 @@ const FanEntryPage = () => {
           <div className="fe-luxury-edge-lines" aria-hidden="true">
             <span /><span /><span /><span />
           </div>
-          <div className="fe-luxury-copy">
-            <h1>Uwell Fans Club</h1>
-            <p>I Wish You Well</p>
+          <div className="fe-luxury-copy uw-split-reveal">
+            <h1 aria-label="Uwell Fans Club">
+              {"Uwell Fans Club".split(" ").map((word, index) => (
+                <span key={word} style={{ "--uw-word-index": index }}>{word}</span>
+              ))}
+            </h1>
+            <p aria-label="I Wish You Well">
+              {"I Wish You Well".split(" ").map((word, index) => (
+                <span key={word} style={{ "--uw-word-index": index + 3 }}>{word}</span>
+              ))}
+            </p>
           </div>
           <div className="fe-luxury-join">
             <p>Join UWELL fans, check activities, scan for points, and redeem member rewards.</p>
@@ -368,7 +376,7 @@ const FanEntryPage = () => {
               <span>Verified store map</span>
               <span>Member rewards</span>
             </div>
-            <button type="button" className="fe-luxury-cta" onClick={() => setAuthOpen(true)}>
+            <button type="button" className="fe-luxury-cta uw-pressable uw-shine-button" onClick={() => setAuthOpen(true)}>
               Join / Sign in <span aria-hidden="true">-&gt;</span>
             </button>
           </div>
