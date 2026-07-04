@@ -6181,3 +6181,397 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
 .store-liquid-shell .store-material-row [class*="so-text-white"] {
   color: rgba(42,32,20,0.68) !important;
 }
+
+
+/* UWELL typography and contrast system pass */
+:root {
+  --uw-font-ui: Inter, Barlow, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  --uw-font-display: Inter, Barlow, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --uw-font-brand-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --uw-ink: #1f1a12;
+  --uw-ink-strong: #17120a;
+  --uw-ink-body: #3b2d13;
+  --uw-ink-subtle: rgba(59,45,19,0.68);
+  --uw-ink-muted: rgba(59,45,19,0.5);
+  --uw-ink-faint: rgba(59,45,19,0.38);
+  --uw-gold-ui: #c89700;
+  --uw-gold-ui-strong: #a87500;
+  --uw-panel-bg-readable: rgba(255,255,255,0.82);
+  --uw-panel-bg-solid: #fffaf0;
+  --uw-text-primary: var(--uw-ink);
+  --uw-text-secondary: var(--uw-ink-subtle);
+  --uw-text-muted: var(--uw-ink-muted);
+  --uw-border-soft: rgba(82,62,24,0.14);
+  --uw-border-strong: rgba(82,62,24,0.22);
+  --uw-surface-card: rgba(255,255,255,0.82);
+  --uw-surface-muted: rgba(255,250,240,0.72);
+}
+
+body,
+.ant-app,
+.fan-shell,
+.fan-center-liquid-shell,
+.store-entry-page,
+.store-liquid-shell,
+.admin-liquid-shell,
+.staff-login-page,
+.ant-modal,
+.ant-drawer {
+  font-family: var(--uw-font-ui) !important;
+  color: var(--uw-ink) !important;
+  letter-spacing: 0 !important;
+}
+
+.fe-page-luxury {
+  font-family: var(--uw-font-ui) !important;
+}
+
+.fe-luxury-copy h1 {
+  font-family: var(--uw-font-brand-serif) !important;
+}
+
+.fe-luxury-copy p,
+.fe-luxury-join p,
+.fe-luxury-cta,
+.fe-luxury-brand,
+.fe-luxury-benefit-row span {
+  font-family: var(--uw-font-ui) !important;
+}
+
+.fan-shell h1,
+.fan-shell h2,
+.fan-shell h3,
+.fan-shell h4,
+.fan-shell .ant-typography,
+.fan-shell button,
+.fan-shell input,
+.fan-shell textarea,
+.fan-shell .ant-card,
+.fan-center-liquid-shell h1,
+.fan-center-liquid-shell h2,
+.fan-center-liquid-shell h3,
+.fan-center-liquid-shell h4,
+.fan-center-liquid-shell .ant-typography,
+.fan-center-liquid-shell button,
+.fan-center-liquid-shell input,
+.fan-center-liquid-shell textarea,
+.fan-center-liquid-shell .ant-card,
+.store-liquid-shell h1,
+.store-liquid-shell h2,
+.store-liquid-shell h3,
+.store-liquid-shell h4,
+.store-liquid-shell .ant-typography,
+.store-liquid-shell button,
+.store-liquid-shell input,
+.store-liquid-shell textarea,
+.store-liquid-shell .ant-card,
+.store-entry-page h1,
+.store-entry-page h2,
+.store-entry-page h3,
+.store-entry-page h4,
+.store-entry-page .ant-typography,
+.store-entry-page button,
+.store-entry-page input,
+.store-entry-page textarea,
+.admin-liquid-shell h1,
+.admin-liquid-shell h2,
+.admin-liquid-shell h3,
+.admin-liquid-shell h4,
+.admin-liquid-shell .ant-typography,
+.admin-liquid-shell button,
+.admin-liquid-shell input,
+.admin-liquid-shell textarea,
+.staff-login-page h1,
+.staff-login-page h2,
+.staff-login-page h3,
+.staff-login-page h4,
+.staff-login-page .ant-typography,
+.staff-login-page button,
+.staff-login-page input {
+  font-family: var(--uw-font-ui) !important;
+  letter-spacing: 0 !important;
+}
+
+.fan-shell h1,
+.fan-shell h2,
+.fan-shell h3,
+.fan-shell h4,
+.fan-center-liquid-shell h1,
+.fan-center-liquid-shell h2,
+.fan-center-liquid-shell h3,
+.fan-center-liquid-shell h4,
+.store-liquid-shell h1,
+.store-liquid-shell h2,
+.store-liquid-shell h3,
+.store-liquid-shell h4,
+.store-entry-page h1,
+.store-entry-page h2,
+.store-entry-page h3,
+.store-entry-page h4,
+.admin-liquid-shell h1,
+.admin-liquid-shell h2,
+.admin-liquid-shell h3,
+.admin-liquid-shell h4,
+.staff-login-page h1,
+.staff-login-page h2,
+.staff-login-page h3,
+.staff-login-page h4 {
+  color: var(--uw-ink-strong) !important;
+  font-weight: 760 !important;
+}
+
+.fan-shell,
+.fan-shell p,
+.fan-shell span,
+.fan-shell div,
+.fan-shell label,
+.fan-shell li,
+.fan-center-liquid-shell,
+.fan-center-liquid-shell p,
+.fan-center-liquid-shell span,
+.fan-center-liquid-shell div,
+.fan-center-liquid-shell label,
+.fan-center-liquid-shell li,
+.store-liquid-shell,
+.store-liquid-shell p,
+.store-liquid-shell span,
+.store-liquid-shell div,
+.store-liquid-shell label,
+.store-liquid-shell li,
+.store-entry-page,
+.store-entry-page p,
+.store-entry-page span,
+.store-entry-page div,
+.store-entry-page label,
+.store-entry-page li,
+.admin-liquid-shell,
+.admin-liquid-shell p,
+.admin-liquid-shell span,
+.admin-liquid-shell div,
+.admin-liquid-shell label,
+.admin-liquid-shell li,
+.staff-login-page,
+.staff-login-page p,
+.staff-login-page span,
+.staff-login-page div,
+.staff-login-page label,
+.staff-login-page li {
+  text-shadow: none !important;
+}
+
+.fan-shell .ant-card,
+.fan-center-liquid-shell .ant-card,
+.fan-center-liquid-shell .liquid-glass,
+.store-liquid-shell .ant-card,
+.store-liquid-shell .liquid-glass,
+.store-entry-card,
+.admin-liquid-shell .ant-card,
+.staff-login-card,
+.layout-settings-panel,
+.store-settings-panel,
+.fe-settings-panel,
+.ant-modal-content,
+.ant-drawer-content {
+  background: var(--uw-panel-bg-readable) !important;
+  color: var(--uw-ink) !important;
+  border-color: var(--uw-border-soft) !important;
+}
+
+.fan-shell .ant-card *,
+.fan-center-liquid-shell .ant-card *,
+.fan-center-liquid-shell .liquid-glass *,
+.store-liquid-shell .ant-card *,
+.store-liquid-shell .liquid-glass *,
+.store-entry-card *,
+.admin-liquid-shell .ant-card *,
+.staff-login-card *,
+.layout-settings-panel *,
+.store-settings-panel *,
+.fe-settings-panel *,
+.ant-modal-content *,
+.ant-drawer-content * {
+  color: inherit;
+}
+
+.fan-shell .ant-typography,
+.fan-shell .ant-card .ant-typography,
+.fan-center-liquid-shell .ant-typography,
+.fan-center-liquid-shell .ant-card .ant-typography,
+.store-liquid-shell .ant-typography,
+.store-liquid-shell .ant-card .ant-typography,
+.store-entry-page .ant-typography,
+.admin-liquid-shell .ant-typography,
+.admin-liquid-shell .ant-card .ant-typography,
+.staff-login-page .ant-typography {
+  color: var(--uw-ink-body) !important;
+}
+
+.fan-shell .ant-typography-secondary,
+.fan-shell .ant-statistic-title,
+.fan-shell .ant-card-meta-description,
+.fan-center-liquid-shell .ant-typography-secondary,
+.fan-center-liquid-shell .ant-statistic-title,
+.fan-center-liquid-shell .ant-card-meta-description,
+.store-liquid-shell .ant-typography-secondary,
+.store-liquid-shell .ant-statistic-title,
+.store-liquid-shell .ant-card-meta-description,
+.store-entry-page .ant-typography-secondary,
+.admin-liquid-shell .ant-typography-secondary,
+.admin-liquid-shell .ant-statistic-title,
+.staff-login-page .ant-typography-secondary {
+  color: var(--uw-ink-subtle) !important;
+}
+
+.so-text-light,
+.so-text-white50,
+.so-text-white30,
+.so-material-name,
+.so-stat-value,
+.fan-shell [class*="white"],
+.fan-center-liquid-shell [class*="white"],
+.store-liquid-shell [class*="white"],
+.admin-liquid-shell [class*="white"] {
+  color: var(--uw-ink-body) !important;
+}
+
+.store-dashboard-stat .ant-typography,
+.store-dashboard-stat span,
+.store-dashboard-stat div,
+.store-dashboard-section .ant-typography,
+.store-dashboard-section span,
+.store-dashboard-section div,
+.store-material-row .ant-typography,
+.store-material-row span,
+.store-material-row div,
+.fan-panel .ant-typography,
+.fan-panel span,
+.fan-panel div,
+.fan-activity-card .ant-typography,
+.fan-activity-card span,
+.fan-activity-card div,
+.fan-reward-card .ant-typography,
+.fan-reward-card span,
+.fan-reward-card div {
+  color: var(--uw-ink-body) !important;
+}
+
+.store-dashboard-stat small,
+.store-dashboard-stat .ant-statistic-title,
+.store-dashboard-section small,
+.store-dashboard-section p,
+.store-material-row small,
+.fan-panel small,
+.fan-panel p,
+.fan-activity-card small,
+.fan-activity-card p,
+.fan-reward-card small,
+.fan-reward-card p {
+  color: var(--uw-ink-subtle) !important;
+}
+
+.ant-tabs-tab,
+.ant-menu-title-content,
+.fan-bottom-nav button,
+.store-entry-mode-switch button {
+  font-family: var(--uw-font-ui) !important;
+  color: var(--uw-ink-body) !important;
+  font-weight: 700 !important;
+}
+
+.ant-tabs-tab-active,
+.ant-tabs-tab-active .ant-tabs-tab-btn,
+.fan-bottom-nav button.is-active,
+.store-entry-mode-switch button.is-active {
+  color: var(--uw-gold-ui-strong) !important;
+}
+
+.ant-btn,
+button {
+  font-family: var(--uw-font-ui) !important;
+  letter-spacing: 0 !important;
+}
+
+.ant-btn-primary,
+.so-btn-gold,
+.login-btn-primary,
+.store-entry-main-action.ant-btn-primary {
+  color: #17120a !important;
+  font-weight: 780 !important;
+}
+
+.ant-tag,
+.ant-tag span {
+  color: var(--uw-ink-body) !important;
+  font-family: var(--uw-font-ui) !important;
+  font-weight: 700 !important;
+}
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+textarea.ant-input {
+  font-family: var(--uw-font-ui) !important;
+  color: var(--uw-ink) !important;
+}
+
+.ant-input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+textarea.ant-input::placeholder {
+  color: var(--uw-ink-muted) !important;
+}
+
+.fan-center-bg-video,
+.app-liquid-shell .app-liquid-bg-video,
+.fan-center-liquid-shell .fan-center-bg-video {
+  opacity: 0.025 !important;
+}
+
+.fan-center-bg-scrim,
+.app-liquid-bg-scrim {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255,255,255,0.82) 0%, transparent 36%),
+    radial-gradient(circle at 86% 10%, rgba(255,215,0,0.10) 0%, transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(246,243,236,0.92) 52%, rgba(238,231,218,0.98) 100%) !important;
+}
+
+.fan-member-name,
+.fan-user-name,
+.fan-member-hero h1,
+.fan-member-hero h2,
+.fan-profile-name {
+  font-family: var(--uw-font-ui) !important;
+  color: var(--uw-ink-strong) !important;
+  font-weight: 780 !important;
+}
+
+.fan-entry-serif-only,
+.fe-luxury-copy h1 {
+  font-family: var(--uw-font-brand-serif) !important;
+}
+
+
+/* UWELL mobile tab overflow tune */
+.store-liquid-shell .ant-tabs-nav,
+.store-liquid-shell .ant-tabs-nav-wrap,
+.fan-center-liquid-shell .ant-tabs-nav,
+.fan-center-liquid-shell .ant-tabs-nav-wrap {
+  overflow: visible !important;
+}
+
+.store-liquid-shell .ant-tabs-nav-list,
+.fan-center-liquid-shell .ant-tabs-nav-list {
+  min-width: max-content;
+}
+
+.store-liquid-shell .ant-tabs-tab,
+.fan-center-liquid-shell .ant-tabs-tab {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.store-liquid-shell .ant-tabs-nav-more,
+.fan-center-liquid-shell .ant-tabs-nav-more {
+  color: var(--uw-ink-body) !important;
+  background: rgba(255,255,255,0.82) !important;
+  border-radius: 999px !important;
+}
