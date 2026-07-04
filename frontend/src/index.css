@@ -6575,3 +6575,216 @@ textarea.ant-input::placeholder {
   background: rgba(255,255,255,0.82) !important;
   border-radius: 999px !important;
 }
+
+
+/* UWELL targeted legibility fixes from visual QA */
+.ant-modal .ant-modal-content,
+.ant-modal .ant-modal-header,
+.ant-modal .ant-modal-body,
+.ant-modal .ant-modal-footer {
+  background: #fffaf0 !important;
+  color: #1f1a12 !important;
+  border-color: rgba(82,62,24,0.14) !important;
+}
+
+.ant-modal .ant-modal-title,
+.ant-modal .ant-modal-title *,
+.ant-modal .ant-form-item-label > label,
+.ant-modal .ant-form-item-label > label span,
+.ant-modal label,
+.ant-modal .ant-typography,
+.ant-modal p,
+.ant-modal span,
+.ant-modal div {
+  color: #1f1a12 !important;
+  font-family: var(--uw-font-ui) !important;
+  text-shadow: none !important;
+}
+
+.ant-modal .ant-modal-title,
+.ant-modal .so-text-green,
+.ant-modal .so-text-gold {
+  color: #b98a00 !important;
+  font-weight: 780 !important;
+}
+
+.ant-modal .ant-input,
+.ant-modal .ant-input-affix-wrapper,
+.ant-modal textarea.ant-input,
+.ant-modal .ant-select-selector,
+.ant-modal .so-input-dark {
+  background: #ffffff !important;
+  color: #1f1a12 !important;
+  border-color: rgba(82,62,24,0.18) !important;
+}
+
+.ant-modal .ant-input::placeholder,
+.ant-modal textarea.ant-input::placeholder {
+  color: rgba(59,45,19,0.5) !important;
+}
+
+.ant-modal .ant-btn-default {
+  color: #1f1a12 !important;
+  background: #ffffff !important;
+  border-color: rgba(82,62,24,0.18) !important;
+}
+
+.ant-btn[disabled],
+.ant-btn-disabled,
+.ant-btn:disabled,
+button[disabled] {
+  color: rgba(59,45,19,0.62) !important;
+  background: rgba(255,250,240,0.82) !important;
+  border-color: rgba(82,62,24,0.16) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.admin-liquid-shell .ant-btn[disabled] *,
+.admin-liquid-shell .ant-btn-disabled *,
+.fan-shell .ant-btn[disabled] *,
+.store-liquid-shell .ant-btn[disabled] * {
+  color: rgba(59,45,19,0.62) !important;
+}
+
+.layout-settings-panel,
+.store-settings-panel,
+.fe-settings-panel,
+.fan-settings-panel,
+[class*="settings-panel"] {
+  background: rgba(255,255,255,0.94) !important;
+  color: #1f1a12 !important;
+  border-color: rgba(214,169,0,0.28) !important;
+}
+
+.layout-settings-panel *,
+.store-settings-panel *,
+.fe-settings-panel *,
+.fan-settings-panel *,
+[class*="settings-panel"] * {
+  color: #1f1a12 !important;
+  text-shadow: none !important;
+}
+
+.layout-settings-panel .ant-btn,
+.store-settings-panel .ant-btn,
+.fe-settings-panel .ant-btn,
+[class*="settings-panel"] .ant-btn {
+  color: #1f1a12 !important;
+}
+
+.fan-shell .fan-info-card,
+.fan-shell .fan-redeem-info,
+.fan-shell .fan-reward-info,
+.fan-shell .fan-points-help,
+.fan-shell [class*="reward"] [class*="info"],
+.fan-shell [class*="redeem"] [class*="info"] {
+  color: #3b2d13 !important;
+  background: rgba(255,252,217,0.92) !important;
+  border-color: rgba(214,169,0,0.34) !important;
+}
+
+.fan-shell .fan-info-card *,
+.fan-shell .fan-redeem-info *,
+.fan-shell .fan-reward-info *,
+.fan-shell .fan-points-help *,
+.fan-shell [class*="reward"] [class*="info"] *,
+.fan-shell [class*="redeem"] [class*="info"] * {
+  color: #3b2d13 !important;
+  text-shadow: none !important;
+}
+
+.fan-shell .fan-reward-card .ant-typography-secondary,
+.fan-shell .fan-reward-card p,
+.fan-shell .fan-reward-card small,
+.fan-shell [class*="reward"] .ant-typography-secondary,
+.fan-shell [class*="reward"] p,
+.fan-shell [class*="reward"] small {
+  color: rgba(59,45,19,0.68) !important;
+}
+
+.admin-liquid-shell .todo-card,
+.admin-liquid-shell [class*="todo"],
+.admin-liquid-shell [class*="pending"] {
+  color: #1f1a12 !important;
+}
+
+.admin-liquid-shell .todo-card *,
+.admin-liquid-shell [class*="todo"] *,
+.admin-liquid-shell [class*="pending"] * {
+  text-shadow: none !important;
+}
+
+
+/* UWELL rewards and select final readability tune */
+.fan-shell [class*="reward"],
+.fan-shell [class*="redeem"],
+.fan-center-liquid-shell [class*="reward"],
+.fan-center-liquid-shell [class*="redeem"] {
+  color: #1f1a12 !important;
+  text-shadow: none !important;
+}
+
+.fan-shell [class*="reward"] *,
+.fan-shell [class*="redeem"] *,
+.fan-center-liquid-shell [class*="reward"] *,
+.fan-center-liquid-shell [class*="redeem"] * {
+  text-shadow: none !important;
+}
+
+.fan-shell [class*="reward"] p,
+.fan-shell [class*="reward"] small,
+.fan-shell [class*="reward"] .ant-typography-secondary,
+.fan-shell [class*="redeem"] p,
+.fan-shell [class*="redeem"] small,
+.fan-shell [class*="redeem"] .ant-typography-secondary,
+.fan-center-liquid-shell [class*="reward"] p,
+.fan-center-liquid-shell [class*="reward"] small,
+.fan-center-liquid-shell [class*="reward"] .ant-typography-secondary,
+.fan-center-liquid-shell [class*="redeem"] p,
+.fan-center-liquid-shell [class*="redeem"] small,
+.fan-center-liquid-shell [class*="redeem"] .ant-typography-secondary {
+  color: rgba(59,45,19,0.72) !important;
+}
+
+.fan-shell [class*="reward"] .ant-card,
+.fan-shell [class*="redeem"] .ant-card,
+.fan-center-liquid-shell [class*="reward"] .ant-card,
+.fan-center-liquid-shell [class*="redeem"] .ant-card {
+  background: rgba(255,255,255,0.88) !important;
+  border-color: rgba(82,62,24,0.14) !important;
+}
+
+.fan-shell [class*="reward"] .ant-btn[disabled],
+.fan-shell [class*="redeem"] .ant-btn[disabled],
+.fan-center-liquid-shell [class*="reward"] .ant-btn[disabled],
+.fan-center-liquid-shell [class*="redeem"] .ant-btn[disabled] {
+  color: rgba(59,45,19,0.7) !important;
+  background: rgba(255,250,240,0.92) !important;
+}
+
+.ant-select-selection-placeholder,
+.ant-select-selection-item,
+.ant-select-item-option-content {
+  color: #1f1a12 !important;
+}
+
+.ant-select-dropdown,
+.ant-select-dropdown * {
+  color: #1f1a12 !important;
+}
+
+.ant-select-selector[style*="background: rgb(17"],
+.ant-select-selector[style*="background:#111"],
+.ant-select-selector[style*="background: #111"] {
+  color: #ffffff !important;
+}
+
+.ant-select-selector[style*="background: rgb(17"] .ant-select-selection-placeholder,
+.ant-select-selector[style*="background:#111"] .ant-select-selection-placeholder,
+.ant-select-selector[style*="background: #111"] .ant-select-selection-placeholder,
+.ant-select-selector[style*="background: rgb(17"] .ant-select-selection-item,
+.ant-select-selector[style*="background:#111"] .ant-select-selection-item,
+.ant-select-selector[style*="background: #111"] .ant-select-selection-item {
+  color: rgba(255,255,255,0.86) !important;
+}
