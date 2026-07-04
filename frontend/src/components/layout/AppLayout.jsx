@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import { Layout, Menu, Button, Avatar, Spin, Tag, Grid, Drawer, Input } from 'antd';
 import {
@@ -24,6 +24,7 @@ import {
   AppstoreOutlined,
   DatabaseOutlined,
   CustomerServiceOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import useAuthStore from '../../stores/authStore';
 import useLanguageStore from '../../stores/languageStore';
@@ -276,13 +277,19 @@ const AppLayout = () => {
               <SettingOutlined />
             </button>
             {settingsOpen && (
-              <div className="layout-settings-panel liquid-glass">
+              <div className="layout-settings-panel layout-settings-panel-admin liquid-glass">
+                <div className="layout-settings-panel-head">
+                  <strong>系统设置</strong>
+                  <button type="button" className="layout-settings-close" onClick={() => setSettingsOpen(false)} aria-label="关闭设置">
+                    <CloseOutlined />
+                  </button>
+                </div>
                 <div className="layout-settings-profile">
                   <Avatar size="small" icon={<UserOutlined />} />
                   <span>{profile.name || t('profile')} ({roleLabel(profile.role)})</span>
                 </div>
                 <div className="store-settings-label">{t('settings_language')}</div>
-                <LanguageSwitcher inline showCurrent zIndex={360} tone="light" />
+                <LanguageSwitcher inline showCurrent hideFlag sourceOnly zIndex={360} tone="light" buttonMinWidth={112} menuMinWidth={180} />
                 <div className="fe-settings-divider" />
                 <button type="button" className="store-settings-item" onClick={handleLogout}>
                   <LogoutOutlined /> {t('logout')}
@@ -315,10 +322,3 @@ const AppLayout = () => {
 };
 
 export default AppLayout;
-
-
-
-
-
-
-

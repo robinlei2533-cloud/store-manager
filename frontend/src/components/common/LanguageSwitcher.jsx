@@ -17,6 +17,7 @@ const LanguageSwitcher = ({
   anchor,
   tone = 'dark',
   labelOverride,
+  hideFlag = false,
 }) => {
   const { lang, setLang, t } = useLanguageStore();
   const [open, setOpen] = useState(false);
@@ -90,7 +91,7 @@ const LanguageSwitcher = ({
           backdropFilter: 'blur(12px)',
         }}
       >
-        {!sourceOnly ? current.flag : null}
+        {!sourceOnly && !hideFlag ? current.flag : null}
         {showCurrent ? (labelOverride || current.label) : null}
       </button>
       {open && (
@@ -131,7 +132,7 @@ const LanguageSwitcher = ({
                 onMouseEnter={(event) => { event.currentTarget.style.background = colors.itemHover; }}
                 onMouseLeave={(event) => { event.currentTarget.style.background = selected ? 'rgba(185,137,22,0.10)' : 'transparent'; }}
               >
-                {!sourceOnly && <span style={{ fontSize: 18 }}>{item.flag}</span>}
+                {!sourceOnly && !hideFlag && <span style={{ fontSize: 18 }}>{item.flag}</span>}
                 <span>{item.label}</span>
                 {selected && <span style={{ marginLeft: 'auto', color: '#B98916' }}>&#10003;</span>}
               </div>
