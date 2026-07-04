@@ -58,7 +58,7 @@
   --uwell-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --uwell-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Light workspace tokens — remapped to dark for unified dark theme */
+  /* Light workspace tokens - remapped to dark for unified dark theme */
   --uw-surface-bg: #0a0a0f;
   --uw-surface-bg-soft: #0a0a0f;
   --uw-surface-card: rgba(255,255,255,0.02);
@@ -76,7 +76,7 @@
 
 
 
-/* Typography — design-system.css provides definitive heading hierarchy */
+/* Typography - design-system.css provides definitive heading hierarchy */
 /* Smooth scrolling for entire app */
 html {
   scroll-behavior: smooth;
@@ -5502,4 +5502,176 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
     grid-template-columns: 1fr;
   }
 }
+/* Fan app polish fixes - keep consumer pages readable after UI/data sync. */
+.fe-luxury-benefit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 44px));
+}
 
+.fe-luxury-benefit-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #3a2d14;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(82, 62, 24, 0.12);
+  font-family: Inter, Barlow, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  box-shadow: 0 8px 22px rgba(82, 62, 24, 0.08);
+}
+
+.fe-luxury-join {
+  width: min(430px, calc(100vw - 76px));
+}
+
+.fe-luxury-join p {
+  max-width: 390px;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.fe-luxury-cta {
+  min-width: 150px;
+  min-height: 42px;
+  justify-content: center;
+  gap: 10px;
+  padding: 7px 8px 7px 20px;
+  font-family: Inter, Barlow, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+}
+
+.fe-luxury-cta span {
+  flex: 0 0 auto;
+}
+
+.fan-shell-brand strong {
+  letter-spacing: 0.01em;
+}
+
+.fan-feature-grid-primary,
+.fan-store-strip,
+.fan-reward-grid-home {
+  align-items: stretch;
+}
+
+.fan-store-card {
+  min-width: 0;
+}
+
+.fan-store-card strong {
+  display: block;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
+  font-size: 13px;
+  line-height: 1.18;
+}
+
+.fan-store-card small,
+.fan-store-card em,
+.fan-store-card span {
+  overflow-wrap: anywhere;
+}
+
+.fan-bottom-nav button {
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .fe-luxury-join {
+    left: 38px;
+    right: 38px;
+    bottom: 32px;
+    width: auto;
+    gap: 12px;
+  }
+
+  .fe-luxury-join p {
+    max-width: 300px;
+    font-size: 11px;
+    line-height: 1.32;
+  }
+
+  .fe-luxury-benefit-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 7px;
+    max-width: 240px;
+  }
+
+  .fe-luxury-benefit-row span {
+    justify-content: center;
+    min-height: 30px;
+    font-size: 12px;
+  }
+
+  .fe-luxury-cta {
+    min-width: 146px;
+    min-height: 42px;
+  }
+
+  .fan-shell-header {
+    padding: 10px 12px 8px;
+  }
+
+  .fan-shell .fan-shell-brand strong {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .fan-shell .fan-shell-brand span {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  .fan-shell .fan-icon-btn,
+  .fan-shell .store-settings-trigger {
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .fan-store-strip,
+  .fan-reward-grid-home {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fan-store-card {
+    padding: 13px 12px;
+    min-height: 126px;
+  }
+
+  .fan-store-card strong {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .fan-store-card small {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .fan-bottom-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .fan-bottom-nav button {
+    padding: 6px 2px;
+    gap: 3px;
+  }
+
+  .fan-bottom-nav button span {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+}
