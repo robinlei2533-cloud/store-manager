@@ -930,3 +930,34 @@ Move into pre-launch decision work: choose local trial vs external preview, then
 - Security note:
   - the Supabase access token used in this session appeared in chat and should be revoked/rotated;
   - preview passwords are still temporary and should be changed before a broader external preview.
+
+### 2026-07-06 External Preview Reward Closure
+
+- Deployed a strict external Vercel preview from `frontend/dist`:
+  - `https://dist-nt8w5s95b-robinlei2533-2668s-projects.vercel.app`
+  - build used Supabase env values with local auth/db fallback disabled.
+- Vercel project note:
+  - deployment protection was disabled for the temporary `dist` preview project so the browser acceptance can open without a Vercel login.
+- Fixed production reward closure gaps found during real browser acceptance:
+  - fan reward redemption now creates a Supabase `mall_redemptions` row through `createRewardRedemptionRemote()`;
+  - store reward pickup no longer lets local demo stock validation block remote RPC confirmation;
+  - remote pickup check shows `Remote pickup will be verified by the server`, then `confirm_reward_pickup` remains the authoritative validator.
+- Prepared preview acceptance data through authenticated admin RLS:
+  - `fan.preview@uwell.com` points set to `1000`;
+  - `UWELL Preview Store` confirmed as S-level;
+  - `UWELL Lighter` material and store stock prepared at `5`.
+- Real external browser acceptance on the Vercel preview:
+  - fan login succeeded;
+  - fan redeemed `UWELL Lighter` and received code `UW-EDK6C564`;
+  - store owner login succeeded;
+  - S-level store checked the code and confirmed pickup through RPC;
+  - repeat confirmation rejected with `Code already used`.
+- Remote database confirmation:
+  - `mall_redemptions.redeem_code = UW-EDK6C564` is now `picked_up`;
+  - `UWELL Lighter` stock for `UWELL Preview Store` decreased from `5` to `4`.
+- Verification:
+  - `npm test` passed: 22 test files, 59 tests.
+  - `npm run build` passed; only the known Vite chunk-size / plugin timing warnings remain.
+- Security note:
+  - the Vercel token pasted in chat should be revoked/rotated after deployment work;
+  - the earlier Supabase token should also be revoked/rotated.

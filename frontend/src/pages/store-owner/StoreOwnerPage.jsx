@@ -4,6 +4,7 @@ import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCir
 import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
 import { confirmRewardPickupRemote, getStoreById } from "../../services/api";
+import { isLocal } from "../../services/api/helpers";
 import useLanguageStore from "../../stores/languageStore";
 import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
 import { confirmRewardPickup, validateRewardPickup } from "../../utils/reward-redemption";
@@ -289,7 +290,29 @@ const StoreOwnerPage = () => {
 
   const handleLookupPickupCode = () => {
     const code = pickupCode.trim().toUpperCase();
+    if (!code) {
+      message.warning("Please enter a redemption code");
+      return;
+    }
     const redemption = (localDb.all("mall_redemptions") || []).find((item) => item.redeem_code === code) || null;
+    if (!redemption && !isLocal()) {
+      const validation = store.level === "S"
+        ? { valid: true, message: "Remote pickup will be verified by the server" }
+        : { valid: false, message: "Only S-level UWELL stores can fulfill rewards" };
+      setPickupResult({
+        redemption: {
+          redeem_code: code,
+          item_name: "Remote reward",
+          status: "pending_pickup",
+          remoteOnly: true,
+        },
+        inventoryItem: null,
+        validation,
+      });
+      if (validation.valid) message.success(validation.message);
+      else message.warning(validation.message);
+      return;
+    }
     const inventoryItem = findRewardInventoryItem(redemption);
     const validation = validateRewardPickup({ redemption, store, inventoryItem });
     setPickupResult({ redemption, inventoryItem, validation });

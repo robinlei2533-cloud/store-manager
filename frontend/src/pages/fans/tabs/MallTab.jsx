@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { message, Button, Card, Tag, Row, Col, Statistic, Alert, Modal, Typography } from 'antd';
 import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
-import { addFanPoints } from '../../../services/api';
+import { addFanPoints, createRewardRedemptionRemote } from '../../../services/api';
 import { MALL_ITEMS } from '../../../utils/constants';
 import { createPendingRedemption } from '../../../utils/reward-redemption';
 
@@ -38,7 +38,10 @@ const MallTab = ({ fan, onPointsChange }) => {
       const redeemCode = generateRedeemCode();
       const pendingRedemption = createPendingRedemption({ fan, item, code: redeemCode });
       // status: pending_pickup
-      localDb.insert('mall_redemptions', pendingRedemption);
+      await createRewardRedemptionRemote(
+        pendingRedemption,
+        () => localDb.insert('mall_redemptions', pendingRedemption)
+      );
       await addFanPoints(fan.id, -item.points_cost, 'redeem', 'Mall Redemption', `Redeemed: ${item.name}`);
       onPointsChange?.();
       setRedeemResult({ item, code: redeemCode, expiresAt: pendingRedemption.expires_at });

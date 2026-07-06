@@ -53,6 +53,8 @@ test('store owner dashboard uses English owner-facing copy', () => {
 test('store owner center supports S-level reward pickup', () => {
   assert.match(ownerSource, /validateRewardPickup/);
   assert.match(ownerSource, /confirmRewardPickup/);
+  assert.match(ownerSource, /confirmRewardPickupRemote/);
+  assert.match(ownerSource, /Remote pickup will be verified by the server/);
   assert.match(ownerSource, /Reward Pickup/);
   assert.match(ownerSource, /Only S-level UWELL stores can fulfill rewards/);
   assert.match(ownerSource, /pickupCode/);

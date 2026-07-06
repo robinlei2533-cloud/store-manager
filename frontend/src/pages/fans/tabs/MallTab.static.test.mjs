@@ -7,6 +7,7 @@ const css = readFileSync(new URL('../../../index.css', import.meta.url), 'utf8')
 
 test('redemption success modal uses an isolated readable style scope', () => {
   assert.match(source, /createPendingRedemption/);
+  assert.match(source, /createRewardRedemptionRemote/);
   assert.match(source, /pending_pickup/);
   assert.match(source, /S-level UWELL store/);
   assert.match(source, /className="fan-redemption-modal"/);
