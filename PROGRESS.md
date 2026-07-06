@@ -892,3 +892,41 @@ Move into pre-launch decision work: choose local trial vs external preview, then
 - Recommended next action:
   - make the store public-registration decision first, because strict RLS currently blocks unauthenticated store creation by design;
   - then run one final full browser acceptance pass across Fan / Store / Admin after that decision is implemented.
+
+### 2026-07-06 Reward Pickup RPC Productionization
+
+- User confirmed the next step after Supabase RLS acceptance: productionize the fan reward pickup closure.
+- Added Supabase migration:
+  - `supabase/migrations/20260706000100_reward_pickup_rpc.sql`
+  - creates `public.confirm_reward_pickup(p_redeem_code text)` as the authoritative transaction boundary.
+- RPC behavior:
+  - requires an authenticated store owner;
+  - finds the store bound to `stores.owner_profile_id = auth.uid()`;
+  - rejects non-S-level stores;
+  - locks the redemption row with `FOR UPDATE`;
+  - rejects missing, already used, unavailable, or expired codes;
+  - locks the matched `material_stocks` row with `FOR UPDATE`;
+  - deducts both `quantity` and `qty` safely;
+  - writes a `material_outbound` record;
+  - marks the redemption as `picked_up` with pickup store, owner, and timestamp.
+- Added frontend API wrapper:
+  - `frontend/src/services/api/rewards.js`
+  - exports `confirmRewardPickupRemote()`, calling Supabase RPC in remote mode while preserving the local demo fallback path.
+- Updated Store Owner reward pickup:
+  - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+  - confirmation now calls the remote RPC when Supabase is active.
+- Added repeatable Supabase acceptance setup:
+  - `supabase/acceptance/reward-pickup-rpc-setup.sql`
+  - prepares S-level preview store, reward material, inventory stock, and `UW-RPCHECK1`.
+- Remote Supabase verification:
+  - `supabase db push --linked` applied `20260706000100_reward_pickup_rpc.sql`;
+  - setup SQL returned preview store level `S`, code `UW-RPCHECK1`, stock `3`;
+  - logged in as `store.owner@uwell.com` / `admin` and called RPC;
+  - RPC returned `status: picked_up` and `remaining_quantity: 2`;
+  - repeated RPC call correctly rejected with `Code already used`.
+- Verification:
+  - `npm test` passed: 22 test files, 59 tests.
+  - `npm run build` passed; only the known Vite large chunk warning remains.
+- Security note:
+  - the Supabase access token used in this session appeared in chat and should be revoked/rotated;
+  - preview passwords are still temporary and should be changed before a broader external preview.

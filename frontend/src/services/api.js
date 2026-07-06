@@ -14,3 +14,4 @@ export { getCampaigns, getCampaignById, createCampaign, updateCampaign, deleteCa
 export { getQrCodes, createQrCode, updateQrCode, deleteQrCode, scanQrCode, getScanRecords } from './api/qrcodes';
 export { getProfiles, updateProfile } from './api/profiles';
 export { getDashboardStats, getVisitTrend, getStoreDistribution, getScanTrend, IS_LOCAL_MODE } from './api/dashboard';
+export { confirmRewardPickupRemote } from './api/rewards';

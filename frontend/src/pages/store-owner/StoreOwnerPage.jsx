@@ -3,7 +3,7 @@ import { App, Card, Row, Col, Button, Typography, Tag, Tabs, Modal, Empty, Input
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, StarOutlined, SettingOutlined, LogoutOutlined, GlobalOutlined, PictureOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
-import { getStoreById } from "../../services/api";
+import { confirmRewardPickupRemote, getStoreById } from "../../services/api";
 import useLanguageStore from "../../stores/languageStore";
 import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
 import { confirmRewardPickup, validateRewardPickup } from "../../utils/reward-redemption";
@@ -300,16 +300,18 @@ const StoreOwnerPage = () => {
     message.success(validation.message);
   };
 
-  const handleConfirmRewardPickup = () => {
+  const handleConfirmRewardPickup = async () => {
     if (!pickupResult?.redemption) return;
     try {
-      confirmRewardPickup({
+      const localConfirm = () => confirmRewardPickup({
         localDb,
         redemption: pickupResult.redemption,
         store,
         inventoryItem: pickupResult.inventoryItem,
         pickedUpBy: store.owner_profile_id || store.id,
       });
+
+      await confirmRewardPickupRemote(pickupResult.redemption.redeem_code || pickupCode, localConfirm);
       message.success("Reward pickup confirmed");
       setPickupCode("");
       setPickupResult(null);
