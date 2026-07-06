@@ -6,10 +6,9 @@ import localDb from "../../services/db/localDb";
 import { getStoreById } from "../../services/api";
 import useLanguageStore from "../../stores/languageStore";
 import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
+import { confirmRewardPickup, validateRewardPickup } from "../../utils/reward-redemption";
 
 const { Title, Text } = Typography;
-
-const APP_BG_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4";
 
 // Level-based material bundles
 const LEVEL_MATERIAL_BUNDLES = {
@@ -58,6 +57,8 @@ const StoreOwnerPage = () => {
   const [displayUploads, setDisplayUploads] = useState([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [pickupCode, setPickupCode] = useState("");
+  const [pickupResult, setPickupResult] = useState(null);
   const [editForm] = Form.useForm();
   const { message } = App.useApp();
   const [materialRequesting, setMaterialRequesting] = useState(false);
@@ -104,12 +105,6 @@ const StoreOwnerPage = () => {
 
     if (activeStore) {
       setStore(activeStore);
-      editForm.setFieldsValue({
-        name: activeStore.name,
-        phone: activeStore.phone,
-        address: activeStore.address,
-        contact: activeStore.contact
-      });
     }
 
     const storeClaims = activeStore ? claims.filter((c) => c.store_id === activeStore.id) : [];
@@ -128,7 +123,19 @@ const StoreOwnerPage = () => {
     return () => {
       disposed = true;
     };
-  }, [editForm, navigate]);
+  }, [navigate]);
+
+  const handleOpenEditStore = () => {
+    if (store) {
+      editForm.setFieldsValue({
+        name: store.name,
+        phone: store.phone,
+        address: store.address,
+        contact: store.contact,
+      });
+    }
+    setEditModalOpen(true);
+  };
 
   const handleStoreLogout = () => {
     localStorage.removeItem("store_owner_logged_in");
@@ -262,10 +269,59 @@ const StoreOwnerPage = () => {
   });
   const lowBundleStock = stockRows.filter((item) => item.safety > 0 && item.qty <= item.safety);
 
+  const findRewardInventoryItem = (redemption) => {
+    const material = storeMaterials.find((item) => item.id === redemption?.item_id || item.name === redemption?.item_name);
+    const stocks = localDb.all("material_stocks") || [];
+    const stock =
+      stocks.find((item) => item.store_id === store.id && item.item_id === redemption?.item_id) ||
+      stocks.find((item) => item.store_id === store.id && item.material_id === redemption?.item_id) ||
+      (material ? stocks.find((item) => item.store_id === store.id && item.material_id === material.id) : null) ||
+      null;
+
+    if (!stock) return null;
+    return {
+      ...stock,
+      item_id: stock.item_id || redemption.item_id,
+      material_id: stock.material_id || material?.id || redemption.item_id,
+      quantity_on_hand: stock.quantity_on_hand ?? stock.qty ?? 0,
+    };
+  };
+
+  const handleLookupPickupCode = () => {
+    const code = pickupCode.trim().toUpperCase();
+    const redemption = (localDb.all("mall_redemptions") || []).find((item) => item.redeem_code === code) || null;
+    const inventoryItem = findRewardInventoryItem(redemption);
+    const validation = validateRewardPickup({ redemption, store, inventoryItem });
+    setPickupResult({ redemption, inventoryItem, validation });
+    if (!validation.valid) {
+      message.warning(validation.message);
+      return;
+    }
+    message.success(validation.message);
+  };
+
+  const handleConfirmRewardPickup = () => {
+    if (!pickupResult?.redemption) return;
+    try {
+      confirmRewardPickup({
+        localDb,
+        redemption: pickupResult.redemption,
+        store,
+        inventoryItem: pickupResult.inventoryItem,
+        pickedUpBy: store.owner_profile_id || store.id,
+      });
+      message.success("Reward pickup confirmed");
+      setPickupCode("");
+      setPickupResult(null);
+    } catch (err) {
+      message.error(err?.message || "Reward pickup failed");
+    }
+  };
+
   // ====== Dashboard Tab ======
   const Dashboard = () => (
     <div className="store-dashboard-v2">
-      <Card size="small" className="so-card-main store-dashboard-hero" extra={<Button type="link" icon={<EditOutlined />} className="so-text-gold" onClick={() => setEditModalOpen(true)}>{t('edit')}</Button>}>
+      <Card size="small" className="so-card-main store-dashboard-hero" extra={<Button type="link" icon={<EditOutlined />} className="so-text-gold" onClick={handleOpenEditStore}>{t('edit')}</Button>}>
         <div className="store-dashboard-hero-grid">
           <div>
             <Text className="so-text-white30 so-fs11">Store Level</Text>
@@ -583,16 +639,62 @@ const StoreOwnerPage = () => {
     </div>
   );
 
+  const RewardPickupTab = () => (
+    <div>
+      <Card size="small" className="so-card-subtle store-dashboard-section" title="Reward Pickup">
+        <div className="so-flex-gap8" style={{ alignItems: "stretch" }}>
+          <Input
+            value={pickupCode}
+            onChange={(event) => setPickupCode(event.target.value)}
+            placeholder="Enter redemption code"
+            className="so-input-dark"
+          />
+          <Button type="primary" onClick={handleLookupPickupCode}>Check</Button>
+        </div>
+        <div className="so-text-white30 so-fs11 so-mt8">
+          Only S-level UWELL stores can fulfill rewards.
+        </div>
+      </Card>
+
+      {store.level !== "S" && (
+        <Card size="small" className="so-card-dark-border">
+          <Tag color="volcano">Only S-level UWELL stores can fulfill rewards</Tag>
+        </Card>
+      )}
+
+      {pickupResult?.redemption && (
+        <Card size="small" className="so-card-dark-border">
+          <div className="store-dashboard-row">
+            <div>
+              <strong>{pickupResult.redemption.item_name}</strong>
+              <p>{pickupResult.redemption.redeem_code}</p>
+              <p>Status: {pickupResult.redemption.status}</p>
+            </div>
+            <Tag color={pickupResult.validation.valid ? "green" : "volcano"}>{pickupResult.validation.message}</Tag>
+          </div>
+          <Button
+            type="primary"
+            disabled={!pickupResult.validation.valid}
+            onClick={handleConfirmRewardPickup}
+            block
+          >
+            Confirm Pickup
+          </Button>
+        </Card>
+      )}
+    </div>
+  );
+
   const tabItems = [
     { key: "dashboard", label: <span><ShopOutlined /> Overview</span>, children: <Dashboard /> },
     { key: "showcase", label: <span><PictureOutlined /> Display</span>, children: <ShowcaseTab /> },
     { key: "campaigns", label: <span><FireOutlined /> Campaigns</span>, children: <CampaignsTab /> },
-    { key: "materials", label: <span><GiftOutlined /> Materials ({levelBundle.materials.length})</span>, children: <MaterialsTab /> },
+    { key: "materials", label: <span><GiftOutlined /> Materials</span>, children: <MaterialsTab /> },
+    { key: "reward-pickup", label: <span><GiftOutlined /> Reward Pickup</span>, children: <RewardPickupTab /> },
   ];
 
   return (
     <div className="so-page app-liquid-shell store-liquid-shell bg-radial-center">
-      <video className="app-liquid-bg-video" src={APP_BG_VIDEO} muted autoPlay loop playsInline preload="auto" />
       <div className="app-liquid-bg-scrim" />
       {/* Header */}
       <div className="so-flex-between-mb store-liquid-header liquid-glass">

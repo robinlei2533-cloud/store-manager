@@ -1,6 +1,6 @@
 # UWELL CRM Project Progress
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 ## Project Positioning
 
@@ -177,8 +177,191 @@ Known local demo accounts:
 
 ## Verification Already Completed
 
+### 2026-07-05 Three-Portal Acceptance Pass
+
+- Browser acceptance was completed against local Vite. An intermediate run used `http://127.0.0.1:5174/` because port `5173` was occupied; the final verified run passed on the standard `http://127.0.0.1:5173/`.
+- `frontend/scripts/ux-smoke.cjs` was repaired for the current approved Fan Entry design and expanded into a three-portal flow check.
+- Passed browser checks at:
+  - 390px mobile
+  - 768px tablet
+  - 1440px desktop
+- Covered flows:
+  - Fan Entry hero, settings, join/sign-in modal, registration country/city, age/privacy confirmations, registration into Fan Center.
+  - Fan Center home actions, bottom navigation, scan/activity/rewards/stores/profile views, fan settings without store-entry exposure.
+  - Store login/register, country/city registration, pending review entry into Store Owner, Overview/Display/Campaigns/Materials tabs, store settings.
+  - Admin login, dashboard, stores, visits, evaluation, campaigns, materials, fans, settings/users.
+  - Field rep login and direct settings access block.
+- Fixes from this pass:
+  - Store Owner mobile tabs no longer overflow by removing the non-essential `Materials (n)` count from the tab label.
+  - Store Owner edit form no longer calls `setFieldsValue` before the modal form is mounted; form values are applied when opening the edit modal.
+  - Admin mobile tabs now use a compact one-line grid layout to avoid short tab labels overflowing.
+  - Leaflet maps now disable zoom/fade transition animation and use safer teardown guards to avoid `_leaflet_pos` errors during rapid route changes.
+- Verification commands:
+  - `UX_BASE_URL=http://127.0.0.1:5173 node scripts/ux-smoke.cjs` passed.
+  - `npm run build` passed.
+  - Existing Node `.test.mjs` / `.static.test.mjs` files all passed before the Vitest migration.
+
+### 2026-07-05 Test Command Wiring
+
+- Added `vitest` as a frontend dev dependency.
+- Added `npm test` script in `frontend/package.json`.
+- Switched existing lightweight `.test.mjs` and `.static.test.mjs` files from Node's `node:test` import to Vitest's `test` import.
+- Added Vitest include config in `vite.config.js` so `npm test` runs only the intended `src/**/*.test.mjs` files and does not accidentally run Playwright e2e specs.
+- Verification commands:
+  - `npm test` passed: 7 test files, 16 tests.
+  - `npm run build` passed.
+
+### 2026-07-05 Fan Entry Particle Removal / Local Access Check
+
+- Investigated the user's "cannot open" report for `http://127.0.0.1:5173/index.html#/admin`.
+- Confirmed local Vite was listening on port `5173` and both `127.0.0.1` and `localhost` returned HTTP 200.
+- Confirmed with Playwright that the admin login page renders text successfully with no page-level JavaScript error.
+- Removed the Fan Entry bio-digital particle background because it no longer served the approved visual direction.
+- Deleted the now-unused `BioDigitalBackground.jsx` component and removed its CSS class from `src/index.css`.
+- Verified Fan Entry in browser automation:
+  - Join / Sign in CTA visible.
+  - Removed particle canvas count is `0`.
+  - Mobile screenshot saved at `frontend/output/fan-entry-no-particles-mobile.png`.
+- Verification commands:
+  - `npm test` passed: 7 test files, 16 tests.
+  - `npm run build` passed.
+
+### 2026-07-05 Store Center Particle Removal / Admin Readability Fix
+
+- Removed the store app entry-level `bg-particles` canvas and inline particle animation from `frontend/store-app.html`.
+- Removed the Store Owner background video node from `StoreOwnerPage.jsx`.
+- Added Store Owner CSS overrides so the page uses a calm light gradient without gold particle/radial background noise.
+- Fixed Admin workspace Select/Input/Tag/disabled-button readability:
+  - Ant Design 6 Select root nodes now use white backgrounds and dark readable text.
+  - Disabled select/input states now use light beige backgrounds with visible dark text.
+  - Admin tags use readable dark text on light semantic surfaces.
+- Browser verification:
+  - Store Owner `canvasCount=0` and `bg-particles=0`.
+  - Admin Store Management filter selects render as white/light controls with dark text.
+  - Screenshots saved at `frontend/output/store-owner-no-particles.png` and `frontend/output/admin-stores-readable.png`.
+- Verification commands:
+  - `npm test` passed: 7 test files, 16 tests.
+  - `npm run build` passed.
+
+### 2026-07-05 Admin Audit Page Crash / Background Cleanup
+
+- Fixed the Admin Audit page runtime crash by importing the missing Ant Design `Spin` component in `AuditLogPage.jsx`.
+- Removed the Audit page's local `bg-radial-top` wrapper in local-demo messaging so it no longer reintroduces gold radial background effects.
+- Added Admin workspace CSS hardening:
+  - hide canvas effects inside `.admin-liquid-shell`;
+  - remove the Admin scrim's gold radial highlight;
+  - force `.admin-ref-content` to use no background image.
+- Browser verification after admin login:
+  - `#/app/settings/audit` no longer shows `Unexpected Application Error`.
+  - `Spin is not defined` is gone.
+  - visible canvas count is `0`.
+  - Audit page resolves to the readable empty state `No audit logs found`.
+  - Screenshot saved at `frontend/output/admin-audit-after-login-wait.png`.
+- Verification commands:
+  - `npm test` passed: 7 test files, 16 tests.
+  - `npm run build` passed.
+
+### 2026-07-05 Fan Rewards Readability Fix
+
+- Fixed the Fan Center rewards help alert selected in browser review:
+  - `How rewards work` title now uses dark readable text.
+  - The reward instructions now use a clear dark-brown text on a warm light background.
+  - The alert icon and border now match the readable light theme.
+- Fixed rewards card helper text such as `more points needed` / `Ready to redeem` so it is no longer white-on-white.
+- Browser verification:
+  - Checked at 599 x 698 viewport.
+  - Screenshot saved at `frontend/output/fan-reward-help-fixed-final.png`.
+  - Computed colors confirm title and description are dark readable values.
+- Verification commands:
+  - `npm test` passed: 7 test files, 16 tests.
+  - `npm run build` passed.
+
+### 2026-07-05 Three-Portal Acceptance / Particle Closure
+
+- Continued the planned three-portal browser acceptance pass after the latest user approval.
+- Repaired `frontend/scripts/ux-smoke.cjs` so it matches the current no-particle design direction instead of expecting the removed bio-digital background.
+- Added a smoke-test guard against reintroducing particle/background canvases:
+  - `#bg-particles`
+  - `.bg-particles`
+  - `.fe-bio-digital-canvas`
+  - `.fe-luxury-canvas`
+- Removed the remaining Fan Entry canvas animation:
+  - deleted the unused `CaliburnHeroCanvas.jsx` component;
+  - replaced it with a static CALIBURN product image layer so the hero keeps real product visuals without animated canvas effects.
+- Removed the Admin entry `index.html` inline `#bg-particles` canvas and animation script, which was the remaining yellow particle source on the admin login page.
+- Browser acceptance:
+  - `node scripts/ux-smoke.cjs` passed across mobile, tablet, and desktop.
+  - Supplemental browser checks showed `canvasCount=0` and no horizontal overflow for:
+    - Fan Entry
+    - Fan Center
+    - Store Login
+    - Store Owner
+    - Admin Login
+  - Screenshots saved under `frontend/output/acceptance-2026-07-05/`.
+- Verification commands:
+  - `npm test` passed: 7 test files, 16 tests.
+  - `npm run build` passed.
+
+### 2026-07-05 Real Trial Data Pack
+
+- Continued into the recommended Phase 2 real trial data pass.
+- Added a seed-data enhancement layer in `frontend/src/services/db/seedData.js`:
+  - normalized all seeded stores with `country`, `city`, `status`, `owner_name`, `owner_phone`, `display_status`, `rating_status`, and assigned `rep_id`;
+  - normalized all seeded fans with `email`, `country`, `city`, `points`, and `total_contribution`;
+  - added `scanned_at` to seeded scan records for dashboard/report compatibility;
+  - added material request examples covering `pending`, `approved`, and `rejected` states;
+  - added `trial_accounts` documentation data for admin, manager, rep, store, and fan demo use.
+- Added seeded local `auth` records for the main staff demo accounts:
+  - `admin@uwell.com / admin`
+  - `manager@uwell.com / admin`
+  - `rep1@uwell.com / admin`
+  - `rep2@uwell.com / admin`
+  - `rep3@uwell.com / admin`
+- Added `auth` to local DB table initialization and bumped the local DB version from `5.3` to `5.4`, so existing browser localStorage reinitializes with the improved trial data.
+- Added `frontend/src/services/db/seedData.test.mjs` to lock the trial data requirements:
+  - demo accounts exist;
+  - stores have city-operation fields;
+  - fans and scan records are ready for fan-center demos;
+  - material requests include pending/approved/rejected states.
+- Browser verification after clearing localStorage:
+  - local DB version initialized as `5.4`;
+  - stores: `80`;
+  - fans: `8`;
+  - auth records: `5`;
+  - material requests: `3`;
+  - missing store city/owner/status fields: `0`;
+  - missing fan city/email fields: `0`.
+- Verification commands:
+  - `npx vitest run src/services/db/seedData.test.mjs` passed: 1 file, 4 tests.
+  - `npm test` passed: 8 files, 20 tests.
+  - `npm run build` passed.
+  - `node scripts/ux-smoke.cjs` passed across mobile, tablet, and desktop.
+
+### 2026-07-05 UX Copy / Visual Closure And Ant Design 6 Cleanup
+
+- Continued Phase 3 after user approval.
+- Cleaned Admin global shell visible mojibake:
+  - field-rep menu labels now show `地推工作台`, `负责门店`, `活动执行`;
+  - complaint menu labels now show `粉丝客诉` and `客诉回复`;
+  - Admin settings panel title and close label now show `系统设置` and `关闭设置`.
+- Kept Fan and Store external entry flows English-first.
+- Replaced Ant Design 6 deprecated APIs in active user flows:
+  - `Statistic.valueStyle` -> `styles.content`;
+  - `Modal.destroyOnClose` -> `destroyOnHidden`;
+  - mobile Admin `Drawer.width` -> `size`;
+  - mobile Admin `Drawer.styles.content` -> `styles.section`;
+  - static Admin login `message.*` -> `App.useApp()`;
+  - Admin dashboard AntD `List` usage replaced with a small local `CompactList` wrapper to avoid the deprecated `List` component warning.
+- Browser warning verification showed no AntD warnings on Admin login, Admin dashboard, Admin stores list, Admin audit, Admin materials, Admin settings drawer, Fan center, and Store login.
+- Verification commands:
+  - `npm test` passed: 8 files, 20 tests.
+  - `node scripts/ux-smoke.cjs` passed across mobile, tablet, and desktop.
+  - `npm run build` passed.
+
 Recent verified commands:
 
+- `npm test` passed: 8 files, 20 tests.
+- `node scripts/ux-smoke.cjs` passed across mobile, tablet, and desktop.
 - `npm run build` passed.
 - GitHub push succeeded for branch `codex/uwell-trial-ops-sync`.
 - Supabase `db push` succeeded after retry.
@@ -201,20 +384,13 @@ Note:
 
 ### High Priority
 
-1. Full three-portal acceptance test is not yet complete in this session.
-   - Need to manually or automatically run:
-     - fan registration -> fan center -> campaign -> store recommendation -> points/rewards
-     - store registration -> pending/trial state -> store owner center
-     - admin login -> store/fan/campaign/material views
-     - field-rep login -> restricted menu/data scope
-
-2. `ux-smoke.cjs` needs review.
-   - It failed on the fan-entry title check after the dev server was restarted.
-   - Need to confirm whether the page regressed or the smoke script assertion is stale.
-
-3. Public launch readiness is not complete.
+1. Public launch readiness is not complete.
    - No final production deployment process has been locked.
    - No custom domain / SSL / monitoring / analytics setup is confirmed.
+
+2. Ant Design 6 deprecation warnings remain.
+   - Known warnings include `Statistic.valueStyle`, `Modal.destroyOnClose`, `List`, `Alert.message`, static `message`, and Drawer style APIs.
+   - They did not block the acceptance pass, but should be cleaned up in a future compatibility pass.
 
 ### Medium Priority
 
@@ -227,9 +403,9 @@ Note:
    - Fan and store portals are mostly English-first.
    - Some demo/seed content and internal mixed Chinese/English copy remains.
 
-6. Real trial data still needs curation.
-   - Seed data exists and includes realistic stores/campaigns.
-   - Before real trial, prepare the exact admin, manager, rep, store, and fan test accounts.
+6. Real trial data has a usable local demo pack, but final production trial curation is still needed.
+   - Local seed data now includes normalized stores, fans, staff auth records, and material request examples.
+   - Before external trial, confirm the final real account list and whether demo passwords should remain enabled.
 
 7. Dashboard data is still partially demo/fallback driven.
    - Supabase is now aligned, but the app still keeps local fallback behavior for trial/demo resilience.
@@ -376,4 +552,343 @@ If a new Codex conversation starts, read this file first, then inspect:
 
 Current recommended next action:
 
-Review and repair the acceptance smoke test, then run a full three-portal acceptance pass and update this file with the verified results.
+Move into pre-launch decision work: choose local trial vs external preview, then lock deployment, env vars, Supabase auth/RLS behavior, domain/SSL, analytics, monitoring, privacy, and terms.
+
+### 2026-07-05 Pre-Launch Decision Start
+
+- User confirmed the next focus should be pre-launch decision work.
+- Recommended direction: run a controlled external preview first, not full public launch yet.
+- Added `PRELAUNCH-DECISION.md` with the current readiness decision, deployment recommendation, and blocking checklist.
+- Current recommendation:
+  - use Vercel for a controlled external preview;
+  - use `frontend` as the deployment root;
+  - prefer `frontend/vercel.json` because it preserves the three HTML entries;
+  - do not use the root `vercel.json` as-is because it rewrites all routes to `index.html`;
+  - keep local trial available, but set `VITE_ALLOW_LOCAL_AUTH_FALLBACK=false` when testing real Supabase data externally.
+- Current high-priority pre-preview risks:
+  - deployment config duplication between root and `frontend`;
+  - local fallback can hide Supabase failures in external preview;
+  - root migrations enable RLS but do not contain complete role policies for all tables;
+  - monitoring is still a stub;
+  - privacy policy and terms copy need to exist before real user data collection.
+- Verification after adding the pre-launch decision document:
+  - `npm test` passed: 8 files, 20 tests.
+  - `npm run build` passed; only the existing large chunk warning remains.
+  - `node scripts/ux-smoke.cjs` passed: three-portal UX acceptance checks passed.
+- Decision items to lock next:
+  - local-only trial vs external preview vs public launch;
+  - deployment provider and preview URL;
+  - environment variable list without editing `.env` blindly;
+  - Supabase auth, RLS, and local fallback behavior;
+  - domain / SSL timing;
+  - analytics, error monitoring, backup plan;
+  - privacy policy and terms readiness.
+
+### 2026-07-05 Deployment Config / Preview Fallback Hardening
+
+- Continued after user approved the next pre-launch step.
+- Added `frontend/src/services/api/helpers.test.mjs`:
+  - verified real-data preview can disable data-layer local fallback with `VITE_ALLOW_LOCAL_DB_FALLBACK=false`;
+  - verified local development can still use local fallback;
+  - verified demo preview can explicitly opt in with `VITE_ALLOW_LOCAL_DB_FALLBACK=true`.
+- Updated `frontend/src/services/api/helpers.js`:
+  - added `shouldAllowLocalDbFallback`;
+  - changed `withFallback` so Supabase failures are thrown in strict external preview instead of silently switching to localStorage.
+- Added `frontend/src/utils/deployConfig.test.mjs` to lock Vercel three-entry routing for both root and `frontend` configs.
+- Updated root `vercel.json`:
+  - removed the build-time `npm install` command from `buildCommand`;
+  - added `installCommand` using pnpm frozen lockfile for root-level Vercel imports;
+  - added direct rewrites for `fan-app.html` and `store-app.html`.
+- Updated `frontend/.env.example` with:
+  - `VITE_ALLOW_LOCAL_AUTH_FALLBACK=false`;
+  - `VITE_ALLOW_LOCAL_DB_FALLBACK=false`.
+- Updated `PRELAUNCH-DECISION.md` to mark deployment config as preview-ready and identify the next blockers:
+  - choose demo-preview vs real-data-preview;
+  - verify Supabase RLS;
+  - add minimal privacy/terms copy before real users.
+- Verification:
+  - `npx vitest run src/services/api/helpers.test.mjs` first failed because `shouldAllowLocalDbFallback` did not exist, then passed after implementation.
+  - `npx vitest run src/utils/deployConfig.test.mjs` first failed because root `vercel.json` lacked Fan/Store rewrites, then passed after config alignment.
+  - `npm test` passed: 10 files, 25 tests.
+  - `npm run build` passed; only the existing large chunk warning remains.
+  - `node scripts/ux-smoke.cjs` passed: three-portal UX acceptance checks passed.
+
+### 2026-07-05 Next Decision: Supabase RLS And UI Timing
+
+- User confirmed the next recommended focus: Supabase RLS permission acceptance.
+- Planned RLS acceptance scope:
+  - Admin can see and manage company-wide operating data.
+  - Manager can see company-wide operating data except restricted system settings.
+  - Field rep can only see assigned-store/assigned-work data.
+  - Store owner can only see and update their own store-facing data.
+  - Fan can only see and update their own fan profile, points, rewards, scans, and activity records.
+- UI timing decision:
+  - Continue UI readability and polish fixes before preview.
+  - Avoid large layout redesigns after RLS/deployment lock unless they are clearly needed.
+  - After all production foundations are ready, UI can still be modified, but changes should be handled as controlled iterations with smoke tests/build checks after each round.
+
+### 2026-07-05 Supabase RLS Permission Acceptance Pass
+
+- Continued into Supabase RLS permission acceptance after user approval.
+- Confirmed the existing migrations enabled RLS on some tables but did not define complete `CREATE POLICY` coverage.
+- Added `supabase/migrations/20260705000100_rls_role_policies.sql`:
+  - adds `store_owner` as a supported `profiles.role`;
+  - adds `stores.owner_profile_id` for Store owner binding;
+  - adds `stores.rep_id` for field-rep assignment binding;
+  - adds helper functions for role and ownership checks:
+    - `current_profile_role`
+    - `is_admin_or_manager`
+    - `is_admin_role`
+    - `is_rep_assigned_to_store`
+    - `is_store_owner`
+    - `is_fan_owner`
+    - `can_access_store`
+    - `can_access_fan`
+  - enables RLS and creates authenticated-only policies for the core CRM tables across Admin / Manager / Rep / Store / Fan boundaries.
+- Added `SUPABASE-RLS-ACCEPTANCE.md` with:
+  - human-readable identity access matrix;
+  - SQL checks for RLS/policy coverage;
+  - browser-flow checks for external preview;
+  - a note that real Store owner preview should bind stores to Supabase Auth profiles through `stores.owner_profile_id`.
+- Added `frontend/src/utils/supabaseRlsPolicies.test.mjs`:
+  - first failed because the RLS migration did not exist;
+  - passed after the migration was added.
+- Verification:
+  - `npx vitest run src/utils/supabaseRlsPolicies.test.mjs` passed: 1 file, 4 tests.
+  - `npm test` passed: 11 files, 29 tests.
+  - `npm run build` passed; only the known large chunk warning remains.
+  - `node scripts/ux-smoke.cjs` passed: three-portal UX acceptance checks passed.
+- Remaining RLS deployment step:
+  - apply the new migration to the remote Supabase project;
+  - create/bind real preview users for Admin, Manager, Rep, Store owner, and Fan;
+  - run the SQL checks and browser-flow checks from `SUPABASE-RLS-ACCEPTANCE.md`.
+
+### 2026-07-05 Supabase Remote RLS Push Attempt
+
+- Continued the next step: prepare to apply the RLS migration to remote Supabase.
+- Confirmed Supabase CLI is available without installing dependencies:
+  - `npx --no-install supabase --version` returned `2.109.0`.
+- Confirmed linked Supabase project ref:
+  - `rdsrgpnvzcchqlsghsrq`.
+- Remote migration commands are currently blocked by missing credentials:
+  - `npx --no-install supabase migration list` failed with `Access token not provided`.
+  - `npx --no-install supabase db push --yes` failed with `Access token not provided`.
+- No `.env` file was edited and no dependencies were installed.
+- Next required action:
+  - provide a valid `SUPABASE_ACCESS_TOKEN` in the terminal session or run `supabase login`;
+  - then rerun `npx --no-install supabase db push --yes`;
+  - after push, rerun `npx --no-install supabase migration list` and the SQL checks from `SUPABASE-RLS-ACCEPTANCE.md`.
+
+### 2026-07-05 Supabase Remote RLS Migration Applied
+
+- User provided a Supabase access token for the current terminal session.
+- Used the token only as a temporary process environment variable; no `.env` file was edited.
+- Verified the remote project before push:
+  - project ref: `rdsrgpnvzcchqlsghsrq`;
+  - `npx --no-install supabase migration list` showed local `20260705000100` was not yet remote.
+- First `db push` attempt failed due to a transient TLS handshake timeout while initializing the Supabase login role.
+- Retried `npx --no-install supabase db push --yes`; the migration applied successfully:
+  - `20260705000100_rls_role_policies.sql`.
+- The push ended with a Docker Desktop local-cache warning only; the remote migration itself finished successfully.
+- Verified with `npx --no-install supabase migration list`:
+  - local `20260705000100`;
+  - remote `20260705000100`.
+- Security note:
+  - because the access token appeared in chat, rotate/revoke it in Supabase Account Settings after this work.
+- Next recommended step:
+  - create or confirm real Supabase Auth preview users for Admin / Manager / Rep / Store owner / Fan;
+  - bind `stores.rep_id`, `stores.owner_profile_id`, and `fans.user_id`;
+  - run the SQL and browser acceptance checks from `SUPABASE-RLS-ACCEPTANCE.md`.
+
+### 2026-07-05 Supabase Preview Identity Binding Prepared
+
+- Continued into the real preview identity binding step.
+- Confirmed current terminal is not authenticated for remote Supabase queries:
+  - `npx --no-install supabase db query --linked "select current_database() as db, current_user as role;"` failed with `Access token not provided`.
+- Did not reuse the previously pasted access token because it has appeared in chat and should be revoked/rotated.
+- Added `supabase/acceptance/preview-identity-binding.sql`:
+  - requires real Supabase Auth users for `admin@uwell.com`, `manager@uwell.com`, `rep1@uwell.com`, `store.owner@uwell.com`, and `fan.preview@uwell.com`;
+  - upserts matching `public.profiles` rows using real `auth.users.id` UUIDs;
+  - binds `stores.rep_id` to the real field-rep profile;
+  - binds `stores.owner_profile_id` to the real store-owner profile;
+  - binds `fans.user_id` to the real fan profile;
+  - creates a small phone-based preview store/fan record if needed so UUID primary keys remain valid on the remote schema.
+- Added `supabase/acceptance/preview-identity-checks.sql` to report:
+  - missing Auth users;
+  - missing/mismatched profile roles;
+  - Store rep/owner binding status;
+  - Fan user binding status.
+- Added `frontend/src/utils/supabasePreviewBindings.test.mjs`:
+  - first failed because the SQL files did not exist;
+  - passed after the binding/check SQL files were added.
+- Verification:
+  - `npx vitest run src/utils/supabasePreviewBindings.test.mjs` passed: 1 file, 4 tests.
+  - `npm test` passed: 12 files, 33 tests.
+- Next required action:
+  - create the five real Supabase Auth preview users in Dashboard;
+  - generate a new Supabase access token;
+  - run the two SQL files via `supabase db query --linked`;
+  - then run the RLS SQL checks and browser-flow checks.
+
+### 2026-07-05 Supabase Preview Users Bound And RLS SQL Accepted
+
+- User approved reusing the previously pasted Supabase access token for this step.
+- Used the token only as a temporary process environment variable; no `.env` file was edited.
+- First `preview-identity-binding.sql` run connected to remote but failed because four Auth users were missing:
+  - `manager@uwell.com`
+  - `rep1@uwell.com`
+  - `store.owner@uwell.com`
+  - `fan.preview@uwell.com`
+- Added `supabase/acceptance/create-preview-auth-users.sql` to create missing preview Auth users with temporary password `admin`.
+- Adjusted the Auth creation SQL for the current remote Supabase Auth schema:
+  - removed manual writes to generated `auth.users.confirmed_at`;
+  - removed manual writes to generated `auth.identities.email`.
+- Created/confirmed five remote Auth users:
+  - `admin@uwell.com`
+  - `manager@uwell.com`
+  - `rep1@uwell.com`
+  - `store.owner@uwell.com`
+  - `fan.preview@uwell.com`
+- Re-ran `supabase/acceptance/preview-identity-binding.sql`; binding succeeded:
+  - remote preview store id: `bc13408d-ca13-4d22-91a7-f1aac5f11973`;
+  - remote preview fan id: `5420d620-7f42-4319-a2c4-c8a45391cb2f`;
+  - `stores.rep_id` bound to `rep1@uwell.com`;
+  - `stores.owner_profile_id` bound to `store.owner@uwell.com`;
+  - `fans.user_id` bound to `fan.preview@uwell.com`.
+- Re-ran `supabase/acceptance/preview-identity-checks.sql`; all returned `status: ok`.
+- RLS SQL acceptance initially found six legacy `anon` policies:
+  - `profiles_public_fan_read`
+  - `profiles_public_fan_registration`
+  - `stores_public_read`
+  - `stores_public_trial_registration`
+  - `fans_public_read`
+  - `fans_public_trial_registration`
+- Added migration `supabase/migrations/20260705000200_drop_public_trial_policies.sql` to remove those public trial policies.
+- Updated `frontend/src/utils/supabaseRlsPolicies.test.mjs` so the cleanup migration is covered by tests.
+- Pushed migration `20260705000200_drop_public_trial_policies.sql` to remote Supabase.
+  - First push attempt hit a TLS handshake timeout.
+  - Retry succeeded.
+  - Docker Desktop warning only affected local migration cache, not remote migration application.
+- Final RLS SQL summary:
+  - `rls_enabled_tables`: 18
+  - `protected_table_count`: 18
+  - `tables_with_policy`: 18
+  - `policy_table_count`: 18
+  - `anon_policy_count`: 0
+- `npx --no-install supabase migration list` confirmed local and remote both include `20260705000200`.
+- Verification:
+  - `npx vitest run src/utils/supabaseRlsPolicies.test.mjs` passed: 1 file, 5 tests.
+  - `npm test` passed: 12 files, 34 tests.
+- Security note:
+  - revoke/rotate the pasted Supabase access token after this session;
+  - change or delete the temporary preview users before broader external preview.
+- Next recommended step:
+  - run browser login/data-flow acceptance against real Supabase preview with local fallback disabled;
+  - verify Admin / Manager / Rep / Store / Fan cannot cross data boundaries in the actual app UI.
+
+### 2026-07-06 Real Browser RLS Permission Acceptance
+
+- Ran production-preview browser acceptance at `http://127.0.0.1:4173` after building with:
+  - `VITE_ALLOW_LOCAL_AUTH_FALLBACK=false`
+  - `VITE_ALLOW_LOCAL_DB_FALLBACK=false`
+- Repaired remote preview Auth users so all five test identities can sign in with the temporary password `admin`:
+  - `admin@uwell.com`
+  - `manager@uwell.com`
+  - `rep1@uwell.com`
+  - `store.owner@uwell.com`
+  - `fan.preview@uwell.com`
+- Root cause of Auth failure:
+  - four SQL-created Auth users had nullable token/metadata fields that caused Supabase Auth login to return `Database error querying schema`;
+  - `admin@uwell.com` existed but did not use the expected temporary password.
+- Verified Auth API now returns 200 for all five preview users.
+- Fixed Rep assigned-store browser flow:
+  - added `getScopedStoreRows` in `frontend/src/utils/uwellRoleAccess.js`;
+  - updated `StoreListPage.jsx` so reps use Supabase-returned rows instead of replacing them with local demo stores;
+  - browser verified `rep1@uwell.com` sees exactly the bound `UWELL Preview Store` and cannot access fan list or settings by direct URL.
+- Fixed Fan real-data display:
+  - changed Fan Center query from `initialData` to `placeholderData` so local fans do not mask remote Supabase fan data;
+  - browser verified `fan.preview@uwell.com` shows `UWELL Preview Fan`, not local `Ahmed / f-001`.
+- Fixed Store owner real Supabase login:
+  - Store Entry now supports owner email/password login while preserving the original store ID/phone flow;
+  - browser verified `store.owner@uwell.com / admin` creates a Supabase session and opens remote `UWELL Preview Store`, not local `s-real-001`.
+- Browser permission results:
+  - Admin: can access dashboard, stores, fans, users, audit.
+  - Manager: can access operating pages and fan list; direct settings/users and audit URLs redirect back to dashboard.
+  - Rep: can access dashboard and assigned store only; direct fan list and settings URLs redirect back to dashboard.
+  - Store owner: can access only the bound remote store owner center.
+  - Fan: can access only the bound remote fan center.
+- Visual checks during browser acceptance:
+  - Fan / Store mobile checks had `canvasCount=0`;
+  - no horizontal overflow in the verified mobile Fan and Store flows.
+- Added tests:
+  - `frontend/src/utils/uwellRoleAccess.test.mjs`
+  - `frontend/src/pages/store-owner/StoreEntryPage.static.test.mjs`
+  - expanded `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+- Verification:
+  - `npx vitest run src/utils/uwellRoleAccess.test.mjs` passed.
+  - `npx vitest run src/pages/fans/FanCenterPage.static.test.mjs` passed.
+  - `npx vitest run src/pages/store-owner/StoreEntryPage.static.test.mjs` passed.
+  - `npm test` passed: 13 files, 37 tests.
+  - `npm run build` passed; only the known large chunk warning remains.
+- Known remaining issue:
+  - `node scripts/ux-smoke.cjs` against strict preview fails in the Store public-registration branch because unauthenticated store creation is now correctly blocked by RLS with 401. Product decision needed: use a controlled registration API / Edge Function, or require authenticated store-owner registration for real preview.
+- Security note:
+  - the Supabase access token pasted in chat should be revoked/rotated;
+  - the temporary preview user password `admin` should be changed before any broader external preview.
+
+### 2026-07-06 Fan Center Modal Readability Closure
+
+- Continued the browser UI acceptance round after the user selected unreadable Fan Center modal areas.
+- Fixed the Fan scan-code modal:
+  - added scoped modal classes in `frontend/src/pages/fans/tabs/ScanTab.jsx`;
+  - removed the old dark inline modal styling that made Ant Design modal layers look muddy;
+  - added a clear light modal surface, readable title/body text, white input field, and stronger submit button treatment.
+- Fixed the Fan redemption-success modal:
+  - updated `frontend/src/pages/fans/tabs/MallTab.jsx`;
+  - narrowed the modal to a more readable width;
+  - separated the success message from the redemption-code panel so long codes do not feel like they overflow;
+  - added wrapping and contrast-safe code styling.
+- Added high-specificity Ant Design 6 modal styles in `frontend/src/index.css`:
+  - covers both `.ant-modal-content` and `.ant-modal-container`, because the browser selection often targets the container layer;
+  - keeps the modal surface opaque and readable after the entry animation settles.
+- Added/updated regression tests:
+  - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`;
+  - `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`.
+- Browser visual verification at `http://127.0.0.1:4173/fan-app.html#/fan-center`:
+  - scan-code modal has a stable light background and dark readable text;
+  - redemption-success modal has no visible text overflow and the redemption code wraps cleanly;
+  - screenshots saved under `frontend/output/playwright/`.
+- Verification:
+  - `npm test` passed: 19 test files, 47 tests.
+  - `npm run build` passed; only the known Vite chunk-size / plugin timing warnings remain.
+
+### 2026-07-06 Local Archive Checkpoint
+
+- User requested a local archive/progress update.
+- Updated this `PROGRESS.md` checkpoint so the next session can continue without reconstructing context from chat.
+- Current practical project state:
+  - three portals are usable locally and in strict preview-style browser checks;
+  - core Supabase RLS migration and preview identity binding have been applied and verified;
+  - Admin / Manager / Rep / Store / Fan permission boundaries have passed real browser acceptance;
+  - Fan / Store visible particle effects have been removed from the reviewed flows;
+  - latest known Fan modal readability issues have been fixed and verified.
+- Current important local preview URL:
+  - `http://127.0.0.1:4173`
+- Current preview accounts:
+  - Admin: `admin@uwell.com` / `admin`
+  - Manager: `manager@uwell.com` / `admin`
+  - Rep: `rep1@uwell.com` / `admin`
+  - Store: `store.owner@uwell.com` / `admin`
+  - Fan: `fan.preview@uwell.com` / `admin`
+- Remaining decisions before external preview or public release:
+  - rotate/revoke the Supabase access token that appeared in chat;
+  - change or delete the temporary `admin` preview passwords;
+  - decide store public registration behavior under strict RLS:
+    - controlled registration API / Edge Function, or
+    - authenticated store-owner registration only;
+  - lock deployment target and environment variables;
+  - add/confirm privacy policy and terms;
+  - decide monitoring/analytics/error reporting setup.
+- Recommended next action:
+  - make the store public-registration decision first, because strict RLS currently blocks unauthenticated store creation by design;
+  - then run one final full browser acceptance pass across Fan / Store / Admin after that decision is implemented.

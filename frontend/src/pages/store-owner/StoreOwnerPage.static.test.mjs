@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
 
 const entrySource = readFileSync(new URL('./StoreEntryPage.jsx', import.meta.url), 'utf8');
@@ -48,4 +48,12 @@ test('store owner dashboard uses English owner-facing copy', () => {
   assert.match(ownerSource, /Material inventory/);
   assert.match(ownerSource, /Register stock/);
   assert.match(ownerSource, /UWELL Display/);
+});
+
+test('store owner center supports S-level reward pickup', () => {
+  assert.match(ownerSource, /validateRewardPickup/);
+  assert.match(ownerSource, /confirmRewardPickup/);
+  assert.match(ownerSource, /Reward Pickup/);
+  assert.match(ownerSource, /Only S-level UWELL stores can fulfill rewards/);
+  assert.match(ownerSource, /pickupCode/);
 });

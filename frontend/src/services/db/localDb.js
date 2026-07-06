@@ -5,7 +5,7 @@
 
 const DB_PREFIX = 'store_manager_db_';
 const VERSION_KEY = 'store_manager_version';
-const CURRENT_VERSION = '5.3';
+const CURRENT_VERSION = '5.4';
 
 // 表结构定义
 const TABLE_NAMES = [
@@ -39,7 +39,8 @@ const TABLE_NAMES = [
   'material_requests',
   'store_display_uploads',
   'old_fan_verifications',
-  'fan_complaints'
+  'fan_complaints',
+  'auth'
 ];
 
 // 生成 UUID

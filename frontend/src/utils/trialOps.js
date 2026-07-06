@@ -74,11 +74,13 @@ export function buildFanRegistrationRecords({ userId, name, phone = '', country,
   };
 }
 
-export function buildStoreRegistrationRecord({ name, contact, phone, country, city, address = '' }) {
+export function buildStoreRegistrationRecord({ name, contact = '', phone, country, city, address = '', ownerEmail = '', password = '' }) {
   return {
     name,
     contact,
     phone,
+    owner_email: ownerEmail,
+    owner_password_preview: password,
     country,
     city,
     address,

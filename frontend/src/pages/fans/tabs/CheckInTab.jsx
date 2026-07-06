@@ -73,7 +73,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={12} sm={8}>
           <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)' }}>
-            <Statistic title={t('fan_my_points')} value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ color: '#FFD700', fontWeight: 700 }} />
+            <Statistic title={t('fan_my_points')} value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { color: '#FFD700', fontWeight: 700 } }} />
           </Card>
         </Col>
         <Col xs={12} sm={8}>
@@ -84,7 +84,7 @@ const CheckInTab = ({ fan, onPointsChange }) => {
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'rgba(59,130,246,0.08)' }}>
-            <Statistic title={t('fan_streak')} value={checkinStreak} suffix={t('days')} prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} valueStyle={{ color: '#ff4d4f' }} />
+            <Statistic title={t('fan_streak')} value={checkinStreak} suffix={t('days')} prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} styles={{ content: { color: '#ff4d4f' } }} />
           </Card>
         </Col>
       </Row>

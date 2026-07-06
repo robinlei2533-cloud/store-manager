@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Table, Card, Tag, Empty, Alert } from 'antd';
+import { Table, Card, Tag, Empty, Alert, Spin } from 'antd';
 import { FileTextOutlined, UserOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../services/supabase';
@@ -36,7 +36,7 @@ const AuditLogPage = () => {
   if (IS_LOCAL_MODE) {
     return (
       <PageTransition>
-        <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+        <div className="admin-page-panel" style={{minHeight:"100vh",padding:24}}>
         <Card className="liquid-glass" title={<><DatabaseOutlined /> Audit Log</>}>
           <Alert
             type="info"

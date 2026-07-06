@@ -7,7 +7,6 @@ import seedData from '../../services/db/seedData';
 import { supabase } from '../../services/supabase';
 import { isLocal } from '../../services/api/helpers';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
-import BioDigitalBackground from '../../components/effects/BioDigitalBackground';
 import CaliburnHeroCanvas from '../../components/effects/CaliburnHeroCanvas';
 import {
   buildFanRegistrationRecords,
@@ -352,7 +351,6 @@ const FanEntryPage = () => {
 
       <main className="fe-luxury-shell">
         <section className="fe-luxury-hero" aria-label="Uwell Fans Club">
-          <BioDigitalBackground />
           <CaliburnHeroCanvas products={PD} />
           <div className="fe-luxury-edge-lines" aria-hidden="true">
             <span /><span /><span /><span />

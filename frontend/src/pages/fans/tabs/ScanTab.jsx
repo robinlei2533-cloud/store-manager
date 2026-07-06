@@ -104,18 +104,19 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
 
   return (
     <Modal
-      title={<span style={{ color: '#FFD700' }}><ScanOutlined /> Scan QR Code</span>}
+      className="fan-scan-modal"
+      rootClassName="fan-scan-modal-root"
+      title={<span className="fan-scan-modal-title"><ScanOutlined /> Scan QR Code</span>}
       open={open}
       onCancel={() => { stopCamera(); onClose(); }}
       footer={null}
       width={400}
-      destroyOnClose
-      styles={{ content: { background: '#14141e', border: '1px solid rgba(255,215,0,0.15)' } }}
+      destroyOnHidden
     >
       {scanLimitReached ? (
-        <div style={{ textAlign: 'center', padding: 40 }}>
-          <Text style={{ color: '#ff4d4f', fontSize: 16 }}>Daily scan limit reached (3/3)</Text>
-          <Paragraph style={{ color: '#888', marginTop: 12 }}>Come back tomorrow to scan more products!</Paragraph>
+        <div className="fan-scan-limit">
+          <Text>Daily scan limit reached (3/3)</Text>
+          <Paragraph>Come back tomorrow to scan more products!</Paragraph>
           <Button onClick={onClose}>Close</Button>
         </div>
       ) : (
@@ -177,8 +178,8 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
               </div>
             </div>
           ) : (
-            <div>
-              <Paragraph style={{ color: '#888', textAlign: 'center', marginBottom: 16 }}>
+            <div className="fan-scan-manual-panel">
+              <Paragraph className="fan-scan-manual-copy">
                 Enter the QR code from your UWELL product packaging
               </Paragraph>
               <Input
@@ -186,12 +187,12 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
                 placeholder="e.g. UWELL-G4-XXXXXXXX"
                 value={manualCode}
                 onChange={e => setManualCode(e.target.value)}
-                style={{ borderRadius: 12, marginBottom: 12, textAlign: 'center', fontFamily: 'monospace' }}
+                className="fan-scan-manual-input"
                 onPressEnter={handleManualSubmit}
               />
               <Button type="primary" block size="large" onClick={handleManualSubmit}
                 disabled={!manualCode.trim()}
-                style={{ borderRadius: 12, height: 48, background: 'linear-gradient(135deg, #FFD700, #FFA500)', border: 'none' }}>
+                className="fan-scan-submit">
                 Submit Code
               </Button>
             </div>
@@ -302,7 +303,7 @@ const ScanTab = ({ fan, onPointsChange }) => {
         <Divider style={{ margin: '12px 0' }} />
         <Row gutter={16}>
           <Col span={12}>
-            <Statistic title="Today's Scans" value={`${todayScans}/${scanLimit}`} valueStyle={{ color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' }} />
+            <Statistic title="Today's Scans" value={`${todayScans}/${scanLimit}`} styles={{ content: { color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' } }} />
           </Col>
           <Col span={12}>
             <Statistic title="Total Scans" value={myScans.length} />

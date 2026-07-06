@@ -160,7 +160,7 @@ const CatalogTab = () => {
         onOk={handleSubmit}
         onCancel={closeModal}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
-        destroyOnClose
+        destroyOnHidden
         width="90%" style={{ maxWidth: 520 }}
       >
         <Form form={form} layout="vertical">
@@ -249,9 +249,9 @@ const StockTab = () => {
     <div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Total Items" value={enrichedStocks.length} prefix={<InboxOutlined />} /></Card></Col>
-        <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Low Stock" value={lowStockCount} prefix={<WarningOutlined />} valueStyle={{ color: '#faad14' }} /></Card></Col>
-        <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Out of Stock" value={outOfStockCount} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
-        <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Total Stock Value" value={totalValue} prefix="$" valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Low Stock" value={lowStockCount} prefix={<WarningOutlined />} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Out of Stock" value={outOfStockCount} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col xs={12} sm={12} lg={6}><Card size="small"><Statistic title="Total Stock Value" value={totalValue} prefix="$" styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
 
       <Card title="Inventory Dashboard">

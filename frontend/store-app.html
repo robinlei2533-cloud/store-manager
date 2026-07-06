@@ -18,15 +18,6 @@
   <body>
     <div id="root"><div class="loading-screen"><div class="loading-spinner"></div><span style="color:#888;font-size:14px;">Loading UWELL Store Center...</span></div></div>
     <script type="module" src="./src/store/main.jsx"></script>
-  <canvas id="bg-particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
-<script>
-(function(){var c=document.getElementById("bg-particles");if(!c)return;var x=c.getContext("2d"),W,H;
-var resize=function(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
-resize();window.addEventListener("resize",resize);
-var N=60,ps=[];for(var i=0;i<N;i++){ps.push({x:Math.random()*W*1.2-W*0.1,y:Math.random()*H*1.2-H*0.1,s:1+Math.random()*2.5,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,o:0.15+Math.random()*0.3})}
-function anim(){x.clearRect(0,0,W,H);for(var i=0;i<ps.length;i++){var p=ps[i];p.x+=p.vx;p.y+=p.vy;p.vx*=0.98;p.vy*=0.98;if(p.x<-20)p.x=W+20;if(p.x>W+20)p.x=-20;if(p.y<-20)p.y=H+20;if(p.y>H+20)p.y=-20;x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fillStyle="rgba(255,215,0,"+p.o+")";x.fill();for(var j=i+1;j<ps.length;j++){var p2=ps[j],dx=p.x-p2.x,dy=p.y-p2.y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p2.x,p2.y);x.strokeStyle="rgba(255,215,0,"+((1-d/80)*0.08)+")";x.lineWidth=0.5;x.stroke()}}}requestAnimationFrame(anim)}
-anim();})();
-</script>
   <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

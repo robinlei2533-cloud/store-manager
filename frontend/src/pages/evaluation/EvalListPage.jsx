@@ -11,7 +11,7 @@ import localDb from '../../services/db/localDb';
 import { canViewCompanyScope, getAssignedStoreIds } from '../../utils/uwellRoleAccess';
 
 const levelColors = { A: 'green', B: 'blue', C: 'orange', D: 'red' };
-const levelOptions = ['A', 'B', 'C', 'D'].map((value) => ({ label: `${value} 级`, value }));
+const levelOptions = ['A', 'B', 'C', 'D'].map((value) => ({ label: `${value} level`, value }));
 
 const EvalListPage = () => {
   const navigate = useNavigate();
@@ -38,20 +38,20 @@ const EvalListPage = () => {
 
   const columns = [
     {
-      title: '门店',
+      title: 'Store',
       dataIndex: ['stores', 'name'],
       key: 'store',
       render: (text) => <span style={{ fontWeight: 700 }}>{text || '-'}</span>,
     },
     {
-      title: '拜访日期',
+      title: 'Visit Date',
       dataIndex: 'eval_date',
       key: 'date',
       width: 130,
       render: (date) => date ? new Date(date).toLocaleDateString() : '-',
     },
     {
-      title: '综合评分',
+      title: 'Total Score',
       dataIndex: 'total_score',
       key: 'score',
       width: 180,
@@ -63,11 +63,11 @@ const EvalListPage = () => {
       ),
     },
     {
-      title: '评级',
+      title: 'Rating',
       dataIndex: 'recommended_level',
       key: 'level',
       width: 90,
-      render: (value) => <Tag color={levelColors[value] || 'default'}>{value || '-'} 级</Tag>,
+      render: (value) => <Tag color={levelColors[value] || 'default'}>{value || '-'} level</Tag>,
     },
     { title: 'BD', dataIndex: ['evaluator', 'name'], key: 'evaluator', width: 140, render: (value) => value || '-' },
     {
@@ -90,32 +90,32 @@ const EvalListPage = () => {
           <div>
             <div className="eval-kicker">Store Rating MVP</div>
             <h1>{t('nav_evaluation')}</h1>
-            <p>BD 现场调研评分，自动计算 A/B/C/D 级别，并把门店评级沉淀到后续拜访、物料和活动策略里。</p>
+            <p>Field visit scoring calculates A/B/C/D store levels and feeds the result into future visits, material planning, and campaign strategy.</p>
           </div>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/evaluation/create')}>
-            新建评分
+            New Rating
           </Button>
         </div>
 
         <Row gutter={[16, 16]} className="eval-stat-grid">
           <Col xs={12} md={6}>
             <Card className="dash-stat-card liquid-glass" size="small">
-              <Statistic title="平均评分" value={avgScore} suffix="/110" prefix={<StarOutlined />} />
+              <Statistic title="Average Score" value={avgScore} suffix="/110" prefix={<StarOutlined />} />
             </Card>
           </Col>
           <Col xs={12} md={6}>
             <Card className="dash-stat-card liquid-glass" size="small">
-              <Statistic title="A级门店" value={levelCount('A')} prefix={<TrophyOutlined />} valueStyle={{ color: '#63d471' }} />
+              <Statistic title="A-level Stores" value={levelCount('A')} prefix={<TrophyOutlined />} styles={{ content: { color: '#63d471' } }} />
             </Card>
           </Col>
           <Col xs={12} md={6}>
             <Card className="dash-stat-card liquid-glass" size="small">
-              <Statistic title="B/C 门店" value={levelCount('B') + levelCount('C')} prefix={<ShopOutlined />} valueStyle={{ color: '#d6a84f' }} />
+              <Statistic title="B/C Stores" value={levelCount('B') + levelCount('C')} prefix={<ShopOutlined />} styles={{ content: { color: '#d6a84f' } }} />
             </Card>
           </Col>
           <Col xs={12} md={6}>
             <Card className="dash-stat-card liquid-glass" size="small">
-              <Statistic title="D级预警" value={levelCount('D')} valueStyle={{ color: '#ff7a7a' }} />
+              <Statistic title="D-level Alert" value={levelCount('D')} styles={{ content: { color: '#ff7a7a' } }} />
             </Card>
           </Col>
         </Row>
@@ -123,32 +123,32 @@ const EvalListPage = () => {
         {latestRecord && (
           <Card className="crud-card eval-latest-card">
             <div>
-              <span>最近评分</span>
+              <span>Latest Rating</span>
               <strong>{latestRecord.stores?.name || '-'}</strong>
             </div>
-            <Tag color={levelColors[latestRecord.recommended_level] || 'default'}>{latestRecord.recommended_level} 级</Tag>
+            <Tag color={levelColors[latestRecord.recommended_level] || 'default'}>{latestRecord.recommended_level} level</Tag>
             <span>{latestRecord.total_score || 0} / 110</span>
           </Card>
         )}
 
-        <Card className="crud-card" title="评分记录" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/evaluation/create')}>新建评分</Button>}>
+        <Card className="crud-card" title="Rating Records" extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/evaluation/create')}>New Rating</Button>}>
           <Space wrap style={{ marginBottom: 16 }}>
             <Input
-              placeholder="搜索门店"
+              placeholder="Search stores"
               prefix={<SearchOutlined />}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               allowClear
               style={{ width: 240 }}
             />
-            <Select placeholder="评级" value={level} onChange={setLevel} allowClear style={{ width: 140 }} options={levelOptions} />
+            <Select placeholder="Rating" value={level} onChange={setLevel} allowClear style={{ width: 140 }} options={levelOptions} />
           </Space>
           <Table
             columns={columns}
             dataSource={filtered}
             rowKey="id"
             loading={isLoading}
-            locale={{ emptyText: <Empty description="暂无评分记录" /> }}
+            locale={{ emptyText: <Empty description="No rating records" /> }}
             pagination={{ pageSize: 15, showTotal: (total) => `${t('total')} ${total}` }}
             scroll={{ x: 820 }}
           />

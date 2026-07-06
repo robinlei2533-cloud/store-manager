@@ -69,9 +69,18 @@ const MapTab = ({ fan: _fan }) => {
   // Draw map
   const drawMap = useCallback(async () => {
     if (!mapDiv.current || stores.length === 0) return;
-    if (mapInst.current) { mapInst.current.remove(); mapInst.current = null; }
+    if (mapInst.current) {
+      try {
+        mapInst.current.off();
+        mapInst.current.remove();
+      } catch {
+        // Leaflet can throw during rapid route teardown while tiles are still loading.
+      }
+      mapInst.current = null;
+    }
 
     const L = await import('leaflet');
+    if (!mapDiv.current?.isConnected) return;
     delete L.Icon.Default.prototype._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -84,6 +93,9 @@ const MapTab = ({ fan: _fan }) => {
       zoom: 12,
       zoomControl: true,
       attributionControl: true,
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -128,7 +140,16 @@ const MapTab = ({ fan: _fan }) => {
 
   useEffect(() => {
     if (!loading) drawMap();
-    return () => { if (mapInst.current) { mapInst.current.remove(); mapInst.current = null; } };
+    return () => {
+      if (!mapInst.current) return;
+      try {
+        mapInst.current.off();
+        mapInst.current.remove();
+      } catch {
+        // Ignore teardown races from Leaflet internals.
+      }
+      mapInst.current = null;
+    };
   }, [loading, drawMap]);
 
   if (loading) {

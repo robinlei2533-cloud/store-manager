@@ -65,9 +65,9 @@ const ScanCenterPage = () => {
           <div>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total QR Codes" value={qrCodes.length} prefix={<QrcodeOutlined />} /></Card></Col>
-              <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Active Codes" value={activeQrCount} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+              <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Active Codes" value={activeQrCount} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
               <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Scans" value={totalScans} prefix={<ScanOutlined />} /></Card></Col>
-              <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Points Awarded" value={totalPoints} valueStyle={{ color: '#722ed1' }} /></Card></Col>
+              <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Points Awarded" value={totalPoints} styles={{ content: { color: '#722ed1' } }} /></Card></Col>
             </Row>
             <Button type="primary" icon={<PlusOutlined />} style={{ marginBottom: 16 }} onClick={() => { form.resetFields(); form.setFieldsValue({ points: 5 }); setModalOpen(true); }}>Generate QR Code</Button>
             {qrLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :

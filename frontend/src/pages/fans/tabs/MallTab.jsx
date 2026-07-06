@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { message, Button, Card, Tag, Row, Col, Statistic, Alert, Modal, Typography } from 'antd';
-import { GiftOutlined, StarOutlined, CopyOutlined } from '@ant-design/icons';
+import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
 import { MALL_ITEMS } from '../../../utils/constants';
+import { createPendingRedemption } from '../../../utils/reward-redemption';
 
 const { Text, Paragraph } = Typography;
 
@@ -35,16 +36,12 @@ const MallTab = ({ fan, onPointsChange }) => {
     setRedeeming(item.id);
     try {
       const redeemCode = generateRedeemCode();
-      localDb.insert('mall_redemptions', {
-        fan_id: fan.id,
-        item_id: item.id,
-        item_name: item.name,
-        points_cost: item.points_cost,
-        redeem_code: redeemCode,
-      });
+      const pendingRedemption = createPendingRedemption({ fan, item, code: redeemCode });
+      // status: pending_pickup
+      localDb.insert('mall_redemptions', pendingRedemption);
       await addFanPoints(fan.id, -item.points_cost, 'redeem', 'Mall Redemption', `Redeemed: ${item.name}`);
       onPointsChange?.();
-      setRedeemResult({ item, code: redeemCode });
+      setRedeemResult({ item, code: redeemCode, expiresAt: pendingRedemption.expires_at });
       message.success(`Redeemed ${item.name}!`);
     } catch (_err) {
       message.error('Redemption failed');
@@ -56,14 +53,14 @@ const MallTab = ({ fan, onPointsChange }) => {
   return (
     <div style={{ padding: '8px 0' }}>
       <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
-        <Statistic title="Available Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ fontSize: 28, fontWeight: 700, color: '#FFD700' }} />
+        <Statistic title="Available Points" value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { fontSize: 28, fontWeight: 700, color: '#FFD700' } }} />
       </Card>
       <Alert
         className="fan-reward-help"
         type="info"
         showIcon
         message="How rewards work"
-        description="Choose a reward, redeem with points, then show the redemption record to a verified UWELL store or support staff."
+        description="Choose a reward, redeem with points, then show the redemption code at an S-level UWELL store for pickup."
         style={{ marginBottom: 16 }}
       />
 
@@ -104,7 +101,7 @@ const MallTab = ({ fan, onPointsChange }) => {
                   {item.stock > 0 ? `${item.stock} in stock` : 'Out of stock'}
                 </div>
               )}
-              <div style={{ minHeight: 30, fontSize: 11, color: 'rgba(255,255,255,0.62)', marginBottom: 8 }}>
+              <div style={{ minHeight: 30, fontSize: 11, color: 'rgba(59,45,19,0.62)', marginBottom: 8 }}>
                 {(fan?.points || 0) >= item.points_cost ? 'Ready to redeem' : `${item.points_cost - (fan?.points || 0)} more points needed`}
               </div>
               <Button
@@ -123,33 +120,35 @@ const MallTab = ({ fan, onPointsChange }) => {
       </Row>
 
       <Modal
+        className="fan-redemption-modal"
+        rootClassName="fan-redemption-modal-root"
         open={!!redeemResult}
         onCancel={() => setRedeemResult(null)}
         footer={null}
-        title={<span style={{ color: '#FFD700' }}>🎉 Redemption Successful!</span>}
+        title={<span className="fan-redemption-title">Redemption Successful!</span>}
         centered
-        width={360}
+        width={420}
       >
         {redeemResult && (
-          <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <GiftOutlined style={{ fontSize: 48, color: '#FFD700', marginBottom: 16 }} />
-            <Paragraph style={{ color: '#e5e5e5', marginBottom: 4 }}>
-              You redeemed <Text strong style={{ color: '#FFD700' }}>{redeemResult.item.name}</Text>
-            </Paragraph>
-            <Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 16 }}>
-              -{redeemResult.item.points_cost} points
-            </Paragraph>
-            <div style={{
-              background: '#0d0d14', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 8,
-              padding: '12px 16px', marginBottom: 12,
-            }}>
-              <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Redemption Code</Text>
-              <Text copyable strong style={{ fontSize: 18, color: '#FFD700', fontFamily: 'monospace', letterSpacing: 2 }}>
+          <div className="fan-redemption-body">
+            <div className="fan-redemption-status">
+              <GiftOutlined className="fan-redemption-icon" />
+              <Paragraph className="fan-redemption-summary">
+                You redeemed <Text strong>{redeemResult.item.name}</Text>
+              </Paragraph>
+              <Paragraph className="fan-redemption-points">
+                -{redeemResult.item.points_cost} points
+              </Paragraph>
+            </div>
+            <div className="fan-redemption-code">
+              <Text className="fan-redemption-code-label">Redemption Code</Text>
+              <Text copyable strong className="fan-redemption-code-value">
                 {redeemResult.code}
               </Text>
             </div>
-            <Paragraph type="secondary" style={{ fontSize: 11 }}>
-              Show this code at any verified UWELL store to collect your reward.
+            <Paragraph className="fan-redemption-note">
+              Show this code at an S-level UWELL store to collect your reward.
+              {redeemResult.expiresAt ? ` Valid until ${new Date(redeemResult.expiresAt).toLocaleDateString()}.` : ''}
             </Paragraph>
           </div>
         )}

@@ -11,7 +11,7 @@ import PageTransition from "../../components/common/PageTransition";
 import localDb from '../../services/db/localDb';
 import { getDisplayCategoryLabel, getStoreLevelLabel } from '../../utils/uwellClosedLoop';
 import useAuthStore from '../../stores/authStore';
-import { canViewCompanyScope, filterByAssignedStores, getAssignableReps, getStoreRepId } from '../../utils/uwellRoleAccess';
+import { canViewCompanyScope, getAssignableReps, getScopedStoreRows, getStoreRepId } from '../../utils/uwellRoleAccess';
 
 const levelColorMap = { S: 'purple', A: 'red', B: 'blue', C: 'default', D: 'orange' };
 
@@ -44,23 +44,12 @@ const StoreListPage = () => {
     queryFn: () => getStores({ search, level, country, city, status, assigned_to: canManageCompany ? null : activeProfile }),
   });
 
-  const visibleStores = useMemo(() => {
-    let data = stores.length ? stores : (localDb.all('stores') || []);
-    if (!canManageCompany) data = filterByAssignedStores(activeProfile, data, localDb.all('stores') || []);
-    if (level) data = data.filter((store) => store.level === level);
-    if (country) data = data.filter((store) => store.country === country);
-    if (city) data = data.filter((store) => store.city === city);
-    if (status) data = data.filter((store) => store.status === status);
-    if (search) data = data.filter((store) => store.name?.toLowerCase().includes(search.toLowerCase()));
-    return data;
-  }, [activeProfile, canManageCompany, city, country, level, localDataReadyTick, search, status, stores]);
-
-  const tableStores = canManageCompany
-    ? visibleStores
-    : (localDb.all('stores') || [])
-      .filter((store) => store.rep_id === (activeProfile?.id || savedProfileId) || store.assigned_rep_id === (activeProfile?.id || savedProfileId))
-      .filter((store) => !level || store.level === level)
-      .filter((store) => !search || store.name?.toLowerCase().includes(search.toLowerCase()));
+  const tableStores = useMemo(() => getScopedStoreRows({
+    profile: activeProfile,
+    stores,
+    localStores: localDb.all('stores') || [],
+    filters: { level, country, city, status, search },
+  }), [activeProfile, city, country, level, localDataReadyTick, search, status, stores]);
   const { data: evaluations = [] } = useQuery({
     queryKey: ['evaluations-store-list'],
     queryFn: () => getEvaluations({}),
@@ -261,25 +250,25 @@ const StoreListPage = () => {
     { title: t('status'), dataIndex: 'status', key: 'status', width: 90, render: (value) => <Tag color={value === 'pending_review' ? 'orange' : value === 'inactive' ? 'default' : 'green'}>{value || 'active'}</Tag> },
     { title: t('level'), dataIndex: 'level', key: 'level', width: 70, render: (level) => <Tag color={levelColorMap[level] || 'default'}>{level ? getStoreLevelLabel(level) : '-'}</Tag> },
     {
-      title: '最新评级',
+      title: 'Latest Rating',
       key: 'rating',
       width: 110,
       render: (_, record) => {
         const latest = latestEvalByStore.get(record.id);
         if (!latest) {
-          return <Button type="link" size="small" icon={<StarOutlined />} onClick={() => navigate(`/app/evaluation/create?store_id=${record.id}`)}>去评分</Button>;
+          return <Button type="link" size="small" icon={<StarOutlined />} onClick={() => navigate(`/app/evaluation/create?store_id=${record.id}`)}>Rate Now</Button>;
         }
         const total = Number(latest.total_score || 0);
         const max = total > 60 ? 110 : 60;
         return (
           <div className="store-rating-cell">
             <div className="store-rating-cell-top">
-              <Tag color={levelColorMap[latest.recommended_level] || 'default'}>{latest.recommended_level || '-'} 级</Tag>
+              <Tag color={levelColorMap[latest.recommended_level] || 'default'}>{latest.recommended_level || '-'} level</Tag>
               <strong>{total}/{max}</strong>
             </div>
             <Progress percent={Math.min(100, Math.round((total / max) * 100))} showInfo={false} size="small" strokeColor="#d6a84f" />
             <button type="button" className="store-rating-link" onClick={() => navigate(`/app/evaluation/${latest.id}`)}>
-              {latest.eval_date ? new Date(latest.eval_date).toLocaleDateString() : '查看详情'}
+              {latest.eval_date ? new Date(latest.eval_date).toLocaleDateString() : 'View Details'}
             </button>
           </div>
         );
@@ -289,14 +278,14 @@ const StoreListPage = () => {
     { title: t('chain_stores'), dataIndex: 'chain_store_count', key: 'chain_store_count', width: 60 },
     { title: t('phone'), dataIndex: 'phone', key: 'phone', width: 80 },
     ...(canManageCompany ? [{
-      title: '负责地推',
+      title: 'Responsible Rep',
       key: 'rep',
       width: 100,
       render: (_, record) => (
         <Select
           size="small"
           value={getStoreRepId(record, localDb.all('stores') || []) || undefined}
-          placeholder="指定地推"
+          placeholder="Assign Rep"
           style={{ width: 92 }}
           options={reps.map((rep) => ({ label: rep.name, value: rep.id }))}
           onChange={(value) => handleAssignRep(record, value)}
@@ -309,7 +298,7 @@ const StoreListPage = () => {
         <Space size={4} wrap>
           <Button type="link" size="small" onClick={() => navigate(`/app/stores/${record.id}`)}>{t('view')}</Button>
           {canManageCompany && <Button type="link" size="small" onClick={() => navigate(`/app/stores/create?id=${record.id}`)}>{t('edit')}</Button>}
-          <Button type="link" size="small" onClick={() => navigate(`/app/evaluation/create?store_id=${record.id}`)}>评分</Button>
+          <Button type="link" size="small" onClick={() => navigate(`/app/evaluation/create?store_id=${record.id}`)}>Rate</Button>
         </Space>
       ),
     },
@@ -317,7 +306,7 @@ const StoreListPage = () => {
 
   return (
     <PageTransition>
-      <Card className="crud-card" title={canManageCompany ? t('store_management_title') : '我的负责门店'} extra={canManageCompany ? (
+      <Card className="crud-card" title={canManageCompany ? t('store_management_title') : 'My Responsible Stores'} extra={canManageCompany ? (
       <Space>
         <Button icon={<ImportOutlined />} onClick={() => setImportModalOpen(true)}>{t('import')}</Button>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/app/stores/create')}>{t('add_store')}</Button>
@@ -377,4 +366,3 @@ const StoreListPage = () => {
 };
 
 export default StoreListPage;
-

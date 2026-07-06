@@ -51,7 +51,8 @@ const AppLayout = () => {
   const contentRef = useRef(null);
 
   const ensureChineseFirst = () => {
-    setLang('zh');
+    const defaultWorkspaceLanguage = profile?.role === ROLES.REP ? 'en' : 'zh';
+    setLang(defaultWorkspaceLanguage);
   };
 
   useEffect(() => {
@@ -60,11 +61,10 @@ const AppLayout = () => {
     return () => {
       document.body.classList.remove('admin-workspace-active');
     };
-  }, []);
-  
+  }, [profile?.role, setLang]);
+
   if (!profile) {
-  
-  return (
+    return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Spin size="large" />
       </div>
@@ -77,10 +77,10 @@ const AppLayout = () => {
 
     const crmChildren = [
       ...(canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_stores') }] : []),
-      ...(!canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: '负责门店' }] : []),
+      ...(!canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: 'Responsible Stores' }] : []),
       { key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: t('nav_visits') },
       { key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
-      { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: canViewAllCRM ? t('nav_campaigns') : '活动执行' },
+      { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: canViewAllCRM ? t('nav_campaigns') : 'Campaign Execution' },
     ];
 
     const materialChildren = [
@@ -91,7 +91,7 @@ const AppLayout = () => {
     ];
 
     const items = [
-      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: canViewAllCRM ? t('nav_dashboard2') : '地推工作台' },
+      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: canViewAllCRM ? t('nav_dashboard2') : 'Field Rep Workspace' },
       { key: 'crm', icon: React.createElement(ApartmentOutlined), label: t('nav_crm'), children: crmChildren },
       { key: 'materials', icon: React.createElement(InboxOutlined), label: t('nav_materials'), children: materialChildren },
     ];
@@ -112,9 +112,9 @@ const AppLayout = () => {
       items.push({
         key: 'fan-support',
         icon: React.createElement(CustomerServiceOutlined),
-        label: '粉丝客诉',
+        label: 'Fan Complaints',
         children: [
-          { key: '/app/fans/complaints', icon: React.createElement(CustomerServiceOutlined), label: '客诉回复' },
+          { key: '/app/fans/complaints', icon: React.createElement(CustomerServiceOutlined), label: 'Complaint Replies' },
         ],
       });
     }
@@ -210,113 +210,121 @@ const AppLayout = () => {
     />
   );
 
-
   return (
     <DeviceProvider>
-    <Layout className="layout-root app-liquid-shell admin-liquid-shell">
-      {!isMobile && (
-        <Sider width={260} breakpoint="lg" collapsedWidth={0} className="layout-sider admin-ref-sider">
-          {brandBlock}
-          {IS_LOCAL_MODE && (
-            <div style={{ padding: '10px 16px 2px', textAlign: 'center' }}>
-              <Tag color="blue" className="layout-role-tag">{t('local_demo')}</Tag>
-            </div>
-          )}
-          {menu}
-        </Sider>
-      )}
-
-      {isMobile && (
-        <Drawer
-          placement="left"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          width={292}
-          styles={{
-            body: { padding: 0, background: '#071a2a' },
-            content: { background: '#071a2a' },
-            header: { background: '#071a2a', borderBottom: '1px solid rgba(255,255,255,0.08)' },
-          }}
-        >
-          {brandBlock}
-          {menu}
-        </Drawer>
-      )}
-
-      <Layout>
-        <Header className="admin-ref-header" style={{
-          padding: isMobile ? '0 12px' : '0 24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 8,
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
-            {isMobile && (
-              <Button className="admin-mobile-menu-button" type="text" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} />
-            )}
-            {!isMobile && (
-              <Input
-                className="admin-ref-search"
-                prefix={<SearchOutlined />}
-                placeholder={t('admin_search_placeholder')}
-                allowClear
-              />
-            )}
-          </div>
-          <div className="layout-settings-slot">
-            <button
-              type="button"
-              className={`layout-settings-trigger${settingsOpen ? ' is-open' : ''}`}
-              onClick={() => setSettingsOpen((value) => !value)}
-              aria-label="Open admin settings"
-            >
-              <SettingOutlined />
-            </button>
-            {settingsOpen && (
-              <div className="layout-settings-panel layout-settings-panel-admin liquid-glass">
-                <div className="layout-settings-panel-head">
-                  <strong>系统设置</strong>
-                  <button type="button" className="layout-settings-close" onClick={() => setSettingsOpen(false)} aria-label="关闭设置">
-                    <CloseOutlined />
-                  </button>
-                </div>
-                <div className="layout-settings-profile">
-                  <Avatar size="small" icon={<UserOutlined />} />
-                  <span>{profile.name || t('profile')} ({roleLabel(profile.role)})</span>
-                </div>
-                <div className="store-settings-label">{t('settings_language')}</div>
-                <LanguageSwitcher inline showCurrent hideFlag sourceOnly zIndex={360} tone="light" buttonMinWidth={112} menuMinWidth={180} />
-                <div className="fe-settings-divider" />
-                <button type="button" className="store-settings-item" onClick={handleLogout}>
-                  <LogoutOutlined /> {t('logout')}
-                </button>
+      <Layout className="layout-root app-liquid-shell admin-liquid-shell">
+        {!isMobile && (
+          <Sider width={260} breakpoint="lg" collapsedWidth={0} className="layout-sider admin-ref-sider">
+            {brandBlock}
+            {IS_LOCAL_MODE && (
+              <div style={{ padding: '10px 16px 2px', textAlign: 'center' }}>
+                <Tag color="blue" className="layout-role-tag">{t('local_demo')}</Tag>
               </div>
             )}
-          </div>
-        </Header>
-        <Content ref={contentRef} className="bg-radial-top admin-ref-content" style={{
-          margin: isMobile ? 8 : 24,
-          padding: isMobile ? 12 : 28,
-          background: 'transparent',
-          borderRadius: 18,
-          overflow: 'auto',
-          boxShadow: 'none',
-        }}>
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            {menu}
+          </Sider>
+        )}
+
+        {isMobile && (
+          <Drawer
+            placement="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            size={292}
+            styles={{
+              body: { padding: 0, background: '#071a2a' },
+              section: { background: '#071a2a' },
+              header: { background: '#071a2a', borderBottom: '1px solid rgba(255,255,255,0.08)' },
+            }}
           >
-            <PageTransition><Outlet /></PageTransition>
-          </motion.div>
-        </Content>
+            {brandBlock}
+            {menu}
+          </Drawer>
+        )}
+
+        <Layout>
+          <Header className="admin-ref-header" style={{
+            padding: isMobile ? '0 12px' : '0 24px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 8,
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+              {isMobile && (
+                <Button className="admin-mobile-menu-button" type="text" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} />
+              )}
+              {!isMobile && (
+                <Input
+                  className="admin-ref-search"
+                  prefix={<SearchOutlined />}
+                  placeholder={t('admin_search_placeholder')}
+                  allowClear
+                />
+              )}
+            </div>
+            <div className="layout-settings-slot">
+              <LanguageSwitcher
+                inline
+                showCurrent
+                hideFlag
+                sourceOnly
+                className="layout-header-language"
+                zIndex={360}
+                tone="light"
+                buttonMinWidth={112}
+                menuMinWidth={180}
+              />
+              <button
+                type="button"
+                className={`layout-settings-trigger${settingsOpen ? ' is-open' : ''}`}
+                onClick={() => setSettingsOpen((value) => !value)}
+                aria-label="Open admin settings"
+              >
+                <SettingOutlined />
+              </button>
+              {settingsOpen && (
+                <div className="layout-settings-panel layout-settings-panel-admin liquid-glass">
+                  <div className="layout-settings-panel-head">
+                    <strong>{profile.role === ROLES.REP ? 'Settings' : '系统设置'}</strong>
+                    <button type="button" className="layout-settings-close" onClick={() => setSettingsOpen(false)} aria-label={profile.role === ROLES.REP ? 'Close settings' : '关闭设置'}>
+                      <CloseOutlined />
+                    </button>
+                  </div>
+                  <div className="layout-settings-profile">
+                    <Avatar size="small" icon={<UserOutlined />} />
+                    <span>{profile.name || t('profile')} ({roleLabel(profile.role)})</span>
+                  </div>
+                  <div className="fe-settings-divider" />
+                  <button type="button" className="store-settings-item" onClick={handleLogout}>
+                    <LogoutOutlined /> {t('logout')}
+                  </button>
+                </div>
+              )}
+            </div>
+          </Header>
+          <Content ref={contentRef} className="bg-radial-top admin-ref-content" style={{
+            margin: isMobile ? 8 : 24,
+            padding: isMobile ? 12 : 28,
+            background: 'transparent',
+            borderRadius: 18,
+            overflow: 'auto',
+            boxShadow: 'none',
+          }}>
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <PageTransition><Outlet /></PageTransition>
+            </motion.div>
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
     </DeviceProvider>
   );
 };

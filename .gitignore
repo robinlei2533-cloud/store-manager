@@ -13,6 +13,11 @@ fix_app.*
 *.cjs
 test-results/
 project_data/
+output/
+frontend/output/
+frontend/.playwright-cli/
+*.bundle
+manual-upload.local-backup-*/
 
 # Screenshots
 *.png

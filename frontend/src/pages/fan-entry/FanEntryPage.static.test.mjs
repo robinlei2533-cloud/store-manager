@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
 
 const source = readFileSync(new URL('./FanEntryPage.jsx', import.meta.url), 'utf8');
@@ -24,6 +24,14 @@ test('fan registration form uses polished English consumer-facing labels', () =>
   assert.match(source, /I confirm I am of legal age in my region\./);
   assert.match(source, /I agree to the <a[\s\S]*privacy notice[\s\S]*member terms[\s\S]*<\/a>\./);
 });
+
+test('fan entry keeps the orb-style product hero instead of flat product placement', () => {
+  assert.match(source, /CaliburnHeroCanvas/);
+  assert.match(source, /<CaliburnHeroCanvas products=\{PD\} \/>/);
+  assert.doesNotMatch(source, /fe-luxury-products/);
+  assert.doesNotMatch(source, /fe-luxury-product/);
+});
+
 test('fan registration respects Supabase Auth-created profiles before writing fan records', () => {
   assert.doesNotMatch(source, /from\("profiles"\)\.upsert/);
   assert.match(source, /from\("profiles"\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/);

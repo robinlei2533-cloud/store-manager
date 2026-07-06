@@ -113,7 +113,7 @@ const CheckInTab = ({ fan }) => {
       <Row gutter={16} className="fg-mb24">
         <Col xs={12} sm={12} lg={6}>
           <Card className="liquid-glass" size="small">
-            <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: 'var(--uwell-gold)' }} />
+            <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: 'var(--uwell-gold)' } }} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
@@ -123,7 +123,7 @@ const CheckInTab = ({ fan }) => {
         </Col>
         <Col xs={12} sm={12} lg={6}>
           <Card size="small">
-            <Statistic title="Today's Scans" value={`${todayScans}/${scanLimit}`} prefix={<ThunderboltOutlined />} valueStyle={{ color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' }} />
+            <Statistic title="Today's Scans" value={`${todayScans}/${scanLimit}`} prefix={<ThunderboltOutlined />} styles={{ content: { color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' } }} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
@@ -305,7 +305,7 @@ const LuckyDrawTab = ({ fan }) => {
       <Row gutter={16} className="fg-mb24">
         <Col xs={24} sm={8}>
           <Card size="small">
-            <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: '#1677ff' }} />
+            <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: '#1677ff' } }} />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
@@ -315,7 +315,7 @@ const LuckyDrawTab = ({ fan }) => {
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
-            <Statistic title="Total Points Won" value={totalWon} prefix={<TrophyOutlined />} valueStyle={{ color: '#52c41a' }} />
+            <Statistic title="Total Points Won" value={totalWon} prefix={<TrophyOutlined />} styles={{ content: { color: '#52c41a' } }} />
           </Card>
         </Col>
       </Row>
@@ -509,7 +509,7 @@ const MallTab = ({ fan }) => {
       <Card size="small" className="fg-card" style={{ marginBottom: 16, background: 'linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(18,18,26,0.95) 100%)' }}>
         <Row align="middle" justify="space-between">
           <Col>
-            <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} valueStyle={{ color: '#1677ff', fontSize: 28 }} />
+            <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: '#1677ff', fontSize: 28 } }} />
           </Col>
           <Col>
             <Select
@@ -639,7 +639,7 @@ const FanMapTab = ({ fans }) => {
           <Card size="small"><Statistic title="Total Fans" value={fans.length} prefix={<EnvironmentOutlined />} /></Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
-          <Card size="small"><Statistic title="VIP (L5)" value={fans.filter((f) => f.level === 'diamond').length} prefix={<CrownOutlined />} valueStyle={{ color: '#B9F2FF' }} /></Card>
+          <Card size="small"><Statistic title="VIP (L5)" value={fans.filter((f) => f.level === 'diamond').length} prefix={<CrownOutlined />} styles={{ content: { color: '#B9F2FF' } }} /></Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
           <Card size="small"><Statistic title="Active Stores" value={Object.keys(storeGroups).length} /></Card>

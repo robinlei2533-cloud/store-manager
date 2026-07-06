@@ -486,4 +486,100 @@ export const seedData = {
   ],
 };
 
+const trialCities = ['Riyadh', 'Jeddah', 'Dammam', 'Makkah', 'Madinah'];
+const trialRepIds = ['u-rep1', 'u-rep2', 'u-rep3'];
+const trialStaffAccounts = [
+  { id: 'u-admin', email: 'admin@uwell.com', password: 'admin', role: 'admin', name: 'UWELL Admin', phone: '13800000001', city: 'Riyadh' },
+  { id: 'u-manager', email: 'manager@uwell.com', password: 'admin', role: 'manager', name: 'Riyadh Market Manager', phone: '13800000002', city: 'Riyadh' },
+  { id: 'u-rep1', email: 'rep1@uwell.com', password: 'admin', role: 'rep', name: 'Riyadh Field Rep', phone: '13800000003', city: 'Riyadh' },
+  { id: 'u-rep2', email: 'rep2@uwell.com', password: 'admin', role: 'rep', name: 'Jeddah Field Rep', phone: '13800000004', city: 'Jeddah' },
+  { id: 'u-rep3', email: 'rep3@uwell.com', password: 'admin', role: 'rep', name: 'Dammam Field Rep', phone: '13800000005', city: 'Dammam' },
+];
+
+function enhanceTrialSeedData(data) {
+  const staffById = new Map(trialStaffAccounts.map((account) => [account.id, account]));
+
+  data.profiles = (data.profiles || []).map((profile) => {
+    const account = staffById.get(profile.id);
+    return {
+      ...profile,
+      role: account?.role || profile.role,
+      name: account?.name || profile.name,
+      email: account?.email || profile.email || '',
+      phone: account?.phone || profile.phone || '',
+      country: profile.country || 'Saudi Arabia',
+      city: account?.city || profile.city || 'Riyadh',
+    };
+  });
+
+  data.auth = trialStaffAccounts.map((account) => ({
+    id: `auth-${account.id}`,
+    profile_id: account.id,
+    email: account.email,
+    password: account.password,
+    role: account.role,
+    created_at: daysAgo(90),
+    updated_at: daysAgo(1),
+  }));
+
+  const evaluationStoreIds = new Set((data.store_evaluations || []).map((item) => item.store_id));
+  data.stores = (data.stores || []).map((store, index) => {
+    const city = store.city || trialCities[index % trialCities.length];
+    const repId = store.rep_id || trialRepIds[index % trialRepIds.length];
+    const ownerName = store.owner_name || store.contact || `Store Owner ${String(index + 1).padStart(2, '0')}`;
+    const ownerPhone = store.owner_phone || store.phone || '';
+    const level = store.level || 'C';
+    return {
+      ...store,
+      level,
+      country: store.country || 'Saudi Arabia',
+      city,
+      status: store.status || 'active',
+      owner_name: ownerName,
+      owner_phone: ownerPhone,
+      contact: store.contact || ownerName,
+      phone: store.phone || ownerPhone,
+      rep_id: repId,
+      display_status: store.display_status || (['S', 'A'].includes(level) ? 'approved' : 'pending'),
+      rating_status: store.rating_status || (evaluationStoreIds.has(store.id) ? 'evaluated' : 'pending'),
+    };
+  });
+
+  const storeById = new Map((data.stores || []).map((store) => [store.id, store]));
+  data.fans = (data.fans || []).map((fan, index) => {
+    const store = storeById.get(fan.store_id);
+    const normalizedName = String(fan.name || `Fan ${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
+    return {
+      ...fan,
+      email: fan.email || `${normalizedName || `fan${index + 1}`}@fans.uwell.local`,
+      country: fan.country || store?.country || 'Saudi Arabia',
+      city: fan.city || store?.city || trialCities[index % trialCities.length],
+      store_id: fan.store_id || data.stores[index % data.stores.length]?.id || null,
+      points: Number.isFinite(Number(fan.points)) ? Number(fan.points) : 100,
+      total_contribution: Number.isFinite(Number(fan.total_contribution)) ? Number(fan.total_contribution) : Number(fan.points || 100),
+    };
+  });
+
+  data.scan_records = (data.scan_records || []).map((record) => ({
+    ...record,
+    scanned_at: record.scanned_at || record.created_at,
+  }));
+
+  if (!data.material_requests?.length) {
+    data.material_requests = [
+      { id: 'mr-trial-001', store_id: 's-real-001', material_id: 'm-001', qty: 12, status: 'pending', reason: 'Counter display needs refresh before weekend traffic.', requested_at: daysAgo(1), reviewed_at: null, reviewed_by: null, created_at: daysAgo(1), updated_at: daysAgo(1) },
+      { id: 'mr-trial-002', store_id: 's-real-012', material_id: 'm-003', qty: 20, status: 'approved', reason: 'A-level partner preparing G5 demo event.', requested_at: daysAgo(3), reviewed_at: daysAgo(2), reviewed_by: 'u-manager', created_at: daysAgo(3), updated_at: daysAgo(2) },
+      { id: 'mr-trial-003', store_id: 's-real-023', material_id: 'm-006', qty: 8, status: 'rejected', reason: 'Duplicate request, stock already allocated this week.', requested_at: daysAgo(5), reviewed_at: daysAgo(4), reviewed_by: 'u-manager', created_at: daysAgo(5), updated_at: daysAgo(4) },
+    ];
+  }
+
+  data.trial_accounts = [
+    ...trialStaffAccounts.map(({ email, password, role, name }) => ({ email, password, role, name })),
+    { store_id: 's-real-001', phone: '504875886', role: 'store_owner', name: 'rabie alkayf lilshiyshat walmueasal' },
+    { fan_id: 'f-001', role: 'fan', name: 'Ahmed', note: 'Use the Fan Entry demo button or register a new fan.' },
+  ];
+}
+
+enhanceTrialSeedData(seedData);
+
 export default seedData;

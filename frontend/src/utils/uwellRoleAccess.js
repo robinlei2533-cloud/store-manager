@@ -35,6 +35,26 @@ export function filterByAssignedStores(profile, records = [], stores = [], getSt
   return records.filter((record) => assignedStoreIds.has(getStoreId(record)));
 }
 
+export function getScopedStoreRows({ profile, stores = [], localStores = [], filters = {} }) {
+  let data = stores.length ? stores : localStores;
+  const storeScope = stores.length ? stores : localStores;
+
+  if (!canViewCompanyScope(profile)) {
+    data = filterByAssignedStores(profile, data, storeScope, (store) => store.id);
+  }
+
+  if (filters.level) data = data.filter((store) => store.level === filters.level);
+  if (filters.country) data = data.filter((store) => store.country === filters.country);
+  if (filters.city) data = data.filter((store) => store.city === filters.city);
+  if (filters.status) data = data.filter((store) => store.status === filters.status);
+  if (filters.search) {
+    const search = filters.search.toLowerCase();
+    data = data.filter((store) => store.name?.toLowerCase().includes(search));
+  }
+
+  return data;
+}
+
 export function getAssignableReps(profiles = []) {
   return profiles.filter((profile) => profile.role === 'rep');
 }

@@ -7,6 +7,7 @@ import localDb from "../../services/db/localDb";
 import seedData from "../../services/db/seedData";
 import { createStore, getStores } from "../../services/api";
 import useLanguageStore from "../../stores/languageStore";
+import useAuthStore from "../../stores/authStore";
 import {
   buildStoreRegistrationRecord,
   cityOptionsForCountry,
@@ -17,12 +18,13 @@ import {
 const StoreEntryPage = () => {
   const navigate = useNavigate();
   const { t, setLang } = useLanguageStore();
+  const { signIn } = useAuthStore();
   const { message } = App.useApp();
   const [mode, setMode] = useState("login");
-  const [storeCode, setStoreCode] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [storeName, setStoreName] = useState("");
-  const [contact, setContact] = useState("");
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
@@ -37,21 +39,36 @@ const StoreEntryPage = () => {
   }, [ensureEnglishFirst]);
 
   const handleLogin = useCallback(async () => {
+    const email = ownerEmail.trim().toLowerCase();
+    const loginPassword = password.trim();
+    if (!email || !loginPassword) {
+      message.warning("Please enter email and password");
+      return;
+    }
+    if (!email.includes("@")) {
+      message.warning("Please enter a valid email address");
+      return;
+    }
+
     setLoading(true);
     try {
       if (localDb.needsInit()) localDb.init(seedData);
-      let stores = [];
-      try {
-        stores = await getStores({});
-      } catch {
-        stores = localDb.all("stores") || [];
+      const localOwnerStore = (localDb.all("stores") || []).find((store) => (
+        String(store.owner_email || "").toLowerCase() === email &&
+        store.owner_password_preview === loginPassword
+      ));
+      if (localOwnerStore) {
+        localStorage.setItem("store_owner_logged_in", "true");
+        localStorage.setItem("store_owner_store_id", localOwnerStore.id);
+        message.success(t("store_entry_login_success"));
+        navigate("/store-owner", { replace: true });
+        return;
       }
-      const matchedStore =
-        stores.find((store) => store.id === storeCode.trim()) ||
-        stores.find((store) => store.phone && store.phone === phone.trim()) ||
-        (localDb.all("stores") || []).find((store) => store.id === storeCode.trim()) ||
-        (localDb.all("stores") || []).find((store) => store.phone && store.phone === phone.trim()) ||
-        null;
+
+      const result = await signIn(email, loginPassword);
+      const ownerId = result?.user?.id;
+      const stores = await getStores({});
+      const matchedStore = stores.find((store) => store.owner_profile_id === ownerId) || null;
 
       if (!matchedStore) {
         message.error(t("store_entry_no_data"));
@@ -65,11 +82,11 @@ const StoreEntryPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate, phone, storeCode, t]);
+  }, [message, navigate, ownerEmail, password, signIn, t]);
 
   const handleRegister = useCallback(async () => {
-    if (!storeName || !contact || !phone) {
-      message.warning("Please fill in store name, contact and phone");
+    if (!storeName || !ownerEmail || !password || !phone) {
+      message.warning("Please fill in store name, owner email, password and phone");
       return;
     }
     const cityValidation = validateCountryCity({ country, city });
@@ -82,15 +99,18 @@ const StoreEntryPage = () => {
     try {
       const record = buildStoreRegistrationRecord({
         name: storeName,
-        contact,
+        contact: "",
         phone,
+        ownerEmail,
+        password,
         country,
         city,
         address,
       });
       let created = null;
       try {
-        created = await createStore(record);
+        const { owner_password_preview: _localPasswordOnly, ...remoteRecord } = record;
+        created = await createStore(remoteRecord);
       } catch (err) {
         if (localDb.needsInit()) localDb.init(seedData);
         created = localDb.insert("stores", {
@@ -109,7 +129,7 @@ const StoreEntryPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [address, city, contact, country, navigate, phone, storeName]);
+  }, [address, city, country, navigate, ownerEmail, password, phone, storeName]);
 
   return (
     <div className="store-entry-page app-liquid-shell bg-radial-center">
@@ -149,18 +169,19 @@ const StoreEntryPage = () => {
         {mode === "login" && (
           <div className="store-entry-form">
             <Input
-              value={storeCode}
-              onChange={(event) => setStoreCode(event.target.value)}
-              placeholder={t("store_entry_id_placeholder")}
+              value={ownerEmail}
+              onChange={(event) => setOwnerEmail(event.target.value)}
+              placeholder="Email"
               className="so-input-dark"
               size="large"
             />
             <Input
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder={t("store_entry_phone_placeholder")}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Password"
               className="so-input-dark"
               size="large"
+              type="password"
             />
             <Button type="primary" size="large" loading={loading} onClick={handleLogin} block className="uw-pressable uw-shine-button store-entry-main-action">
               {t("store_entry_button")}
@@ -176,7 +197,8 @@ const StoreEntryPage = () => {
         {mode === "register" && (
           <div className="store-entry-form">
             <Input value={storeName} onChange={(event) => setStoreName(event.target.value)} placeholder="Store name *" className="so-input-dark" size="large" />
-            <Input value={contact} onChange={(event) => setContact(event.target.value)} placeholder="Contact person *" className="so-input-dark" size="large" />
+            <Input value={ownerEmail} onChange={(event) => setOwnerEmail(event.target.value)} placeholder="Owner email *" className="so-input-dark" size="large" />
+            <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password *" className="so-input-dark" size="large" type="password" />
             <Input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="Phone *" className="so-input-dark" size="large" />
             <select className="so-input-dark store-entry-select" value={country} onChange={(event) => { setCountry(event.target.value); setCity(""); }} aria-label="Country">
               <option value="">Country *</option>

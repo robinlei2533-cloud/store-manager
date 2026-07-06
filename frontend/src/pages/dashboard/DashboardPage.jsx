@@ -53,7 +53,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 import { useQuery } from '@tanstack/react-query';
-import { Card, Row, Col, Table, Tag, Spin, Empty, Typography, Alert, List, Progress, Badge } from 'antd';
+import { Card, Row, Col, Table, Tag, Spin, Empty, Typography, Alert, Progress, Badge } from 'antd';
 import {
   ShopOutlined, CameraOutlined, TeamOutlined,
   WarningOutlined, RiseOutlined, ThunderboltOutlined, QrcodeOutlined, StarOutlined,
@@ -63,7 +63,7 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 
-import { Button, message, DatePicker, Segmented } from 'antd';
+import { Button, DatePicker, Segmented } from 'antd';
 import { DownloadOutlined, ArrowUpOutlined, ArrowDownOutlined, EyeOutlined } from '@ant-design/icons';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -78,6 +78,40 @@ import { canViewCompanyScope, filterByAssignedStores, getAssignedStoreIds } from
 import { useDashboardRealtime } from './useDashboardRealtime';
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
+
+const CompactListMeta = ({ avatar, title, description }) => (
+  <div className="dash-compact-list-meta">
+    {avatar && <span className="dash-compact-list-avatar">{avatar}</span>}
+    <div className="dash-compact-list-copy">
+      <div className="dash-compact-list-title">{title}</div>
+      {description && <div className="dash-compact-list-desc">{description}</div>}
+    </div>
+  </div>
+);
+
+const CompactListItem = ({ children }) => (
+  <div className="dash-compact-list-item">{children}</div>
+);
+CompactListItem.Meta = CompactListMeta;
+
+const CompactList = ({ dataSource = [], renderItem, locale }) => {
+  if (!dataSource.length) {
+    return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={locale?.emptyText || '暂无数据'} />;
+  }
+
+  return (
+    <div className="dash-compact-list">
+      {dataSource.map((item, index) => {
+        const node = renderItem(item, index);
+        return React.isValidElement(node)
+          ? React.cloneElement(node, { key: item?.id || index })
+          : <React.Fragment key={item?.id || index}>{node}</React.Fragment>;
+      })}
+    </div>
+  );
+};
+CompactList.Item = CompactListItem;
+const List = CompactList;
 
 // ============ 新增：数据对比计算工具 ============
 const calculateGrowth = (current, previous) => {
@@ -207,7 +241,14 @@ const StoreHeatmap = ({ stores, visitCounts, onStoreClick }) => {
       mapRef.current = null;
     }
     if (!containerRef.current.isConnected) return;
-    const map = L.map(containerRef.current, { center: [24.7136, 46.6753], zoom: 10, zoomControl: true });
+    const map = L.map(containerRef.current, {
+      center: [24.7136, 46.6753],
+      zoom: 10,
+      zoomControl: true,
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
+    });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 18 }).addTo(map);
     const coords = [];
     stores.forEach(s => {
@@ -506,49 +547,49 @@ const DashboardPage = () => {
     return (
       <div className="rep-dashboard">
         <Title level={4} className="dash-section">
-          <span className="text-gold-gradient"><RiseOutlined /> 地推工作台</span>
+          <span className="text-gold-gradient"><RiseOutlined /> Field Rep Workspace</span>
           <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>{profile?.name || t('profile')}</Text>
         </Title>
 
-        <SectionTitle>我的今日重点</SectionTitle>
+        <SectionTitle>My Priorities Today</SectionTitle>
         <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-          <Col xs={12} sm={6}><StatCard icon={<ShopOutlined />} label="负责门店" value={assignedStores.length} color="#FFD700" delay={0} /></Col>
-          <Col xs={12} sm={6}><StatCard icon={<CameraOutlined />} label="拜访记录" value={assignedVisits.length} color="#F5A623" delay={1} /></Col>
-          <Col xs={12} sm={6}><StatCard icon={<ThunderboltOutlined />} label="活动执行" value={assignedCampaigns.length} color="#FFD700" delay={2} /></Col>
-          <Col xs={12} sm={6}><StatCard icon={<WarningOutlined />} label="待回复客诉" value={repOpenComplaints.length} color={repOpenComplaints.length ? '#ff4d4f' : '#52c41a'} delay={3} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<ShopOutlined />} label="Responsible Stores" value={assignedStores.length} color="#FFD700" delay={0} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<CameraOutlined />} label="Visit Records" value={assignedVisits.length} color="#F5A623" delay={1} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<ThunderboltOutlined />} label="Campaign Execution" value={assignedCampaigns.length} color="#FFD700" delay={2} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<WarningOutlined />} label="Open Complaints" value={repOpenComplaints.length} color={repOpenComplaints.length ? '#ff4d4f' : '#52c41a'} delay={3} /></Col>
         </Row>
 
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} lg={12}>
-            <Card title={<><ShopOutlined /> <span className="text-gold-gradient">负责门店状态</span></>}>
+            <Card title={<><ShopOutlined /> <span className="text-gold-gradient">Responsible Store Status</span></>}>
               <List size="small" dataSource={assignedStores.slice(0, 8)} renderItem={(store) => (
                 <List.Item>
                   <List.Item.Meta
                     title={<span className="dash-card-title-light">{store.name}</span>}
-                    description={`等级 ${store.level || '未评级'} · 近 30 天拜访 ${assignedVisits.filter((visit) => visit.store_id === store.id).length} 次`}
+                    description={`Level ${store.level || 'Unrated'} · ${assignedVisits.filter((visit) => visit.store_id === store.id).length} visits in the last 30 days`}
                   />
-                  <Button size="small" onClick={() => { window.location.href = `/#/app/stores/${store.id}`; }}>查看</Button>
+                  <Button size="small" onClick={() => { window.location.href = `/#/app/stores/${store.id}`; }}>View</Button>
                 </List.Item>
               )} locale={{ emptyText: t('no_data') }} />
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">待处理事项</span></>}>
+            <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">Pending Actions</span></>}>
               <List size="small" dataSource={[
-                ...repPendingClaims.map((item) => ({ id: item.id, title: item.campaign_name || '活动领取通知', desc: `门店 ${item.store_id}`, tag: '活动' })),
-                ...repOpenComplaints.map((item) => ({ id: item.id, title: item.fan_name || '粉丝客诉', desc: item.content, tag: '客诉' })),
+                ...repPendingClaims.map((item) => ({ id: item.id, title: item.campaign_name || 'Campaign reward claim', desc: `Store ${item.store_id}`, tag: 'Campaign' })),
+                ...repOpenComplaints.map((item) => ({ id: item.id, title: item.fan_name || 'Fan complaint', desc: item.content, tag: 'Complaint' })),
               ].slice(0, 8)} renderItem={(item) => (
                 <List.Item>
                   <List.Item.Meta title={<span className="dash-card-title-light">{item.title}</span>} description={item.desc} />
-                  <Tag color={item.tag === '客诉' ? 'volcano' : 'gold'}>{item.tag}</Tag>
+                  <Tag color={item.tag === 'Complaint' ? 'volcano' : 'gold'}>{item.tag}</Tag>
                 </List.Item>
-              )} locale={{ emptyText: '暂无待办' }} />
+              )} locale={{ emptyText: 'No pending actions' }} />
             </Card>
           </Col>
         </Row>
 
-        <SectionTitle>最近拜访</SectionTitle>
-        <Card title={<><CameraOutlined /> <span className="text-gold-gradient">我的拜访记录</span></>}>
+        <SectionTitle>Recent Visits</SectionTitle>
+        <Card title={<><CameraOutlined /> <span className="text-gold-gradient">My Visit Records</span></>}>
           <Table columns={recentVisitColumns} dataSource={assignedVisits.slice(0, 8)} rowKey="id" loading={visitsLoading} pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_visit_records') }} />
         </Card>
       </div>

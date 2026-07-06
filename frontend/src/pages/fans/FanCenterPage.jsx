@@ -95,7 +95,7 @@ const FanCenterPage = () => {
 
   const { data: fans = [], isLoading } = useQuery({
     queryKey: ['fans', refreshKey],
-    initialData: localFallbackFans,
+    placeholderData: localFallbackFans,
     queryFn: async () => {
       try {
         const remoteFans = await getFans({});

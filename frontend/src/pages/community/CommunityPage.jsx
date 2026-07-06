@@ -225,9 +225,9 @@ const CommunityPage = () => {
           <Space direction="vertical" style={{ width: '100%' }} size={16}>
             <Card className="liquid-glass" size="small" title="Community Stats">
               <Row gutter={8}>
-                <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Posts" value={posts.length} valueStyle={{ fontSize: 20 }} /></Col>
-                <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Comments" value={comments.length} valueStyle={{ fontSize: 20 }} /></Col>
-                <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Members" value={new Set(posts.map((post) => post.author_name)).size} valueStyle={{ fontSize: 20 }} /></Col>
+                <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Posts" value={posts.length} styles={{ content: { fontSize: 20 } }} /></Col>
+                <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Comments" value={comments.length} styles={{ content: { fontSize: 20 } }} /></Col>
+                <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Members" value={new Set(posts.map((post) => post.author_name)).size} styles={{ content: { fontSize: 20 } }} /></Col>
               </Row>
             </Card>
 

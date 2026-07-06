@@ -53,7 +53,7 @@ const InviteTab = ({ fan }) => {
         </Col>
         <Col span={12}>
           <Card size="small" style={{ textAlign: 'center', borderRadius: 12 }}>
-            <Statistic title="Points Earned" value={inviteCount * 30} prefix={<StarOutlined style={{ color: '#faad14' }} />} valueStyle={{ color: '#52c41a' }} />
+            <Statistic title="Points Earned" value={inviteCount * 30} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { color: '#52c41a' } }} />
           </Card>
         </Col>
       </Row>

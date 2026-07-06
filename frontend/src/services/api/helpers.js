@@ -6,7 +6,16 @@
 import localDb from '../db/localDb';
 import seedData from '../db/seedData';
 
-let _useLocal = !(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL);
+const env = typeof import.meta !== 'undefined' ? import.meta.env : {};
+
+export function shouldAllowLocalDbFallback(currentEnv = env) {
+  if (!currentEnv?.VITE_SUPABASE_URL) return true;
+  if (currentEnv?.VITE_ALLOW_LOCAL_DB_FALLBACK === 'true') return true;
+  if (currentEnv?.VITE_ALLOW_LOCAL_DB_FALLBACK === 'false') return false;
+  return Boolean(currentEnv?.DEV);
+}
+
+let _useLocal = !env?.VITE_SUPABASE_URL;
 
 export function getUseLocal() { return _useLocal; }
 export const USE_LOCAL = _useLocal;
@@ -36,11 +45,13 @@ export function enrichMaterialStock(stock) {
 
 // Execute supabaseFn, on failure fall back to localFn
 export async function withFallback(supabaseFn, localFn) {
-  ensureLocalInit();
+  const allowLocalFallback = shouldAllowLocalDbFallback();
+  if (_useLocal || allowLocalFallback) ensureLocalInit();
   if (_useLocal) return await localFn();
   try {
     return await supabaseFn();
   } catch (e) {
+    if (!allowLocalFallback) throw e;
     console.warn('[DB] Supabase unavailable, switching to local mode:', e.message);
     _useLocal = true;
     return await localFn();

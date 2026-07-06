@@ -120,6 +120,30 @@ export default function CaliburnHeroCanvas({ products = [] }) {
     let rafId = 0;
     let start = performance.now();
 
+    function render(now) {
+      const t = (now - start) / 1000;
+      pointer.x += (pointer.tx - pointer.x) * 0.055;
+      pointer.y += (pointer.ty - pointer.y) * 0.055;
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < 3; i += 1) {
+        const x = width * (0.25 + i * 0.23) + Math.sin(t * 0.16 + i) * 22;
+        const y = height * (0.42 + Math.sin(i) * 0.08) + Math.cos(t * 0.2 + i) * 18;
+        const r = width * (0.11 + i * 0.018);
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, r);
+        gradient.addColorStop(0, 'rgba(159, 203, 236, 0.12)');
+        gradient.addColorStop(1, 'rgba(159, 203, 236, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+
+      ORBS.slice()
+        .sort((a, b) => a.depth - b.depth)
+        .forEach((orb, index) => drawOrb(ctx, orb, items[index % Math.max(items.length, 1)] || { product: {}, ready: false }, width, height, pointer, t, reduceMotion));
+
+      if (!reduceMotion) rafId = requestAnimationFrame(render);
+    }
+
     items.forEach((item) => {
       item.image.onload = () => {
         item.ready = true;
@@ -142,31 +166,6 @@ export default function CaliburnHeroCanvas({ products = [] }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       start = performance.now();
     };
-
-    const drawMist = (t) => {
-      for (let i = 0; i < 3; i += 1) {
-        const x = width * (0.25 + i * 0.23) + Math.sin(t * 0.16 + i) * 22;
-        const y = height * (0.42 + Math.sin(i) * 0.08) + Math.cos(t * 0.2 + i) * 18;
-        const r = width * (0.11 + i * 0.018);
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, r);
-        gradient.addColorStop(0, 'rgba(159, 203, 236, 0.12)');
-        gradient.addColorStop(1, 'rgba(159, 203, 236, 0)');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(x - r, y - r, r * 2, r * 2);
-      }
-    };
-
-    function render(now) {
-      const t = (now - start) / 1000;
-      pointer.x += (pointer.tx - pointer.x) * 0.055;
-      pointer.y += (pointer.ty - pointer.y) * 0.055;
-      ctx.clearRect(0, 0, width, height);
-      drawMist(t);
-      ORBS.slice()
-        .sort((a, b) => a.depth - b.depth)
-        .forEach((orb, index) => drawOrb(ctx, orb, items[index % Math.max(items.length, 1)] || { product: {}, ready: false }, width, height, pointer, t, reduceMotion));
-      if (!reduceMotion) rafId = requestAnimationFrame(render);
-    }
 
     const onPointerMove = (event) => {
       const rect = host.getBoundingClientRect();

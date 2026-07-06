@@ -2,7 +2,7 @@ import useLanguageStore from '../../stores/languageStore';
 import BlurText from '../../components/effects/BlurText';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Form, Input, Button, Card, Typography, message, Modal, Select, Divider, Alert } from 'antd';
+import { App, Form, Input, Button, Card, Typography, Modal, Select, Divider, Alert } from 'antd';
 import { MailOutlined, LockOutlined, UserOutlined, ShopOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import useAuthStore, { isLocalAuthFallbackEnabled } from '../../stores/authStore';
 import { ROLES } from '../../utils/constants';
@@ -14,6 +14,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { t, setLang } = useLanguageStore();
   const { user, loading, signIn, signUp } = useAuthStore();
+  const { message } = App.useApp();
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);

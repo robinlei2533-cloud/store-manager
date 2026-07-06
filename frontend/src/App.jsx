@@ -1,6 +1,6 @@
 import useLanguageStore from './stores/languageStore';
-import React, { Suspense } from 'react';
-import { createHashRouter, Navigate } from 'react-router';
+import React, { Suspense, useEffect } from 'react';
+import { createHashRouter, Navigate, useRouteError } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
 import './styles/tokens.css';
 import './styles/design-system.css';
@@ -55,17 +55,88 @@ const StoreOwnerPage = React.lazy(() => import('./pages/store-owner/StoreOwnerPa
 
 import { ROLES } from './utils/constants';
 
+const CHUNK_RELOAD_KEY = 'uwell_chunk_reload_attempted';
+
+function isDynamicImportError(error) {
+  const message = String(error?.message || error || '');
+  return message.includes('Failed to fetch dynamically imported module') ||
+    message.includes('dynamically imported module') ||
+    message.includes('Importing a module script failed');
+}
+
+function RouteErrorFallback() {
+  const error = useRouteError();
+  const dynamicImportError = isDynamicImportError(error);
+
+  useEffect(() => {
+    if (!dynamicImportError) return;
+    const alreadyReloaded = sessionStorage.getItem(CHUNK_RELOAD_KEY) === 'true';
+    if (alreadyReloaded) return;
+    sessionStorage.setItem(CHUNK_RELOAD_KEY, 'true');
+    window.location.reload();
+  }, [dynamicImportError]);
+
+  const reload = () => {
+    sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+    window.location.reload();
+  };
+
+  return (
+    <div className="route-error-page" style={{
+      minHeight: '100vh',
+      display: 'grid',
+      placeItems: 'center',
+      padding: 24,
+      background: '#f6f3ec',
+      color: '#1f1a12',
+      fontFamily: "'Barlow', 'Inter', 'Microsoft YaHei', Arial, sans-serif",
+    }}>
+      <div style={{
+        width: 'min(440px, 100%)',
+        padding: 24,
+        borderRadius: 8,
+        background: '#ffffff',
+        border: '1px solid rgba(82,62,24,0.14)',
+        boxShadow: '0 18px 48px rgba(82,62,24,0.12)',
+        textAlign: 'center',
+      }}>
+        <strong style={{ display: 'block', marginBottom: 8, fontSize: 22 }}>页面需要刷新一下</strong>
+        <p style={{ margin: '0 0 18px', color: '#5f5648', lineHeight: 1.6 }}>
+          {dynamicImportError
+            ? '刚刚更新过预览构建，当前标签页还在使用旧缓存。页面会自动刷新一次。'
+            : '页面加载时遇到问题，可以刷新后继续。'}
+        </p>
+        <button type="button" onClick={reload} style={{
+          minHeight: 40,
+          padding: '8px 18px',
+          borderRadius: 8,
+          border: '0',
+          background: '#8a6500',
+          color: '#fff',
+          fontWeight: 800,
+          cursor: 'pointer',
+        }}>
+          重新加载
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const routeErrorElement = <RouteErrorFallback />;
+
 const router = createHashRouter([
-  { path: "/", element: <FanEntryRedirect /> },
-  { path: "/fan-entry", element: <FanEntryPage /> },
-  { path: "/fan-center", element: <FanCenterPage /> },
-  { path: "/store-login", element: <StoreEntryPage /> },
-  { path: "/store-owner", element: <StoreOwnerPage /> },
-  { path: "/admin", element: <LoginPage /> },
-  { path: "/login", element: <LoginPage /> },
+  { path: "/", element: <FanEntryRedirect />, errorElement: routeErrorElement },
+  { path: "/fan-entry", element: <FanEntryPage />, errorElement: routeErrorElement },
+  { path: "/fan-center", element: <FanCenterPage />, errorElement: routeErrorElement },
+  { path: "/store-login", element: <StoreEntryPage />, errorElement: routeErrorElement },
+  { path: "/store-owner", element: <StoreOwnerPage />, errorElement: routeErrorElement },
+  { path: "/admin", element: <LoginPage />, errorElement: routeErrorElement },
+  { path: "/login", element: <LoginPage />, errorElement: routeErrorElement },
   {
     path: "/app",
     element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
+    errorElement: routeErrorElement,
     children: [
       { index: true, element: <Navigate to="/app/dashboard" replace /> },
       { path: "dashboard", element: <DashboardPage /> },
@@ -106,7 +177,7 @@ const router = createHashRouter([
       { path: "settings/audit", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><AuditLogPage /></ProtectedRoute> },
     ]
   },
-  { path: "*", element: <Navigate to="/" replace /> }
+  { path: "*", element: <Navigate to="/" replace />, errorElement: routeErrorElement }
 ]);
 
 const queryClient = new QueryClient({

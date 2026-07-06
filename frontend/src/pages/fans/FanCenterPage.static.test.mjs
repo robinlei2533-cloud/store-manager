@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { test } from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
 
 const source = readFileSync(new URL('./FanCenterPage.jsx', import.meta.url), 'utf8');
@@ -28,4 +28,9 @@ test('fan center uses English consumer-facing task and campaign copy', () => {
   assert.match(source, /Visit completed/);
   assert.match(source, /Shelf photo uploaded/);
   assert.match(source, /Sales data submitted/);
+});
+
+test('fan center does not treat local fallback fans as fresh data in Supabase sessions', () => {
+  assert.doesNotMatch(source, /initialData:\s*localFallbackFans/);
+  assert.match(source, /placeholderData:\s*localFallbackFans/);
 });
