@@ -91,7 +91,7 @@ const CampaignDetailPage = () => {
     <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
       <Card className="liquid-glass" title={campaign.name} extra={<Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>}>
-        <Descriptions column={3} bordered>
+        <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 3 }} bordered>
           <Descriptions.Item label="Type">{campaign.type}</Descriptions.Item>
           <Descriptions.Item label="Start">{campaign.start_date}</Descriptions.Item>
           <Descriptions.Item label="End">{campaign.end_date}</Descriptions.Item>
@@ -106,7 +106,9 @@ const CampaignDetailPage = () => {
               <h4>Target Stores</h4>
               <Row gutter={[8, 8]}>
                 {campaign.target_store_details?.map(s => (
-                  <Col key={s.id}><Tag color={s.level === 'A' ? 'green' : s.level === 'B' ? 'blue' : 'default'}>{s.name} (Level {s.level || '-'})</Tag></Col>
+                  <Col xs={24} sm={12} md={8} key={s.id}>
+                    <Tag className="campaign-store-tag" color={s.level === 'A' ? 'green' : s.level === 'B' ? 'blue' : 'default'}>{s.name} (Level {s.level || '-'})</Tag>
+                  </Col>
                 ))}
               </Row>
             </div>

@@ -1006,3 +1006,52 @@ Move into pre-launch decision work: choose local trial vs external preview, then
   - implement the S-level store visit verification flow from the new design doc;
   - continue full secondary/tertiary page UI audit for remaining dark-edge or overflow cases;
   - before broader preview, rotate the previously pasted Supabase and Vercel tokens and replace temporary `admin` passwords.
+
+### 2026-07-07 Trial Operation Seal Preparation
+
+- User requested Stage 3 trial environment sealing and Stage 4 team documentation:
+  - rotate Supabase / Vercel tokens;
+  - replace all temporary passwords;
+  - lock Vercel environment variables;
+  - prepare trial accounts and real inventory;
+  - deploy a new external preview;
+  - run final Fan / Store / Admin acceptance on the real preview URL;
+  - document reward pickup, store confirmation, S-level store rules, error handling, and backend record lookup.
+- Repository changes prepared for trial account hardening:
+  - replaced local seed `admin/admin` staff passwords with role-specific trial passwords;
+  - added explicit trial store owner and fan preview credentials to seed data;
+  - bound the local trial store owner to an S-level store for reward pickup testing;
+  - changed local auth fallback so it must match records in the local `auth` table instead of accepting arbitrary passwords;
+  - updated admin login copy from "any email and password" to assigned trial account wording.
+- Team document added:
+  - `docs/trial-operations-playbook-2026-07-07.md`
+  - covers fan redemption, S-level store pickup, store responsibilities and incentives, exception handling, backend lookup paths, and the seal checklist.
+- Trial account set for preview verification:
+  - Admin: `admin@uwell.com` / `UwellAdmin@2026`
+  - Manager: `manager@uwell.com` / `UwellManager@2026`
+  - Rep: `rep1@uwell.com` / `UwellRep@2026`
+  - Store: `store.owner@uwell.com` / `UwellStore@2026`
+  - Fan: `fan.preview@uwell.com` / `UwellFan@2026`
+- Security boundary:
+  - tokens pasted in chat must be treated as exposed and revoked in Supabase / Vercel;
+  - Supabase Auth user passwords must be updated in Supabase Auth as well as in local seed data;
+  - `.env` was not edited.
+- Verification completed:
+  - `npm test` passed: 29 test files, 78 tests;
+  - `npm run build` passed; only the known Vite chunk-size / plugin timing warnings remain;
+  - local build preview `http://127.0.0.1:4176/` passed mobile three-portal acceptance:
+    - Fan: `/fan-app.html#/fan-center`;
+    - Store: `/store-app.html#/store-owner`;
+    - Admin dashboard plus stores, visits, campaigns, fans, and materials list routes;
+    - all checked pages reported no horizontal overflow at 390px width;
+    - screenshots saved under `frontend/output/playwright/trial-seal-local/`.
+- External deployment status:
+  - Vercel CLI is installed but local login is unavailable;
+  - the provided Vercel token returned `missing_scope` / `No teams available`;
+  - retrying with the previously inferred scope returned `scope-not-existent`;
+  - the no-auth fallback deploy service now returns CLI guidance instead of a claimable preview URL;
+  - a new external preview still requires a Vercel token with access to the target account/project.
+- Supabase status:
+  - Supabase CLI was not available locally; `npx supabase --version` attempted a temporary CLI fetch and reported `2.109.1`, but no project files were changed;
+  - Supabase Auth passwords still need to be changed in Supabase control plane or through an approved Admin API flow;
+  - previously pasted Supabase / Vercel tokens still need to be revoked in their dashboards.

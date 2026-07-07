@@ -13,7 +13,7 @@ test('fan center uses English consumer-facing task and campaign copy', () => {
   assert.match(source, /Your next best action/);
   assert.match(source, /Start here/);
   assert.match(source, /Step 1/);
-  assert.match(source, /Find a verified store/);
+  assert.match(source, /Join the activity/);
   assert.match(source, /Step 2/);
   assert.match(source, /Scan your product code/);
   assert.match(source, /Step 3/);
@@ -25,9 +25,11 @@ test('fan center uses English consumer-facing task and campaign copy', () => {
   assert.match(source, /See steps and rewards/);
   assert.match(source, /Trusted stores/);
   assert.match(source, /My verification/);
-  assert.match(source, /Visit completed/);
-  assert.match(source, /Shelf photo uploaded/);
-  assert.match(source, /Sales data submitted/);
+  assert.match(source, /Referral reward/);
+  assert.doesNotMatch(source, /Visit a verified store/);
+  assert.doesNotMatch(source, /Store perks/);
+  assert.doesNotMatch(source, /Visit completed/);
+  assert.doesNotMatch(source, /Store visit completed/);
 });
 
 test('fan task daily check-in card performs check-in instead of only navigating', () => {

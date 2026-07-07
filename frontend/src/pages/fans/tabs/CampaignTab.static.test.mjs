@@ -29,3 +29,10 @@ test('fan campaign detail modal and status tags stay on light readable surfaces'
   assert.match(css, /\.fan-campaign-status-tag\.is-completed/);
   assert.match(css, /background:\s*#eee7d8 !important/);
 });
+
+test('fan campaign flow no longer requires a store visit task for trial operation', () => {
+  assert.match(source, /Join the activity/);
+  assert.match(source, /scan eligible products/i);
+  assert.doesNotMatch(source, /Find a verified store/);
+  assert.doesNotMatch(source, /Visit a verified store to complete/);
+});

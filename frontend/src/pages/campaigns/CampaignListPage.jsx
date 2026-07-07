@@ -2,7 +2,7 @@ import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, Button, Tabs, Select, Tag, Row, Col, Spin, Empty, Badge, Progress, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { EyeOutlined, PlusOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { getCampaigns } from '../../services/api';
 import { CAMPAIGN_TYPES } from '../../utils/constants';
@@ -59,6 +59,17 @@ const CampaignListPage = () => {
                    <span>{t('budget')}: ${c.budget || 0}</span>
                  </div>
                  {totalTasks > 0 && <Progress percent={Math.round(doneTasks / totalTasks * 100)} size="small" format={() => `${doneTasks}/${totalTasks} ${t('tasks_unit')}`} />}
+                 <Button
+                   block
+                   icon={<EyeOutlined />}
+                   style={{ marginTop: 12 }}
+                   onClick={(event) => {
+                     event.stopPropagation();
+                     navigate(`/app/campaigns/${c.id}`);
+                   }}
+                 >
+                   查看
+                 </Button>
                </Card>
              </Col>
            );

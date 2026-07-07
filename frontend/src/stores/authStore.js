@@ -3,12 +3,18 @@ import { supabase } from '../services/supabase';
 import localDb from '../services/db/localDb';
 import seedData from '../services/db/seedData';
 import { IS_LOCAL_MODE } from '../services/api';
-import { ensureLocalInit } from '../services/api/helpers';
+import { ensureLocalInit, setLocalMode } from '../services/api/helpers';
+
+const isLocalPreviewHost = () => {
+  if (typeof window === 'undefined') return false;
+  return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+};
 
 export const isLocalAuthFallbackEnabled = () => (
   IS_LOCAL_MODE ||
   Boolean(import.meta.env?.DEV) ||
-  import.meta.env?.VITE_ALLOW_LOCAL_AUTH_FALLBACK === 'true'
+  import.meta.env?.VITE_ALLOW_LOCAL_AUTH_FALLBACK === 'true' ||
+  isLocalPreviewHost()
 );
 
 const getFallbackProfile = (user) => ({
@@ -39,26 +45,36 @@ const useAuthStore = create((set, get) => ({
   setProfile: (profile) => set({ profile }),
   setLoading: (loading) => set({ loading }),
 
-  signInLocal: async (email, _password) => {
+  signInLocal: async (email, password) => {
+    setLocalMode(true);
     if (localDb.needsInit()) {
       localDb.init(seedData);
     }
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const localAccount = (localDb.all('auth') || []).find((account) => (
+      String(account.email || '').toLowerCase() === normalizedEmail &&
+      String(account.password || '') === String(password || '')
+    ));
+    if (!localAccount) {
+      throw new Error('Invalid trial account or password');
+    }
+
     const profiles = localDb.all('profiles');
-    const demoAccountMap = {
-      'admin@uwell.com': 'u-admin',
-      'manager@uwell.com': 'u-manager',
-      'rep1@uwell.com': 'u-rep1',
-      'rep2@uwell.com': 'u-rep2',
-      'rep3@uwell.com': 'u-rep3',
-    };
-    const normalizedEmail = email?.toLowerCase();
-    let profile = profiles.find((p) => demoAccountMap[normalizedEmail] === p.id);
-    if (!profile) profile = profiles.find((p) => email && p.name && p.name.includes(email.split('@')[0]));
-    if (!profile) {
-      profile = profiles.find((p) => p.role === 'admin') || profiles[0];
+    let profile = profiles.find((p) => p.id === localAccount.profile_id);
+    if (!profile && localAccount.role === 'fan') {
+      const fan = localDb.findById('fans', localAccount.profile_id || localAccount.id);
+      if (fan) {
+        profile = {
+          id: fan.id,
+          role: 'fan',
+          name: fan.name || localAccount.email,
+          phone: fan.phone || '',
+          avatar: '',
+        };
+      }
     }
     if (profile) {
-      const user = { id: profile.id, email: email || 'admin@local.com' };
+      const user = { id: profile.id, email: localAccount.email };
       set({ user, profile, isAuthenticated: true });
       return { user, profile };
     }
@@ -66,6 +82,7 @@ const useAuthStore = create((set, get) => ({
   },
 
   signInSupabase: async (email, password) => {
+    setLocalMode(false);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (data.user) {
@@ -107,6 +124,7 @@ const useAuthStore = create((set, get) => ({
 
   signUp: async (email, password, metadata) => {
     if (IS_LOCAL_MODE) {
+      setLocalMode(true);
       if (localDb.needsInit()) {
         localDb.init(seedData);
       }
@@ -128,6 +146,7 @@ const useAuthStore = create((set, get) => ({
   },
 
   signOut: async () => {
+    setLocalMode(IS_LOCAL_MODE);
     if (!IS_LOCAL_MODE) {
       try { await supabase.auth.signOut(); } catch(e) { console.error('SignOut error:', e); }
     }
@@ -178,8 +197,10 @@ const useAuthStore = create((set, get) => ({
       if (savedProfileId) {
         const profile = localDb.findById('profiles', savedProfileId);
         if (profile) {
+          setLocalMode(true);
           set({ user: { id: profile.id }, profile, isAuthenticated: true });
         } else {
+          setLocalMode(true);
           // Fan login from static HTML fan-entry page.
           if (!localDb.findById('fans', savedProfileId)) {
             localDb.insert('fans', {
@@ -203,6 +224,7 @@ const useAuthStore = create((set, get) => ({
         const fans = localDb.all('fans');
         if (fans.length > 0 && !localStorage.getItem('store_manager_current_user')) {
           const fanProfile = { id: fans[0].id, role: 'fan', name: fans[0].id, phone: '', avatar: '' };
+          setLocalMode(true);
           localStorage.setItem('store_manager_current_user', fans[0].id);
           localStorage.removeItem('fan_logged_in');
           set({ user: { id: fans[0].id }, profile: fanProfile, isAuthenticated: true });

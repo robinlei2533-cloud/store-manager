@@ -41,7 +41,7 @@ const STATUS_MAP = {
 };
 
 const FAN_CAMPAIGN_STEPS = [
-  { title: 'Find a verified store', desc: 'Open the store map and choose a UWELL location with a stronger display.' },
+  { title: 'Join the activity', desc: 'Open the campaign details and confirm the reward rules.' },
   { title: 'Scan your product code', desc: 'Scan after purchase so your campaign points can be recorded.' },
   { title: 'Claim rewards', desc: 'Use your points in the rewards shop or keep collecting for higher tiers.' },
 ];
@@ -155,7 +155,7 @@ const CampaignTab = () => {
                     status: 'pending',
                     claimed_at: new Date().toISOString(),
                   });
-                  message.success('Joined campaign! Visit a verified store to complete.');
+                  message.success('Joined campaign! Scan eligible products to collect rewards.');
                 } catch { message.error('Failed to join.'); }
               }}
               style={{ borderRadius: 12 }}
@@ -175,7 +175,7 @@ const CampaignTab = () => {
     <div style={{ padding: '4px 0' }}>
       <Card className="liquid-glass" style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}><FireOutlined /> UWELL Brand Activities</Title>
-        <Text type="secondary" style={{ fontSize: 12 }}>Join campaigns, scan at verified stores, and earn extra rewards.</Text>
+        <Text type="secondary" style={{ fontSize: 12 }}>Join campaigns, scan eligible products, and earn extra rewards.</Text>
         <div className="fan-campaign-mini-steps">
           {FAN_CAMPAIGN_STEPS.map((step, index) => (
             <div key={step.title}>

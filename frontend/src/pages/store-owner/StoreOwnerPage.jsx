@@ -3,6 +3,7 @@ import { App, Card, Row, Col, Button, Typography, Tag, Tabs, Modal, Empty, Input
 import { EnvironmentOutlined, PhoneOutlined, TagOutlined, ShopOutlined, ClockCircleOutlined, EditOutlined, GiftOutlined, FireOutlined, CheckCircleOutlined, CrownOutlined, StarOutlined, SettingOutlined, LogoutOutlined, GlobalOutlined, PictureOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import localDb from "../../services/db/localDb";
+import seedData from "../../services/db/seedData";
 import { confirmRewardPickupRemote, getStoreById } from "../../services/api";
 import { isLocal } from "../../services/api/helpers";
 import useLanguageStore from "../../stores/languageStore";
@@ -90,6 +91,8 @@ const StoreOwnerPage = () => {
       navigate("/store-login", { replace: true });
       return;
     }
+
+    if (localDb.needsInit() || localDb.count("stores") === 0) localDb.init(seedData);
 
     const stores = localDb.all("stores") || [];
     const claims = localDb.all("campaign_claims") || [];

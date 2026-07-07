@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const entrySource = readFileSync(new URL('./StoreEntryPage.jsx', import.meta.url), 'utf8');
 const ownerSource = readFileSync(new URL('./StoreOwnerPage.jsx', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../index.css', import.meta.url), 'utf8');
 
 test('store entry forces an English-first public experience', () => {
   assert.match(entrySource, /ensureEnglishFirst\(\)/);
@@ -62,4 +63,19 @@ test('store owner center supports S-level reward pickup', () => {
   assert.match(ownerSource, /Responsibilities/);
   assert.match(ownerSource, /Store rewards and consequences/);
   assert.match(ownerSource, /pickupCode/);
+});
+
+test('store owner dashboard initializes local demo data before reading stores', () => {
+  assert.match(ownerSource, /import seedData from "\.\.\/\.\.\/services\/db\/seedData"/);
+  assert.match(ownerSource, /localDb\.needsInit\(\)/);
+  assert.match(ownerSource, /localDb\.count\("stores"\) === 0/);
+  assert.match(ownerSource, /localDb\.init\(seedData\)/);
+  assert.match(ownerSource, /const stores = localDb\.all\("stores"\) \|\| \[\]/);
+});
+
+test('store owner mobile tabs keep reward pickup visible without horizontal dragging', () => {
+  assert.match(css, /@media \(max-width: 640px\)/);
+  assert.match(css, /\.store-liquid-shell \.app-liquid-tabs > \.ant-tabs-nav \.ant-tabs-nav-list/);
+  assert.match(css, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\) !important/);
+  assert.match(css, /transform:\s*none !important/);
 });

@@ -251,26 +251,26 @@ export const seedData = {
 
   // ============ 积分流水 ============
   fan_points_log: [
-    { id: 'fpl-001', fan_id: 'f-001', points: 10, type: 'earn', source: '完成拜访', description: '完成门店拜访 s-001', created_at: daysAgo(1) },
-    { id: 'fpl-002', fan_id: 'f-001', points: 5, type: 'earn', source: '上传照片', description: '拜访上传货架照片', created_at: daysAgo(1) },
-    { id: 'fpl-003', fan_id: 'f-001', points: 5, type: 'earn', source: '提交动销数据', description: '提交动销数据3条', created_at: daysAgo(1) },
-    { id: 'fpl-004', fan_id: 'f-002', points: 10, type: 'earn', source: '完成拜访', description: '完成门店拜访 s-002', created_at: daysAgo(2) },
+    { id: 'fpl-001', fan_id: 'f-001', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(1) },
+    { id: 'fpl-002', fan_id: 'f-001', points: 5, type: 'earn', source: '扫码积分', description: 'G4 Pod 扫码 x1', created_at: daysAgo(1) },
+    { id: 'fpl-003', fan_id: 'f-001', points: -500, type: 'redeem', source: '积分兑换', description: '兑换 UWELL KOKO Device', created_at: daysAgo(1) },
+    { id: 'fpl-004', fan_id: 'f-002', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(2) },
     { id: 'fpl-005', fan_id: 'f-002', points: 50, type: 'earn', source: '扫码积分', description: '消费者扫码 p-002 x10', created_at: daysAgo(2) },
     { id: 'fpl-006', fan_id: 'f-007', points: 100, type: 'earn', source: '扫码积分', description: '消费者扫码 p-001 x20', created_at: daysAgo(1) },
     { id: 'fpl-007', fan_id: 'f-007', points: 30, type: 'redeem', source: '兑换奖励', description: '兑换精美水杯一个', created_at: daysAgo(3) },
-    { id: 'fpl-008', fan_id: 'f-004', points: 10, type: 'earn', source: '完成拜访', description: '完成门店拜访 s-004', created_at: daysAgo(3) },
-    { id: 'fpl-real-001', fan_id: 'f-001', points: 10, type: 'earn', source: '完成拜访', description: '完成门店拜访 s-real-001 (rabie alkayf)', created_at: daysAgo(1) },
+    { id: 'fpl-008', fan_id: 'f-004', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(3) },
+    { id: 'fpl-real-001', fan_id: 'f-001', points: -150, type: 'redeem', source: '积分兑换', description: '兑换 UWELL Pod Pack - 3 pcs', created_at: daysAgo(1) },
     { id: 'fpl-real-002', fan_id: 'f-001', points: 5, type: 'earn', source: '扫码积分', description: '消费者扫码 G4 PRO x10', created_at: daysAgo(1) },
     { id: 'fpl-real-003', fan_id: 'f-001', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(1) },
-    { id: 'fpl-real-004', fan_id: 'f-002', points: 10, type: 'earn', source: '完成拜访', description: '完成门店拜访 s-real-002 (muteat)', created_at: daysAgo(2) },
+    { id: 'fpl-real-004', fan_id: 'f-002', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(2) },
     { id: 'fpl-real-005', fan_id: 'f-002', points: 30, type: 'earn', source: '推荐新粉丝', description: '推荐 Amwaj Oasis 店主注册', created_at: daysAgo(2) },
     { id: 'fpl-real-006', fan_id: 'f-007', points: 50, type: 'earn', source: '扫码积分', description: 'G5 demo event 扫码 x10', created_at: daysAgo(1) },
-    { id: 'fpl-real-007', fan_id: 'f-007', points: 10, type: 'earn', source: '完成拜访', description: '完成 Just Smoke Vape 拜访', created_at: daysAgo(2) },
+    { id: 'fpl-real-007', fan_id: 'f-007', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(2) },
     { id: 'fpl-real-008', fan_id: 'f-007', points: 5, type: 'earn', source: '签到奖励', description: '连续签到7天 +5', created_at: daysAgo(3) },
     { id: 'fpl-real-009', fan_id: 'f-004', points: 30, type: 'earn', source: '推荐新粉丝', description: '推荐 3 位新粉丝注册', created_at: daysAgo(3) },
     { id: 'fpl-real-010', fan_id: 'f-004', points: 5, type: 'earn', source: '扫码积分', description: 'KOKO 扫码 x5', created_at: daysAgo(4) },
     { id: 'fpl-real-011', fan_id: 'f-001', points: 30, type: 'earn', source: '推荐新粉丝', description: '推荐 rabie alkayf 升级为 A 级门店', created_at: daysAgo(5) },
-    { id: 'fpl-real-012', fan_id: 'f-003', points: 10, type: 'earn', source: '完成拜访', description: '完成门店拜访 s-real-003', created_at: daysAgo(4) },
+    { id: 'fpl-real-012', fan_id: 'f-003', points: 5, type: 'earn', source: '扫码积分', description: 'G4 PRO 扫码 x1', created_at: daysAgo(4) },
     { id: 'fpl-real-013', fan_id: 'f-003', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(5) },
     { id: 'fpl-real-014', fan_id: 'f-006', points: 5, type: 'earn', source: '扫码积分', description: 'G4 Pod 扫码 x3', created_at: daysAgo(6) },
     { id: 'fpl-real-015', fan_id: 'f-007', points: 30, type: 'redeem', source: '兑换奖励', description: '兑换 UWELLCare 礼品包', created_at: daysAgo(7) },
@@ -279,11 +279,11 @@ export const seedData = {
 
   // ============ 积分规则 ============
   fan_points_rules: [
-    { id: 'r-001', action_type: '完成拜访', points: 10, description: '每完成一次门店拜访', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-002', action_type: '上传照片', points: 5, description: '每次拜访上传产品照片', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-003', action_type: '提交动销数据', points: 5, description: '每次提交完整的动销数据', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-001', action_type: '每日签到', points: 5, description: '每天打开会员中心签到一次', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-002', action_type: '扫码积分', points: 5, description: '消费者每扫一个产品码', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-003', action_type: '积分兑换', points: 0, description: '使用积分兑换会员奖品', is_active: true, created_at: daysAgo(90) },
     { id: 'r-004', action_type: '新增门店', points: 20, description: '成功录入一个新门店', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-005', action_type: '扫码积分', points: 5, description: '消费者每扫一个产品码', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-005', action_type: '活动奖励', points: 50, description: '完成当前品牌活动要求', is_active: true, created_at: daysAgo(90) },
     { id: 'r-006', action_type: '推荐新粉丝', points: 30, description: '每推荐一位新粉丝注册', is_active: true, created_at: daysAgo(90) },
   ],
 
@@ -488,13 +488,36 @@ export const seedData = {
 
 const trialCities = ['Riyadh', 'Jeddah', 'Dammam', 'Makkah', 'Madinah'];
 const trialRepIds = ['u-rep1', 'u-rep2', 'u-rep3'];
+export const trialPasswords = {
+  admin: 'UwellAdmin@2026',
+  manager: 'UwellManager@2026',
+  rep: 'UwellRep@2026',
+  store: 'UwellStore@2026',
+  fan: 'UwellFan@2026',
+};
 const trialStaffAccounts = [
-  { id: 'u-admin', email: 'admin@uwell.com', password: 'admin', role: 'admin', name: 'UWELL Admin', phone: '13800000001', city: 'Riyadh' },
-  { id: 'u-manager', email: 'manager@uwell.com', password: 'admin', role: 'manager', name: 'Riyadh Market Manager', phone: '13800000002', city: 'Riyadh' },
-  { id: 'u-rep1', email: 'rep1@uwell.com', password: 'admin', role: 'rep', name: 'Riyadh Field Rep', phone: '13800000003', city: 'Riyadh' },
-  { id: 'u-rep2', email: 'rep2@uwell.com', password: 'admin', role: 'rep', name: 'Jeddah Field Rep', phone: '13800000004', city: 'Jeddah' },
-  { id: 'u-rep3', email: 'rep3@uwell.com', password: 'admin', role: 'rep', name: 'Dammam Field Rep', phone: '13800000005', city: 'Dammam' },
+  { id: 'u-admin', email: 'admin@uwell.com', password: trialPasswords.admin, role: 'admin', name: 'UWELL Admin', phone: '13800000001', city: 'Riyadh' },
+  { id: 'u-manager', email: 'manager@uwell.com', password: trialPasswords.manager, role: 'manager', name: 'Riyadh Market Manager', phone: '13800000002', city: 'Riyadh' },
+  { id: 'u-rep1', email: 'rep1@uwell.com', password: trialPasswords.rep, role: 'rep', name: 'Riyadh Field Rep', phone: '13800000003', city: 'Riyadh' },
+  { id: 'u-rep2', email: 'rep2@uwell.com', password: trialPasswords.rep, role: 'rep', name: 'Jeddah Field Rep', phone: '13800000004', city: 'Jeddah' },
+  { id: 'u-rep3', email: 'rep3@uwell.com', password: trialPasswords.rep, role: 'rep', name: 'Dammam Field Rep', phone: '13800000005', city: 'Dammam' },
 ];
+const trialStoreOwnerAccount = {
+  id: 'auth-store-owner-preview',
+  store_id: 's-real-012',
+  email: 'store.owner@uwell.com',
+  password: trialPasswords.store,
+  role: 'store_owner',
+  name: 'S-Level Preview Store Owner',
+};
+const trialFanAccount = {
+  id: 'auth-fan-preview',
+  fan_id: 'f-001',
+  email: 'fan.preview@uwell.com',
+  password: trialPasswords.fan,
+  role: 'fan',
+  name: 'Ahmed',
+};
 
 function enhanceTrialSeedData(data) {
   const staffById = new Map(trialStaffAccounts.map((account) => [account.id, account]));
@@ -512,15 +535,35 @@ function enhanceTrialSeedData(data) {
     };
   });
 
-  data.auth = trialStaffAccounts.map((account) => ({
-    id: `auth-${account.id}`,
-    profile_id: account.id,
-    email: account.email,
-    password: account.password,
-    role: account.role,
-    created_at: daysAgo(90),
-    updated_at: daysAgo(1),
-  }));
+  data.auth = [
+    ...trialStaffAccounts.map((account) => ({
+      id: `auth-${account.id}`,
+      profile_id: account.id,
+      email: account.email,
+      password: account.password,
+      role: account.role,
+      created_at: daysAgo(90),
+      updated_at: daysAgo(1),
+    })),
+    {
+      id: trialStoreOwnerAccount.id,
+      profile_id: trialStoreOwnerAccount.id,
+      email: trialStoreOwnerAccount.email,
+      password: trialStoreOwnerAccount.password,
+      role: trialStoreOwnerAccount.role,
+      created_at: daysAgo(30),
+      updated_at: daysAgo(1),
+    },
+    {
+      id: trialFanAccount.id,
+      profile_id: trialFanAccount.fan_id,
+      email: trialFanAccount.email,
+      password: trialFanAccount.password,
+      role: trialFanAccount.role,
+      created_at: daysAgo(30),
+      updated_at: daysAgo(1),
+    },
+  ];
 
   const evaluationStoreIds = new Set((data.store_evaluations || []).map((item) => item.store_id));
   data.stores = (data.stores || []).map((store, index) => {
@@ -542,6 +585,8 @@ function enhanceTrialSeedData(data) {
       rep_id: repId,
       display_status: store.display_status || (['S', 'A'].includes(level) ? 'approved' : 'pending'),
       rating_status: store.rating_status || (evaluationStoreIds.has(store.id) ? 'evaluated' : 'pending'),
+      owner_email: store.id === trialStoreOwnerAccount.store_id ? trialStoreOwnerAccount.email : store.owner_email,
+      owner_password_preview: store.id === trialStoreOwnerAccount.store_id ? trialStoreOwnerAccount.password : store.owner_password_preview,
     };
   });
 
@@ -551,7 +596,7 @@ function enhanceTrialSeedData(data) {
     const normalizedName = String(fan.name || `Fan ${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
     return {
       ...fan,
-      email: fan.email || `${normalizedName || `fan${index + 1}`}@fans.uwell.local`,
+      email: fan.id === trialFanAccount.fan_id ? trialFanAccount.email : fan.email || `${normalizedName || `fan${index + 1}`}@fans.uwell.local`,
       country: fan.country || store?.country || 'Saudi Arabia',
       city: fan.city || store?.city || trialCities[index % trialCities.length],
       store_id: fan.store_id || data.stores[index % data.stores.length]?.id || null,
@@ -575,8 +620,8 @@ function enhanceTrialSeedData(data) {
 
   data.trial_accounts = [
     ...trialStaffAccounts.map(({ email, password, role, name }) => ({ email, password, role, name })),
-    { store_id: 's-real-001', phone: '504875886', role: 'store_owner', name: 'rabie alkayf lilshiyshat walmueasal' },
-    { fan_id: 'f-001', role: 'fan', name: 'Ahmed', note: 'Use the Fan Entry demo button or register a new fan.' },
+    { store_id: trialStoreOwnerAccount.store_id, email: trialStoreOwnerAccount.email, password: trialStoreOwnerAccount.password, role: trialStoreOwnerAccount.role, name: trialStoreOwnerAccount.name },
+    { fan_id: trialFanAccount.fan_id, email: trialFanAccount.email, password: trialFanAccount.password, role: trialFanAccount.role, name: trialFanAccount.name },
   ];
 }
 

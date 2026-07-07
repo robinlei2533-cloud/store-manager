@@ -11,8 +11,11 @@ test('trial seed data includes usable demo accounts', () => {
   assert.ok(accountKeys.includes('manager@uwell.com'));
   assert.ok(accountKeys.includes('rep1@uwell.com'));
   assert.ok(accountKeys.includes('rep2@uwell.com'));
-  assert.ok(accountKeys.includes('s-real-001'));
-  assert.equal(seedData.auth.find((account) => account.email === 'admin@uwell.com')?.password, 'admin');
+  assert.ok(accountKeys.includes('store.owner@uwell.com'));
+  assert.equal(accounts.find((account) => account.email === 'store.owner@uwell.com')?.store_id, 's-real-012');
+  assert.equal(seedData.auth.find((account) => account.email === 'admin@uwell.com')?.password, 'UwellAdmin@2026');
+  assert.equal(seedData.auth.find((account) => account.email === 'store.owner@uwell.com')?.password, 'UwellStore@2026');
+  assert.equal(seedData.auth.find((account) => account.email === 'fan.preview@uwell.com')?.password, 'UwellFan@2026');
 });
 
 test('trial stores are normalized for city operations', () => {

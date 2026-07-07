@@ -323,7 +323,7 @@ const FanCenterPage = () => {
   const displayCampaign = featuredCampaign ? {
     ...featuredCampaign,
     name: featuredCampaign.name_english || 'UWELL Store Display Challenge',
-    description: featuredCampaign.description_english || 'Visit a verified UWELL store, check the latest CALIBURN display, and complete the activity steps to earn extra rewards.',
+    description: featuredCampaign.description_english || 'Join the weekly UWELL activity, scan your product code, and use member points for rewards.',
   } : null;
 
   const fanNavItems = [
@@ -345,11 +345,10 @@ const FanCenterPage = () => {
     { key: 'checkin', title: 'Daily check-in', desc: 'Open your member center each day to collect base points.', points: '+5', done: hasCheckedInToday, action: hasCheckedInToday ? 'Done today' : 'Check in' },
     { key: 'scan', title: 'Scan for points', desc: 'Scan your UWELL product code after purchase. Points go straight to your account.', points: '+20', done: true, action: 'Scan now' },
     { key: 'campaigns', title: "Join this week's activity", desc: 'See the active brand activity and complete the steps for extra rewards.', points: '+50', done: false, action: 'View activity' },
-    { key: 'stores', title: 'Visit a verified store', desc: 'Find reviewed UWELL stores with better displays and member benefits.', points: 'Store perks', done: false, action: 'Find stores' },
   ];
 
   const campaignSteps = [
-    { label: 'Step 1', title: 'Find a verified store', desc: 'Choose a recommended UWELL store near your registered city.' },
+    { label: 'Step 1', title: 'Join the activity', desc: 'Open the current UWELL activity and read the reward rules.' },
     { label: 'Step 2', title: 'Scan your product code', desc: 'Scan after purchase so points are recorded in your member center.' },
     { label: 'Step 3', title: 'Claim rewards', desc: 'Use points for devices, pods, coupons, or campaign gifts.' },
   ];
@@ -360,28 +359,18 @@ const FanCenterPage = () => {
     '\u79ef\u5206\u5151\u6362': 'Reward redemption',
     '\u9650\u91cfUWELL\u5468\u8fb9\u793c\u5305': 'Limited UWELL gift pack',
     '\u9650\u91cf UWELL \u5468\u8fb9\u793c\u5305': 'Limited UWELL gift pack',
-    '\u5b8c\u6210\u62dc\u8bbf': 'Visit completed',
-    '\u4e0a\u4f20\u7167\u7247': 'Shelf photo uploaded',
-    '\u63d0\u4ea4\u52a8\u9500\u6570\u636e': 'Sales data submitted',
-    '\u5b8c\u6210\u95e8\u5e97\u62dc\u8bbf s-001': 'Store visit completed',
-    '\u62dc\u8bbf\u4e0a\u4f20\u8d27\u67b6\u7167\u7247': 'Shelf photo uploaded',
+    '\u7b7e\u5230\u5956\u52b1': 'Daily check-in',
+    '\u63a8\u8350\u65b0\u7c89\u4e1d': 'Referral reward',
     '\u59e3\u5fd4\u68e9\u7edb\u60e7\u57cc': 'Daily check-in',
     '\u93b5\ue0a4\u721c\u6960\u5c83\u7609': 'Product scan',
     '\u7ec9\ue21a\u578e\u934f\u621e\u5d32': 'Reward redemption',
     '\u95c4\u6130\u567aUWELL\u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'Limited UWELL gift pack',
     '\u95c4\u6130\u567a UWELL \u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'Limited UWELL gift pack',
-    '\u7039\u5c7e\u579a\u93b7\u6ec6\ue196': 'Visit completed',
-    '\u6d93\u5a41\u7d36\u9413\u0445\u5896': 'Shelf photo uploaded',
-    '\u93bb\u612a\u6c26\u9354\u3129\u6522\u93c1\u7248\u5d41': 'Sales data submitted',
-    '\u7039\u5c7e\u579a\u95c2\u3125\u7c35\u93b7\u6ec6\ue196 s-001': 'Store visit completed',
-    '\u93b7\u6ec6\ue196\u6d93\u5a41\u7d36\u7490\u0444\u7066\u9413\u0445\u5896': 'Shelf photo uploaded',
   };
 
   const getFanActivityText = (value, fallback = '-') => {
     if (!value) return fallback;
     const text = String(value);
-    if (text.startsWith('\u5b8c\u6210\u95e8\u5e97\u62dc\u8bbf') || text.startsWith('\u7039\u5c7e\u579a\u95c2\u3125\u7c35\u93b7\u6ec6\ue196')) return 'Store visit completed';
-    if (text.startsWith('\u63d0\u4ea4\u52a8\u9500\u6570\u636e') || text.startsWith('\u93bb\u612a\u6c26\u9354\u3129\u6522\u93c1\u7248\u5d41')) return 'Sales data submitted';
     return activityCopy[text] || text;
   };
 
