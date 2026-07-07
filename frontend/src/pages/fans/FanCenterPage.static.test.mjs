@@ -30,6 +30,22 @@ test('fan center uses English consumer-facing task and campaign copy', () => {
   assert.match(source, /Sales data submitted/);
 });
 
+test('fan task daily check-in card performs check-in instead of only navigating', () => {
+  assert.match(source, /addFanPoints/);
+  assert.match(source, /hasCheckedInToday/);
+  assert.match(source, /handleTaskAction/);
+  assert.match(source, /handleTaskCheckIn/);
+  assert.match(source, /key: 'checkin'[\s\S]*done: hasCheckedInToday/);
+  assert.match(source, /await addFanPoints\(currentFan\.id, 5, 'earn', 'Daily Check-in', 'Daily check-in bonus'\);[\s\S]*localDb\.insert\('fan_checkins'/);
+  assert.doesNotMatch(source, /key: 'checkin'[\s\S]{0,160}done: true/);
+});
+
+test('fan center prioritizes the saved fan session when selecting the current fan', () => {
+  assert.match(source, /const savedFanId = localStorage\.getItem\('store_manager_current_user'\)/);
+  assert.match(source, /fans\.find\(\(f\) => f\.id === savedFanId\)/);
+  assert.match(source, /localDb\.findById\('fans', savedFanId\)/);
+});
+
 test('fan center does not treat local fallback fans as fresh data in Supabase sessions', () => {
   assert.doesNotMatch(source, /initialData:\s*localFallbackFans/);
   assert.match(source, /placeholderData:\s*localFallbackFans/);

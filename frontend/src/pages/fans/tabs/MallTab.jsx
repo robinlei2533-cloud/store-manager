@@ -5,6 +5,7 @@ import localDb from '../../../services/db/localDb';
 import { addFanPoints, createRewardRedemptionRemote } from '../../../services/api';
 import { MALL_ITEMS } from '../../../utils/constants';
 import { createPendingRedemption } from '../../../utils/reward-redemption';
+import { rewardRules } from '../../../utils/legal-content';
 
 const { Text, Paragraph } = Typography;
 
@@ -19,6 +20,7 @@ const MallTab = ({ fan, onPointsChange }) => {
   const [category, setCategory] = useState('All');
   const [redeeming, setRedeeming] = useState(null);
   const [redeemResult, setRedeemResult] = useState(null);
+  const [rulesOpen, setRulesOpen] = useState(false);
 
   const categories = ['All', 'Device', 'Pod', 'Merch', 'Coupon', 'VIP'];
   const filteredItems = category === 'All' ? MALL_ITEMS : MALL_ITEMS.filter((i) => i.category === category);
@@ -63,7 +65,16 @@ const MallTab = ({ fan, onPointsChange }) => {
         type="info"
         showIcon
         message="How rewards work"
-        description="Choose a reward, redeem with points, then show the redemption code at an S-level UWELL store for pickup."
+        description={(
+          <div>
+            <Paragraph style={{ marginBottom: 8 }}>
+              Choose a reward, redeem with points, then show the redemption code at an S-level UWELL store for pickup.
+            </Paragraph>
+            <Button size="small" type="link" onClick={() => setRulesOpen(true)} style={{ padding: 0 }}>
+              View full redemption rules
+            </Button>
+          </div>
+        )}
         style={{ marginBottom: 16 }}
       />
 
@@ -152,9 +163,29 @@ const MallTab = ({ fan, onPointsChange }) => {
             <Paragraph className="fan-redemption-note">
               Show this code at an S-level UWELL store to collect your reward.
               {redeemResult.expiresAt ? ` Valid until ${new Date(redeemResult.expiresAt).toLocaleDateString()}.` : ''}
+              {' '}The code is one-time use and must be verified in the store portal before pickup.
             </Paragraph>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        className="fan-redemption-modal"
+        rootClassName="fan-redemption-modal-root"
+        open={rulesOpen}
+        onCancel={() => setRulesOpen(false)}
+        footer={<Button type="primary" onClick={() => setRulesOpen(false)}>I understand</Button>}
+        title={rewardRules.title}
+        centered
+        width={520}
+      >
+        <div className="fan-redemption-body">
+          <Paragraph>{rewardRules.summary}</Paragraph>
+          <ul className="fan-rule-list">
+            {rewardRules.items.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+          <Paragraph className="fan-redemption-note">{rewardRules.operatorNote}</Paragraph>
+        </div>
       </Modal>
     </div>
   );

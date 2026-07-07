@@ -33,7 +33,7 @@ import useAuthStore from '../../stores/authStore';
 import useLanguageStore from '../../stores/languageStore';
 import localDb from '../../services/db/localDb';
 import seedData from '../../services/db/seedData';
-import { getFans } from '../../services/api';
+import { addFanPoints, getFans } from '../../services/api';
 import { useRealtimeSubscription } from '../../hooks/useRealtimeSubscription';
 import { IS_LOCAL_MODE } from '../../services/api';
 import { FAN_LEVELS, MALL_ITEMS } from '../../utils/constants';
@@ -68,6 +68,8 @@ const formatDateTime = (value) => {
     return '-';
   }
 };
+
+const getTodayDateKey = () => new Date().toISOString().split('T')[0];
 
 const LevelBadge = ({ levelInfo }) => (
   <Tag className="fan-shell-level-tag" color={levelInfo?.color || 'gold'}>
@@ -176,7 +178,10 @@ const FanCenterPage = () => {
     };
   }, [isLoading]);
 
-  let currentFan = fans.find((f) => f.user_id === user?.id) || fans[0] || null;
+  const savedFanId = localStorage.getItem('store_manager_current_user');
+  let currentFan = savedFanId
+    ? (localDb.findById('fans', savedFanId) || fans.find((f) => f.id === savedFanId))
+    : (fans.find((f) => f.user_id === user?.id) || fans[0] || null);
 
   useRealtimeSubscription('fan_points_log', { event: 'INSERT' }, (payload) => {
     const newLog = payload.new;
@@ -189,7 +194,6 @@ const FanCenterPage = () => {
   });
 
   if (!currentFan) {
-    const savedFanId = localStorage.getItem('store_manager_current_user');
     if (savedFanId) {
       const savedFan = localDb.findById('fans', savedFanId);
       if (savedFan) currentFan = savedFan;
@@ -206,6 +210,42 @@ const FanCenterPage = () => {
 
   const handlePointsChange = () => {
     setRefreshKey((k) => k + 1);
+  };
+
+  const hasCheckedInToday = useMemo(() => {
+    if (!currentFan?.id) return false;
+    try {
+      const today = getTodayDateKey();
+      return (localDb.find('fan_checkins', (item) => item.fan_id === currentFan.id) || [])
+        .some((item) => item.date === today);
+    } catch {
+      return false;
+    }
+  }, [currentFan?.id, refreshKey]);
+
+  const handleTaskCheckIn = async () => {
+    if (!currentFan || hasCheckedInToday) {
+      setActiveView('checkin');
+      return;
+    }
+    try {
+      const today = getTodayDateKey();
+      await addFanPoints(currentFan.id, 5, 'earn', 'Daily Check-in', 'Daily check-in bonus');
+      localDb.insert('fan_checkins', { fan_id: currentFan.id, date: today, points: 5 });
+      message.success('Checked in. +5 points added.');
+      handlePointsChange();
+    } catch {
+      message.error('Check-in failed. Please try again.');
+      setActiveView('checkin');
+    }
+  };
+
+  const handleTaskAction = (taskKey) => {
+    if (taskKey === 'checkin') {
+      handleTaskCheckIn();
+      return;
+    }
+    setActiveView(taskKey);
   };
 
   const handleLogout = async () => {
@@ -302,7 +342,7 @@ const FanCenterPage = () => {
   ];
 
   const fanTaskCards = [
-    { key: 'checkin', title: 'Daily check-in', desc: 'Open your member center each day to collect base points.', points: '+10', done: true, action: 'Start here' },
+    { key: 'checkin', title: 'Daily check-in', desc: 'Open your member center each day to collect base points.', points: '+5', done: hasCheckedInToday, action: hasCheckedInToday ? 'Done today' : 'Check in' },
     { key: 'scan', title: 'Scan for points', desc: 'Scan your UWELL product code after purchase. Points go straight to your account.', points: '+20', done: true, action: 'Scan now' },
     { key: 'campaigns', title: "Join this week's activity", desc: 'See the active brand activity and complete the steps for extra rewards.', points: '+50', done: false, action: 'View activity' },
     { key: 'stores', title: 'Visit a verified store', desc: 'Find reviewed UWELL stores with better displays and member benefits.', points: 'Store perks', done: false, action: 'Find stores' },
@@ -369,20 +409,6 @@ const FanCenterPage = () => {
     }
     return false;
   };
-
-  const featureItems = [
-    { key: 'tasks', label: 'Today', icon: <CalendarOutlined />, tone: 'gold' },
-    { key: 'scan', label: 'Scan', icon: <QrcodeOutlined />, tone: 'blue' },
-    { key: 'campaigns', label: 'Rewards', icon: <FireOutlined />, tone: 'red' },
-    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined />, tone: 'teal' },
-  ];
-
-  const taskCards = [
-    { key: 'checkin', title: 'Daily check-in', desc: 'Open your member center each day to collect base points.', points: '+10', done: true, action: 'Check in' },
-    { key: 'scan', title: 'Scan for points', desc: 'Scan your UWELL product code after purchase. Points go straight to your account.', points: '+20', done: true, action: 'Scan now' },
-    { key: 'campaigns', title: 'Join this week activity', desc: 'See the active brand activity and complete the steps for extra rewards.', points: '+50', done: false, action: 'View activity' },
-    { key: 'stores', title: 'Visit a verified store', desc: 'Find reviewed UWELL stores with better displays and member benefits.', points: 'Store perks', done: false, action: 'Find stores' },
-  ];
 
   const renderShellHeader = () => (
     <header className="fan-shell-header">
@@ -474,7 +500,7 @@ const FanCenterPage = () => {
         ))}
       </section>
       <section className="fan-panel fan-today-panel">
-        <div className="fan-section-title"><StarOutlined /> Today's tasks <span>2/4</span></div>
+        <div className="fan-section-title"><StarOutlined /> Today's tasks <span>{fanTaskCards.filter((task) => task.done).length}/{fanTaskCards.length}</span></div>
         {fanTaskCards.slice(0, 3).map((task) => (
           <div key={task.key} className={`fan-task-row${task.done ? ' is-done' : ''}`}>
             <CheckCircleOutlined />
@@ -577,7 +603,7 @@ const FanCenterPage = () => {
       </section>
       <section className="fan-task-card-list">
             {fanTaskCards.map((task) => (
-          <button key={task.key} type="button" className={`fan-task-card${task.done ? ' is-done' : ''}`} onClick={() => setActiveView(task.key)}>
+          <button key={task.key} type="button" className={`fan-task-card${task.done ? ' is-done' : ''}`} onClick={() => handleTaskAction(task.key)}>
             <span className="fan-task-status">{task.done ? <CheckCircleOutlined /> : <StarOutlined />}</span>
             <div>
               <strong>{task.title}</strong>

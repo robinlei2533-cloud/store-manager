@@ -8,6 +8,7 @@ import { isLocal } from "../../services/api/helpers";
 import useLanguageStore from "../../stores/languageStore";
 import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
 import { confirmRewardPickup, validateRewardPickup } from "../../utils/reward-redemption";
+import { sLevelStorePolicy } from "../../utils/legal-content";
 
 const { Title, Text } = Typography;
 
@@ -60,6 +61,7 @@ const StoreOwnerPage = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [pickupCode, setPickupCode] = useState("");
   const [pickupResult, setPickupResult] = useState(null);
+  const [sLevelPolicyOpen, setSLevelPolicyOpen] = useState(false);
   const [editForm] = Form.useForm();
   const { message } = App.useApp();
   const [materialRequesting, setMaterialRequesting] = useState(false);
@@ -679,6 +681,9 @@ const StoreOwnerPage = () => {
         <div className="so-text-white30 so-fs11 so-mt8">
           Only S-level UWELL stores can fulfill rewards.
         </div>
+        <Button type="link" size="small" onClick={() => setSLevelPolicyOpen(true)} style={{ paddingLeft: 0 }}>
+          S-level responsibilities and incentives
+        </Button>
       </Card>
 
       {store.level !== "S" && (
@@ -707,6 +712,28 @@ const StoreOwnerPage = () => {
           </Button>
         </Card>
       )}
+
+      <Modal
+        open={sLevelPolicyOpen}
+        onCancel={() => setSLevelPolicyOpen(false)}
+        footer={<Button type="primary" onClick={() => setSLevelPolicyOpen(false)}>I understand</Button>}
+        title={sLevelStorePolicy.title}
+        centered
+        width={560}
+      >
+        <Typography.Paragraph>
+          S-level stores are the approved pickup partners for UWELL fan rewards. The store must verify the code in the Store Portal before handing over the reward.
+        </Typography.Paragraph>
+        <Typography.Title level={5}>Responsibilities</Typography.Title>
+        <ul>
+          {sLevelStorePolicy.responsibilities.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+        <Typography.Title level={5}>Store rewards and consequences</Typography.Title>
+        <ul>
+          {sLevelStorePolicy.rewards.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+        <Typography.Paragraph type="secondary">{sLevelStorePolicy.operatorNote}</Typography.Paragraph>
+      </Modal>
     </div>
   );
 

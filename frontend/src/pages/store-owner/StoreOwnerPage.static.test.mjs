@@ -57,5 +57,9 @@ test('store owner center supports S-level reward pickup', () => {
   assert.match(ownerSource, /Remote pickup will be verified by the server/);
   assert.match(ownerSource, /Reward Pickup/);
   assert.match(ownerSource, /Only S-level UWELL stores can fulfill rewards/);
+  assert.match(ownerSource, /sLevelStorePolicy/);
+  assert.match(ownerSource, /S-level responsibilities and incentives/);
+  assert.match(ownerSource, /Responsibilities/);
+  assert.match(ownerSource, /Store rewards and consequences/);
   assert.match(ownerSource, /pickupCode/);
 });

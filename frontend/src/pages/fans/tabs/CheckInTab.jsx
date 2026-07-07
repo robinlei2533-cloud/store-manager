@@ -53,8 +53,8 @@ const CheckInTab = ({ fan, onPointsChange }) => {
   const handleCheckIn = async () => {
     if (!fan || todayChecked) return;
     const today = new Date().toISOString().split('T')[0];
-    localDb.insert('fan_checkins', { fan_id: fan.id, date: today, points: 5 });
     await addFanPoints(fan.id, 5, 'earn', 'Daily Check-in', 'Daily check-in bonus');
+    localDb.insert('fan_checkins', { fan_id: fan.id, date: today, points: 5 });
     setTodayChecked(true);
     setCheckinStreak((s) => s + 1);
     setWeekData((prev) => prev.map((d) => (d.isToday ? { ...d, checked: true } : d)));

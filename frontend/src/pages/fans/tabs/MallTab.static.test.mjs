@@ -10,6 +10,10 @@ test('redemption success modal uses an isolated readable style scope', () => {
   assert.match(source, /createRewardRedemptionRemote/);
   assert.match(source, /pending_pickup/);
   assert.match(source, /S-level UWELL store/);
+  assert.match(source, /rewardRules/);
+  assert.match(source, /View full redemption rules/);
+  assert.match(source, /The code is one-time use/);
+  assert.match(source, /I understand/);
   assert.match(source, /className="fan-redemption-modal"/);
   assert.match(source, /className="fan-redemption-status"/);
   assert.match(source, /className="fan-redemption-code"/);

@@ -5,6 +5,24 @@ import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import { isLocal, ensureLocalInit, enrichFan } from './helpers';
 
+const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
+
+function addFanPointsLocal(fanId, points, type, source, description) {
+  localDb.insert('fan_points_log', { fan_id: fanId, points, type, source, description });
+  const fan = localDb.findById('fans', fanId);
+  if (fan) {
+    const newPoints = fan.points + points;
+    const rules = localDb.all('fan_level_rules').sort((a, b) => b.min_points - a.min_points);
+    const newLevel = rules.find((r) => newPoints >= r.min_points);
+    localDb.update('fans', fanId, {
+      points: newPoints,
+      total_contribution: fan.total_contribution + (type === 'earn' ? points : 0),
+      level: newLevel ? newLevel.level : fan.level,
+    });
+  }
+  return localDb.findById('fans', fanId);
+}
+
 // ============ 粉丝 ============
 
 export async function getFans(filters = {}) {
@@ -45,24 +63,39 @@ export async function getFanPointsLog(fanId) {
 
 export async function addFanPoints(fanId, points, type, source, description) {
   ensureLocalInit();
-  if (isLocal()) {
-    localDb.insert('fan_points_log', { fan_id: fanId, points, type, source, description });
-    const fan = localDb.findById('fans', fanId);
-    if (fan) {
-      const newPoints = fan.points + points;
+  if (isLocal() || !isUuid(fanId)) return addFanPointsLocal(fanId, points, type, source, description);
       // 鑷姩鍗囩骇
-      const rules = localDb.all('fan_level_rules').sort((a, b) => b.min_points - a.min_points);
-      const newLevel = rules.find((r) => newPoints >= r.min_points);
-      localDb.update('fans', fanId, {
-        points: newPoints,
-        total_contribution: fan.total_contribution + (type === 'earn' ? points : 0),
-        level: newLevel ? newLevel.level : fan.level,
-      });
-    }
-    return localDb.findById('fans', fanId);
-  }
   const { data, error } = await supabase.from('fan_points_log').insert({ fan_id: fanId, points, type, source, description }).select().single();
   if (error) throw error;
-  return data;
+
+  const { data: fan, error: fanError } = await supabase
+    .from('fans')
+    .select('points, total_contribution, level')
+    .eq('id', fanId)
+    .single();
+  if (fanError) throw fanError;
+
+  const newPoints = (fan?.points || 0) + points;
+  const newContribution = (fan?.total_contribution || 0) + (type === 'earn' ? points : 0);
+  const { data: levelRules, error: rulesError } = await supabase
+    .from('fan_level_rules')
+    .select('level, min_points')
+    .order('min_points', { ascending: false });
+  if (rulesError) throw rulesError;
+
+  const newLevel = (levelRules || []).find((rule) => newPoints >= rule.min_points)?.level || fan?.level;
+  const { data: updatedFan, error: updateError } = await supabase
+    .from('fans')
+    .update({
+      points: newPoints,
+      total_contribution: newContribution,
+      level: newLevel,
+    })
+    .eq('id', fanId)
+    .select()
+    .single();
+  if (updateError) throw updateError;
+
+  return updatedFan || data;
 }
 

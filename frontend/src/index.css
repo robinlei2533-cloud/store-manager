@@ -4727,6 +4727,122 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   gap: 10px;
 }
 
+.fan-campaign-card,
+.fan-shell .fan-campaign-card.ant-card,
+.fan-shell .fan-campaign-card.liquid-glass {
+  background: #ffffff !important;
+  border: 1px solid rgba(82, 62, 24, 0.14) !important;
+  box-shadow: 0 14px 34px rgba(82, 62, 24, 0.12) !important;
+  color: #1f1a12 !important;
+}
+
+.fan-campaign-card .ant-card-body {
+  padding: 14px 16px !important;
+}
+
+.fan-campaign-detail-modal .ant-modal-content,
+.fan-campaign-detail-modal .ant-modal-header {
+  background: #fffaf0 !important;
+  color: #1f1a12 !important;
+}
+
+.fan-campaign-detail-modal .ant-modal-title,
+.fan-campaign-detail-modal .ant-modal-title *,
+.fan-campaign-detail-modal .ant-modal-body,
+.fan-campaign-detail-modal .ant-modal-body *,
+.fan-campaign-detail-modal .ant-modal-close {
+  color: #1f1a12 !important;
+}
+
+.fan-campaign-detail-modal .ant-modal-header,
+.fan-campaign-detail-modal .ant-modal-footer {
+  border-color: rgba(82, 62, 24, 0.14) !important;
+}
+
+.fan-campaign-type-tag,
+.fan-campaign-status-tag {
+  border-radius: 8px !important;
+  border: 1px solid rgba(82, 62, 24, 0.16) !important;
+  background: #fff7df !important;
+  color: #2a2115 !important;
+  font-weight: 800 !important;
+}
+
+.fan-campaign-type-tag {
+  border-color: color-mix(in srgb, var(--tag-accent, #b98916) 38%, rgba(82, 62, 24, 0.16)) !important;
+  background: color-mix(in srgb, var(--tag-accent, #b98916) 14%, #fffaf0) !important;
+}
+
+.fan-campaign-status-tag.is-ongoing {
+  border-color: rgba(185, 137, 22, 0.32) !important;
+  background: #fff1bd !important;
+  color: #6f4b00 !important;
+}
+
+.fan-campaign-status-tag.is-completed {
+  border-color: rgba(82, 62, 24, 0.18) !important;
+  background: #eee7d8 !important;
+  color: #4a4032 !important;
+}
+
+.fan-campaign-status-tag.is-planned {
+  border-color: rgba(51, 103, 214, 0.24) !important;
+  background: #eaf2ff !important;
+  color: #244a91 !important;
+}
+
+.fan-campaign-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.fan-campaign-card-title,
+.fan-campaign-card-title * {
+  display: block;
+  margin-bottom: 5px;
+  color: #1f1a12 !important;
+  font-size: 15px;
+  font-weight: 850 !important;
+  line-height: 1.35;
+}
+
+.fan-campaign-card-desc,
+.fan-campaign-card-desc * {
+  display: block;
+  margin-bottom: 8px;
+  color: #554a3b !important;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.fan-campaign-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.fan-campaign-card .ant-progress-inner {
+  background: #efe7d7 !important;
+}
+
+.fan-campaign-card .ant-progress-bg {
+  background: linear-gradient(90deg, #ffd60a, #f0b000) !important;
+}
+
+.fan-campaign-progress-value,
+.fan-campaign-progress-value * {
+  min-width: 36px;
+  color: #3d3327 !important;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .fan-campaign-step-strip,
 .fan-campaign-mini-steps {
   grid-template-columns: repeat(3, minmax(0, 1fr));

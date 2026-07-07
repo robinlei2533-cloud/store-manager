@@ -961,3 +961,48 @@ Move into pre-launch decision work: choose local trial vs external preview, then
 - Security note:
   - the Vercel token pasted in chat should be revoked/rotated after deployment work;
   - the earlier Supabase token should also be revoked/rotated.
+
+### 2026-07-07 Fan Center Activity Readability Archive
+
+- User requested another local archive after checking the Fan Center activity detail modal.
+- Fixed Fan Center campaign/activity readability issues:
+  - `frontend/src/pages/fans/tabs/CampaignTab.jsx`
+    - campaign cards now use explicit readable light surfaces;
+    - activity progress percentages are visible on the card;
+    - campaign detail modal has a scoped `fan-campaign-detail-modal` class;
+    - status tags no longer rely on Ant Design default dark tag rendering.
+  - `frontend/src/index.css`
+    - added scoped light modal styles for Fan campaign detail;
+    - added light readable styles for campaign type/status tags;
+    - locked completed status to a light grey/cream surface instead of black.
+- Fixed Fan Center task behavior from the same acceptance pass:
+  - daily check-in now awards `+5` points;
+  - local seed fan IDs such as `f-001` route through local DB instead of attempting Supabase UUID writes;
+  - Fan Center prioritizes saved local fan session data so point changes are visible immediately.
+- Added fan store-visit closure design document:
+  - `docs/fan-store-visit-task-closure-2026-07-07.md`
+  - decision: store-visit tasks should be closed by S-level store verification code, not fan self-photo auto-completion.
+- Browser verification:
+  - local preview used `http://127.0.0.1:4174/fan-app.html#/fan-center`;
+  - real path verified: Home -> View activity -> Past campaigns -> G5 Launch Promotion detail;
+  - screenshot saved at `frontend/output/playwright/fan-campaign-detail-light.png`;
+  - modal and `Completed` status tag now render on light readable surfaces.
+- Verification:
+  - `npm test -- CampaignTab.static.test.mjs` passed: 1 file, 3 tests.
+  - `npm test` passed: 25 test files, 68 tests.
+  - `npm run build` passed; only the known Vite chunk-size / plugin timing warnings remain.
+- GitHub / Supabase status:
+  - current branch: `codex/uwell-trial-ops-sync`;
+  - GitHub remote: `origin https://github.com/robinlei2533-cloud/store-manager.git`;
+  - latest Supabase migration remains `20260706000100_reward_pickup_rpc.sql`;
+  - no new Supabase schema migration was needed for this UI/task-readability checkpoint.
+- Preview accounts remain:
+  - Admin: `admin@uwell.com` / `admin`
+  - Manager: `manager@uwell.com` / `admin`
+  - Rep: `rep1@uwell.com` / `admin`
+  - Store: `store.owner@uwell.com` / `admin`
+  - Fan: `fan.preview@uwell.com` / `admin`
+- Next recommended work:
+  - implement the S-level store visit verification flow from the new design doc;
+  - continue full secondary/tertiary page UI audit for remaining dark-edge or overflow cases;
+  - before broader preview, rotate the previously pasted Supabase and Vercel tokens and replace temporary `admin` passwords.

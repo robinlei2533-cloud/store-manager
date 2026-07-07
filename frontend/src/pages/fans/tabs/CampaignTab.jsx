@@ -35,9 +35,9 @@ const TYPE_COLOR_KEYS = {
 };
 
 const STATUS_MAP = {
-  ongoing: { label: 'Ongoing', color: 'gold' },
-  completed: { label: 'Completed', color: 'default' },
-  planned: { label: 'Planned', color: 'blue' },
+  ongoing: { label: 'Ongoing', className: 'is-ongoing' },
+  completed: { label: 'Completed', className: 'is-completed' },
+  planned: { label: 'Planned', className: 'is-planned' },
 };
 
 const FAN_CAMPAIGN_STEPS = [
@@ -106,33 +106,33 @@ const CampaignTab = () => {
       <Card
         key={campaign.id}
         size="small"
-        className="liquid-glass"
+        className="fan-campaign-card liquid-glass"
         style={{ marginBottom: 10, borderRadius: 12, cursor: 'pointer' }}
         onClick={() => setDetailModal(campaign)}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+        <div className="fan-campaign-card-head">
           <div>
-            <Tag color={typeMeta.color}>{typeMeta.label}</Tag>
-            <Tag color={statusConfig.color}>{statusConfig.label}</Tag>
+            <Tag className="fan-campaign-type-tag" style={{ '--tag-accent': typeMeta.color }}>{typeMeta.label}</Tag>
+            <Tag className={`fan-campaign-status-tag ${statusConfig.className || ''}`}>{statusConfig.label}</Tag>
           </div>
           {isOngoing && days <= 7 && days > 0 && (
             <Tag color="volcano">{days <= 1 ? 'Ends tomorrow' : `${days} days left`}</Tag>
           )}
         </div>
 
-        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 4 }}>
+        <Text strong className="fan-campaign-card-title">
           <GiftOutlined style={{ marginRight: 6, color: '#B98916' }} />
           {campaignCopy.name}
         </Text>
-        <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>
+        <Text type="secondary" className="fan-campaign-card-desc">
           {campaignCopy.description.substring(0, 100)}
           {campaignCopy.description.length > 100 ? '...' : ''}
         </Text>
 
         {isOngoing && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+          <div className="fan-campaign-progress">
             <Progress percent={progress} size="small" showInfo={false} style={{ flex: 1, margin: 0 }} />
-            <Text type="secondary" style={{ fontSize: 10, whiteSpace: 'nowrap' }}>{progress}%</Text>
+            <Text type="secondary" className="fan-campaign-progress-value">{progress}%</Text>
           </div>
         )}
 
@@ -214,6 +214,7 @@ const CampaignTab = () => {
         open={!!detailModal}
         onCancel={() => setDetailModal(null)}
         footer={<Button onClick={() => setDetailModal(null)}>Close</Button>}
+        className="fan-campaign-detail-modal"
         width={480}
       >
         {detailModal && (
@@ -232,7 +233,7 @@ const CampaignTab = () => {
               <div><Text type="secondary">Start:</Text> {new Date(detailModal.start_date).toLocaleDateString()}</div>
               <div><Text type="secondary">End:</Text> {new Date(detailModal.end_date).toLocaleDateString()}</div>
               <div><Text type="secondary">Reward:</Text> Extra member points</div>
-              <div><Text type="secondary">Status:</Text> <Tag color={STATUS_MAP[detailModal.status]?.color}>{STATUS_MAP[detailModal.status]?.label || detailModal.status}</Tag></div>
+              <div><Text type="secondary">Status:</Text> <Tag className={`fan-campaign-status-tag ${STATUS_MAP[detailModal.status]?.className || ''}`}>{STATUS_MAP[detailModal.status]?.label || detailModal.status}</Tag></div>
             </div>
           </div>
         )}
