@@ -48,7 +48,21 @@ test('fan center prioritizes the saved fan session when selecting the current fa
   assert.match(source, /localDb\.findById\('fans', savedFanId\)/);
 });
 
+test('fan center resolves remote Supabase fan by auth user id before local fallback', () => {
+  assert.match(source, /const remoteFanByAuthUser = fans\.find\(\(f\) => f\.user_id === user\?\.id\)/);
+  assert.match(source, /fans\.find\(\(f\) => f\.user_id === savedFanId\)/);
+  assert.match(source, /fans\.find\(\(f\) => f\.user_id === user\?\.id\)/);
+  assert.match(source, /remoteFanByAuthUser \|\| remoteFanBySavedAuthUser \|\| savedLocalFan/);
+});
+
 test('fan center does not treat local fallback fans as fresh data in Supabase sessions', () => {
   assert.doesNotMatch(source, /initialData:\s*localFallbackFans/);
   assert.match(source, /placeholderData:\s*localFallbackFans/);
+});
+
+test('fan center only writes local fallback fan sessions when local fallback is active', () => {
+  assert.match(source, /isLocal\(\)/);
+  assert.match(source, /canUseLocalFanFallback/);
+  assert.match(source, /if \(!currentFan && canUseLocalFanFallback\)/);
+  assert.doesNotMatch(source, /if \(!currentFan\) \{\s*const allFans = localDb\.all\('fans'\)/);
 });

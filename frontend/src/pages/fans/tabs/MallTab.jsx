@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { message, Button, Card, Tag, Row, Col, Statistic, Alert, Modal, Typography } from 'antd';
 import { GiftOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
@@ -16,10 +16,31 @@ const generateRedeemCode = () => {
   return code;
 };
 
+const getRedemptionStorageKey = (fanId) => `uwell_latest_redemption_${fanId || 'guest'}`;
+
+const getStoredRedeemResult = (fanId) => {
+  if (typeof window === 'undefined' || !fanId) return null;
+  try {
+    const value = window.sessionStorage.getItem(getRedemptionStorageKey(fanId));
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+};
+
+const storeRedeemResult = (fanId, result) => {
+  if (typeof window === 'undefined' || !fanId) return;
+  try {
+    window.sessionStorage.setItem(getRedemptionStorageKey(fanId), JSON.stringify(result));
+  } catch {
+    // Session storage is a best-effort fallback for keeping the pickup code visible.
+  }
+};
+
 const MallTab = ({ fan, onPointsChange }) => {
   const [category, setCategory] = useState('All');
   const [redeeming, setRedeeming] = useState(null);
-  const [redeemResult, setRedeemResult] = useState(null);
+  const [redeemResult, setRedeemResult] = useState(() => getStoredRedeemResult(fan?.id));
   const [rulesOpen, setRulesOpen] = useState(false);
 
   const categories = ['All', 'Device', 'Pod', 'Merch', 'Coupon', 'VIP'];
@@ -40,13 +61,19 @@ const MallTab = ({ fan, onPointsChange }) => {
       const redeemCode = generateRedeemCode();
       const pendingRedemption = createPendingRedemption({ fan, item, code: redeemCode });
       // status: pending_pickup
-      await createRewardRedemptionRemote(
+      const createdRedemption = await createRewardRedemptionRemote(
         pendingRedemption,
         () => localDb.insert('mall_redemptions', pendingRedemption)
       );
       await addFanPoints(fan.id, -item.points_cost, 'redeem', 'Mall Redemption', `Redeemed: ${item.name}`);
+      const result = {
+        item,
+        code: createdRedemption?.redeem_code || pendingRedemption.redeem_code || redeemCode,
+        expiresAt: createdRedemption?.expires_at || pendingRedemption.expires_at,
+      };
+      storeRedeemResult(fan.id, result);
+      setRedeemResult(result);
       onPointsChange?.();
-      setRedeemResult({ item, code: redeemCode, expiresAt: pendingRedemption.expires_at });
       message.success(`Redeemed ${item.name}!`);
     } catch (_err) {
       message.error('Redemption failed');
@@ -54,6 +81,13 @@ const MallTab = ({ fan, onPointsChange }) => {
       setRedeeming(null);
     }
   };
+
+  useEffect(() => {
+    if (!redeemResult && fan?.id) {
+      const storedResult = getStoredRedeemResult(fan.id);
+      if (storedResult) setRedeemResult(storedResult);
+    }
+  }, [fan?.id, redeemResult]);
 
   return (
     <div style={{ padding: '8px 0' }}>
@@ -77,6 +111,31 @@ const MallTab = ({ fan, onPointsChange }) => {
         )}
         style={{ marginBottom: 16 }}
       />
+
+      {redeemResult && (
+        <div className="fan-redemption-inline">
+          <div className="fan-redemption-status">
+            <GiftOutlined className="fan-redemption-icon" />
+            <Paragraph className="fan-redemption-summary">
+              You redeemed <Text strong>{redeemResult.item.name}</Text>
+            </Paragraph>
+            <Paragraph className="fan-redemption-points">
+              -{redeemResult.item.points_cost} points
+            </Paragraph>
+          </div>
+          <div className="fan-redemption-code">
+            <Text className="fan-redemption-code-label">Redemption Code</Text>
+            <Text copyable strong className="fan-redemption-code-value">
+              {redeemResult.code}
+            </Text>
+          </div>
+          <Paragraph className="fan-redemption-note">
+            Show this code at an S-level UWELL store to collect your reward.
+            {redeemResult.expiresAt ? ` Valid until ${new Date(redeemResult.expiresAt).toLocaleDateString()}.` : ''}
+            {' '}The code is one-time use and must be verified in the store portal before pickup.
+          </Paragraph>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {categories.map((cat) => (

@@ -25,3 +25,20 @@ test('redemption success modal uses an isolated readable style scope', () => {
   assert.match(css, /\.fan-redemption-code-value/);
   assert.match(css, /word-break:\s*break-word/);
 });
+
+test('redemption success also renders an inline code fallback for pickup closure', () => {
+  assert.match(source, /fan-redemption-inline/);
+  assert.match(source, /redeemResult && \(/);
+  assert.match(source, /Show this code at an S-level UWELL store/);
+  assert.match(source, /fan-redemption-code-value/);
+  assert.match(css, /\.fan-redemption-inline/);
+});
+
+test('redemption code is persisted through fan point refresh rerenders', () => {
+  assert.match(source, /getStoredRedeemResult/);
+  assert.match(source, /storeRedeemResult/);
+  assert.match(source, /sessionStorage\.setItem/);
+  assert.match(source, /sessionStorage\.getItem/);
+  assert.match(source, /uwell_latest_redemption_/);
+  assert.match(source, /setRedeemResult\(result\)/);
+});

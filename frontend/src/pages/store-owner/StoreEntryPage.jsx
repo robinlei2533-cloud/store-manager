@@ -15,6 +15,13 @@ import {
   validateCountryCity,
 } from "../../utils/trialOps";
 
+const isLocalStoreOwnerShortcutAllowed = () => {
+  if (!import.meta.env?.VITE_SUPABASE_URL) return true;
+  if (import.meta.env?.DEV || import.meta.env?.VITE_ALLOW_LOCAL_AUTH_FALLBACK === "true") return true;
+  if (typeof window === "undefined") return false;
+  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+};
+
 const StoreEntryPage = () => {
   const navigate = useNavigate();
   const { t, setLang } = useLanguageStore();
@@ -52,17 +59,19 @@ const StoreEntryPage = () => {
 
     setLoading(true);
     try {
-      if (localDb.needsInit()) localDb.init(seedData);
-      const localOwnerStore = (localDb.all("stores") || []).find((store) => (
-        String(store.owner_email || "").toLowerCase() === email &&
-        store.owner_password_preview === loginPassword
-      ));
-      if (localOwnerStore) {
-        localStorage.setItem("store_owner_logged_in", "true");
-        localStorage.setItem("store_owner_store_id", localOwnerStore.id);
-        message.success(t("store_entry_login_success"));
-        navigate("/store-owner", { replace: true });
-        return;
+      if (isLocalStoreOwnerShortcutAllowed()) {
+        if (localDb.needsInit()) localDb.init(seedData);
+        const localOwnerStore = (localDb.all("stores") || []).find((store) => (
+          String(store.owner_email || "").toLowerCase() === email &&
+          store.owner_password_preview === loginPassword
+        ));
+        if (localOwnerStore) {
+          localStorage.setItem("store_owner_logged_in", "true");
+          localStorage.setItem("store_owner_store_id", localOwnerStore.id);
+          message.success(t("store_entry_login_success"));
+          navigate("/store-owner", { replace: true });
+          return;
+        }
       }
 
       const result = await signIn(email, loginPassword);

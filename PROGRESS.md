@@ -1055,3 +1055,46 @@ Move into pre-launch decision work: choose local trial vs external preview, then
   - Supabase CLI was not available locally; `npx supabase --version` attempted a temporary CLI fetch and reported `2.109.1`, but no project files were changed;
   - Supabase Auth passwords still need to be changed in Supabase control plane or through an approved Admin API flow;
   - previously pasted Supabase / Vercel tokens still need to be revoked in their dashboards.
+
+### 2026-07-08 Trial Operation Preview Seal
+
+- User confirmed the new Supabase and Vercel tokens are available and asked to continue through trial operation readiness.
+- Fixed the last external-preview reward closure issue:
+  - `MallTab` now persists the latest successful redemption result in `sessionStorage`;
+  - the redemption code remains visible even if fan points refresh causes a parent rerender;
+  - the displayed pickup code now uses the remote `mall_redemptions.redeem_code` when Supabase returns it.
+- Added regression coverage:
+  - `MallTab.static.test.mjs` now checks that the redemption code persistence path exists.
+- Supabase trial data was aligned:
+  - Auth passwords reset for Admin, Manager, Rep, Store, and Fan trial accounts;
+  - fan preview points reset to `1000`;
+  - `.env` was not edited.
+- New external preview deployed:
+  - Preview URL: `https://dist-k7h86y8vq-robinlei2533-2668s-projects.vercel.app`
+  - Inspect URL: `https://vercel.com/robinlei2533-2668s-projects/dist/8XpRTUR6jZQ1HBR1QnmGRJFbAmn4`
+- Verification completed:
+  - `npm test` passed: 29 test files, 83 tests.
+  - `npm run build` passed; only the known Vite chunk-size warning remains.
+  - Real external browser acceptance passed on mobile viewport:
+    - fan login succeeded;
+    - fan redeemed `UWELL Lighter`;
+    - redemption created Supabase `mall_redemptions` and `fan_points_log` rows with HTTP 201;
+    - code `UW-N4ANJBML` was visible in the fan UI;
+    - S-level store login succeeded;
+    - store checked the code in Reward Pickup;
+    - `confirm_reward_pickup` RPC returned HTTP 200;
+    - page showed `Reward pickup confirmed`.
+  - Supabase database confirmation:
+    - `mall_redemptions.redeem_code = UW-N4ANJBML` status is `picked_up`;
+    - pickup store id is `bc13408d-ca13-4d22-91a7-f1aac5f11973`;
+    - `UWELL Lighter` stock is now `3`.
+  - Browser screenshots saved under `frontend/output/playwright/trial-final-preview-20260708/`.
+- Trial operation accounts:
+  - Admin: `admin@uwell.com` / `UwellAdmin@2026`
+  - Manager: `manager@uwell.com` / `UwellManager@2026`
+  - Rep: `rep1@uwell.com` / `UwellRep@2026`
+  - Store: `store.owner@uwell.com` / `UwellStore@2026`
+  - Fan: `fan.preview@uwell.com` / `UwellFan@2026`
+- Trial operation readiness:
+  - status: ready for small-scope trial operation on the preview URL;
+  - still do not promote to production domain until the user has manually reviewed the preview and token rotation is completed in the provider dashboards.

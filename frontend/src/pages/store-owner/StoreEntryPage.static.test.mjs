@@ -26,6 +26,13 @@ test('store login accepts registered local owner email password before auth fall
   assert.match(source, /localStorage\.setItem\("store_owner_store_id", localOwnerStore\.id\)/);
 });
 
+test('store local owner shortcut is limited to local preview contexts', () => {
+  assert.match(source, /isLocalStoreOwnerShortcutAllowed/);
+  assert.match(source, /localhost/);
+  assert.match(source, /127\.0\.0\.1/);
+  assert.match(source, /isLocalStoreOwnerShortcutAllowed\(\)[\s\S]*localOwnerStore/);
+});
+
 test('store login rejects non-email login and keeps preview passwords local only', () => {
   assert.match(source, /Please enter a valid email address/);
   assert.match(source, /owner_password_preview: _localPasswordOnly/);

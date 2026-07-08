@@ -36,6 +36,7 @@ import seedData from '../../services/db/seedData';
 import { addFanPoints, getFans } from '../../services/api';
 import { useRealtimeSubscription } from '../../hooks/useRealtimeSubscription';
 import { IS_LOCAL_MODE } from '../../services/api';
+import { isLocal } from '../../services/api/helpers';
 import { FAN_LEVELS, MALL_ITEMS } from '../../utils/constants';
 import { FAN_LEVEL_LABELS, readImageAsDataUrl } from '../../utils/uwellClosedLoop';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
@@ -179,9 +180,12 @@ const FanCenterPage = () => {
   }, [isLoading]);
 
   const savedFanId = localStorage.getItem('store_manager_current_user');
-  let currentFan = savedFanId
-    ? (localDb.findById('fans', savedFanId) || fans.find((f) => f.id === savedFanId))
-    : (fans.find((f) => f.user_id === user?.id) || fans[0] || null);
+  const canUseLocalFanFallback = IS_LOCAL_MODE || isLocal();
+  const remoteFanByAuthUser = fans.find((f) => f.user_id === user?.id);
+  const remoteFanBySavedAuthUser = savedFanId ? fans.find((f) => f.user_id === savedFanId) : null;
+  const savedLocalFan = canUseLocalFanFallback && savedFanId ? localDb.findById('fans', savedFanId) : null;
+  const savedLocalFanFromQuery = canUseLocalFanFallback && savedFanId ? fans.find((f) => f.id === savedFanId) : null;
+  let currentFan = remoteFanByAuthUser || remoteFanBySavedAuthUser || savedLocalFan || savedLocalFanFromQuery || null;
 
   useRealtimeSubscription('fan_points_log', { event: 'INSERT' }, (payload) => {
     const newLog = payload.new;
@@ -193,14 +197,14 @@ const FanCenterPage = () => {
     }
   });
 
-  if (!currentFan) {
+  if (!currentFan && canUseLocalFanFallback) {
     if (savedFanId) {
       const savedFan = localDb.findById('fans', savedFanId);
       if (savedFan) currentFan = savedFan;
     }
   }
 
-  if (!currentFan) {
+  if (!currentFan && canUseLocalFanFallback) {
     const allFans = localDb.all('fans');
     if (allFans.length > 0) {
       currentFan = allFans[0];

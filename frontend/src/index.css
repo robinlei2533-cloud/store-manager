@@ -6930,6 +6930,35 @@ button[disabled] {
   line-height: 1.65 !important;
 }
 
+.fan-redemption-inline {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid rgba(16, 73, 122, 0.16);
+  border-radius: 18px;
+  background: #f7fbff;
+  box-shadow: 0 14px 34px rgba(10, 24, 38, 0.12);
+  color: #203040;
+  text-align: center;
+}
+
+.fan-redemption-inline .fan-redemption-status,
+.fan-redemption-inline .fan-redemption-code {
+  margin: 0 !important;
+  border: 1px solid rgba(16, 73, 122, 0.12) !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+}
+
+.fan-redemption-inline .fan-redemption-status {
+  padding: 18px 16px 14px !important;
+}
+
+.fan-redemption-inline .fan-redemption-code {
+  padding: 14px 16px !important;
+}
+
 .fan-redemption-modal-root .ant-modal-content,
 .fan-redemption-modal-root .ant-modal-header,
 .fan-redemption-modal-root .ant-modal-body,
