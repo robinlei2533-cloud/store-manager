@@ -1084,11 +1084,17 @@ Move into pre-launch decision work: choose local trial vs external preview, then
     - store checked the code in Reward Pickup;
     - `confirm_reward_pickup` RPC returned HTTP 200;
     - page showed `Reward pickup confirmed`.
+  - Admin external preview acceptance passed on mobile viewport:
+    - admin login succeeded;
+    - dashboard opened;
+    - Stores, Fans, and Materials list pages reported no horizontal overflow at 390px width.
   - Supabase database confirmation:
     - `mall_redemptions.redeem_code = UW-N4ANJBML` status is `picked_up`;
     - pickup store id is `bc13408d-ca13-4d22-91a7-f1aac5f11973`;
     - `UWELL Lighter` stock is now `3`.
-  - Browser screenshots saved under `frontend/output/playwright/trial-final-preview-20260708/`.
+  - Browser screenshots saved under:
+    - `frontend/output/playwright/trial-final-preview-20260708/`;
+    - `frontend/output/playwright/trial-final-preview-20260708-admin/`.
 - Trial operation accounts:
   - Admin: `admin@uwell.com` / `UwellAdmin@2026`
   - Manager: `manager@uwell.com` / `UwellManager@2026`
