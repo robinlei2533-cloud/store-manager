@@ -14,3 +14,11 @@ test('QR scanner modal uses an isolated readable style scope', () => {
   assert.match(css, /\.fan-scan-modal-root \.fan-scan-manual-panel/);
   assert.match(css, /\.fan-scan-manual-copy/);
 });
+
+test('scan tab clearly supports mobile camera scanning with manual fallback', () => {
+  assert.match(source, /navigator\.mediaDevices\?\.getUserMedia/);
+  assert.match(source, /On mobile, this opens your camera/);
+  assert.match(source, /Use phone camera/);
+  assert.match(source, /Enter code manually/);
+  assert.match(source, /BarcodeDetector/);
+});

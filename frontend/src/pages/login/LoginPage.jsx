@@ -116,7 +116,7 @@ const LoginPage = () => {
       <Modal title={t('create_staff_account')} open={registerModalOpen} onCancel={() => { setRegisterModalOpen(false); registerForm.resetFields(); }} footer={null} width={420} destroyOnHidden>
         <Form form={registerForm} layout="vertical" onFinish={handleRegister} className="login-form-mt16">
           <Form.Item name="name" rules={[{ required: true, message: t('name_required') }]}>
-            <Input prefix={<UserOutlined />} placeholder={t('store_name')} />
+            <Input prefix={<UserOutlined />} placeholder={t('staff_name')} />
           </Form.Item>
           <Form.Item name="email" rules={[{ required: true, message: t('email_required') }, { type: 'email', message: t('email_invalid') }]}>
             <Input prefix={<MailOutlined />} placeholder={t('admin_email')} />
@@ -125,9 +125,9 @@ const LoginPage = () => {
             <Input.Password prefix={<LockOutlined />} placeholder={t('password_min')} />
           </Form.Item>
           <Form.Item name="role" rules={[{ required: true, message: t('role_required') }]} initialValue={ROLES.REP}>
-            <Select prefix={<ShopOutlined />} placeholder={t('profile')} options={[
-              { label: t('set_role_rep'), value: ROLES.REP },
-              { label: t('set_role_fan'), value: ROLES.FAN },
+            <Select prefix={<ShopOutlined />} popupClassName="staff-role-select-dropdown" placeholder={t('profile')} options={[
+              { label: t('set_role_employee'), value: ROLES.REP },
+              { label: t('set_role_admin'), value: ROLES.ADMIN },
             ]} />
           </Form.Item>
           <Form.Item className="login-mb0">

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Empty, Modal, Progress, Spin, Tag, Typography, message } from 'antd';
-import { FireOutlined, GiftOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { BookOutlined, CheckCircleOutlined, FireOutlined, GiftOutlined, LikeOutlined, ShareAltOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
+import { addFanPoints } from '../../../services/api';
 
 const { Text, Title } = Typography;
 
@@ -41,9 +42,39 @@ const STATUS_MAP = {
 };
 
 const FAN_CAMPAIGN_STEPS = [
-  { title: 'Join the activity', desc: 'Open the campaign details and confirm the reward rules.' },
-  { title: 'Scan your product code', desc: 'Scan after purchase so your campaign points can be recorded.' },
-  { title: 'Claim rewards', desc: 'Use your points in the rewards shop or keep collecting for higher tiers.' },
+  { title: 'Read UWELL knowledge', desc: 'Learn product care and safe usage tips.' },
+  { title: 'Share UWELL social content', desc: 'Forward approved UWELL posts to your social feed.' },
+  { title: 'Like or comment', desc: 'Interact with UWELL posts and claim member points.' },
+];
+
+const ENGAGEMENT_TASKS = [
+  {
+    key: 'read-care-guide',
+    title: 'Read UWELL care guide',
+    desc: 'Read a short guide about pod care, battery safety, and product authenticity.',
+    points: 10,
+    icon: <BookOutlined />,
+    action: 'Open article',
+    url: 'https://www.myuwell.com/news/all',
+  },
+  {
+    key: 'share-social-post',
+    title: 'Share UWELL social post',
+    desc: 'Share an approved UWELL product or campaign post on your social media.',
+    points: 15,
+    icon: <ShareAltOutlined />,
+    action: 'Open Instagram',
+    url: 'https://www.instagram.com/uwell.tech/',
+  },
+  {
+    key: 'like-comment-social',
+    title: 'Like or comment on UWELL social media',
+    desc: 'Like, comment, or save the latest UWELL official content.',
+    points: 10,
+    icon: <LikeOutlined />,
+    action: 'Open Instagram',
+    url: 'https://www.instagram.com/uwell.tech/',
+  },
 ];
 
 function daysLeft(endDate) {
@@ -73,8 +104,9 @@ function getConsumerCampaign(campaign) {
   };
 }
 
-const CampaignTab = () => {
+const CampaignTab = ({ fan }) => {
   const [campaigns, setCampaigns] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailModal, setDetailModal] = useState(null);
 
@@ -84,8 +116,10 @@ const CampaignTab = () => {
       return (order[a.status] || 3) - (order[b.status] || 3);
     });
     setCampaigns(data);
+    const records = localDb.find('fan_engagement_tasks', (item) => item.fan_id === fan?.id) || [];
+    setCompletedTasks(records.map((item) => item.task_key));
     setLoading(false);
-  }, []);
+  }, [fan?.id]);
 
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Spin size="large" /></div>;
@@ -94,6 +128,38 @@ const CampaignTab = () => {
   const ongoing = campaigns.filter((campaign) => campaign.status === 'ongoing');
   const upcoming = campaigns.filter((campaign) => campaign.status === 'planned');
   const past = campaigns.filter((campaign) => campaign.status === 'completed');
+
+  const handleCompleteEngagementTask = async (task) => {
+    if (!fan?.id) {
+      message.warning('Please sign in before claiming activity points.');
+      return;
+    }
+    if (completedTasks.includes(task.key)) {
+      message.info('This task has already been completed.');
+      return;
+    }
+    try {
+      localDb.insert('fan_engagement_tasks', {
+        fan_id: fan.id,
+        task_key: task.key,
+        task_title: task.title,
+        points: task.points,
+        completed_at: new Date().toISOString(),
+      });
+      await addFanPoints(fan.id, task.points, 'earn', 'UWELL Engagement', task.title);
+      setCompletedTasks((items) => [...items, task.key]);
+      message.success(`Activity completed. +${task.points} points`);
+    } catch (err) {
+      message.error(err?.message || 'Failed to claim activity points.');
+    }
+  };
+
+  const openEngagementTaskLink = (task) => {
+    if (typeof window !== 'undefined' && task.url) {
+      window.open(task.url, '_blank', 'noopener,noreferrer');
+    }
+    handleCompleteEngagementTask(task);
+  };
 
   const renderCampaignCard = (campaign, isOngoing) => {
     const days = daysLeft(campaign.end_date);
@@ -144,23 +210,11 @@ const CampaignTab = () => {
               icon={<CheckCircleOutlined />}
               onClick={(event) => {
                 event.stopPropagation();
-                try {
-                  const existing = localDb.all('campaign_claims') || [];
-                  const already = existing.find(c => c.campaign_id === campaign.id && c.store_id);
-                  if (already) { message.info('Already joined this campaign.'); return; }
-                  localDb.insert('campaign_claims', {
-                    campaign_id: campaign.id,
-                    campaign_name: campaign.name_english || campaign.name,
-                    store_id: null,
-                    status: 'pending',
-                    claimed_at: new Date().toISOString(),
-                  });
-                  message.success('Joined campaign! Scan eligible products to collect rewards.');
-                } catch { message.error('Failed to join.'); }
+                setDetailModal(campaign);
               }}
               style={{ borderRadius: 12 }}
             >
-              Join
+              View guide
             </Button>
           )}
           <Button type="link" size="small" onClick={(event) => { event.stopPropagation(); setDetailModal(campaign); }}>
@@ -174,8 +228,8 @@ const CampaignTab = () => {
   return (
     <div style={{ padding: '4px 0' }}>
       <Card className="liquid-glass" style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}><FireOutlined /> UWELL Brand Activities</Title>
-        <Text type="secondary" style={{ fontSize: 12 }}>Join campaigns, scan eligible products, and earn extra rewards.</Text>
+        <Title level={4} style={{ margin: 0 }}><FireOutlined /> UWELL Knowledge Hub</Title>
+        <Text type="secondary" style={{ fontSize: 12 }}>Read UWELL articles, share official social posts, and earn member points.</Text>
         <div className="fan-campaign-mini-steps">
           {FAN_CAMPAIGN_STEPS.map((step, index) => (
             <div key={step.title}>
@@ -185,6 +239,33 @@ const CampaignTab = () => {
           ))}
         </div>
       </Card>
+
+      <section style={{ marginBottom: 20 }}>
+        <Text strong style={{ display: 'block', marginBottom: 10 }}>Knowledge and social tasks</Text>
+        <div className="fan-engagement-task-list">
+          {ENGAGEMENT_TASKS.map((task) => {
+            const done = completedTasks.includes(task.key);
+            return (
+              <Card key={task.key} size="small" className="fan-engagement-task-card liquid-glass">
+                <div className="fan-engagement-task-icon">{task.icon}</div>
+                <div className="fan-engagement-task-copy">
+                  <strong>{task.title}</strong>
+                  <p>{task.desc}</p>
+                  <Tag color="gold">+{task.points} points</Tag>
+                </div>
+                <Button
+                  type={done ? 'default' : 'primary'}
+                  icon={done ? <CheckCircleOutlined /> : null}
+                  disabled={done}
+                  onClick={() => openEngagementTaskLink(task)}
+                >
+                  {done ? 'Completed' : task.action}
+                </Button>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
 
       {ongoing.length > 0 && (
         <section style={{ marginBottom: 20 }}>

@@ -30,13 +30,28 @@ test('store local owner shortcut is limited to local preview contexts', () => {
   assert.match(source, /isLocalStoreOwnerShortcutAllowed/);
   assert.match(source, /localhost/);
   assert.match(source, /127\.0\.0\.1/);
+  assert.match(source, /vercel\.app/);
   assert.match(source, /isLocalStoreOwnerShortcutAllowed\(\)[\s\S]*localOwnerStore/);
 });
 
 test('store login rejects non-email login and keeps preview passwords local only', () => {
   assert.match(source, /Please enter a valid email address/);
   assert.match(source, /owner_password_preview: _localPasswordOnly/);
-  assert.match(source, /createStore\(remoteRecord\)/);
+  assert.match(source, /createStore\(\{ \.\.\.remoteRecord, owner_profile_id: authUserId \}\)/);
   assert.doesNotMatch(source, /store\.phone && store\.phone === phone\.trim\(\)/);
   assert.doesNotMatch(source, /store\.id === ownerEmail\.trim\(\)/);
+});
+
+test('remote store registration creates an auth owner and binds owner_profile_id for later login', () => {
+  assert.match(source, /supabase\.auth\.signUp/);
+  assert.match(source, /owner_profile_id: authUserId/);
+  assert.match(source, /role: "store_owner"/);
+  assert.match(source, /data\.user\?\.id/);
+});
+
+test('remote store registration keeps a local trial login mirror for email confirmation delays', () => {
+  assert.match(source, /localDb\.upsert\("stores"/);
+  assert.match(source, /trial_source: "remote_trial_mirror"/);
+  assert.match(source, /owner_password_preview/);
+  assert.match(source, /created\.id/);
 });

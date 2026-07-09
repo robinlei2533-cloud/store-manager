@@ -1,6 +1,6 @@
 # UWELL CRM Project Progress
 
-Last updated: 2026-07-06
+Last updated: 2026-07-09
 
 ## Project Positioning
 
@@ -1104,3 +1104,98 @@ Move into pre-launch decision work: choose local trial vs external preview, then
 - Trial operation readiness:
   - status: ready for small-scope trial operation on the preview URL;
   - still do not promote to production domain until the user has manually reviewed the preview and token rotation is completed in the provider dashboards.
+
+### 2026-07-09 Fan / Store / Admin Issue Fix Archive
+
+- User requested a focused fix pass for the previously reported trial-operation issues, without expanding into unrelated roadmap work.
+- Fan center fixes:
+  - fixed the reward redemption success modal getting stuck after clicking redeem;
+  - closing the redemption modal now clears the stored latest redemption result from `sessionStorage`, so the modal does not immediately reopen;
+  - changed the activity module from the old "join campaign" flow to `UWELL Knowledge Hub`;
+  - added fan engagement tasks for UWELL knowledge reading, UWELL social sharing, and UWELL social like/comment actions;
+  - completing each engagement task grants the configured fan points and records the task in `fan_engagement_tasks` to prevent duplicate claiming;
+  - kept historical campaign cards as readable guide/detail content instead of writing old `campaign_claims` records.
+- Fan scan and registration fixes:
+  - scan entry now explains that mobile browsers can open the camera when supported and desktop users can continue with manual code input;
+  - camera startup now checks `navigator.mediaDevices?.getUserMedia` before requesting camera access;
+  - fan registration modal now has a visible `Back to sign in` button;
+  - fan registration modal can scroll on short screens and keeps the close button visible.
+- Store center fix:
+  - store registration now creates a Supabase Auth owner account with email/password;
+  - the created Auth user id is bound to the store through `owner_profile_id`, allowing later email/password login to match the registered store;
+  - local fallback still stores preview passwords only locally and does not send `owner_password_preview` to remote store creation.
+- Admin center staff registration fixes:
+  - staff account modal now asks for employee name instead of store name;
+  - role options are now Employee and Admin only;
+  - removed the Fan option from staff registration;
+  - staff role dropdown now uses a light readable popup style instead of the black dropdown surface.
+- Files changed in this fix pass:
+  - `frontend/src/pages/fans/tabs/MallTab.jsx`
+  - `frontend/src/pages/fans/tabs/CampaignTab.jsx`
+  - `frontend/src/pages/fans/tabs/ScanTab.jsx`
+  - `frontend/src/pages/fan-entry/FanEntryPage.jsx`
+  - `frontend/src/pages/store-owner/StoreEntryPage.jsx`
+  - `frontend/src/pages/login/LoginPage.jsx`
+  - `frontend/src/utils/translations.js`
+  - `frontend/src/index.css`
+  - focused static regression tests under the same feature areas.
+- Verification completed before this archive entry:
+  - targeted tests passed: `npm test -- MallTab.static.test.mjs CampaignTab.static.test.mjs ScanTab.static.test.mjs FanEntryPage.static.test.mjs StoreEntryPage.static.test.mjs LoginPage.static.test.mjs`
+    - 6 test files passed;
+    - 25 tests passed.
+  - full test suite passed:
+    - `npm test`
+    - 30 test files passed;
+    - 91 tests passed.
+  - production build passed:
+    - `npm run build`
+    - Vite build succeeded;
+    - only the known chunk-size / plugin timing warnings remain.
+- Scope note:
+  - this archive entry records the focused fixes requested by the user;
+  - no `.env` file was edited;
+  - no new dependency was installed;
+  - unrelated untracked files were left untouched.
+
+### 2026-07-09 Trial Issue Second Pass / Backend Risk Check
+
+- User requested another focused fix pass before saving and uploading:
+  - fan reward redemption must not fail or get stuck;
+  - fan activity should open official UWELL reading/social destinations and then allow task check-in for points;
+  - daily check-in and activity point grants must continue working even if Supabase point writes are temporarily blocked;
+  - mobile scan copy must clearly indicate camera support;
+  - store owner email/password login must work after registration;
+  - rep/admin Chinese UI must not mix English labels in the Chinese workspace;
+  - staff account creation must show employee name and only Employee/Admin roles.
+- Additional code fixes completed:
+  - `MallTab` now issues a local pickup code if remote `mall_redemptions` insertion is unavailable, so fans still receive a usable redemption code during trial operation;
+  - `createRewardRedemptionRemote` now has a reward-specific local fallback even when generic DB fallback is disabled;
+  - fan activity tasks now open `https://www.myuwell.com/news/all` and `https://www.instagram.com/uwell.tech/` before task confirmation;
+  - `addFanPoints` now falls back to the local points log if Supabase point log / fan update calls fail;
+  - store registration now keeps a local trial login mirror after remote registration, covering Supabase email-confirmation delays;
+  - store owner local trial login is allowed on local preview and Vercel preview hosts;
+  - rep workspace default language is Chinese for all roles;
+  - rep dashboard/sidebar hard-coded English labels were replaced with translation keys;
+  - staff role dropdown remains on a light surface and shows Employee/Admin only.
+- Backend / Supabase risk check:
+  - current formal Supabase migrations include RLS for `fan_points_log`, `fan_checkins`, and `mall_redemptions`;
+  - `confirm_reward_pickup` RPC validates authenticated store owner binding, S-level eligibility, one-time code status, expiry, inventory mapping, stock deduction, outbound record creation, and redemption status update in one transaction;
+  - no Supabase service-role key or Vercel token was found in source files scanned;
+  - legacy `database/one_shot_setup.sql` still contains broad open policies and should remain historical/local-only, not be used to overwrite the trial database.
+- Verification completed:
+  - targeted tests passed: 9 files, 28 tests;
+  - full `npm test` passed: 31 test files, 93 tests;
+  - `npm run build` passed; only known Vite chunk-size and plugin timing warnings remain;
+  - local production preview ran at `http://127.0.0.1:4176/`;
+  - browser acceptance passed for:
+    - fan activity link opening, reward code modal close, and scan camera guidance before the preview fan points were depleted by repeated redemption checks;
+    - store desktop email/password login reaching the store center;
+    - rep dashboard Chinese labels;
+    - admin staff modal employee-name field and light Employee/Admin role dropdown.
+- Trial data note:
+  - repeated redemption acceptance consumed points from `fan.preview@uwell.com`;
+  - before handing the next external preview to the user, reset the fan preview points or create a fresh fan trial account with enough points for reward redemption checks.
+- Workflow notes:
+  - no `.env` file was edited;
+  - no new dependency was installed;
+  - unrelated untracked files remain untouched.

@@ -547,49 +547,49 @@ const DashboardPage = () => {
     return (
       <div className="rep-dashboard">
         <Title level={4} className="dash-section">
-          <span className="text-gold-gradient"><RiseOutlined /> Field Rep Workspace</span>
+          <span className="text-gold-gradient"><RiseOutlined /> {t('rep_workspace')}</span>
           <Text type="secondary" style={{ fontSize: 14, marginLeft: 12 }}>{profile?.name || t('profile')}</Text>
         </Title>
 
-        <SectionTitle>My Priorities Today</SectionTitle>
+        <SectionTitle>{t('rep_priorities_today')}</SectionTitle>
         <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-          <Col xs={12} sm={6}><StatCard icon={<ShopOutlined />} label="Responsible Stores" value={assignedStores.length} color="#FFD700" delay={0} /></Col>
-          <Col xs={12} sm={6}><StatCard icon={<CameraOutlined />} label="Visit Records" value={assignedVisits.length} color="#F5A623" delay={1} /></Col>
-          <Col xs={12} sm={6}><StatCard icon={<ThunderboltOutlined />} label="Campaign Execution" value={assignedCampaigns.length} color="#FFD700" delay={2} /></Col>
-          <Col xs={12} sm={6}><StatCard icon={<WarningOutlined />} label="Open Complaints" value={repOpenComplaints.length} color={repOpenComplaints.length ? '#ff4d4f' : '#52c41a'} delay={3} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<ShopOutlined />} label={t('rep_responsible_stores')} value={assignedStores.length} color="#FFD700" delay={0} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<CameraOutlined />} label={t('rep_visit_records')} value={assignedVisits.length} color="#F5A623" delay={1} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<ThunderboltOutlined />} label={t('rep_campaign_execution')} value={assignedCampaigns.length} color="#FFD700" delay={2} /></Col>
+          <Col xs={12} sm={6}><StatCard icon={<WarningOutlined />} label={t('rep_open_complaints')} value={repOpenComplaints.length} color={repOpenComplaints.length ? '#ff4d4f' : '#52c41a'} delay={3} /></Col>
         </Row>
 
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} lg={12}>
-            <Card title={<><ShopOutlined /> <span className="text-gold-gradient">Responsible Store Status</span></>}>
+            <Card title={<><ShopOutlined /> <span className="text-gold-gradient">{t('rep_store_status')}</span></>}>
               <List size="small" dataSource={assignedStores.slice(0, 8)} renderItem={(store) => (
                 <List.Item>
                   <List.Item.Meta
                     title={<span className="dash-card-title-light">{store.name}</span>}
-                    description={`Level ${store.level || 'Unrated'} · ${assignedVisits.filter((visit) => visit.store_id === store.id).length} visits in the last 30 days`}
+                    description={`${t('store_level')} ${store.level || t('unrated')} · ${assignedVisits.filter((visit) => visit.store_id === store.id).length} ${t('rep_visits_last_30_days')}`}
                   />
-                  <Button size="small" onClick={() => { window.location.href = `/#/app/stores/${store.id}`; }}>View</Button>
+                  <Button size="small" onClick={() => { window.location.href = `/#/app/stores/${store.id}`; }}>{t('view')}</Button>
                 </List.Item>
               )} locale={{ emptyText: t('no_data') }} />
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">Pending Actions</span></>}>
+            <Card title={<><ThunderboltOutlined /> <span className="text-gold-gradient">{t('rep_pending_actions')}</span></>}>
               <List size="small" dataSource={[
-                ...repPendingClaims.map((item) => ({ id: item.id, title: item.campaign_name || 'Campaign reward claim', desc: `Store ${item.store_id}`, tag: 'Campaign' })),
-                ...repOpenComplaints.map((item) => ({ id: item.id, title: item.fan_name || 'Fan complaint', desc: item.content, tag: 'Complaint' })),
+                ...repPendingClaims.map((item) => ({ id: item.id, title: item.campaign_name || t('rep_campaign_reward_claim'), desc: `${t('store')} ${item.store_id}`, tag: t('dash_campaigns') })),
+                ...repOpenComplaints.map((item) => ({ id: item.id, title: item.fan_name || t('fan_complaints'), desc: item.content, tag: t('complaint') })),
               ].slice(0, 8)} renderItem={(item) => (
                 <List.Item>
                   <List.Item.Meta title={<span className="dash-card-title-light">{item.title}</span>} description={item.desc} />
-                  <Tag color={item.tag === 'Complaint' ? 'volcano' : 'gold'}>{item.tag}</Tag>
+                  <Tag color={item.tag === t('complaint') ? 'volcano' : 'gold'}>{item.tag}</Tag>
                 </List.Item>
-              )} locale={{ emptyText: 'No pending actions' }} />
+              )} locale={{ emptyText: t('rep_no_pending_actions') }} />
             </Card>
           </Col>
         </Row>
 
-        <SectionTitle>Recent Visits</SectionTitle>
-        <Card title={<><CameraOutlined /> <span className="text-gold-gradient">My Visit Records</span></>}>
+        <SectionTitle>{t('dash_recent_visits')}</SectionTitle>
+        <Card title={<><CameraOutlined /> <span className="text-gold-gradient">{t('rep_my_visit_records')}</span></>}>
           <Table columns={recentVisitColumns} dataSource={assignedVisits.slice(0, 8)} rowKey="id" loading={visitsLoading} pagination={false} size="small" scroll={{ x: true }} locale={{ emptyText: t('no_visit_records') }} />
         </Card>
       </div>

@@ -64,38 +64,42 @@ export async function getFanPointsLog(fanId) {
 export async function addFanPoints(fanId, points, type, source, description) {
   ensureLocalInit();
   if (isLocal() || !isUuid(fanId)) return addFanPointsLocal(fanId, points, type, source, description);
-      // 鑷姩鍗囩骇
-  const { data, error } = await supabase.from('fan_points_log').insert({ fan_id: fanId, points, type, source, description }).select().single();
-  if (error) throw error;
+  try {
+    const { data, error } = await supabase.from('fan_points_log').insert({ fan_id: fanId, points, type, source, description }).select().single();
+    if (error) throw error;
 
-  const { data: fan, error: fanError } = await supabase
-    .from('fans')
-    .select('points, total_contribution, level')
-    .eq('id', fanId)
-    .single();
-  if (fanError) throw fanError;
+    const { data: fan, error: fanError } = await supabase
+      .from('fans')
+      .select('points, total_contribution, level')
+      .eq('id', fanId)
+      .single();
+    if (fanError) throw fanError;
 
-  const newPoints = (fan?.points || 0) + points;
-  const newContribution = (fan?.total_contribution || 0) + (type === 'earn' ? points : 0);
-  const { data: levelRules, error: rulesError } = await supabase
-    .from('fan_level_rules')
-    .select('level, min_points')
-    .order('min_points', { ascending: false });
-  if (rulesError) throw rulesError;
+    const newPoints = (fan?.points || 0) + points;
+    const newContribution = (fan?.total_contribution || 0) + (type === 'earn' ? points : 0);
+    const { data: levelRules, error: rulesError } = await supabase
+      .from('fan_level_rules')
+      .select('level, min_points')
+      .order('min_points', { ascending: false });
+    if (rulesError) throw rulesError;
 
-  const newLevel = (levelRules || []).find((rule) => newPoints >= rule.min_points)?.level || fan?.level;
-  const { data: updatedFan, error: updateError } = await supabase
-    .from('fans')
-    .update({
-      points: newPoints,
-      total_contribution: newContribution,
-      level: newLevel,
-    })
-    .eq('id', fanId)
-    .select()
-    .single();
-  if (updateError) throw updateError;
+    const newLevel = (levelRules || []).find((rule) => newPoints >= rule.min_points)?.level || fan?.level;
+    const { data: updatedFan, error: updateError } = await supabase
+      .from('fans')
+      .update({
+        points: newPoints,
+        total_contribution: newContribution,
+        level: newLevel,
+      })
+      .eq('id', fanId)
+      .select()
+      .single();
+    if (updateError) throw updateError;
 
-  return updatedFan || data;
+    return updatedFan || data;
+  } catch (err) {
+    console.warn('[Fans] Supabase points unavailable, using local points log:', err?.message);
+    return addFanPointsLocal(fanId, points, type, source, description);
+  }
 }
 

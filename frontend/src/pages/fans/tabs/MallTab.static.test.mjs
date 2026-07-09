@@ -37,8 +37,23 @@ test('redemption success also renders an inline code fallback for pickup closure
 test('redemption code is persisted through fan point refresh rerenders', () => {
   assert.match(source, /getStoredRedeemResult/);
   assert.match(source, /storeRedeemResult/);
+  assert.match(source, /clearStoredRedeemResult/);
   assert.match(source, /sessionStorage\.setItem/);
   assert.match(source, /sessionStorage\.getItem/);
+  assert.match(source, /sessionStorage\.removeItem/);
   assert.match(source, /uwell_latest_redemption_/);
   assert.match(source, /setRedeemResult\(result\)/);
+});
+
+test('closing redemption modal clears the restored result so the UI does not get stuck', () => {
+  assert.match(source, /handleCloseRedeemResult/);
+  assert.match(source, /clearStoredRedeemResult\(fan\?\.id\)/);
+  assert.match(source, /onCancel=\{handleCloseRedeemResult\}/);
+});
+
+test('reward redemption falls back to a local pickup code if remote redemption fails', () => {
+  assert.match(source, /createLocalRedemption/);
+  assert.match(source, /remote redemption unavailable/i);
+  assert.match(source, /localDb\.insert\('mall_redemptions', pendingRedemption\)/);
+  assert.match(source, /Redemption saved locally/);
 });

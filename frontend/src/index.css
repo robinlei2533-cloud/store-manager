@@ -7729,3 +7729,158 @@ button[disabled] {
   margin-top: 2px;
   word-break: break-word;
 }
+
+/* Trial operation fixes: fan auth modal, engagement tasks, and staff role popup */
+.fe-auth-modal-backdrop {
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 24px 16px;
+}
+
+.fe-auth-modal {
+  width: min(100%, 430px);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 18px;
+}
+
+.fe-auth-modal .fe-form-card {
+  max-height: none;
+}
+
+.fe-modal-close {
+  position: sticky;
+  top: 10px;
+  left: calc(100% - 46px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 10px 10px -44px auto;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.fe-modal-close:hover {
+  background: rgba(255, 215, 0, 0.20);
+  color: #ffffff;
+}
+
+.fe-register-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffd700;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.fe-register-back::before {
+  content: "<";
+  margin-right: 8px;
+}
+
+.fan-engagement-task-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.fan-engagement-task-card.ant-card,
+.fan-shell .fan-engagement-task-card.ant-card,
+.fan-shell .fan-engagement-task-card.liquid-glass {
+  background: #ffffff !important;
+  border: 1px solid rgba(82, 62, 24, 0.14) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 28px rgba(82, 62, 24, 0.10) !important;
+}
+
+.fan-engagement-task-card .ant-card-body {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px !important;
+}
+
+.fan-engagement-task-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #fff4ce;
+  color: #8a5d00;
+  font-size: 20px;
+}
+
+.fan-engagement-task-copy {
+  min-width: 0;
+}
+
+.fan-engagement-task-copy strong {
+  display: block;
+  color: #1f1a12;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.fan-engagement-task-copy p {
+  margin: 4px 0 8px;
+  color: #554a3b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.staff-role-select-dropdown,
+.staff-role-select-dropdown .ant-select-dropdown {
+  background: #fffaf0 !important;
+  border: 1px solid rgba(82, 62, 24, 0.16) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 14px 36px rgba(31, 26, 18, 0.18) !important;
+}
+
+.staff-role-select-dropdown .ant-select-item {
+  color: #1f1a12 !important;
+}
+
+.staff-role-select-dropdown .ant-select-item-option-active,
+.staff-role-select-dropdown .ant-select-item-option-selected {
+  background: #fff0bd !important;
+  color: #6f4b00 !important;
+}
+
+@media (max-width: 560px) {
+  .fe-auth-modal-backdrop {
+    padding: 12px;
+  }
+
+  .fe-auth-modal {
+    max-height: calc(100vh - 24px);
+  }
+
+  .fan-engagement-task-card .ant-card-body {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .fan-engagement-task-card .ant-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

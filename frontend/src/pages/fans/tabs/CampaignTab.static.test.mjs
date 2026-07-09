@@ -31,8 +31,30 @@ test('fan campaign detail modal and status tags stay on light readable surfaces'
 });
 
 test('fan campaign flow no longer requires a store visit task for trial operation', () => {
-  assert.match(source, /Join the activity/);
-  assert.match(source, /scan eligible products/i);
+  assert.match(source, /Read UWELL knowledge/);
+  assert.match(source, /Share UWELL social content/);
+  assert.match(source, /View guide/);
+  assert.doesNotMatch(source, /campaign_claims/);
   assert.doesNotMatch(source, /Find a verified store/);
   assert.doesNotMatch(source, /Visit a verified store to complete/);
+});
+
+test('fan activity center is repositioned as UWELL knowledge and social engagement tasks', () => {
+  assert.match(source, /UWELL Knowledge Hub/);
+  assert.match(source, /Read UWELL care guide/);
+  assert.match(source, /Share UWELL social post/);
+  assert.match(source, /Like or comment on UWELL social media/);
+  assert.match(source, /handleCompleteEngagementTask/);
+  assert.match(source, /addFanPoints/);
+  assert.match(source, /fan_engagement_tasks/);
+  assert.doesNotMatch(source, /UWELL Brand Activities/);
+});
+
+test('fan engagement tasks open official UWELL destinations before claiming points', () => {
+  assert.match(source, /https:\/\/www\.myuwell\.com\/news\/all/);
+  assert.match(source, /https:\/\/www\.instagram\.com\/uwell\.tech\//);
+  assert.match(source, /openEngagementTaskLink/);
+  assert.match(source, /window\.open\(task\.url/);
+  assert.match(source, /Open article/);
+  assert.match(source, /Open Instagram/);
 });

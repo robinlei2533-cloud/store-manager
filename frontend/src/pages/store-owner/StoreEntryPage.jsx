@@ -6,6 +6,7 @@ import LanguageSwitcher from "../../components/common/LanguageSwitcher";
 import localDb from "../../services/db/localDb";
 import seedData from "../../services/db/seedData";
 import { createStore, getStores } from "../../services/api";
+import { supabase } from "../../services/supabase";
 import useLanguageStore from "../../stores/languageStore";
 import useAuthStore from "../../stores/authStore";
 import {
@@ -19,7 +20,8 @@ const isLocalStoreOwnerShortcutAllowed = () => {
   if (!import.meta.env?.VITE_SUPABASE_URL) return true;
   if (import.meta.env?.DEV || import.meta.env?.VITE_ALLOW_LOCAL_AUTH_FALLBACK === "true") return true;
   if (typeof window === "undefined") return false;
-  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+  const hostname = window.location.hostname;
+  return ["localhost", "127.0.0.1", "::1"].includes(hostname) || hostname.endsWith(".vercel.app");
 };
 
 const StoreEntryPage = () => {
@@ -118,8 +120,31 @@ const StoreEntryPage = () => {
       });
       let created = null;
       try {
+        const { data, error } = await supabase.auth.signUp({
+          email: ownerEmail.trim().toLowerCase(),
+          password,
+          options: {
+            data: {
+              name: storeName,
+              phone,
+              role: "store_owner",
+              country,
+              city,
+            },
+          },
+        });
+        if (error) throw error;
+        const authUserId = data.user?.id;
+        if (!authUserId) throw new Error("Store owner auth account was not created");
         const { owner_password_preview: _localPasswordOnly, ...remoteRecord } = record;
-        created = await createStore(remoteRecord);
+        created = await createStore({ ...remoteRecord, owner_profile_id: authUserId });
+        if (localDb.needsInit()) localDb.init(seedData);
+        localDb.upsert("stores", {
+          ...record,
+          id: created.id,
+          owner_profile_id: authUserId,
+          trial_source: "remote_trial_mirror",
+        }, "id");
       } catch (err) {
         if (localDb.needsInit()) localDb.init(seedData);
         created = localDb.insert("stores", {

@@ -254,6 +254,9 @@ const FanEntryPage = () => {
       )}
       {mode === 'register' && (
         <>
+          <button type="button" className="fe-register-back" onClick={() => setMode('login')}>
+            Back to sign in
+          </button>
           <div className="fe-input-group">
             <input type="text" value={regName} onChange={e => setRegName(e.target.value)} placeholder="Name *" autoComplete="name" className="fe-input-dark" />
           </div>

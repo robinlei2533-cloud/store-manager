@@ -51,8 +51,7 @@ const AppLayout = () => {
   const contentRef = useRef(null);
 
   const ensureChineseFirst = () => {
-    const defaultWorkspaceLanguage = profile?.role === ROLES.REP ? 'en' : 'zh';
-    setLang(defaultWorkspaceLanguage);
+    setLang('zh');
   };
 
   useEffect(() => {
@@ -77,10 +76,10 @@ const AppLayout = () => {
 
     const crmChildren = [
       ...(canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_stores') }] : []),
-      ...(!canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: 'Responsible Stores' }] : []),
+      ...(!canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('rep_responsible_stores') }] : []),
       { key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: t('nav_visits') },
       { key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
-      { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: canViewAllCRM ? t('nav_campaigns') : 'Campaign Execution' },
+      { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: canViewAllCRM ? t('nav_campaigns') : t('rep_campaign_execution') },
     ];
 
     const materialChildren = [
@@ -91,7 +90,7 @@ const AppLayout = () => {
     ];
 
     const items = [
-      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: canViewAllCRM ? t('nav_dashboard2') : 'Field Rep Workspace' },
+      { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: canViewAllCRM ? t('nav_dashboard2') : t('rep_workspace') },
       { key: 'crm', icon: React.createElement(ApartmentOutlined), label: t('nav_crm'), children: crmChildren },
       { key: 'materials', icon: React.createElement(InboxOutlined), label: t('nav_materials'), children: materialChildren },
     ];
@@ -112,9 +111,9 @@ const AppLayout = () => {
       items.push({
         key: 'fan-support',
         icon: React.createElement(CustomerServiceOutlined),
-        label: 'Fan Complaints',
+        label: t('fan_complaints'),
         children: [
-          { key: '/app/fans/complaints', icon: React.createElement(CustomerServiceOutlined), label: 'Complaint Replies' },
+          { key: '/app/fans/complaints', icon: React.createElement(CustomerServiceOutlined), label: t('complaint_replies') },
         ],
       });
     }
@@ -289,8 +288,8 @@ const AppLayout = () => {
               {settingsOpen && (
                 <div className="layout-settings-panel layout-settings-panel-admin liquid-glass">
                   <div className="layout-settings-panel-head">
-                    <strong>{profile.role === ROLES.REP ? 'Settings' : '系统设置'}</strong>
-                    <button type="button" className="layout-settings-close" onClick={() => setSettingsOpen(false)} aria-label={profile.role === ROLES.REP ? 'Close settings' : '关闭设置'}>
+                    <strong>{t('nav_settings')}</strong>
+                    <button type="button" className="layout-settings-close" onClick={() => setSettingsOpen(false)} aria-label={t('fan_modal_close')}>
                       <CloseOutlined />
                     </button>
                   </div>

@@ -37,6 +37,15 @@ const storeRedeemResult = (fanId, result) => {
   }
 };
 
+const clearStoredRedeemResult = (fanId) => {
+  if (typeof window === 'undefined' || !fanId) return;
+  try {
+    window.sessionStorage.removeItem(getRedemptionStorageKey(fanId));
+  } catch {
+    // Ignore storage cleanup errors.
+  }
+};
+
 const MallTab = ({ fan, onPointsChange }) => {
   const [category, setCategory] = useState('All');
   const [redeeming, setRedeeming] = useState(null);
@@ -45,6 +54,11 @@ const MallTab = ({ fan, onPointsChange }) => {
 
   const categories = ['All', 'Device', 'Pod', 'Merch', 'Coupon', 'VIP'];
   const filteredItems = category === 'All' ? MALL_ITEMS : MALL_ITEMS.filter((i) => i.category === category);
+
+  const createLocalRedemption = (pendingRedemption) => ({
+    ...localDb.insert('mall_redemptions', pendingRedemption),
+    trial_sync_status: 'remote redemption unavailable',
+  });
 
   const handleRedeem = async (item) => {
     if (!fan) return;
@@ -61,10 +75,7 @@ const MallTab = ({ fan, onPointsChange }) => {
       const redeemCode = generateRedeemCode();
       const pendingRedemption = createPendingRedemption({ fan, item, code: redeemCode });
       // status: pending_pickup
-      const createdRedemption = await createRewardRedemptionRemote(
-        pendingRedemption,
-        () => localDb.insert('mall_redemptions', pendingRedemption)
-      );
+      const createdRedemption = await createRewardRedemptionRemote(pendingRedemption, () => createLocalRedemption(pendingRedemption));
       await addFanPoints(fan.id, -item.points_cost, 'redeem', 'Mall Redemption', `Redeemed: ${item.name}`);
       const result = {
         item,
@@ -74,7 +85,7 @@ const MallTab = ({ fan, onPointsChange }) => {
       storeRedeemResult(fan.id, result);
       setRedeemResult(result);
       onPointsChange?.();
-      message.success(`Redeemed ${item.name}!`);
+      message.success(createdRedemption?.trial_sync_status ? 'Redemption saved locally. Show this pickup code at an S-level store.' : `Redeemed ${item.name}!`);
     } catch (_err) {
       message.error('Redemption failed');
     } finally {
@@ -88,6 +99,11 @@ const MallTab = ({ fan, onPointsChange }) => {
       if (storedResult) setRedeemResult(storedResult);
     }
   }, [fan?.id, redeemResult]);
+
+  const handleCloseRedeemResult = () => {
+    clearStoredRedeemResult(fan?.id);
+    setRedeemResult(null);
+  };
 
   return (
     <div style={{ padding: '8px 0' }}>
@@ -196,7 +212,7 @@ const MallTab = ({ fan, onPointsChange }) => {
         className="fan-redemption-modal"
         rootClassName="fan-redemption-modal-root"
         open={!!redeemResult}
-        onCancel={() => setRedeemResult(null)}
+        onCancel={handleCloseRedeemResult}
         footer={null}
         title={<span className="fan-redemption-title">Redemption Successful!</span>}
         centered

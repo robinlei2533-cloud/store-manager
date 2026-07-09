@@ -7,20 +7,22 @@ const repStart = source.indexOf('if (!isCompanyScope)');
 const repEnd = source.indexOf('      </div>', repStart) + '      </div>'.length;
 const repBranch = source.slice(repStart, repEnd);
 
-test('field rep dashboard branch is English-first', () => {
+test('field rep dashboard branch uses translated labels instead of English-first copy', () => {
   [
-    'Field Rep Workspace',
-    'My Priorities Today',
-    'Responsible Stores',
-    'Visit Records',
-    'Campaign Execution',
-    'Open Complaints',
-    'Responsible Store Status',
-    'Pending Actions',
-    'No pending actions',
-    'Recent Visits',
-    'My Visit Records',
+    "t('rep_workspace')",
+    "t('rep_priorities_today')",
+    "t('rep_responsible_stores')",
+    "t('rep_visit_records')",
+    "t('rep_campaign_execution')",
+    "t('rep_open_complaints')",
+    "t('rep_store_status')",
+    "t('rep_pending_actions')",
+    "t('rep_no_pending_actions')",
+    "t('dash_recent_visits')",
+    "t('rep_my_visit_records')",
   ].forEach((label) => assert.ok(repBranch.includes(label), `${label} should be present`));
 
-  assert.doesNotMatch(repBranch, /地推|我的|负责|拜访|活动|待回复|状态|处理|事项|暂无|最近|查看|等级|未评级|门店|客诉/);
+  assert.doesNotMatch(repBranch, />Field Rep Workspace</);
+  assert.doesNotMatch(repBranch, />My Priorities Today</);
+  assert.doesNotMatch(repBranch, /No pending actions/);
 });

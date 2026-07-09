@@ -33,7 +33,10 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
     setDetecting(false);
     detectedRef.current = false;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('Camera is not available in this browser.');
+      }
+      const stream = await navigator.mediaDevices?.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
       });
       streamRef.current = stream;
@@ -123,6 +126,13 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
         <div>
           {!useManual ? (
             <div>
+              <Alert
+                message="Use phone camera"
+                description="On mobile, this opens your camera to scan the product QR code. Desktop browsers can still enter the code manually."
+                type="info"
+                showIcon
+                style={{ marginBottom: 12, borderRadius: 8 }}
+              />
               {cameraError && (
                 <Alert message={cameraError} type="warning" showIcon style={{ marginBottom: 12, borderRadius: 8 }} />
               )}
@@ -298,7 +308,7 @@ const ScanTab = ({ fan, onPointsChange }) => {
         <QrcodeOutlined style={{ fontSize: 64, color: '#722ed1', marginBottom: 16 }} />
         <Title level={4}>Scan to Earn Points!</Title>
         <Paragraph type="secondary" style={{ fontSize: 13 }}>
-          Buy any UWELL product, find the QR code inside the package, and scan it here to earn points!
+          Buy any UWELL product, find the QR code inside the package, and scan it here to earn points. On mobile, this opens your camera when the browser supports QR scanning.
         </Paragraph>
         <Divider style={{ margin: '12px 0' }} />
         <Row gutter={16}>
@@ -321,7 +331,7 @@ const ScanTab = ({ fan, onPointsChange }) => {
         icon={<CameraOutlined />}
         style={{ height: 56, fontSize: 18, fontWeight: 700, borderRadius: 16, marginBottom: 16, background: 'linear-gradient(135deg, #722ed1 0%, #FFD700 100%)', border: 'none' }}
       >
-        {scanning ? 'Processing...' : scansRemaining > 0 ? 'Open Scanner' : 'Limit Reached (3/day)'}
+        {scanning ? 'Processing...' : scansRemaining > 0 ? 'Use phone camera' : 'Limit Reached (3/day)'}
       </Button>
 
       <Card title="Recent Scans" size="small" className='liquid-glass' style={{ borderRadius: 12 }}>

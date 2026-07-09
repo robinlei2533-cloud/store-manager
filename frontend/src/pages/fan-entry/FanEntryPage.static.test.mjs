@@ -25,6 +25,14 @@ test('fan registration form uses polished English consumer-facing labels', () =>
   assert.match(source, /I agree to the <a[\s\S]*privacy notice[\s\S]*member terms[\s\S]*<\/a>\./);
 });
 
+test('fan registration modal stays usable on short screens and has a return path', () => {
+  assert.match(source, /className="fe-auth-modal"/);
+  assert.match(source, /className="fe-register-back"/);
+  assert.match(source, /Back to sign in/);
+  assert.match(source, /setMode\('login'\)/);
+  assert.match(source, /setAuthOpen\(false\)/);
+});
+
 test('fan entry keeps the orb-style product hero instead of flat product placement', () => {
   assert.match(source, /CaliburnHeroCanvas/);
   assert.match(source, /<CaliburnHeroCanvas products=\{PD\} \/>/);
