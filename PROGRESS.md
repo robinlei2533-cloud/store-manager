@@ -1271,3 +1271,21 @@ Move into pre-launch decision work: choose local trial vs external preview, then
   - no `.env` file was edited;
   - no new dependency was installed;
   - no new Supabase migration was required because the feature reuses existing campaign records with additional client-side fields.
+
+### 2026-07-09 Fan Activity Display Copy Simplification
+
+- User reviewed the live preview and confirmed the points task logic should stay, but the lower activity content should stop showing invented participation steps.
+- Fan activity page changes:
+  - kept UWELL article reading, Instagram viewing, and like/comment/share points tasks;
+  - kept the 10-second visible-stay claim logic and `UWELL Engagement` points write;
+  - removed the old `View guide` action from official campaign cards;
+  - removed the generic Step 1 / Step 2 / Step 3 participation guide from campaign details;
+  - official and store campaign cards now show concrete facts: time range, organizer, and reward / benefit;
+  - campaign detail modal now shows organizer, time, location, reward / benefit, and status;
+  - mobile detail modal fields collapse to one column for readability.
+- Verification completed:
+  - focused static test passed:
+    - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs`;
+    - 1 test file passed;
+    - 7 tests passed.
+  - test assertions now explicitly protect the official article / Instagram / like-comment-share engagement tasks from accidental removal.

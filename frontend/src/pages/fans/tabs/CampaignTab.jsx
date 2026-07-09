@@ -44,12 +44,6 @@ const STATUS_MAP = {
   planned: { label: 'Planned', className: 'is-planned' },
 };
 
-const FAN_CAMPAIGN_STEPS = [
-  { title: 'Read UWELL knowledge', desc: 'Learn product care and safe usage tips.' },
-  { title: 'Share UWELL social content', desc: 'Forward approved UWELL posts to your social feed.' },
-  { title: 'Like or comment', desc: 'Interact with UWELL posts and claim member points.' },
-];
-
 const ENGAGEMENT_TASKS = [
   {
     key: 'read-care-guide',
@@ -85,13 +79,6 @@ function daysLeft(endDate) {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-function getCampaignProgress(campaign) {
-  const total = new Date(campaign.end_date) - new Date(campaign.start_date);
-  if (!Number.isFinite(total) || total <= 0) return 0;
-  const elapsed = Date.now() - new Date(campaign.start_date);
-  return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
-}
-
 function getCampaignTypeMeta(type) {
   const colorKey = TYPE_COLOR_KEYS[type] || type;
   return {
@@ -103,8 +90,39 @@ function getCampaignTypeMeta(type) {
 function getConsumerCampaign(campaign) {
   return {
     name: campaign.name_english || campaign.name || 'UWELL campaign',
-    description: campaign.description_english || campaign.description || 'Complete the activity steps and collect member rewards.',
+    description: campaign.description_english || campaign.description || 'Activity details will be updated by UWELL.',
   };
+}
+
+function formatDate(value) {
+  if (!value) return 'Not set';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not set';
+  return date.toLocaleDateString();
+}
+
+function formatDateRange(campaign) {
+  return `${formatDate(campaign.start_date)} - ${formatDate(campaign.end_date)}`;
+}
+
+function getOrganizerLabel(campaign) {
+  if (campaign.source === 'store_application') return campaign.store_name || campaign.submitted_by_store_name || 'UWELL store';
+  return 'UWELL official';
+}
+
+function getLocationLabel(campaign) {
+  if (campaign.source === 'store_application') {
+    return [campaign.city, campaign.country].filter(Boolean).join(', ') || 'Confirmed by store';
+  }
+  return campaign.location || 'Official online / selected stores';
+}
+
+function getRewardLabel(campaign) {
+  if (campaign.source === 'store_application') {
+    const points = Number(campaign.fan_points || 0);
+    return [campaign.gift || 'Store activity benefit', points > 0 ? `+${points} possible points` : 'No extra points required'].join(' · ');
+  }
+  return campaign.reward || campaign.benefit || 'Official activity benefits';
 }
 
 const CampaignTab = ({ fan }) => {
@@ -191,7 +209,6 @@ const CampaignTab = ({ fan }) => {
     const typeMeta = getCampaignTypeMeta(campaign.type);
     const campaignCopy = getConsumerCampaign(campaign);
     const statusConfig = STATUS_MAP[campaign.status] || { label: campaign.status, color: 'default' };
-    const progress = getCampaignProgress(campaign);
 
     return (
       <Card
@@ -220,28 +237,13 @@ const CampaignTab = ({ fan }) => {
           {campaignCopy.description.length > 100 ? '...' : ''}
         </Text>
 
-        {isOngoing && (
-          <div className="fan-campaign-progress">
-            <Progress percent={progress} size="small" showInfo={false} style={{ flex: 1, margin: 0 }} />
-            <Text type="secondary" className="fan-campaign-progress-value">{progress}%</Text>
-          </div>
-        )}
+        <div className="fan-campaign-facts">
+          <span>{formatDateRange(campaign)}</span>
+          <span>{getOrganizerLabel(campaign)}</span>
+          <span>{getRewardLabel(campaign)}</span>
+        </div>
 
         <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          {isOngoing && (
-            <Button
-              type="primary"
-              size="small"
-              icon={<CheckCircleOutlined />}
-              onClick={(event) => {
-                event.stopPropagation();
-                setDetailModal(campaign);
-              }}
-              style={{ borderRadius: 12 }}
-            >
-              View guide
-            </Button>
-          )}
           <Button type="link" size="small" onClick={(event) => { event.stopPropagation(); setDetailModal(campaign); }}>
             View details
           </Button>
@@ -255,14 +257,6 @@ const CampaignTab = ({ fan }) => {
       <Card className="liquid-glass" style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}><FireOutlined /> UWELL Knowledge Hub</Title>
         <Text type="secondary" style={{ fontSize: 12 }}>Read UWELL articles, share official social posts, and earn member points.</Text>
-        <div className="fan-campaign-mini-steps">
-          {FAN_CAMPAIGN_STEPS.map((step, index) => (
-            <div key={step.title}>
-              <span>Step {index + 1}</span>
-              <strong>{step.title}</strong>
-            </div>
-          ))}
-        </div>
       </Card>
 
       <section style={{ marginBottom: 20 }}>
@@ -403,35 +397,27 @@ const CampaignTab = ({ fan }) => {
         {detailModal && (
           <div>
             <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{getConsumerCampaign(detailModal).description}</Text>
-            {detailModal.source === 'store_application' ? (
-              <div className="fan-campaign-guide">
-                <div className="fan-campaign-guide-step">
-                  <span>Store</span>
-                  <strong>{detailModal.store_name || detailModal.submitted_by_store_name || 'UWELL store'}</strong>
-                  <p>{[detailModal.city, detailModal.country].filter(Boolean).join(', ') || 'Location confirmed by store'}</p>
-                </div>
-                <div className="fan-campaign-guide-step">
-                  <span>Gift</span>
-                  <strong>{detailModal.gift || 'Store gift'}</strong>
-                  <p>{detailModal.fan_points > 0 ? `Possible fan points: +${detailModal.fan_points}` : 'No extra points required to view this activity.'}</p>
-                </div>
+            <div className="fan-campaign-detail-grid">
+              <div>
+                <Text type="secondary">Organizer</Text>
+                <strong>{getOrganizerLabel(detailModal)}</strong>
               </div>
-            ) : (
-              <div className="fan-campaign-guide">
-                {FAN_CAMPAIGN_STEPS.map((step, index) => (
-                  <div key={step.title} className="fan-campaign-guide-step">
-                    <span>Step {index + 1}</span>
-                    <strong>{step.title}</strong>
-                    <p>{step.desc}</p>
-                  </div>
-                ))}
+              <div>
+                <Text type="secondary">Time</Text>
+                <strong>{formatDateRange(detailModal)}</strong>
               </div>
-            )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12 }}>
-              <div><Text type="secondary">Start:</Text> {new Date(detailModal.start_date).toLocaleDateString()}</div>
-              <div><Text type="secondary">End:</Text> {new Date(detailModal.end_date).toLocaleDateString()}</div>
-              <div><Text type="secondary">Reward:</Text> Extra member points</div>
-              <div><Text type="secondary">Status:</Text> <Tag className={`fan-campaign-status-tag ${STATUS_MAP[detailModal.status]?.className || ''}`}>{STATUS_MAP[detailModal.status]?.label || detailModal.status}</Tag></div>
+              <div>
+                <Text type="secondary">Location</Text>
+                <strong>{getLocationLabel(detailModal)}</strong>
+              </div>
+              <div>
+                <Text type="secondary">Reward / benefit</Text>
+                <strong>{getRewardLabel(detailModal)}</strong>
+              </div>
+              <div>
+                <Text type="secondary">Status</Text>
+                <Tag className={`fan-campaign-status-tag ${STATUS_MAP[detailModal.status]?.className || ''}`}>{STATUS_MAP[detailModal.status]?.label || detailModal.status}</Tag>
+              </div>
             </div>
           </div>
         )}

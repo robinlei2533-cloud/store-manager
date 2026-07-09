@@ -4845,6 +4845,27 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   line-height: 1.55;
 }
 
+.fan-campaign-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.fan-campaign-facts span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #f7f0e2;
+  border: 1px solid rgba(82, 62, 24, 0.10);
+  color: #4c412f;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 .fan-campaign-progress {
   display: flex;
   align-items: center;
@@ -4911,6 +4932,31 @@ body.admin-workspace-active .ant-drawer .ant-menu-submenu-arrow {
   color: #665c4c;
   font-size: 12px;
   line-height: 1.45;
+}
+
+.fan-campaign-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fan-campaign-detail-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid rgba(82, 62, 24, 0.12);
+}
+
+.fan-campaign-detail-grid > div:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.fan-campaign-detail-grid strong {
+  color: #1f1a12;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .fan-campaign-poster h3,
@@ -7980,5 +8026,13 @@ button[disabled] {
 
   .fan-reward-tier-grid {
     grid-template-columns: 1fr;
+  }
+
+  .fan-campaign-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fan-campaign-facts span {
+    width: 100%;
   }
 }
