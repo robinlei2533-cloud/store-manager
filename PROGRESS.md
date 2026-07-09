@@ -1195,6 +1195,11 @@ Move into pre-launch decision work: choose local trial vs external preview, then
 - Trial data note:
   - repeated redemption acceptance consumed points from `fan.preview@uwell.com`;
   - before handing the next external preview to the user, reset the fan preview points or create a fresh fan trial account with enough points for reward redemption checks.
+- External deployment:
+  - deployed with Vercel CLI using the provided Vercel token and explicit scope `robinlei2533-2668s-projects`;
+  - deployment URL: `https://frontend-q7okp20mz-robinlei2533-2668s-projects.vercel.app`;
+  - inspect URL: `https://vercel.com/robinlei2533-2668s-projects/frontend/JofWYAzeKLFv7hPjvSmCajWYTnTh`;
+  - Vercel CLI reported the deployment target as `production` even though the command did not pass `--prod`.
 - Workflow notes:
   - no `.env` file was edited;
   - no new dependency was installed;

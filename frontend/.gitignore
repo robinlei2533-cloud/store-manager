@@ -10,3 +10,5 @@ coverage/
 _verify.cjs
 _serve.bat
 _self_check.ps1
+
+.vercel
