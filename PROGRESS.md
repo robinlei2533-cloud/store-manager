@@ -1197,9 +1197,11 @@ Move into pre-launch decision work: choose local trial vs external preview, then
   - before handing the next external preview to the user, reset the fan preview points or create a fresh fan trial account with enough points for reward redemption checks.
 - External deployment:
   - deployed with Vercel CLI using the provided Vercel token and explicit scope `robinlei2533-2668s-projects`;
-  - deployment URL: `https://frontend-q7okp20mz-robinlei2533-2668s-projects.vercel.app`;
-  - inspect URL: `https://vercel.com/robinlei2533-2668s-projects/frontend/JofWYAzeKLFv7hPjvSmCajWYTnTh`;
-  - Vercel CLI reported the deployment target as `production` even though the command did not pass `--prod`.
+  - first deployment accidentally targeted the `frontend` Vercel project and was protected by Vercel login/SSO;
+  - final public preview was deployed to the existing `dist` project;
+  - public preview URL: `https://dist-8h0wygkqa-robinlei2533-2668s-projects.vercel.app`;
+  - inspect URL: `https://vercel.com/robinlei2533-2668s-projects/dist/B9mTm1V7JRWK7S9WQKnYP2x6pkBB`;
+  - external smoke check confirmed Fan Entry, Store Login, and Admin Login pages load publicly.
 - Workflow notes:
   - no `.env` file was edited;
   - no new dependency was installed;
