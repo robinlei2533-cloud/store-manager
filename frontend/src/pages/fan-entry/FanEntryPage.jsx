@@ -12,8 +12,12 @@ import {
   buildFanRegistrationRecords,
   cityOptionsForCountry,
   countryOptions,
+  findFanByReferralCode,
+  normalizeReferralCode,
+  processLocalReferralSignup,
   validateCountryCity,
 } from '../../utils/trialOps';
+import { addFanPoints } from '../../services/api';
 import caliburnBubble1 from '../../assets/products/caliburn-bubble-1.png';
 import caliburnBubble2 from '../../assets/products/caliburn-bubble-2.png';
 import caliburnBubble3 from '../../assets/products/caliburn-bubble-3.png';
@@ -60,6 +64,10 @@ const FanEntryPage = () => {
   const [loading, setLoading] = useState(false);
   const [enteringDemo, setEnteringDemo] = useState(false);
 
+  const referralCode = normalizeReferralCode(
+    new URLSearchParams((window.location.hash.split('?')[1] || window.location.search || '').replace(/^\?/, '')).get('ref') || ''
+  );
+
   const ensureEnglishFirst = useCallback(() => {
     setLang('en');
   }, [setLang]);
@@ -71,7 +79,7 @@ const FanEntryPage = () => {
   const enterDemoFan = useCallback(() => {
     setEnteringDemo(true);
     setAuthOpen(false);
-    if (localDb.needsInit()) { localDb.init(seedData); }
+    if (localDb.needsInit() || localDb.all('fans').length === 0) { localDb.init(seedData); }
     const fans = localDb.all('fans');
     const demoFan = fans[0];
     if (demoFan) {
@@ -106,7 +114,7 @@ const FanEntryPage = () => {
       navigate('/fan-center', { replace: true });
       return;
     }
-    if (localDb.needsInit()) { localDb.init(seedData); }
+    if (localDb.needsInit() || localDb.all('fans').length === 0) { localDb.init(seedData); }
     const fans = localDb.all('fans');
     if (fans.length > 0) {
       localStorage.setItem('store_manager_current_user', fans[0].id);
@@ -148,13 +156,21 @@ const FanEntryPage = () => {
         localStorage.setItem("fan_logged_in", "true");
         setUser({ id: localUserId, email: regEmail });
         setProfile(records.profile);
+        const referralResult = processLocalReferralSignup({
+          localDb,
+          referralCode,
+          newFanId: localUserId,
+        });
         if (remoteError) {
           message.info("Your trial member profile has been created. Full data sync will be completed in the admin system.");
         }
+        return { userId: localUserId, referralApplied: referralResult.applied };
       };
 
+      let referralApplied = false;
       if (isLocal()) {
-        await registerLocalFan();
+        const result = await registerLocalFan();
+        referralApplied = result.referralApplied;
       } else {
         try {
           const { data, error } = await supabase.auth.signUp({
@@ -185,22 +201,50 @@ const FanEntryPage = () => {
           }
           const { error: fanError } = await supabase.from("fans").insert(records.fan);
           if (fanError) throw fanError;
+          if (referralCode) {
+            try {
+              const { data: remoteFans, error: referralReadError } = await supabase
+                .from("fans")
+                .select("id");
+              if (referralReadError) throw referralReadError;
+              const inviter = findFanByReferralCode(remoteFans || [], referralCode);
+              if (inviter && inviter.id !== data.user.id) {
+                await addFanPoints(data.user.id, 30, 'earn', 'Referral', `Welcome referral bonus from ${referralCode}`);
+                await addFanPoints(inviter.id, 30, 'earn', 'Referral', `Friend registered with ${referralCode}`);
+                localDb.insert('mall_redemptions', {
+                  fan_id: inviter.id,
+                  source: 'invite',
+                  referred_fan_id: data.user.id,
+                  referral_code: referralCode,
+                  status: 'completed',
+                  points: 30,
+                });
+                referralApplied = true;
+              }
+            } catch (referralError) {
+              console.warn('[FanEntry] Referral bonus could not be applied:', referralError?.message);
+              message.info('Your account was created. Referral points can be reviewed from the admin center.');
+            }
+          }
           localStorage.setItem("store_manager_current_user", data.user.id);
           localStorage.setItem("fan_logged_in", "true");
           setUser({ id: data.user.id, email: regEmail });
           setProfile(records.profile);
         } catch (remoteError) {
-          await registerLocalFan(remoteError);
+          const result = await registerLocalFan(remoteError);
+          referralApplied = result.referralApplied;
         }
       }
       setLoading(false);
-      message.success('Welcome to UWELL Fans Club. Your first 100 points are ready.');
+      message.success(referralApplied
+        ? 'Welcome to UWELL Fans Club. Your welcome and referral points are ready.'
+        : 'Welcome to UWELL Fans Club. Your first 100 points are ready.');
       navigate("/fan-center", { replace: true });
     } catch (err) {
       setLoading(false);
       message.error(err?.message || "Registration failed. Please try again.");
     }
-  }, [ageConfirmed, navigate, regCity, regCountry, regEmail, regName, regPassword, regPhone, setProfile, setUser, t, termsAccepted]);
+  }, [ageConfirmed, navigate, referralCode, regCity, regCountry, regEmail, regName, regPassword, regPhone, setProfile, setUser, termsAccepted]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') handleLogin();
@@ -219,6 +263,9 @@ const FanEntryPage = () => {
           <span key={benefit}>{benefit}</span>
         ))}
       </div>
+      {mode === 'register' && referralCode && (
+        <div className="fe-referral-banner">Referral code applied: {referralCode}</div>
+      )}
       {mode === 'login' && (
         <>
           <div className="fe-input-group">

@@ -7866,6 +7866,100 @@ button[disabled] {
   color: #6f4b00 !important;
 }
 
+.fe-referral-banner {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  border-radius: 12px;
+  background: rgba(255, 215, 0, 0.12);
+  color: #ffe680;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.fe-select-dark,
+.fe-select-dark:focus {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.fe-select-dark option {
+  background: #fffaf0 !important;
+  color: #1f1a12 !important;
+}
+
+.fe-select-dark option:checked {
+  background: #ffd700 !important;
+  color: #1f1a12 !important;
+}
+
+.staff-login-copy .brand-mark {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid rgba(183, 135, 16, 0.26);
+  border-radius: 10px;
+  background: rgba(255, 248, 226, 0.86);
+  color: #7a5300 !important;
+  background-image: none !important;
+  -webkit-text-fill-color: #7a5300 !important;
+  text-shadow: none !important;
+  box-shadow: 0 8px 18px rgba(124, 88, 8, 0.10);
+}
+
+.fan-store-activity-card.ant-card,
+.fan-reward-tier-card.ant-card,
+.fan-empty-card.ant-card {
+  margin-bottom: 10px;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(82, 62, 24, 0.14) !important;
+  color: #1f1a12 !important;
+  cursor: pointer;
+}
+
+.fan-store-activity-card .ant-card-body,
+.fan-reward-tier-card .ant-card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.fan-store-activity-card p,
+.fan-reward-tier-card p,
+.fan-timed-task-modal p {
+  margin: 0;
+  color: #554a3b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.fan-store-activity-head,
+.fan-store-activity-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fan-store-activity-meta span {
+  color: #554a3b;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.fan-reward-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fan-timed-task-modal {
+  display: grid;
+  gap: 14px;
+}
+
 @media (max-width: 560px) {
   .fe-auth-modal-backdrop {
     padding: 12px;
@@ -7882,5 +7976,9 @@ button[disabled] {
   .fan-engagement-task-card .ant-btn {
     grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .fan-reward-tier-grid {
+    grid-template-columns: 1fr;
   }
 }

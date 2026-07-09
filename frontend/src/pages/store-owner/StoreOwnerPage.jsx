@@ -10,6 +10,7 @@ import useLanguageStore from "../../stores/languageStore";
 import { DISPLAY_CATEGORIES, getDisplayCategoryLabel, readImageAsDataUrl } from "../../utils/uwellClosedLoop";
 import { confirmRewardPickup, validateRewardPickup } from "../../utils/reward-redemption";
 import { sLevelStorePolicy } from "../../utils/legal-content";
+import { buildStoreActivityCampaign } from "../../utils/fanActivityRules";
 
 const { Title, Text } = Typography;
 
@@ -63,7 +64,9 @@ const StoreOwnerPage = () => {
   const [pickupCode, setPickupCode] = useState("");
   const [pickupResult, setPickupResult] = useState(null);
   const [sLevelPolicyOpen, setSLevelPolicyOpen] = useState(false);
+  const [activityModalOpen, setActivityModalOpen] = useState(false);
   const [editForm] = Form.useForm();
+  const [activityForm] = Form.useForm();
   const { message } = App.useApp();
   const [materialRequesting, setMaterialRequesting] = useState(false);
   const { t, lang, setLang } = useLanguageStore();
@@ -348,6 +351,29 @@ const StoreOwnerPage = () => {
     }
   };
 
+  const handleSubmitStoreActivity = async () => {
+    try {
+      const values = await activityForm.validateFields();
+      const campaign = buildStoreActivityCampaign({
+        store,
+        title: values.title,
+        description: values.description,
+        gift: values.gift,
+        startDate: values.start_date,
+        endDate: values.end_date,
+        points: values.points,
+      });
+      localDb.insert("campaigns", campaign);
+      setAllCampaigns((items) => [campaign, ...items]);
+      activityForm.resetFields();
+      setActivityModalOpen(false);
+      message.success("Activity submitted. It will appear in Fan Center after admin approval.");
+    } catch (err) {
+      if (err?.errorFields) return;
+      message.error(err?.message || "Activity submission failed");
+    }
+  };
+
   // ====== Dashboard Tab ======
   const Dashboard = () => (
     <div className="store-dashboard-v2">
@@ -397,8 +423,8 @@ const StoreOwnerPage = () => {
                 <strong>{campaign.name}</strong>
                 <p>{campaign.description?.substring(0, 72)}</p>
               </div>
-              <Tag color={claim ? "green" : campaign.status === "ongoing" ? "gold" : "default"}>
-                {claim ? "Claimed" : campaign.status === "ongoing" ? "Available" : campaignStatusLabel(campaign.status)}
+              <Tag color={claim ? "green" : campaign.approval_status === "pending" ? "orange" : campaign.status === "ongoing" ? "gold" : "default"}>
+                {claim ? "Claimed" : campaign.approval_status === "pending" ? "Pending approval" : campaign.status === "ongoing" ? "Available" : campaignStatusLabel(campaign.status)}
               </Tag>
             </div>
           );
@@ -434,6 +460,18 @@ const StoreOwnerPage = () => {
 
     return (
       <div>
+        <Card size="small" className="so-card-subtle store-dashboard-section" style={{ marginBottom: 12 }}>
+          <div className="so-flex-between">
+            <div>
+              <Text strong className="so-text-light">Store activity application</Text>
+              <div className="so-text-white30 so-fs11">Submit an in-store event. Approved activities appear in Fan Center.</div>
+            </div>
+            <Button type="primary" icon={<FireOutlined />} onClick={() => setActivityModalOpen(true)}>
+              Apply
+            </Button>
+          </div>
+        </Card>
+
         {/* Active Campaigns for this store */}
         {storeCampaigns.length > 0 && (
           <div className="so-mb16">
@@ -458,7 +496,9 @@ const StoreOwnerPage = () => {
                     <div className="so-flex-1">
                       <div className="so-flex-gap6">
                         <Text strong className="so-text-light so-fs13">{camp.name}</Text>
-                        <Tag color={camp.status === "ongoing" ? "gold" : "default"} className="so-fs10">{campaignStatusLabel(camp.status)}</Tag>
+                        <Tag color={camp.approval_status === "pending" ? "orange" : camp.status === "ongoing" ? "gold" : "default"} className="so-fs10">
+                          {camp.approval_status === "pending" ? "Pending approval" : campaignStatusLabel(camp.status)}
+                        </Tag>
                       </div>
                       <Text className="so-text-white30 so-fs11">{camp.description?.substring(0, 80)}</Text>
                       {claimed && (
@@ -839,6 +879,45 @@ const StoreOwnerPage = () => {
           <Form.Item name="contact" label={<span className="so-text-light">{t('contact')}</span>}>
             <Input className="so-input-dark" />
           </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={<span className="so-text-gold"><FireOutlined /> Apply for store activity</span>}
+        open={activityModalOpen}
+        forceRender
+        onCancel={() => setActivityModalOpen(false)}
+        onOk={handleSubmitStoreActivity}
+        okText="Submit for approval"
+        cancelText={t('cancel')}
+        styles={{ content: { background: "#ffffff", border: "1px solid rgba(82,62,24,0.14)" } }}
+      >
+        <Form form={activityForm} layout="vertical" initialValues={{ points: 0 }}>
+          <Form.Item name="title" label="Activity title" rules={[{ required: true, message: "Please enter activity title" }]}>
+            <Input className="so-input-dark" placeholder="G5 tasting weekend" />
+          </Form.Item>
+          <Form.Item name="description" label="Activity content" rules={[{ required: true, message: "Please enter activity content" }]}>
+            <Input.TextArea rows={3} className="so-input-dark" placeholder="Tell fans what happens in store" />
+          </Form.Item>
+          <Form.Item name="gift" label="Gift or benefit" rules={[{ required: true, message: "Please enter gift or benefit" }]}>
+            <Input className="so-input-dark" placeholder="UWELL cap / tasting gift / coupon" />
+          </Form.Item>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item name="start_date" label="Start date" rules={[{ required: true, message: "Start date required" }]}>
+                <Input type="date" className="so-input-dark" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="end_date" label="End date" rules={[{ required: true, message: "End date required" }]}>
+                <Input type="date" className="so-input-dark" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="points" label="Optional fan points">
+            <InputNumber min={0} max={50} className="so-input-dark" style={{ width: "100%" }} />
+          </Form.Item>
+          <Text type="secondary" className="so-fs11">Fans will see this only after admin approval.</Text>
         </Form>
       </Modal>
 

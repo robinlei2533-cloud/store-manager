@@ -4,7 +4,7 @@ import { Card, Descriptions, Tabs, Table, Tag, Button, Modal, Form, Input, Input
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import localDb from '../../services/db/localDb';
-import { getCampaignById, createCampaignTask, updateCampaignTask, deleteCampaignTask, createCampaignReport, updateCampaignReport } from '../../services/api';
+import { getCampaignById, createCampaignTask, updateCampaignTask, deleteCampaignTask, createCampaignReport, updateCampaignReport, updateCampaign } from '../../services/api';
 import PageTransition from "../../components/common/PageTransition";
 
 const { TextArea } = Input;
@@ -69,6 +69,14 @@ const CampaignDetailPage = () => {
   const taskMut = useMutation({ mutationFn: ({ data, taskId }) => taskId ? updateCampaignTask(taskId, data) : createCampaignTask(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task saved'); setTaskModalOpen(false); taskForm.resetFields(); setEditingTask(null); } });
   const deleteTaskMut = useMutation({ mutationFn: deleteCampaignTask, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task deleted'); } });
   const reportMut = useMutation({ mutationFn: ({ data, reportId }) => reportId ? updateCampaignReport(reportId, data) : createCampaignReport(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Report saved'); setReportModalOpen(false); } });
+  const approvalMut = useMutation({
+    mutationFn: (data) => updateCampaign(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaign', id] });
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
+      message.success('Activity review saved');
+    },
+  });
 
   if (isLoading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
   if (!campaign) return <Empty />;
@@ -90,9 +98,36 @@ const CampaignDetailPage = () => {
     <PageTransition>
     <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
-      <Card className="liquid-glass" title={campaign.name} extra={<Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>}>
+      <Card className="liquid-glass" title={campaign.name} extra={(
+        <Space>
+          {campaign.source === 'store_application' && campaign.approval_status !== 'approved' && (
+            <Button
+              type="primary"
+              size="small"
+              onClick={() => approvalMut.mutate({ approval_status: 'approved', fan_visible: true, status: 'ongoing' })}
+            >
+              Approve for Fan Center
+            </Button>
+          )}
+          {campaign.source === 'store_application' && campaign.approval_status !== 'rejected' && (
+            <Button
+              danger
+              size="small"
+              onClick={() => approvalMut.mutate({ approval_status: 'rejected', fan_visible: false, status: 'cancelled' })}
+            >
+              Reject
+            </Button>
+          )}
+          <Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>
+        </Space>
+      )}>
         <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 3 }} bordered>
           <Descriptions.Item label="Type">{campaign.type}</Descriptions.Item>
+          {campaign.source === 'store_application' && (
+            <Descriptions.Item label="Fan visibility">
+              <Tag color={campaign.fan_visible ? 'green' : 'orange'}>{campaign.approval_status || 'pending'}</Tag>
+            </Descriptions.Item>
+          )}
           <Descriptions.Item label="Start">{campaign.start_date}</Descriptions.Item>
           <Descriptions.Item label="End">{campaign.end_date}</Descriptions.Item>
           <Descriptions.Item label="Budget">${campaign.budget || 0}</Descriptions.Item>

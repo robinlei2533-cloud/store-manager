@@ -1206,3 +1206,68 @@ Move into pre-launch decision work: choose local trial vs external preview, then
   - no `.env` file was edited;
   - no new dependency was installed;
   - unrelated untracked files remain untouched.
+
+### 2026-07-09 Fan Activity / Store Campaign / Reward Rules Closure
+
+- User confirmed the third-point activity plan and asked to implement it:
+  - store owners can apply for store activities from Store Center;
+  - approved store activities should automatically appear in Fan Center;
+  - official UWELL article / Instagram engagement tasks should grant points after a 10-second visible stay;
+  - reward exchange rules should be made explicit before trial operation.
+- Store activity closure:
+  - Store Center Campaigns now supports activity application submission;
+  - submitted activities are saved as pending, hidden from fans by default;
+  - Admin Campaign Detail now supports approving or rejecting store applications;
+  - approved activities become ongoing and fan-visible;
+  - Fan Center shows nearby approved store activities by city.
+- Fan official task closure:
+  - added UWELL article reading task linked to `https://www.myuwell.com/news/all`;
+  - added UWELL Instagram viewing task linked to `https://www.instagram.com/uwell.tech/`;
+  - added like/comment/share engagement task;
+  - tasks require 10 visible seconds before claiming points;
+  - the timer pauses when the browser tab is hidden;
+  - each fan can claim each task once per day.
+- Reward rule closure:
+  - Fan Center now displays a clear reward tier guide:
+    - 50-100 points: starter gifts;
+    - 150-300 points: standard merchandise;
+    - 300-600 points: pods / accessories / coupons;
+    - 800-1500 points: devices / VIP rewards, limited to one per month;
+  - rewards continue to require S-level store pickup and store-side verification for inventory deduction.
+- Preview fallback fix:
+  - demo fan entry now initializes seed data when the browser has a current DB version but an empty fan table;
+  - Fan Center now allows local fan fallback when the saved current user has a matching local fan record, preventing the preview-only "No fan profile found" dead end.
+- Supporting files:
+  - added `frontend/src/utils/fanActivityRules.js`;
+  - added `frontend/src/utils/fanActivityRules.test.mjs`;
+  - added implementation plan and design notes under `docs/superpowers/`.
+- Verification completed before this archive entry:
+  - focused tests passed:
+    - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs src/utils/fanActivityRules.test.mjs`;
+    - 2 test files passed;
+    - 11 tests passed.
+  - full test suite passed:
+    - `npm test`;
+    - 32 test files passed;
+    - 99 tests passed.
+  - production build passed:
+    - `npm run build`;
+    - Vite build succeeded with only known chunk-size / plugin timing warnings.
+  - local browser acceptance passed on `http://127.0.0.1:4178/` for:
+    - store activity application submission;
+    - pending activity hidden from fans;
+    - approval making the activity visible in Fan Center;
+    - reward rules display;
+    - official article task opening the UWELL URL and granting points after the 10-second visible stay.
+  - refreshed local production preview acceptance passed on `http://127.0.0.1:4179/` after the preview fallback fix:
+    - demo fan profile opens successfully;
+    - official article task writes a `UWELL Engagement` +5 points record;
+    - store email/password login reaches Store Center;
+    - store activity application starts pending and hidden;
+    - approved same-city store activity appears in Fan Center;
+    - reward exchange rules are visible;
+    - admin campaign detail page loads the submitted activity.
+- Scope note:
+  - no `.env` file was edited;
+  - no new dependency was installed;
+  - no new Supabase migration was required because the feature reuses existing campaign records with additional client-side fields.

@@ -2,17 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { message, Button, Card, Statistic, Row, Col, Typography } from 'antd';
 import { TeamOutlined, CopyOutlined, UserOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
+import { getFanPointsLog } from '../../../services/api';
+import { buildReferralCode } from '../../../utils/trialOps';
 const { Text, Title, Paragraph } = Typography;
 const InviteTab = ({ fan }) => {
   const [inviteCount, setInviteCount] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
 
   useEffect(() => {
     if (!fan) return;
-    const records = localDb.find('mall_redemptions', (r) => r.fan_id === fan.id && r.source === 'invite');
-    setInviteCount(records.length);
+    let disposed = false;
+    async function loadReferralStats() {
+      const localRecords = localDb.find('mall_redemptions', (r) => r.fan_id === fan.id && r.source === 'invite');
+      let referralLogs = [];
+      try {
+        referralLogs = await getFanPointsLog(fan.id);
+      } catch {
+        referralLogs = localDb.find('fan_points_log', (r) => r.fan_id === fan.id);
+      }
+      if (disposed) return;
+      const inviterLogs = (referralLogs || []).filter((log) => (
+        log.source === 'Referral'
+        && Number(log.points) > 0
+        && String(log.description || '').startsWith('Friend registered')
+      ));
+      setInviteCount(Math.max(localRecords.length, inviterLogs.length));
+      setPointsEarned(inviterLogs.reduce((sum, log) => sum + Number(log.points || 0), 0) || localRecords.length * 30);
+    }
+    loadReferralStats();
+    return () => { disposed = true; };
   }, [fan]);
 
-  const referralCode = fan ? `UWELL-${fan.id?.slice(-8).toUpperCase()}` : 'UWELL-FAN';
+  const referralCode = fan ? buildReferralCode(fan.id) : 'UWELL-FAN';
   const referralLink = `${window.location.origin}/fan-app.html#/fan-entry?ref=${referralCode}`;
 
   const handleCopy = () => {
@@ -53,7 +74,7 @@ const InviteTab = ({ fan }) => {
         </Col>
         <Col span={12}>
           <Card size="small" style={{ textAlign: 'center', borderRadius: 12 }}>
-            <Statistic title="Points Earned" value={inviteCount * 30} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { color: '#52c41a' } }} />
+            <Statistic title="Points Earned" value={pointsEarned} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { color: '#52c41a' } }} />
           </Card>
         </Col>
       </Row>

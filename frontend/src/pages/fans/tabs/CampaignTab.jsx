@@ -3,6 +3,7 @@ import { Button, Card, Empty, Modal, Progress, Spin, Tag, Typography, message } 
 import { BookOutlined, CheckCircleOutlined, FireOutlined, GiftOutlined, LikeOutlined, ShareAltOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
+import { buildRewardTierRules, canClaimTimedTask, filterFanVisibleStoreActivities, TIMED_TASK_SECONDS } from '../../../utils/fanActivityRules';
 
 const { Text, Title } = Typography;
 
@@ -12,6 +13,7 @@ const TYPE_COLORS = {
   channel: '#6c5ce7',
   community: '#00b894',
   promotion: '#fdcb6e',
+  store_event: '#2f80ed',
 };
 
 const TYPE_LABELS = {
@@ -20,6 +22,7 @@ const TYPE_LABELS = {
   channel: 'Store experience',
   community: 'Community',
   promotion: 'Promotion',
+  store_event: 'Store activity',
   新品上市: 'New product',
   节日营销: 'Holiday offer',
   渠道建设: 'Store experience',
@@ -52,24 +55,24 @@ const ENGAGEMENT_TASKS = [
     key: 'read-care-guide',
     title: 'Read UWELL care guide',
     desc: 'Read a short guide about pod care, battery safety, and product authenticity.',
-    points: 10,
+    points: 5,
     icon: <BookOutlined />,
     action: 'Open article',
     url: 'https://www.myuwell.com/news/all',
   },
   {
     key: 'share-social-post',
-    title: 'Share UWELL social post',
-    desc: 'Share an approved UWELL product or campaign post on your social media.',
-    points: 15,
+    title: 'View UWELL Instagram',
+    desc: 'Open the official UWELL Instagram account and stay for 10 seconds.',
+    points: 5,
     icon: <ShareAltOutlined />,
     action: 'Open Instagram',
     url: 'https://www.instagram.com/uwell.tech/',
   },
   {
     key: 'like-comment-social',
-    title: 'Like or comment on UWELL social media',
-    desc: 'Like, comment, or save the latest UWELL official content.',
+    title: 'Like, comment, or share UWELL post',
+    desc: 'Open the official account, interact with a recent post, then return to claim.',
     points: 10,
     icon: <LikeOutlined />,
     action: 'Open Instagram',
@@ -107,8 +110,11 @@ function getConsumerCampaign(campaign) {
 const CampaignTab = ({ fan }) => {
   const [campaigns, setCampaigns] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
+  const [engagementRecords, setEngagementRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailModal, setDetailModal] = useState(null);
+  const [activeTask, setActiveTask] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(TIMED_TASK_SECONDS);
 
   useEffect(() => {
     const data = (localDb.all('campaigns') || []).sort((a, b) => {
@@ -117,29 +123,46 @@ const CampaignTab = ({ fan }) => {
     });
     setCampaigns(data);
     const records = localDb.find('fan_engagement_tasks', (item) => item.fan_id === fan?.id) || [];
-    setCompletedTasks(records.map((item) => item.task_key));
+    setEngagementRecords(records);
+    setCompletedTasks(records
+      .filter((item) => canClaimTimedTask(records, fan?.id, item.task_key, new Date(), TIMED_TASK_SECONDS).reason === 'already_claimed_today')
+      .map((item) => item.task_key));
     setLoading(false);
   }, [fan?.id]);
+
+  useEffect(() => {
+    if (!activeTask) return undefined;
+    setRemainingSeconds(TIMED_TASK_SECONDS);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      setRemainingSeconds((value) => Math.max(0, value - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [activeTask]);
 
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Spin size="large" /></div>;
   }
 
-  const ongoing = campaigns.filter((campaign) => campaign.status === 'ongoing');
-  const upcoming = campaigns.filter((campaign) => campaign.status === 'planned');
-  const past = campaigns.filter((campaign) => campaign.status === 'completed');
+  const officialCampaigns = campaigns.filter((campaign) => campaign.source !== 'store_application');
+  const ongoing = officialCampaigns.filter((campaign) => campaign.status === 'ongoing');
+  const upcoming = officialCampaigns.filter((campaign) => campaign.status === 'planned');
+  const past = officialCampaigns.filter((campaign) => campaign.status === 'completed');
+  const storeActivities = filterFanVisibleStoreActivities(campaigns, fan);
+  const rewardTiers = buildRewardTierRules();
 
   const handleCompleteEngagementTask = async (task) => {
     if (!fan?.id) {
       message.warning('Please sign in before claiming activity points.');
       return;
     }
-    if (completedTasks.includes(task.key)) {
-      message.info('This task has already been completed.');
+    const claimState = canClaimTimedTask(engagementRecords, fan.id, task.key, new Date(), TIMED_TASK_SECONDS - remainingSeconds);
+    if (!claimState.canClaim) {
+      message.info(claimState.reason === 'need_more_time' ? 'Please stay for 10 seconds before claiming points.' : 'This task has already been completed today.');
       return;
     }
     try {
-      localDb.insert('fan_engagement_tasks', {
+      const record = localDb.insert('fan_engagement_tasks', {
         fan_id: fan.id,
         task_key: task.key,
         task_title: task.title,
@@ -147,7 +170,9 @@ const CampaignTab = ({ fan }) => {
         completed_at: new Date().toISOString(),
       });
       await addFanPoints(fan.id, task.points, 'earn', 'UWELL Engagement', task.title);
+      setEngagementRecords((items) => [...items, record]);
       setCompletedTasks((items) => [...items, task.key]);
+      setActiveTask(null);
       message.success(`Activity completed. +${task.points} points`);
     } catch (err) {
       message.error(err?.message || 'Failed to claim activity points.');
@@ -158,7 +183,7 @@ const CampaignTab = ({ fan }) => {
     if (typeof window !== 'undefined' && task.url) {
       window.open(task.url, '_blank', 'noopener,noreferrer');
     }
-    handleCompleteEngagementTask(task);
+    setActiveTask(task);
   };
 
   const renderCampaignCard = (campaign, isOngoing) => {
@@ -267,6 +292,52 @@ const CampaignTab = ({ fan }) => {
         </div>
       </section>
 
+      <section style={{ marginBottom: 20 }}>
+        <Text strong style={{ display: 'block', marginBottom: 10 }}>Nearby store activities ({storeActivities.length})</Text>
+        {storeActivities.length > 0 ? storeActivities.map((activity) => (
+          <Card
+            key={activity.id}
+            size="small"
+            className="fan-store-activity-card liquid-glass"
+            onClick={() => setDetailModal(activity)}
+          >
+            <div className="fan-store-activity-head">
+              <div>
+                <Tag color="blue">Store activity</Tag>
+                <Tag color="gold">{activity.store_name || activity.submitted_by_store_name}</Tag>
+              </div>
+              <Text type="secondary">{activity.city || 'UWELL store'}</Text>
+            </div>
+            <strong>{activity.name}</strong>
+            <p>{activity.description}</p>
+            <div className="fan-store-activity-meta">
+              <span>Gift: {activity.gift || 'Store gift'}</span>
+              <span>{new Date(activity.start_date).toLocaleDateString()} - {new Date(activity.end_date).toLocaleDateString()}</span>
+              {activity.fan_points > 0 && <Tag color="green">+{activity.fan_points} possible points</Tag>}
+            </div>
+          </Card>
+        )) : (
+          <Card size="small" className="liquid-glass fan-empty-card">
+            <Text type="secondary">No approved nearby store activities yet.</Text>
+          </Card>
+        )}
+      </section>
+
+      <section style={{ marginBottom: 20 }}>
+        <Text strong style={{ display: 'block', marginBottom: 10 }}>Reward exchange rules</Text>
+        <div className="fan-reward-tier-grid">
+          {rewardTiers.map((tier) => (
+            <Card key={tier.key} size="small" className="fan-reward-tier-card liquid-glass">
+              <strong>{tier.label}</strong>
+              <p>{tier.minPoints}-{tier.maxPoints} points</p>
+              <Text type="secondary">{tier.examples.join(' / ')}</Text>
+              <Tag color="gold">Pickup at S-level store</Tag>
+              {tier.monthlyLimit && <Tag color="volcano">{tier.monthlyLimit} per fan per month</Tag>}
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {ongoing.length > 0 && (
         <section style={{ marginBottom: 20 }}>
           <Text strong style={{ display: 'block', marginBottom: 10 }}>Ongoing campaigns ({ongoing.length})</Text>
@@ -291,6 +362,37 @@ const CampaignTab = ({ fan }) => {
       {campaigns.length === 0 && <Empty description="No campaigns" />}
 
       <Modal
+        title={activeTask?.title || 'UWELL task'}
+        open={!!activeTask}
+        onCancel={() => setActiveTask(null)}
+        footer={[
+          <Button key="cancel" onClick={() => setActiveTask(null)}>Cancel</Button>,
+          <Button
+            key="claim"
+            type="primary"
+            disabled={remainingSeconds > 0}
+            onClick={() => activeTask && handleCompleteEngagementTask(activeTask)}
+          >
+            {remainingSeconds > 0 ? `Stay ${remainingSeconds}s` : `Claim +${activeTask?.points || 0} points`}
+          </Button>,
+        ]}
+        className="fan-campaign-detail-modal"
+        width={420}
+      >
+        {activeTask && (
+          <div className="fan-timed-task-modal">
+            <Text type="secondary">{activeTask.desc}</Text>
+            <Progress
+              percent={Math.round(((TIMED_TASK_SECONDS - remainingSeconds) / TIMED_TASK_SECONDS) * 100)}
+              status={remainingSeconds > 0 ? 'active' : 'success'}
+              strokeColor="#B98916"
+            />
+            <p>Keep this page visible for 10 seconds. The countdown pauses when the page is hidden.</p>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
         title={<span><GiftOutlined /> {detailModal ? getConsumerCampaign(detailModal).name : ''}</span>}
         open={!!detailModal}
         onCancel={() => setDetailModal(null)}
@@ -301,15 +403,30 @@ const CampaignTab = ({ fan }) => {
         {detailModal && (
           <div>
             <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{getConsumerCampaign(detailModal).description}</Text>
-            <div className="fan-campaign-guide">
-              {FAN_CAMPAIGN_STEPS.map((step, index) => (
-                <div key={step.title} className="fan-campaign-guide-step">
-                  <span>Step {index + 1}</span>
-                  <strong>{step.title}</strong>
-                  <p>{step.desc}</p>
+            {detailModal.source === 'store_application' ? (
+              <div className="fan-campaign-guide">
+                <div className="fan-campaign-guide-step">
+                  <span>Store</span>
+                  <strong>{detailModal.store_name || detailModal.submitted_by_store_name || 'UWELL store'}</strong>
+                  <p>{[detailModal.city, detailModal.country].filter(Boolean).join(', ') || 'Location confirmed by store'}</p>
                 </div>
-              ))}
-            </div>
+                <div className="fan-campaign-guide-step">
+                  <span>Gift</span>
+                  <strong>{detailModal.gift || 'Store gift'}</strong>
+                  <p>{detailModal.fan_points > 0 ? `Possible fan points: +${detailModal.fan_points}` : 'No extra points required to view this activity.'}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="fan-campaign-guide">
+                {FAN_CAMPAIGN_STEPS.map((step, index) => (
+                  <div key={step.title} className="fan-campaign-guide-step">
+                    <span>Step {index + 1}</span>
+                    <strong>{step.title}</strong>
+                    <p>{step.desc}</p>
+                  </div>
+                ))}
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12 }}>
               <div><Text type="secondary">Start:</Text> {new Date(detailModal.start_date).toLocaleDateString()}</div>
               <div><Text type="secondary">End:</Text> {new Date(detailModal.end_date).toLocaleDateString()}</div>

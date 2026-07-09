@@ -6,6 +6,7 @@ import {
   buildStoreRegistrationRecord,
   filterStoresForFanCity,
   getCitiesForCountry,
+  processLocalReferralSignup,
   validateCountryCity,
 } from './trialOps.js';
 
@@ -80,4 +81,64 @@ test('store registration record lets Supabase assign uuid ids', () => {
   assert.equal(record.status, 'pending_review');
   assert.equal(record.country, 'Saudi Arabia');
   assert.equal(record.city, 'Riyadh');
+});
+
+test('referral signup awards both inviter and new fan once', () => {
+  const operations = [];
+  const fans = new Map([
+    ['fan-inviter-12345678', { id: 'fan-inviter-12345678', points: 100, total_contribution: 100, level: 'bronze' }],
+    ['fan-new', { id: 'fan-new', points: 100, total_contribution: 0, level: 'bronze' }],
+  ]);
+  const tables = {
+    fans,
+    fan_points_log: [],
+    mall_redemptions: [],
+  };
+  const fakeDb = {
+    all(table) {
+      if (table === 'fans') return Array.from(fans.values());
+      if (table === 'fan_level_rules') return [{ level: 'bronze', min_points: 0 }];
+      return tables[table] || [];
+    },
+    find(table, predicate) {
+      return this.all(table).filter(predicate);
+    },
+    findById(table, id) {
+      return table === 'fans' ? fans.get(id) : undefined;
+    },
+    insert(table, record) {
+      operations.push({ type: 'insert', table, record });
+      tables[table].push(record);
+      return record;
+    },
+    update(table, id, patch) {
+      operations.push({ type: 'update', table, id, patch });
+      const next = { ...fans.get(id), ...patch };
+      fans.set(id, next);
+      return next;
+    },
+    transaction(callback) {
+      return callback(this);
+    },
+  };
+
+  const first = processLocalReferralSignup({
+    localDb: fakeDb,
+    referralCode: 'UWELL-12345678',
+    newFanId: 'fan-new',
+  });
+  const second = processLocalReferralSignup({
+    localDb: fakeDb,
+    referralCode: 'UWELL-12345678',
+    newFanId: 'fan-new',
+  });
+
+  assert.equal(first.applied, true);
+  assert.equal(second.applied, false);
+  assert.equal(fans.get('fan-inviter-12345678').points, 130);
+  assert.equal(fans.get('fan-new').points, 130);
+  assert.equal(tables.mall_redemptions.length, 1);
+  assert.equal(tables.fan_points_log.length, 2);
+  assert.equal(tables.fan_points_log[0].fan_id, 'fan-inviter-12345678');
+  assert.equal(tables.fan_points_log[1].fan_id, 'fan-new');
 });

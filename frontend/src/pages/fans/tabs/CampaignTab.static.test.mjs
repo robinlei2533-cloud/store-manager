@@ -42,8 +42,9 @@ test('fan campaign flow no longer requires a store visit task for trial operatio
 test('fan activity center is repositioned as UWELL knowledge and social engagement tasks', () => {
   assert.match(source, /UWELL Knowledge Hub/);
   assert.match(source, /Read UWELL care guide/);
-  assert.match(source, /Share UWELL social post/);
-  assert.match(source, /Like or comment on UWELL social media/);
+  assert.match(source, /View UWELL Instagram/);
+  assert.match(source, /Like, comment, or share UWELL post/);
+  assert.match(source, /TIMED_TASK_SECONDS/);
   assert.match(source, /handleCompleteEngagementTask/);
   assert.match(source, /addFanPoints/);
   assert.match(source, /fan_engagement_tasks/);
@@ -55,6 +56,19 @@ test('fan engagement tasks open official UWELL destinations before claiming poin
   assert.match(source, /https:\/\/www\.instagram\.com\/uwell\.tech\//);
   assert.match(source, /openEngagementTaskLink/);
   assert.match(source, /window\.open\(task\.url/);
+  assert.match(source, /Stay \$/);
+  assert.match(source, /Keep this page visible for 10 seconds/);
   assert.match(source, /Open article/);
   assert.match(source, /Open Instagram/);
+});
+
+test('fan activity center shows approved store activities and reward exchange rules', () => {
+  assert.match(source, /Nearby store activities/);
+  assert.match(source, /filterFanVisibleStoreActivities/);
+  assert.match(source, /fan-store-activity-card/);
+  assert.match(source, /Reward exchange rules/);
+  assert.match(source, /buildRewardTierRules/);
+  assert.match(source, /Pickup at S-level store/);
+  assert.match(css, /\.fan-store-activity-card/);
+  assert.match(css, /\.fan-reward-tier-grid/);
 });

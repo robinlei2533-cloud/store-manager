@@ -180,7 +180,8 @@ const FanCenterPage = () => {
   }, [isLoading]);
 
   const savedFanId = localStorage.getItem('store_manager_current_user');
-  const canUseLocalFanFallback = IS_LOCAL_MODE || isLocal();
+  const hasSavedLocalFan = savedFanId ? Boolean(localDb.findById('fans', savedFanId)) : false;
+  const canUseLocalFanFallback = IS_LOCAL_MODE || isLocal() || hasSavedLocalFan || localStorage.getItem('fan_logged_in') === 'true';
   const remoteFanByAuthUser = fans.find((f) => f.user_id === user?.id);
   const remoteFanBySavedAuthUser = savedFanId ? fans.find((f) => f.user_id === savedFanId) : null;
   const savedLocalFan = canUseLocalFanFallback && savedFanId ? localDb.findById('fans', savedFanId) : null;
