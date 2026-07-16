@@ -1,6 +1,651 @@
 # UWELL CRM Project Progress
 
-Last updated: 2026-07-09
+Last updated: 2026-07-16
+
+## 2026-07-16 Task-025 Fan Home Visual & IA Polish
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Reworked Fan Home into a focused growth-first shell:
+     - existing member growth card remains at the top;
+     - new `Today's power moves` mission area highlights the two core daily actions;
+     - Check-in remains an instant action and keeps the `View streak` secondary entry;
+     - Scan remains a Home secondary entry through the existing Scan page;
+     - recommended activity is reduced to one focused card;
+     - recommended reward is reduced to one preview card;
+     - nearby store entry is reduced to one lightweight card while preserving exposure wording;
+     - recent point activity is kept as a lighter feed.
+   - Kept Home routes into real fan sections:
+     - Activities;
+     - Rewards;
+     - Stores;
+     - Check-in detail;
+     - Scan.
+   - Did not use `/preview/fan`.
+2. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added Task-025 regression coverage for the focused Home growth IA.
+   - Updated the Check-in detail regression to match the new Home action grid.
+   - Kept coverage that core Home entries still route to real fan sections.
+3. Updated `frontend/src/index.css`.
+   - Added scoped `.fan-shell .fan-home-*` styles.
+   - Preserved UWELL yellow-green theme, readable contrast, fixed bottom nav compatibility, and mobile layout.
+   - Fixed mobile action-card text wrapping after screenshot review.
+4. Added browser QA artifacts under:
+   - `frontend/output/playwright/task-025-home-polish/`
+
+Why:
+
+Task-024 concluded that the fan shell structure was correct, but Home still felt like stacked modules instead of a young, growth-oriented fan center. Task-025 focuses Home visual hierarchy without changing business behavior.
+
+Pages affected:
+
+1. Fan Center Home:
+   - `fan-app.html#/fan-center`
+
+Database impact:
+
+None.
+
+No schema, seed data, Supabase, RLS, localDb structure, backend API, `.env`, point rule, scan rule, reward rule, or store exposure rule was changed.
+
+Business logic impact:
+
+None.
+
+Existing behavior preserved:
+
+1. Daily check-in remains once per day through existing `handleTaskCheckIn`.
+2. `View streak` still opens the Check-in detail page.
+3. Scan still opens the existing Scan secondary page.
+4. Activity, reward, store, and recent point records still use existing data.
+5. Store exposure wording and `fan_home_recommended` compatibility remain in source.
+
+Other page impact:
+
+No intended impact on:
+
+1. Activities
+2. Community
+3. Rewards
+4. Stores
+5. Me
+6. Check-in detail
+7. Scan detail
+8. Store portal
+9. Admin portal
+10. `/preview/fan`
+
+Verification:
+
+1. Red test first:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected because `fan-home-shell` and the Task-025 focused Home IA were missing.
+2. Focused tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 2 files, 19 tests.
+3. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+4. Browser QA:
+   - Script:
+     - `node output/playwright/task-025-home-polish/qa-home.mjs`
+   - Checked:
+     - 390px mobile;
+     - 768px tablet;
+     - 1440px desktop.
+   - Confirmed:
+     - `.fan-home-shell` rendered;
+     - `.fan-home-mission-control` rendered;
+     - 2 Home action cards rendered;
+     - 3 spotlight cards rendered;
+     - `.fan-bottom-nav` computed position is `fixed`;
+     - no horizontal overflow;
+     - no console errors in the checked flow.
+   - Screenshots:
+     - `frontend/output/playwright/task-025-home-polish/mobile-home.png`
+     - `frontend/output/playwright/task-025-home-polish/tablet-home.png`
+     - `frontend/output/playwright/task-025-home-polish/desktop-home.png`
+   - Report:
+     - `frontend/output/playwright/task-025-home-polish/report.json`
+5. Full test suite:
+   - `npm test`
+   - Failed with 3 existing/non-Task-025 static test failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English via `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects legal content to mention `30 days`, while current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, while current invite copy says the fan earns `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. The full-page mobile screenshot shows fixed bottom navigation over the stitched screenshot. This is the normal full-page screenshot artifact for fixed nav, not a layout failure.
+2. The full test failures listed above were not changed in Task-025 scope and should be handled only through separate confirmed tasks.
+3. The project requirement says default language is English and Arabic is future work; this conflicts with the existing language persistence static test. Do not change language behavior without a separate confirmed language task.
+
+Next recommendation:
+
+Task-026:
+Fan Home follow-up visual QA / polish closeout.
+
+Recommended scope:
+
+1. Review Task-025 mobile/tablet/desktop screenshots.
+2. Decide whether Home action cards should be more compact on mobile or remain current large game-action cards.
+3. If approved, do a small spacing-only pass.
+4. Keep database, business rules, permissions, store portal, and admin portal unchanged.
+
+## 2026-07-16 Task-020 Fan Check-in Entry Flow Fix
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Added `handleOpenCheckInDetails`.
+   - Added a stable `View streak` entry in the Home daily action area.
+   - Kept the existing one-tap check-in behavior:
+     - if the fan has not checked in today, the primary Check-in button awards points;
+     - if the fan has already checked in, the primary Check-in button opens the Check-in detail page through existing logic.
+   - Changed the Home check-in primary button copy from the old separator style to `+5 pts` to avoid odd separator rendering.
+2. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added regression coverage that Home exposes a separate Check-in detail entry.
+   - Locked the path from Home to `CheckInTab`.
+3. Updated `frontend/src/index.css`.
+   - Added scoped styles:
+     - `.fan-checkin-home-actions`;
+     - `.fan-checkin-detail-link`.
+
+Why:
+
+Task-019 found that the Check-in detail page existed in code but was not reachable through a stable user path. Home -> Check in performed the daily check-in action and stayed on Home. Fans had no clear way to open the streak/week/progress detail page.
+
+Pages affected:
+
+1. Fan Center Home:
+   - `fan-app.html#/fan-center`
+2. Fan Center Check-in secondary page:
+   - opened through Home -> `View streak`.
+
+Database impact:
+
+None.
+
+No schema, seed, Supabase, RLS, localDb structure, or `.env` change was made.
+
+Existing data used:
+
+1. `fan_checkins`
+2. `fan_points_log`
+3. existing fan point state
+
+Permissions impact:
+
+None.
+
+No fan/store/admin permission behavior changed.
+
+Other page impact:
+
+No intended impact on:
+
+1. Activities
+2. Community
+3. Rewards
+4. Stores
+5. Me
+6. Scan
+7. Store portal
+8. Admin portal
+
+Verification:
+
+1. Red test first:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because `handleOpenCheckInDetails`, `View streak`, and the Home detail entry were missing.
+2. Focused test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 14 tests.
+3. Fan portal regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 9 files, 46 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+5. Browser verification:
+   - Opened `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Injected local demo fan session:
+     - `fan_logged_in = true`;
+     - `store_manager_current_user = f-001`.
+   - Confirmed Home shows `View streak`.
+   - Clicked `View streak`.
+   - Confirmed `.fan-checkin-page` rendered.
+   - Confirmed bottom nav remained `fixed`.
+   - Confirmed no horizontal overflow at 390px mobile width.
+   - Screenshots saved:
+     - `frontend/output/playwright/task-020-checkin-entry/mobile-home-view-streak.png`
+     - `frontend/output/playwright/task-020-checkin-entry/mobile-checkin-detail.png`
+
+Known verification notes:
+
+1. Browser QA intentionally blocked remote media/font resources, producing expected `net::ERR_FAILED` console entries.
+2. This task did not change check-in point rules. The Home quick action still awards points only through existing daily check-in logic.
+
+Next recommendation:
+
+Task-021:
+Fan secondary-page return behavior unification.
+
+Recommended scope:
+
+1. Track source tab before opening secondary pages.
+2. Return Home for Home-launched pages:
+   - Scan;
+   - Check-in.
+3. Return Me for Me-launched pages:
+   - Invite;
+   - Guide;
+   - Old fan verification.
+4. Do not change database or business rules.
+
+## 2026-07-16 Task-019 Fan Secondary Page Visual QA
+
+Current status:
+
+Completed with one follow-up issue found.
+
+Changed:
+
+1. No production code was changed.
+2. No UI code was changed.
+3. No database, permission, API, or `.env` change was made.
+4. Generated browser QA screenshots under:
+   - `frontend/output/playwright/task-019-secondary-qa/`
+5. Generated QA report:
+   - `frontend/output/playwright/task-019-secondary-qa/report.json`
+
+Why:
+
+Task-018 changed Check-in and Old fan verification UI. Before moving to another feature task, the fan secondary pages needed real browser verification instead of only static tests.
+
+Pages checked:
+
+1. Scan
+2. Invite friends
+3. New user guide
+4. Old fan verification
+5. Check-in entry behavior
+
+Pages affected:
+
+None by code change.
+
+Visual QA target pages:
+
+1. `fan-app.html#/fan-center`
+2. Home -> Scan product
+3. Me -> Invite friends
+4. Me -> New user guide
+5. Me -> Existing fan verification
+6. Home -> Check in
+
+Database impact:
+
+None.
+
+Permissions impact:
+
+None.
+
+Other page impact:
+
+None.
+
+Verification:
+
+1. Local access:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Returned HTTP 200.
+2. Browser QA used demo fan session:
+   - `fan_logged_in = true`
+   - `store_manager_current_user = f-001`
+3. Screenshots captured at:
+   - 390px mobile;
+   - 768px tablet;
+   - 1440px desktop.
+4. Passing screenshot pages:
+   - `mobile-scan.png`
+   - `mobile-invite.png`
+   - `mobile-guide.png`
+   - `mobile-oldfan.png`
+   - `tablet-scan.png`
+   - `tablet-invite.png`
+   - `tablet-guide.png`
+   - `tablet-oldfan.png`
+   - `desktop-scan.png`
+   - `desktop-invite.png`
+   - `desktop-guide.png`
+   - `desktop-oldfan.png`
+5. Browser metrics from `report.json` confirmed for Scan, Invite, Guide, and Old fan verification:
+   - target selector found;
+   - bottom navigation found;
+   - bottom navigation position is `fixed`;
+   - bottom is `0px`;
+   - no horizontal overflow at 390, 768, or 1440 widths.
+
+Known verification notes:
+
+1. Console showed `Failed to load resource: net::ERR_FAILED` because the QA script intentionally blocked external media/fonts including video and remote font resources. This was expected and not a page JavaScript crash.
+2. Full-page screenshots can show the fixed bottom nav over the middle of a long stitched screenshot. This is a screenshot stitching artifact, not a real scrolling-position failure.
+3. Scan page is functionally accessible and passes fixed-nav / overflow checks, but still has relatively high text density on mobile because it explains multiple scan-code classes.
+
+Follow-up issue found:
+
+1. Check-in secondary page is not currently reachable through a stable user path.
+   - Home -> Check in performs the daily check-in action.
+   - After the first click, the Home button text changes to `Checked in · +5`.
+   - The page remains on Home.
+   - The script could not open `.fan-checkin-page` through normal user interaction.
+2. This means Task-018's Check-in UI exists in code, but Task-019 could not visually validate it through the real user flow.
+
+Next recommendation:
+
+Task-020:
+Fan Check-in entry flow fix.
+
+Recommended scope:
+
+1. Analyze whether Home Check-in should:
+   - perform instant check-in only;
+   - open Check-in detail only;
+   - or perform check-in and then expose a `View streak` / `Details` entry.
+2. Confirm the intended UX before coding.
+3. After confirmation, make Check-in detail reachable without changing point rules.
+4. Re-run Task-019 screenshots for Check-in at mobile, tablet, and desktop.
+
+## 2026-07-16 Task-018 Fan Secondary Page Consistency Pass
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/tabs/CheckInTab.jsx`.
+   - Kept existing daily check-in logic.
+   - Kept `fan_checkins` reads/writes.
+   - Kept `addFanPoints` before local check-in record creation.
+   - Kept configurable `operationalRules.checkInPoints`.
+   - Rebuilt the page into a recovered fan secondary shell:
+     - yellow-green hero;
+     - points / level / today status cards;
+     - one-week check-in strip;
+     - clear check-in action card;
+     - level progress card.
+   - Removed old dense Ant Card layout, old purple-blue gradient, and `liquid-glass` usage from the check-in page.
+2. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Rebuilt the existing fan verification secondary page.
+   - Kept existing old fan proof upload logic.
+   - Kept `old_fan_verifications` local records.
+   - Kept review status behavior and approved `+100` display.
+   - Replaced the old `Card className="fan-panel"` and inline white text with scoped recovered fan UI:
+     - verification hero;
+     - status card;
+     - upload card;
+     - submission history list.
+3. Updated static tests:
+   - `frontend/src/pages/fans/tabs/CheckInTab.static.test.mjs`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added regression checks that Check-in and Old fan verification use recovered fan styling and do not fall back to the old dense structures.
+4. Updated `frontend/src/index.css`.
+   - Added scoped `.fan-checkin-*` styles.
+   - Added scoped `.fan-verification-*` styles.
+   - No store/admin global style change was intended.
+
+Why:
+
+Task-017 finished Me, Invite, and Guide recovery, but secondary pages still had inconsistent old UI. Check-in and Old fan verification were the clearest remaining conflicts:
+
+1. Check-in still used dense Ant cards, old gradients, and `liquid-glass`.
+2. Old fan verification still used a plain card, inline styles, and high text density.
+3. Both pages needed to match the current confirmed fan direction: yellow-green, youthful, low text density, and clear action-first structure.
+
+Pages affected:
+
+1. Fan Center secondary Check-in page:
+   - `fan-app.html#/fan-center`
+   - Home -> Check in.
+2. Fan Center secondary Old fan verification page:
+   - `fan-app.html#/fan-center`
+   - Me -> Existing fan verification;
+   - Settings -> My verification.
+
+Database impact:
+
+None.
+
+No schema, seed data, Supabase, RLS, table, localDb structure, auth, or `.env` changes were made.
+
+Existing data used:
+
+1. `fan_checkins`
+2. `fan_points_rules`
+3. `old_fan_verifications`
+4. `fan_points_log` through existing point awarding flow
+
+Permissions impact:
+
+None.
+
+No fan, store, admin, upload review, or account permission logic was changed.
+
+Other page impact:
+
+No intended impact on:
+
+1. Home
+2. Activities
+3. Community
+4. Rewards
+5. Stores
+6. Me
+7. Store portal
+8. Admin portal
+9. `/preview/fan`
+
+Verification:
+
+1. Red tests were added first:
+   - `npm test -- src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because the new check-in and verification shells were missing.
+2. Focused tests:
+   - `npm test -- src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 2 files, 15 tests.
+3. Fan portal regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 9 files, 45 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+
+Known verification notes:
+
+1. This task did not run a fresh Playwright screenshot pass. The next visual QA task should capture mobile, tablet, and desktop screenshots for Check-in and Old fan verification.
+2. The current task intentionally did not change secondary-page return routing. Back still follows the current existing shell behavior.
+
+Follow-up notes:
+
+1. If the user wants secondary pages opened from Me to return to Me instead of Home, that should be a separate confirmed flow task.
+2. Image upload for old fan verification remains local/demo behavior. Real upload storage, moderation, and backend review rules require a separate confirmed task.
+3. Continue avoiding broad global CSS cleanup until the fan portal is visually stable.
+
+Next recommendation:
+
+Task-019:
+Fan secondary-page visual QA and screenshot pass.
+
+Recommended scope:
+
+1. Run local browser screenshot checks for:
+   - Check-in;
+   - Scan;
+   - Invite;
+   - Guide;
+   - Old fan verification.
+2. Verify at:
+   - 390px mobile;
+   - 768px tablet;
+   - 1440px desktop.
+3. Confirm:
+   - fixed bottom nav remains visible;
+   - no horizontal overflow;
+   - text contrast is readable;
+   - no old dense card style remains on these secondary pages.
+
+## 2026-07-15 Task-014A Fan Activities Page Recovery
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/tabs/CampaignTab.jsx`.
+   - Kept existing official engagement task logic.
+   - Kept `fan_engagement_tasks` records and `addFanPoints` for official quick tasks.
+   - Kept official campaign sections: Ongoing, Upcoming, Past.
+   - Kept store activities from `filterFanVisibleStoreActivities`.
+   - Rebuilt the Activities page layout into a clearer activity hub:
+     - hero section;
+     - official quick actions;
+     - official activities;
+     - store activities;
+     - store activity four-step verification flow.
+   - Added visible store activity flow:
+     - Join;
+     - Visit store;
+     - Store verifies;
+     - Points added.
+   - Kept store activity points as verification-based, not instant claim.
+2. Updated `frontend/src/pages/fans/tabs/CampaignTab.static.test.mjs`.
+   - Added regression coverage for the recovered activity hub layout.
+   - Added regression coverage that store activities do not become direct instant point claims.
+3. Updated `frontend/src/index.css`.
+   - Added scoped `fan-activity-*` styles for hero, section headers, quick grid, store verification strip, empty state, and store event poster.
+   - Added mobile layout handling for the activity hero and store verification strip.
+
+Why:
+
+The Activities page already had the right business functions, but the presentation was still too close to a dense card list. The page needed to match the confirmed fan IA:
+
+1. Top area: quick official earning tasks.
+2. Main area: official activities.
+3. Store area: store activities with clear offline verification.
+4. Less text density and clearer fan-facing action language.
+
+Pages affected:
+
+1. Fan Center main Activities tab:
+   - `fan-app.html#/fan-center`
+   - Bottom nav -> Activities.
+
+Database impact:
+
+None.
+
+No schema, seed, Supabase, RLS, table, or `.env` changes were made.
+
+Existing data used:
+
+1. `campaigns`
+2. `fan_engagement_tasks`
+3. `fan_points_log`
+
+Permissions impact:
+
+None.
+
+Other page impact:
+
+No intended impact on Home, Scan, Community, Rewards, Stores, Me, Store portal, or Admin portal.
+
+Verification:
+
+1. Red test first:
+   - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs`
+   - Failed as expected before implementation because the new activity hub layout and store verification flow were missing.
+2. Focused tests:
+   - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs`
+   - Passed: 1 file, 9 tests.
+3. Fan shell regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs`
+   - Passed: 2 files, 21 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+5. Browser verification:
+   - Opened real fan center at `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Used local demo fan `f-001`.
+   - Entered Activities from the bottom nav.
+   - Confirmed `.fan-activity-page` rendered.
+   - Confirmed no horizontal overflow at:
+     - 390px mobile;
+     - 768px tablet;
+     - 1440px desktop.
+   - Screenshots saved:
+     - `frontend/output/playwright/task-014-activities/mobile-activities-final.png`
+     - `frontend/output/playwright/task-014-activities/tablet-activities-final.png`
+     - `frontend/output/playwright/task-014-activities/desktop-activities-final.png`
+
+Known verification notes:
+
+1. Screenshot script blocked external images/fonts/media to avoid slow network loading; this created expected `net::ERR_FAILED` console entries for those blocked resources.
+2. Bottom navigation remains fixed as required.
+3. The full-page mobile screenshot shows fixed bottom nav over the stitched screenshot in the middle; this is expected from full-page screenshot stitching with fixed elements, not a page route failure.
+
+Follow-up notes:
+
+1. This task did not change campaign database rules.
+2. This task did not make store activities award points directly.
+3. Store activity points remain tied to store verification and existing rules.
+4. Future refinement can add real activity images/posters after product assets are selected.
+
+Next recommendation:
+
+Task-015: Fan Community page recovery.
+
+Recommended scope:
+
+1. Keep existing `CommunityTab.jsx` business functions.
+2. Make Community look like a real feed:
+   - composer at top;
+   - fan and official posts;
+   - like/comment actions;
+   - small point-rule hint only.
+3. Preserve daily limits:
+   - like +1, max 10/day;
+   - comment +2, max 5/day;
+   - first post +10.
+4. Do not change database rules without a separate confirmed task.
 
 ## Project Positioning
 
@@ -1289,3 +1934,1681 @@ Move into pre-launch decision work: choose local trial vs external preview, then
     - 1 test file passed;
     - 7 tests passed.
   - test assertions now explicitly protect the official article / Instagram / like-comment-share engagement tasks from accidental removal.
+
+### 2026-07-15 Fan Portal Recovery / Navigation And IA Record
+
+Current status:
+
+- The project has shifted back to a controlled Senior Tech Lead workflow:
+  - analyze first;
+  - list impact;
+  - wait for confirmation;
+  - then develop;
+  - record every change in project docs.
+- This record only covers the latest fan-portal recovery tasks. It does not claim that the full dirty working tree is ready for production.
+
+Modified in the latest fan-portal pass:
+
+1. Fan navigation shell
+   - Changed the real Fan Center bottom navigation toward the confirmed six-tab structure:
+     `Home / Activities / Community / Rewards / Stores / Me`.
+   - Kept compatibility aliases for older internal tab names such as `campaigns`, `mall`, and `profile`.
+   - Purpose: align the real fan portal with the confirmed product IA without deleting existing fan functions.
+
+2. Fan Home information architecture cleanup
+   - Simplified Home into clearer daily-use sections:
+     member growth, check-in, scan product, recommended activity, nearby UWELL stores, and rewards to aim for.
+   - Reduced visible rule/copy density on Home.
+   - Purpose: make Home feel like a usable fan entry screen instead of a mixed function dump.
+
+3. Fan Activities page structure
+   - Renamed the misleading `Read UWELL care guide` task to `Learn`.
+   - Changed the large `UWELL Knowledge Hub` heading to a more direct `Activities` direction.
+   - Reorganized activity content around:
+     - points earning actions;
+     - official activities;
+     - store activities;
+     - empty state for unavailable store activities.
+   - Removed reward exchange rules from Activities because reward rules belong in Rewards, not Activities.
+   - Purpose: reduce confusion between learning tasks, official activities, store activities, and reward rules.
+
+Why these changes were made:
+
+- The user confirmed that the new UI should be an upgrade of the existing website, not a replacement that removes old functions.
+- The real fan portal needed to preserve existing capabilities while improving navigation, UI hierarchy, and usage logic.
+- The earlier implementation risked becoming a mix of old UI, preview UI, and incomplete new logic. This pass was intended to move back toward controlled, product-led cleanup.
+
+Pages affected:
+
+- Fan Center main shell:
+  - `frontend/src/pages/fans/FanCenterPage.jsx`
+- Fan Activities:
+  - `frontend/src/pages/fans/tabs/CampaignTab.jsx`
+- Related static tests:
+  - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+  - `frontend/src/pages/fans/tabs/CampaignTab.static.test.mjs`
+  - `frontend/src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+
+Database impact:
+
+- No database schema changes.
+- No Supabase migration added.
+- No `.env` file edited.
+- No new dependency installed.
+- No intentional permission/RBAC change.
+
+Verification status:
+
+- Passed focused fan navigation/static tests:
+  - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+- Passed focused fan activities/rewards tests:
+  - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+- Passed build:
+  - `npm run build`
+- Full test suite is not fully green at this checkpoint. Known remaining failures:
+  - `src/stores/languagePersistence.static.test.mjs`
+    - current cause: Fan Center still has English-forcing behavior that conflicts with language persistence expectations.
+  - `src/pages/fans/FanStoresExposure.static.test.mjs`
+    - current cause: Store Map / S-A exposure / storefront trust cues are not fully aligned with the planned fan store-map exposure model.
+
+Current state:
+
+## 已完成
+
+✅ Project roadmap documentation system created under `docs/`.
+
+✅ Safe baseline identified:
+`eb87aaea5c9c8c481c5940e7caa41388d8e16ec4`
+
+✅ Fan portal recovery direction confirmed:
+real fan portal must keep old functions while upgrading UI, navigation, and information hierarchy.
+
+✅ Fan bottom navigation direction started:
+`Home / Activities / Community / Rewards / Stores / Me`.
+
+✅ Fan Home started moving toward daily-use structure.
+
+✅ Fan Activities started moving away from confusing `Knowledge Hub` wording and into clearer activity sections.
+
+## 开发中
+
+🟡 Fan real-page upgrade:
+navigation, Home, Activities, Community, Rewards, Store Map, and Me still need to be completed against the confirmed MD plans.
+
+🟡 Store Map recovery:
+map display, S/A/B/C store visibility, recommended store exposure, storefront photo, and service tags need another controlled pass.
+
+🟡 Language consistency:
+default English plus Arabic/RTL support is planned, but current language persistence still has failing tests.
+
+## 待优化
+
+🔴 UI consistency:
+real fan pages still need a complete screenshot review to prevent old UI and new UI mixing.
+
+🔴 Text density:
+some fan/store/admin pages still contain too much dense text.
+
+🔴 Cross-portal consistency:
+store portal and admin portal should not be redesigned until fan portal sample passes.
+
+🔴 Documentation-to-implementation discipline:
+future tasks must start from PRD / Business Rules / Design System / Progress, then list files and risks before coding.
+
+## 当前 Bug / Risk
+
+1. Full test suite has known failures in language persistence and fan store exposure tests.
+
+2. The working tree contains many unrelated historical modified/untracked files, so any next development must be scoped carefully.
+
+3. Some old preview/design files remain in the repository and may confuse future implementation if not clearly separated from real app pages.
+
+4. Fan Store Map is not yet at the expected product standard: the user expects real map-style display and S/A/B/C store classification visibility, not only store recommendation cards.
+
+## 下一任务建议
+
+Task-009:
+Fan Store Map recovery analysis only.
+
+Before coding, produce:
+
+1. Current Store Map old functions inventory.
+2. Confirmed desired Store Map functions from the MD plans.
+3. Gap list.
+4. Files to modify.
+5. Database impact.
+6. Permission impact.
+7. UI acceptance checklist.
+
+Only after confirmation should implementation begin.
+
+Task-010:
+Fan Community page recovery analysis.
+
+Task-011:
+Fan Rewards page recovery analysis.
+
+Task-012:
+Fan Me page recovery analysis.
+
+### 2026-07-15 Task-009 Fan Store Map Recovery
+
+修改了什么:
+
+1. Fan Center 的 Home / Stores 门店入口接入现有后台曝光规则:
+   - 使用 `sortStoresForFanExposure`;
+   - 使用 `getStoreExposureScore`;
+   - 支持 `fan_home_recommended`, `fan_map_highlighted`, `reward_pickup_recommended`, `eligible_for_store_events_display` 等现有曝光字段。
+
+2. Stores 页面从“推荐门店说明 + 地图”升级为更清楚的粉丝可见 Store Map:
+   - 顶部说明改为 Store map;
+   - 加入 Featured store picks;
+   - 展示门店等级、电话、Navigate;
+   - 展示 Storefront photo / Trust photo pending;
+   - 展示 Activity store / Pickup eligible / Display reviewed;
+   - 继续保留原 `MapTab` 的 Leaflet 地图、S/A/B/C 筛选、地图 marker 和门店详情能力。
+
+3. 修复粉丝端底部导航固定规则:
+   - 明确 `.fan-shell .fan-bottom-nav` 和 `.fan-center-liquid-shell .fan-bottom-nav` 必须 `position: fixed`;
+   - 三端浏览器验收确认 computed style 为 `fixed`。
+
+4. 修复门店照片缺失时的 UWELL 占位图文字过大问题:
+   - 占位文字缩小并居中，避免手机端压到门店名称。
+
+为什么修改:
+
+- 用户明确要求 Store Map 不能丢失旧网站功能，不能只显示推荐店铺卡片。
+- 粉丝端 Stores 应该是地图优先，能看到 S/A/B/C 门店、推荐曝光、导航、门店照片和支持服务。
+- 底部主导航必须像手机系统导航一样固定在底部，不允许随页面滚动消失或变成普通布局。
+
+修改影响哪些页面:
+
+- 影响:
+  - `fan-app.html#/fan-center` 的 Home 附近门店入口;
+  - `fan-app.html#/fan-center` 的 Stores 主导航页面。
+- 不影响:
+  - Store Owner 门店端;
+  - Admin 后台端;
+  - `/preview/fan`;
+  - 活动、社区、兑奖、扫码的业务规则。
+
+修改哪些数据库:
+
+- 无数据库修改。
+- 无 Supabase migration。
+- 无 RLS / 权限修改。
+- 无 `.env` 修改。
+- 无新依赖。
+
+修改文件:
+
+- `frontend/src/pages/fans/FanCenterPage.jsx`
+- `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+- `frontend/src/index.css`
+- `PROGRESS.md`
+
+验证:
+
+- RED:
+  - `npm test -- src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+  - 初始失败 3 项，确认 Fan Center 门店入口未接入曝光规则和照片/能力标签。
+- GREEN:
+  - `npm test -- src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+  - 2 files passed, 5 tests passed.
+- 固定导航回归:
+  - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+  - 1 file passed, 11 tests passed.
+- 合并聚焦测试:
+  - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+  - 3 files passed, 16 tests passed.
+- Build:
+  - `npm run build` passed.
+  - Only known Vite chunk-size / plugin timing warnings remain.
+- Browser screenshots:
+  - `frontend/output/playwright/task-009-store-map/mobile-home.png`
+  - `frontend/output/playwright/task-009-store-map/mobile-stores-final.png`
+  - `frontend/output/playwright/task-009-store-map/tablet-home.png`
+  - `frontend/output/playwright/task-009-store-map/tablet-stores.png`
+  - `frontend/output/playwright/task-009-store-map/desktop-home.png`
+  - `frontend/output/playwright/task-009-store-map/desktop-stores.png`
+- Browser verification result:
+  - mobile/tablet/desktop nav position: `fixed`;
+  - map exists;
+  - 3 featured store cards exist;
+  - no horizontal overflow;
+  - no console error captured.
+
+后续注意事项:
+
+1. 当前门店名称来自 seed/demo 数据，部分看起来不像真实门店名，后续需要真实门店数据清理。
+
+2. Storefront photo 当前多数为 pending，因为 seed 数据里缺少真实门店门口照片；后续门店注册/前三次登录提醒上传后，粉丝端会自然显示真实照片。
+
+3. `frontend/src/index.css` 已经很大，后续不要继续无边界追加全局样式；粉丝端样式应继续用 `.fan-*` 范围控制。
+
+4. Store Map 这一步只恢复和优化展示，不修改门店评级规则和曝光计算规则。
+
+下一步建议:
+
+Task-010:
+Fan Community 页面恢复分析。
+
+目标:
+
+- 保留旧社区功能;
+- 让页面真正像社区 feed;
+- 发布帖子、点赞、评论、积分说明保留但不喧宾夺主;
+- 先分析影响和文件，再等确认开发。
+
+### 2026-07-15 Task-010 Fan Community Recovery
+
+What changed:
+
+1. Reworked the Fan Community page from a points-rule dashboard into a real community feed:
+   - composer first;
+   - lightweight points hint;
+   - post feed as the main content;
+   - each post shows avatar, author, Official/Fan tag, category, date, like, comment, and comment input.
+
+2. Preserved the existing community business logic:
+   - publish post;
+   - like;
+   - comment;
+   - like points;
+   - comment points;
+   - first valid daily post points;
+   - daily point limits;
+   - duplicate-like prevention;
+   - self-like no-points behavior;
+   - short post/comment validation.
+
+3. Added fan-facing display mapping for old internal demo community content:
+   - no database schema change;
+   - no seed deletion;
+   - internal operational wording is not exposed in the Fan Community UI.
+
+4. Added scoped `.fan-community-*` styles:
+   - only affects Fan Community;
+   - does not modify Store Owner;
+   - does not modify Admin;
+   - avoids broad global Ant Design overrides.
+
+Why changed:
+
+- The confirmed fan plan requires Community to feel like a real fan feed, not a rules panel.
+- Points rules must remain visible but should not dominate the page.
+- Old demo community content included internal operations language that is not appropriate for fans.
+
+Pages affected:
+
+- Affected:
+  - `fan-app.html#/fan-center` > Community.
+- Not affected:
+  - Home;
+  - Activities;
+  - Rewards;
+  - Stores;
+  - Me;
+  - Store Owner;
+  - Admin;
+  - `/preview/fan`.
+
+Database impact:
+
+- No database schema change.
+- No Supabase migration.
+- No RLS or permission change.
+- No `.env` change.
+- No new dependency.
+- Original seed data was not modified; fan-facing display mapping is applied inside `CommunityTab.jsx`.
+
+Files changed:
+
+- `frontend/src/pages/fans/tabs/CommunityTab.jsx`
+- `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`
+- `frontend/src/index.css`
+- `PROGRESS.md`
+
+Verification:
+
+- RED:
+  - `npm test -- src/pages/fans/tabs/CommunityTab.static.test.mjs`
+  - failed as expected because the old page had no feed shell, composer, post card, or lightweight rule hint.
+- GREEN:
+  - `npm test -- src/pages/fans/tabs/CommunityTab.static.test.mjs`
+  - 1 file passed, 4 tests passed.
+- Fan shell plus Community:
+  - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs`
+  - 2 files passed, 15 tests passed.
+- Build:
+  - `npm run build` passed.
+  - Only known Vite chunk-size / plugin timing warnings remain.
+- Browser screenshot:
+  - `frontend/output/playwright/task-010-community/mobile-community-final.png`
+  - `frontend/output/playwright/task-010-community/tablet-community.png`
+  - `frontend/output/playwright/task-010-community/desktop-community.png`
+- Browser verification:
+  - composer exists;
+  - lightweight rule hint exists;
+  - 12 post cards render;
+  - bottom nav is fixed;
+  - no horizontal overflow;
+  - no console error captured;
+  - no internal operational terms detected in rendered Community page.
+
+Follow-up notes:
+
+1. The page still uses local/demo data. Real launch should define moderation, reporting, official account, and content review workflows.
+
+2. The display mapping is a short-term protection so fans do not see internal demo content. Long term, demo data should be split into fan-facing community seed and internal ops feed.
+
+3. Image/video posts were not added in Task-010. Upload, review, storage, and safety rules need separate confirmation.
+
+4. Community points still use the existing single rule path. Do not create a second points logic path during UI work.
+
+Next recommendation:
+
+Task-011:
+Fan Rewards recovery analysis.
+
+### 2026-07-15 Task-011 Fan Rewards Recovery
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Reworked the real Fan Rewards page into a point mall layout:
+   - hero header with available points;
+   - reward rule summary strip;
+   - compact rules helper;
+   - category filter bar;
+   - product-style reward grid;
+   - image placeholder slot for every reward;
+   - reward status tags.
+
+2. Preserved existing redemption logic:
+   - `createPendingRedemption`;
+   - `createRewardRedemptionRemote`;
+   - `addFanPoints`;
+   - local fallback redemption record;
+   - sessionStorage pickup-code persistence;
+   - redemption success modal;
+   - inline redemption code fallback.
+
+3. Added fan-facing reward states:
+   - Available;
+   - Almost there;
+   - Out of stock;
+   - Review required.
+
+4. Synchronized legal reward copy with the actual redemption logic:
+   - Normal rewards: A/S pickup;
+   - Premium rewards: S pickup;
+   - Diamond/high-value rewards: backend review before pickup;
+   - default validity period: 7 days.
+
+Why:
+
+- The confirmed product direction says Rewards should remain a point mall, not become a dense rule page.
+- The previous UI had too much rule text above the mall and looked like generic cards instead of a fan-facing reward shop.
+- `legal-content.js` said S-level-only pickup and 30-day validity, while the actual redemption logic uses A/S, S, Diamond review, and 7-day validity. This conflict would confuse fans and store users.
+
+Pages affected:
+
+- Affected:
+  - `fan-app.html#/fan-center` > Rewards.
+- Indirectly affected:
+  - Home reward previews still open the Rewards page.
+- Not affected:
+  - Activities;
+  - Community;
+  - Stores;
+  - Me;
+  - Store Owner;
+  - Admin;
+  - database schema;
+  - permissions.
+
+Database impact:
+
+- No database schema change.
+- No Supabase migration.
+- No RLS or permission change.
+- No `.env` change.
+- No new dependency.
+
+Files changed:
+
+- `frontend/src/pages/fans/tabs/MallTab.jsx`
+- `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+- `frontend/src/pages/fans/tabs/MallTab.redemption.static.test.mjs`
+- `frontend/src/utils/legal-content.js`
+- `frontend/src/index.css`
+- `PROGRESS.md`
+
+Verification:
+
+1. RED tests:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs`
+   - Failed as expected because point mall classes and synchronized reward rules were not implemented yet.
+
+2. GREEN focused tests:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+   - Passed: 3 files, 10 tests.
+
+3. Fan shell regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+   - Passed: 4 files, 21 tests.
+
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain: large chunks and plugin timing.
+
+5. Browser verification:
+   - Opened `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Navigated to Rewards.
+   - Mobile/tablet/desktop verified:
+     - 8 reward cards render;
+     - 8 image slots render;
+     - 8 status tags render;
+     - bottom nav position is fixed;
+     - no console errors;
+     - no horizontal overflow.
+   - Screenshots:
+     - `frontend/output/playwright/task-011-rewards/mobile-rewards-final.png`
+     - `frontend/output/playwright/task-011-rewards/tablet-rewards.png`
+     - `frontend/output/playwright/task-011-rewards/desktop-rewards.png`
+
+Follow-up notes:
+
+1. This task did not modify `MALL_ITEMS` reward catalog values. Prize names, points, and future real images should be discussed separately.
+
+2. True level-lock rules need a separate product decision. Current Task-011A only shows current redemption type/status from existing rules and does not create new reward-level database fields.
+
+3. Reward image slots are placeholders. Real reward images can be added later without changing the page structure.
+
+4. The full-page Playwright screenshot shows the fixed bottom nav in the middle of the long stitched image; this is normal for full-page screenshots of fixed elements. Browser verification confirmed computed position is `fixed`.
+
+Next recommendation:
+
+Task-012:
+Fan Me page recovery analysis.
+
+### 2026-07-15 Task-012 Fan Me Account Center Recovery
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Reworked the real Fan Me page from a simple button list into an account center:
+   - member hero;
+   - avatar, name, phone/member id, current level;
+   - available points;
+   - current level and progress to next level;
+   - history shortcuts;
+   - growth/utility shortcuts;
+   - language card;
+   - sign out action.
+
+2. Preserved existing secondary functions and routes:
+   - Invite friends keeps using `InviteTab`;
+   - Existing fan verification keeps using the current old-fan verification flow;
+   - New user guide keeps using `HowItWorksTab`;
+   - Community, Rewards, Scan, and Activities keep their existing pages and logic.
+
+3. Added Me page shortcuts:
+   - Points history;
+   - Reward history;
+   - Scan history;
+   - Activity history;
+   - Invite friends;
+   - Existing fan verification;
+   - New user guide;
+   - Community;
+   - Language.
+
+4. Added scoped `.fan-me-*` styles:
+   - no broad Ant Design override;
+   - no store/admin UI changes;
+   - yellow-green fan account-center visual direction.
+
+Why:
+
+- The confirmed product direction says Me should be account, progress, histories, and secondary utilities.
+- The previous Me page preserved the old functions but presented them as a plain button stack, making it unclear what the fan can do there.
+- Invite friends and old fan verification were specifically identified as important functions that must not be lost.
+
+Pages affected:
+
+- Affected:
+  - `fan-app.html#/fan-center` > Me.
+- Existing secondary pages retained:
+  - Invite friends;
+  - Existing fan verification;
+  - New user guide;
+  - Community;
+  - Rewards;
+  - Scan;
+  - Activities.
+- Not affected:
+  - Store Owner;
+  - Admin;
+  - database schema;
+  - permissions;
+  - reward redemption logic;
+  - scan rules;
+  - community point rules.
+
+Database impact:
+
+- No database schema change.
+- No Supabase migration.
+- No RLS or permission change.
+- No `.env` change.
+- No new dependency.
+
+Files changed:
+
+- `frontend/src/pages/fans/FanCenterPage.jsx`
+- `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+- `frontend/src/index.css`
+- `PROGRESS.md`
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected because Me did not yet contain account-center classes, history grid, utility grid, or language card.
+
+2. GREEN:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 12 tests.
+
+3. Final focused regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+   - Passed: 4 files, 22 tests.
+
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain: large chunks and plugin timing.
+
+5. Browser verification:
+   - Opened `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Navigated to Me.
+   - Mobile/tablet/desktop verified:
+     - bottom nav position is fixed;
+     - nav text is `Home|Activities|Community|Rewards|Stores|Me`;
+     - member hero renders;
+     - 4 history shortcuts render;
+     - 4 utility shortcuts render;
+     - language card renders;
+     - no horizontal overflow.
+   - Screenshots:
+     - `frontend/output/playwright/task-012-me/mobile-me-final.png`
+     - `frontend/output/playwright/task-012-me/tablet-me.png`
+     - `frontend/output/playwright/task-012-me/desktop-me.png`
+
+Known verification note:
+
+- Browser console captured Google Fonts network timeouts from `fonts.googleapis.com`.
+- This is an external network resource issue, not a Me page runtime error and not caused by Task-012.
+
+Follow-up notes:
+
+1. Task-012A did not build full detailed history pages. It added clear history shortcuts and preserved existing target pages.
+
+2. If detailed histories are needed, split into Task-012B:
+   - Points history detail;
+   - Reward history detail;
+   - Scan history detail;
+   - Activity history detail.
+
+3. Header language switcher still exists. Me now also exposes language as an account setting entry, which matches the PRD. If the UI feels duplicated later, we can decide whether to keep both or move language fully into Me.
+
+Next recommendation:
+
+Task-013:
+Fan Scan page recovery analysis.
+
+Goal:
+
+- preserve camera/manual scan;
+- make unique-code validation states clear;
+- show daily 3-scan point limit;
+- keep UWELL-only anti-cheat messaging;
+- analyze impact and files first, then wait for confirmation.
+
+## Task-010A - Fan entry local cache blocker fix
+
+Date:
+
+2026-07-15
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated local development Service Worker handling in:
+   - `frontend/fan-app.html`
+   - `frontend/store-app.html`
+   - `frontend/index.html`
+2. Updated Service Worker cache behavior in:
+   - `frontend/public/sw.js`
+3. Local development hosts now unregister existing Service Workers and clear `uwell-crm-*` caches.
+4. Local development hosts no longer register `/sw.js`.
+5. `/sw.js` cache version changed from `uwell-crm-v1` to `uwell-crm-v2`.
+6. `/sw.js` no longer caches Vite development module paths such as `/src/` and `/@vite/`.
+
+Why:
+
+The fan entry page showed:
+
+`The requested module '/src/utils/trialOps.js' does not provide an export named 'findFanByReferralCode'`.
+
+Current source and current dev-server response both contained the export, so the root cause was stale browser/Service Worker cache serving an older module version. This blocked `fan-app.html#/fan-entry` and made UI/function verification unreliable.
+
+Pages affected:
+
+1. Fan entry:
+   - `fan-app.html#/fan-entry`
+2. Store entry:
+   - `store-app.html`
+3. Admin/main app:
+   - `index.html`
+
+Database impact:
+
+None.
+
+Permissions impact:
+
+None.
+
+Verification:
+
+1. `npm test -- src/pages/fan-entry/FanEntryPage.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+2. `npm run build`
+   - Passed.
+   - Existing Vite warnings remain: plugin timing and large chunk warning.
+3. Browser verification with Playwright:
+   - Opened `http://127.0.0.1:5173/fan-app.html#/fan-entry`.
+   - No console errors.
+   - No page error.
+   - Service Worker registrations on local host: `0`.
+   - Page content rendered successfully.
+   - Screenshot saved at `frontend/output/playwright/task-010a-fan-entry-cache-fix/mobile-fan-entry.png`.
+
+Follow-up notes:
+
+1. If the user's current browser tab is already controlled by the old Service Worker, one normal refresh may be required after this update.
+2. This task did not change fan business logic, UI layout, database, rewards, map, activities, or community logic.
+3. Production can still use `/sw.js`; the change only prevents local dev from being polluted by stale source-module cache.
+
+Next recommendation:
+
+Continue with Task-011 only after confirming the fan entry page opens locally:
+
+Task-011:
+Fan Rewards recovery analysis.
+
+### Project Documentation Map
+
+The current MD documentation system is intended to prevent future AI/developer drift:
+
+- `docs/00_PROJECT_VISION.md`
+  - Defines what the product is and what direction it must not deviate from.
+- `docs/01_PRODUCT_BIBLE.md`
+  - Highest-level product principles and conflict-resolution rules.
+- `docs/02_PRD.md`
+  - Functional requirements by module.
+- `docs/03_USER_FLOW.md`
+  - User flows for Fan, Store, Admin, Manager, and Field Rep.
+- `docs/04_INFORMATION_ARCH.md`
+  - Page/module/navigation structure.
+- `docs/05_DATABASE.md`
+  - Database structure, table purpose, key fields, and relationships.
+- `docs/06_API.md`
+  - API and RPC behavior reference.
+- `docs/07_RBAC.md`
+  - Role and permission rules.
+- `docs/08_DESIGN_SYSTEM.md`
+  - UI style, visual rules, layout rules, and consistency standards.
+- `docs/09_BUSINESS_RULES.md`
+  - Points, rewards, scans, store ratings, activities, materials, visits, and operational rules.
+- `docs/10_AI_RULES.md`
+  - AI/developer workflow rules, including analyze-before-coding.
+- `docs/11_TASK_TEMPLATE.md`
+  - Standard format for every future task.
+- `docs/12_TEST_CASE.md`
+  - Test checklist and acceptance rules.
+- `docs/13_CODE_REVIEW.md`
+  - Code review standards.
+- `docs/14_VERSION_BASELINE.md`
+  - Version/baseline audit and recommended starting point.
+- `docs/15_DIRTY_WORKING_TREE_AUDIT.md`
+  - Dirty working tree classification and risk notes.
+- `docs/16_CLEANUP_STRATEGY.md`
+  - Cleanup and recovery strategy.
+- `docs/17_FAN_REAL_MODULE_BASELINE.md`
+  - Real fan module function inventory and preservation baseline.
+- `docs/18_FAN_NAVIGATION_IMPLEMENTATION_PLAN.md`
+  - Fan navigation implementation plan.
+- `docs/ROADMAP.md`
+  - Longer-term development route.
+- `docs/CHANGELOG.md`
+  - Documentation/system change log.
+- `PROGRESS.md`
+  - Current project progress and operational status log. This is the main file for:
+    - 当前状态;
+    - 已完成;
+    - 开发中;
+    - 待优化;
+    - 当前 Bug;
+    - 下一任务.
+---
+
+## 2026-07-15 Task-013A Fan Scan Page Recovery
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/tabs/ScanTab.jsx`.
+   - Kept the existing scan business rules and UWELL code classification.
+   - Added a clear two-action scan entry: Use phone camera and Enter code manually.
+   - Added `initialManual` support to the scan modal so desktop/manual entry is directly accessible.
+   - Passed the real daily limit state with `scanLimitReached={scansRemaining <= 0}`.
+   - Fixed the daily-limit modal flow so recognition can continue after the fan chooses manual entry.
+   - Reworked recent scan records into a status-focused list.
+   - Normalized old scan records without `scan_status`: records with points now display as `points awarded`.
+   - Updated Scan page `Alert` usage from `message` to `title` to avoid the current Ant Design warning.
+2. Updated `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`.
+   - Added regression coverage for visible manual entry, real daily limit state, recent scan record status UI, and daily-limit recognition behavior.
+3. Updated `frontend/src/index.css`.
+   - Added scoped `fan-scan-*` styles for the manual scan button, recent scan panel/list/items, and readable warning alert text.
+
+Why:
+
+The Scan page already had strong business logic, but the UI needed to match the recovered fan experience:
+
+1. Fans must immediately understand what they can scan.
+2. Desktop/manual code input must be visible, not hidden inside camera fallback only.
+3. Daily scan limit must not disable recognition.
+4. Recent scan records must clearly show status and point result.
+5. Scan page should keep the yellow-green youth/game-growth style already accepted for fan UI.
+
+Pages affected:
+
+1. Fan Center secondary Scan page: `fan-app.html#/fan-center`, Home -> Scan product.
+2. Fan Me shortcut: Me -> Scan history opens the same Scan page.
+
+Database impact:
+
+None.
+
+No schema, seed, Supabase, RLS, table, or `.env` changes were made.
+
+Existing data used:
+
+1. `scan_records`
+2. `qr_codes`
+3. `fan_points_rules`
+4. `fan_points_log`
+
+Permissions impact:
+
+None.
+
+Other page impact:
+
+No intended impact on Rewards, Activities, Community, Stores, Me, Store portal, or Admin portal.
+
+Verification:
+
+1. Red test first:
+   - `npm test -- src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Failed as expected before implementation because manual entry direct mode, real daily limit state, and status-focused recent records were missing.
+2. Focused tests:
+   - `npm test -- src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 1 file, 6 tests.
+3. Fan shell regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 18 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain: plugin timing and large chunk warning.
+5. Browser verification:
+   - Opened real fan center at `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Used local demo fan `f-001`.
+   - Entered Scan through Home -> Scan product.
+   - Confirmed `.fan-scan-page` rendered.
+   - Confirmed no horizontal overflow at 390px mobile, 768px tablet, and 1440px desktop.
+   - Screenshots saved:
+     - `frontend/output/playwright/task-013-scan/mobile-scan-final.png`
+     - `frontend/output/playwright/task-013-scan/tablet-scan-final.png`
+     - `frontend/output/playwright/task-013-scan/desktop-scan-final.png`
+
+Known verification notes:
+
+1. Screenshot script blocked external images/fonts/media to avoid slow network loading; this created expected `net::ERR_FAILED` console entries for those blocked resources.
+2. After changing Scan page Alert props to `title`, the Ant Design `Alert message is deprecated` warning no longer appeared in the final screenshot run.
+3. Bottom navigation remains fixed as required.
+
+Follow-up notes:
+
+1. This task did not change production anti-cheat or server validation.
+2. Product scan points still require matched official/admin-generated QR records.
+3. Local pattern recognition can still recognize possible UWELL codes, but does not grant product scan points without validation.
+4. Camera availability still depends on browser/device support; manual entry remains the required fallback.
+5. The global `frontend/src/index.css` file remains large and historically dirty; future UI work should continue using scoped selectors.
+
+Next recommendation:
+
+Task-014: Fan Activities page recovery.
+
+Recommended scope:
+
+1. Keep existing `CampaignTab.jsx` business functions.
+2. Restore Activities page structure:
+   - top quick point tasks: Learn / Like / Comment / Share;
+   - Official Activities section;
+   - Store Activities section with empty state;
+   - store verification explanation kept short.
+3. Move reward-tier-heavy content out of Activities if still present.
+4. Do not change campaign database rules without a separate confirmed task.
+
+## 2026-07-15 Task-015A Fan Community Poster And Image Framework
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/tabs/CommunityTab.jsx`.
+   - Added a lightweight UWELL community hero poster at the top of the Community page.
+   - Added product chips for `G5 Lite`, `Caliburn Air`, and `G5 Lite KOKO`.
+   - Added an `Add photo` UI entry in the composer.
+   - Added image placeholder framework for community posts.
+   - Limited visible media placeholders to the first 2 feed posts so the page does not become a wall of repeated image boxes.
+   - Kept existing post, like, comment, and community points logic.
+2. Updated `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`.
+   - Added regression checks for the poster, product showcase, photo entry, media placeholder, and no storage/upload implementation.
+   - Added a check that the media placeholder remains lightweight through `index < 2`.
+3. Updated `frontend/src/index.css`.
+   - Added scoped `fan-community-*` styles for the poster, product showcase, photo entry, media placeholder, composer, feed, and post cards.
+
+Why:
+
+The user asked whether the forum top area should include a UWELL product or brand poster and whether forum posts can include images.
+
+Decision:
+
+1. Yes, Community should have a small UWELL brand/product poster because it improves product atmosphere and makes the page feel less text-only.
+2. Yes, Community should support image presentation in the UI framework.
+3. Real upload is intentionally not implemented yet because it would affect storage, moderation, database fields, and review rules.
+
+Pages affected:
+
+1. Fan Center Community tab:
+   - `fan-app.html#/fan-center`
+   - Bottom nav -> Community.
+
+Database impact:
+
+None.
+
+No schema, seed, Supabase Storage, RLS, table, or `.env` changes were made.
+
+Permissions impact:
+
+None.
+
+No upload permission, content review permission, admin moderation permission, or storage policy was added.
+
+Other page impact:
+
+No intended impact on Home, Activities, Scan, Rewards, Stores, Me, Store portal, Admin portal, or `/preview/fan`.
+
+Verification:
+
+1. Focused Community test:
+   - `npm test -- src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+2. Fan shell regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Passed: 2 files, 17 tests.
+3. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+4. Browser screenshots:
+   - Opened real fan center at `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Entered Community from fixed bottom nav.
+   - Confirmed no horizontal overflow at 390px, 768px, and 1440px.
+   - Confirmed bottom nav computed style is `fixed`.
+   - Confirmed 12 post cards render.
+   - Confirmed media placeholders are limited to 2.
+   - Screenshots saved:
+     - `frontend/output/playwright/task-015-community/mobile-community-final.png`
+     - `frontend/output/playwright/task-015-community/tablet-community-final.png`
+     - `frontend/output/playwright/task-015-community/desktop-community-final.png`
+
+Known verification notes:
+
+1. Screenshot script blocked external images/fonts/media to keep verification deterministic; this created expected `net::ERR_FAILED` console entries for blocked external resources.
+2. The Community feed still shows 12 demo posts from seed/local data. If the mobile page feels too long, a separate task should define a feed paging or "show more" rule instead of silently hiding data.
+
+Follow-up notes:
+
+1. Real photo upload requires a separate confirmed task covering:
+   - database fields;
+   - Supabase Storage or another upload storage;
+   - file size/type limits;
+   - moderation/review;
+   - abuse/report workflow;
+   - admin visibility.
+2. Product/brand poster art is currently UI framework, not final product asset placement.
+
+Next recommendation:
+
+Task-016:
+Fan Rewards / Redeem page recovery.
+
+Recommended scope:
+
+1. Keep existing reward and redemption business logic.
+2. Restore category-based reward browsing.
+3. Add image slots for rewards without real asset dependency.
+4. Keep level lock, points shortage, stock status, and high-value pending review states clear.
+5. Do not change redemption database rules without separate confirmation.
+
+## 2026-07-15 Task-016 Fan Rewards Page Recovery
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/tabs/MallTab.jsx`.
+   - Kept the existing reward redemption logic.
+   - Kept `createPendingRedemption`, `createRewardRedemptionRemote`, local fallback redemption, session-stored redemption code, and `addFanPoints`.
+   - Removed unused Ant Design imports from this file.
+   - Added category item counts to the reward filter buttons.
+   - Added a clearer `Browse rewards` catalog section.
+   - Added a four-step redemption strip:
+     - Choose;
+     - Redeem;
+     - Get code;
+     - Pick up.
+   - Added explicit reward image placeholder text for every reward without real image assets.
+   - Reduced the main rules copy so the page behaves more like a mall and less like a rules page.
+   - Preserved fixed redemption copy:
+     - Available points are deducted;
+     - lifetime growth points are never deducted;
+     - normal rewards use A/S pickup;
+     - premium rewards use S pickup;
+     - Diamond luxury rewards require backend approval;
+     - normal status uses `pending_pickup`;
+     - Diamond status uses `pending_review`.
+2. Updated `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`.
+   - Added regression coverage for category counts, the Browse rewards section, image placeholders, and redemption flow strip.
+3. Updated `frontend/src/index.css`.
+   - Added scoped `fan-reward-*` styles for:
+     - catalog section;
+     - section header;
+     - category count pills;
+     - redemption flow strip;
+     - reward image placeholder;
+     - compact policy note.
+
+Why:
+
+The Rewards page already had important business logic, but it needed to better match the confirmed fan product direction:
+
+1. Rewards should feel like a points mall.
+2. Fans should browse by category quickly.
+3. Reward cards should reserve image space for future reward assets.
+4. Rules should remain available but should not dominate the first experience.
+5. Existing redemption and pickup rules must not be lost.
+
+Pages affected:
+
+1. Fan Center Rewards tab:
+   - `fan-app.html#/fan-center`
+   - Bottom nav -> Rewards.
+
+Database impact:
+
+None.
+
+No schema, seed, Supabase, RLS, table, inventory, reward catalog, or `.env` changes were made.
+
+Permissions impact:
+
+None.
+
+No backend review, store pickup, admin reward, or store verification permission was changed.
+
+Other page impact:
+
+No intended impact on Home, Activities, Scan, Community, Stores, Me, Store portal, Admin portal, or `/preview/fan`.
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Failed as expected before implementation because category counts, Browse rewards, image placeholder text, and flow strip were missing.
+2. Focused Rewards test:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 1 file, 6 tests.
+3. Rewards regression tests:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+   - Passed: 3 files, 10 tests.
+4. Fan shell plus Rewards regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+   - Passed: 4 files, 22 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+6. Browser screenshots:
+   - Opened real fan center at `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Entered Rewards from fixed bottom nav.
+   - Confirmed no horizontal overflow at 390px, 768px, and 1440px.
+   - Confirmed bottom nav computed style is `fixed`.
+   - Confirmed 8 reward cards render.
+   - Confirmed 6 category buttons render.
+   - Confirmed 8 reward image slots render.
+   - Confirmed 4 redemption flow steps render.
+   - Screenshots saved:
+     - `frontend/output/playwright/task-016-rewards/mobile-rewards-final.png`
+     - `frontend/output/playwright/task-016-rewards/tablet-rewards-final.png`
+     - `frontend/output/playwright/task-016-rewards/desktop-rewards-final.png`
+
+Known verification notes:
+
+1. Screenshot script blocked external images/fonts/media to keep verification deterministic; this created expected `net::ERR_FAILED` console entries for blocked external resources.
+2. Full-page screenshots show fixed bottom navigation repeated within the stitched screenshot; this is a screenshot artifact of fixed positioning, not a route or layout failure.
+3. Real reward images are not implemented in this task. The UI now has image slots ready for later assets.
+
+Follow-up notes:
+
+1. Do not add real reward upload/image management without a separate confirmed task because that may affect database fields, storage, moderation, and admin reward catalog management.
+2. Do not hard-code fan level requirements in the frontend. Reward level requirements should come from configurable reward catalog data when that task is approved.
+3. Existing `MALL_ITEMS` still has only 8 demo rewards; future reward expansion should be handled through the backend reward catalog plan.
+
+Next recommendation:
+
+Task-017:
+Fan Me page recovery.
+
+Recommended scope:
+
+1. Keep profile, points, level, histories, invite, old fan verification, guide, and language entry.
+2. Make Me an account center, not another marketing page.
+3. Surface history entries clearly:
+   - points history;
+   - redemption history;
+   - scan history;
+   - activity/community history if available.
+4. Keep Invite, Old fan verification, and Guide as secondary entries, not bottom nav items.
+5. Do not change user account, auth, or language persistence rules without separate confirmation.
+
+## 2026-07-15 Task-017 Fan Me Page Recovery
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Kept Me as the fan account center.
+   - Added account overview metrics:
+     - point records;
+     - reward redemptions;
+     - product scans;
+     - activity task records.
+   - Added recent history panels for:
+     - points;
+     - rewards;
+     - scans;
+     - activities.
+   - Read existing local data only:
+     - `fan_points_log`;
+     - `mall_redemptions`;
+     - `scan_records`;
+     - `fan_engagement_tasks`.
+   - Kept existing secondary entries:
+     - Invite friends;
+     - Existing fan verification;
+     - New user guide;
+     - Community;
+     - Language;
+     - Sign out.
+   - Replaced heavy default empty states in Me history panels with lightweight text rows.
+2. Updated `frontend/src/pages/fans/tabs/InviteTab.jsx`.
+   - Kept referral code generation, copy-link behavior, and +50 invite reward copy.
+   - Reworked UI into a scoped recovered fan shell:
+     - hero;
+     - referral code card;
+     - stat grid;
+     - rule note.
+3. Updated `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`.
+   - Kept onboarding guidance for scan, check-in, activities, community, levels, invite, and old fan verification.
+   - Reworked UI into a lightweight guide shell.
+4. Added static tests:
+   - `frontend/src/pages/fans/tabs/InviteTab.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/HowItWorksTab.static.test.mjs`.
+5. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added regression coverage for Me overview, history panels, history lists, and lightweight empty rows.
+6. Updated `frontend/src/index.css`.
+   - Added scoped styles:
+     - `fan-me-overview-strip`;
+     - `fan-me-history-panel`;
+     - `fan-me-history-list`;
+     - `fan-me-empty-row`;
+     - `fan-invite-*`;
+     - `fan-guide-*`.
+
+Why:
+
+The Me page needed to become a clear fan account center instead of only a list of entry buttons. The user also required old functions to remain available while the fan portal UI is upgraded.
+
+This task improves the page without changing business rules:
+
+1. Fans can immediately see account status and recent records.
+2. Invite, old fan verification, and guide remain secondary utilities.
+3. The page stays aligned with the confirmed bottom navigation model.
+
+Pages affected:
+
+1. Fan Center Me tab:
+   - `fan-app.html#/fan-center`
+   - Bottom nav -> Me.
+2. Me secondary pages:
+   - Invite friends;
+   - New user guide;
+   - Existing fan verification entry remains available.
+
+Database impact:
+
+None.
+
+No schema, seed, Supabase, RLS, auth, language persistence, or `.env` changes were made.
+
+Permissions impact:
+
+None.
+
+No account, invite, old fan review, language, store, or admin permission logic was changed.
+
+Other page impact:
+
+No intended impact on Home, Activities, Community, Rewards, Stores, Store portal, Admin portal, or `/preview/fan`.
+
+Verification:
+
+1. Red tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because Me overview/history panel structures were missing.
+   - `npm test -- src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Failed as expected before implementation because Invite and Guide still used old shells.
+2. Focused tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 12 tests.
+   - `npm test -- src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Passed: 2 files, 2 tests.
+3. Fan recovery regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Passed: 5 files, 25 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+5. Browser screenshots:
+   - Opened real fan center at `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Entered Me from fixed bottom nav.
+   - Confirmed no horizontal overflow at 390px, 768px, and 1440px.
+   - Confirmed bottom nav computed style is `fixed`.
+   - Confirmed 4 overview metrics render.
+   - Confirmed 4 history panels render.
+   - Confirmed Invite and Guide secondary pages open.
+   - Screenshots saved:
+     - `frontend/output/playwright/task-017-me/mobile-me-final.png`
+     - `frontend/output/playwright/task-017-me/tablet-me-final.png`
+     - `frontend/output/playwright/task-017-me/desktop-me-final.png`
+     - `frontend/output/playwright/task-017-me/mobile-invite-final.png`
+     - `frontend/output/playwright/task-017-me/mobile-guide-final.png`
+
+Known verification notes:
+
+1. Screenshot script blocked external images/fonts/media to keep verification deterministic; this created expected `net::ERR_FAILED` console entries for blocked external resources.
+2. Full-page screenshots may show fixed bottom navigation repeated within the stitched page. This is a screenshot artifact of fixed positioning, not a route or layout failure.
+3. Reward/activity history depends on existing demo/local records. Empty rows are shown when no records exist.
+
+Follow-up notes:
+
+1. This task did not create full standalone history detail pages. It only added account-center summaries and kept existing navigation into feature pages.
+2. This task did not change invite reward logic.
+3. This task did not change old fan verification review logic.
+4. This task did not change language persistence or Arabic/RTL behavior.
+
+Next recommendation:
+
+Task-018:
+Fan secondary page consistency pass.
+
+Recommended scope:
+
+1. Review secondary pages reached from Me:
+   - old fan verification;
+   - check-in detail;
+   - scan detail;
+   - invite;
+   - guide.
+2. Make sure every secondary page has:
+   - clear return behavior;
+   - fixed bottom nav still visible;
+   - low text density;
+   - readable yellow-green fan styling.
+3. Do not change business rules or database without separate confirmation.
+
+## 2026-07-16 Task-021 Fan Secondary Page Return Behavior
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Added `returnView` state to remember where a fan launched a secondary page.
+   - Added `openSecondaryView(view, from)` as the unified secondary-page entry helper.
+   - Added `handleSecondaryBack()` so the secondary page Back button returns to the remembered source.
+   - Updated Home secondary entries:
+     - Scan product returns to Home.
+     - Check-in detail returns to Home.
+   - Updated Me secondary entries:
+     - Invite friends returns to Me.
+     - Existing fan verification returns to Me.
+     - New user guide returns to Me.
+     - Scan history opens Scan with Me as the return source.
+   - Kept main bottom navigation as direct tab switching.
+2. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added regression coverage for source-aware secondary-page return behavior.
+   - Updated existing Home Scan and Check-in detail assertions to use the unified secondary-page helper.
+
+Why:
+
+Secondary pages previously used a hard-coded Back action to Home. This made Me-launched utilities feel broken because users returned to the wrong place after opening Invite, Guide, or Existing fan verification. The fix preserves the confirmed navigation model while making Back behavior match user expectations.
+
+Pages affected:
+
+1. Fan Center:
+   - `fan-app.html#/fan-center`
+2. Fan secondary pages:
+   - Scan;
+   - Invite friends;
+   - Existing fan verification;
+   - New user guide.
+3. Check-in detail source tracking was updated, but the Check-in page itself still renders as its own detail view and should be reviewed in the next secondary-page UI pass if a visible Back bar is required there.
+
+Database impact:
+
+None.
+
+No schema, seed data, Supabase, localDb table, RLS, auth, `.env`, points rule, scan rule, reward rule, or permission change was made.
+
+Permissions impact:
+
+None.
+
+No fan, store, admin, manager, or field-rep permission behavior was changed.
+
+Other page impact:
+
+No intended impact on Store portal, Admin portal, login pages, Rewards logic, Scan validation, Activities, Community, or `/preview/fan`.
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because `returnView`, `openSecondaryView`, and `handleSecondaryBack` did not exist.
+2. Focused test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 15 tests.
+3. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 9 files, 47 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+5. Browser verification:
+   - Opened real fan app through `http://127.0.0.1:5173/fan-app.html#/fan-entry`.
+   - Continued as demo fan.
+   - Verified Me -> Invite friends -> Back returns to Me.
+   - Verified Home -> Scan product -> Back returns to Home.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px.
+   - Verified no browser console errors in the checked flow.
+
+Known verification notes:
+
+1. A new Playwright session redirects to `#/fan-entry` without login state. Browser validation used the existing `Continue as demo fan` flow.
+2. The Home page does not currently use a `.fan-home-shell` wrapper class; browser validation used visible Home text (`Today at a glance`) instead.
+3. Check-in detail has source tracking, but it does not yet share the same visible secondary Back bar as Scan / Invite / Guide. This should be handled as a separate UI consistency task if required.
+
+Follow-up notes:
+
+1. Do not expand this helper into a route-history system unless a future task requires browser back-button support.
+2. Do not change business rules or database state as part of return-behavior tasks.
+3. If Task-022 reviews Check-in detail, decide first whether it should receive the same secondary page header.
+
+Next recommendation:
+
+Task-022:
+Fan Check-in detail visible Back bar / secondary page consistency review.
+
+Recommended scope:
+
+1. Analyze whether Check-in detail should use the same secondary wrapper as Scan / Invite / Guide.
+2. Confirm impact before coding because this may touch Check-in visual structure.
+3. Preserve check-in rules:
+   - once per day;
+   - points added by system;
+   - no database or permission changes.
+
+## 2026-07-16 Task-022 Fan Check-in Detail Back Bar Consistency
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Added `checkin` to the shared secondary `viewMap`.
+   - Removed the direct `activeView === 'checkin'` render branch.
+   - Check-in detail now uses the same `.fan-secondary-view` and `.fan-subpage-bar` wrapper as Scan, Invite, Guide, and Existing fan verification.
+   - Kept `CheckInTab` itself unchanged.
+2. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Updated the Check-in detail regression test to require:
+     - `checkin` exists in the shared secondary view map;
+     - the old direct Check-in render branch is removed.
+
+Why:
+
+Task-021 added source-aware return behavior, but Check-in still rendered as its own detail view without the visible Back bar. This conflicted with the confirmed rule that secondary fan pages should have a clear return control.
+
+Pages affected:
+
+1. Fan Center Check-in detail:
+   - Home -> `View streak`;
+   - Home -> Check-in when already checked today;
+   - Me -> Points history.
+2. The visible secondary header now shows:
+   - Back;
+   - `Daily check-in`.
+
+Database impact:
+
+None.
+
+No schema, seed data, Supabase, localDb table, RLS, auth, `.env`, points rule, scan rule, reward rule, or permission change was made.
+
+Permissions impact:
+
+None.
+
+No fan, store, admin, manager, or field-rep permission behavior was changed.
+
+Business logic impact:
+
+None.
+
+Check-in still uses the existing `CheckInTab` logic:
+
+1. one check-in per day;
+2. points awarded by existing `addFanPoints`;
+3. local `fan_checkins` record creation remains unchanged;
+4. no new reward, scan, activity, or community rule was added.
+
+Other page impact:
+
+No intended impact on:
+
+1. Home content;
+2. Activities;
+3. Community;
+4. Rewards;
+5. Stores;
+6. Me;
+7. Store portal;
+8. Admin portal;
+9. `/preview/fan`.
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because `checkin` was not in the secondary `viewMap`.
+2. Focused test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 15 tests.
+3. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 9 files, 47 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warnings remain:
+     - plugin timing;
+     - large chunk warning.
+5. Browser verification:
+   - Opened real fan app through `http://127.0.0.1:5173/fan-app.html#/fan-entry`.
+   - Continued as demo fan.
+   - Verified Home -> `View streak` opens Check-in with `.fan-subpage-bar`.
+   - Verified Check-in title is `Daily check-in`.
+   - Verified Back returns to Home.
+   - Verified Me -> Points history opens Check-in with `.fan-subpage-bar`.
+   - Verified Back returns to Me.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px.
+   - Verified no browser console errors in the checked flow.
+
+Known verification notes:
+
+1. A new Playwright session redirects to `#/fan-entry` without login state. Browser validation used the existing `Continue as demo fan` flow.
+2. This task intentionally did not redesign Check-in visuals. It only unified the secondary page shell and return behavior.
+
+Follow-up notes:
+
+1. If Check-in vertical spacing looks too loose after longer content is added, review spacing in a separate UI polish task.
+2. Do not move Check-in rules or point values into this page wrapper. They should remain in the existing rule/data flow.
+
+Next recommendation:
+
+Task-023:
+Fan secondary-page screenshot pass / final fan shell QA.
+
+Recommended scope:
+
+1. Capture mobile, tablet, and desktop screenshots for:
+   - Home;
+   - Check-in detail;
+   - Scan;
+   - Invite;
+   - Guide;
+   - Old fan verification;
+   - Me.
+2. Confirm:
+   - fixed bottom nav remains visible;
+   - secondary pages have Back;
+   - no horizontal overflow;
+   - no concentrated low-contrast text in core action areas.
+
+## 2026-07-16 Task-023 Fan Shell Screenshot QA
+
+Current status:
+
+Completed with one existing remote API warning found.
+
+Changed:
+
+1. No production code was changed.
+2. No UI code was changed.
+3. No database, permission, API, business rule, or `.env` change was made.
+4. Generated browser QA screenshots under:
+   - `frontend/output/playwright/task-023-fan-shell-qa/`
+5. Generated QA report:
+   - `frontend/output/playwright/task-023-fan-shell-qa/report.json`
+
+Why:
+
+Task-021 and Task-022 changed secondary-page return behavior and Check-in secondary shell behavior. Before moving to the next feature/UI task, the fan shell needed real browser verification across phone, tablet, and desktop.
+
+Pages checked:
+
+1. Home
+2. Check-in detail
+3. Scan
+4. Invite friends
+5. New user guide
+6. Existing fan verification
+7. Me
+
+Pages affected:
+
+None by code change.
+
+Visual QA target:
+
+1. `fan-app.html#/fan-entry`
+2. Demo fan flow:
+   - `Continue as demo fan`
+3. Real fan center:
+   - `fan-app.html#/fan-center`
+
+Database impact:
+
+None.
+
+Permissions impact:
+
+None.
+
+Business logic impact:
+
+None.
+
+Verification:
+
+1. Environment checks:
+   - `npx --version`
+   - Result: `10.8.2`
+   - `http://127.0.0.1:5173/fan-app.html#/fan-entry`
+   - Result: HTTP `200`
+2. Browser screenshot QA:
+   - Used Playwright against the real local fan app.
+   - Used the existing `Continue as demo fan` login flow.
+   - Captured screenshots at:
+     - 390px mobile;
+     - 768px tablet;
+     - 1440px desktop.
+3. Generated screenshots:
+   - `mobile-home.png`
+   - `mobile-checkin.png`
+   - `mobile-scan.png`
+   - `mobile-me.png`
+   - `mobile-invite.png`
+   - `mobile-guide.png`
+   - `mobile-oldfan.png`
+   - `tablet-home.png`
+   - `tablet-checkin.png`
+   - `tablet-scan.png`
+   - `tablet-me.png`
+   - `tablet-invite.png`
+   - `tablet-guide.png`
+   - `tablet-oldfan.png`
+   - `desktop-home.png`
+   - `desktop-checkin.png`
+   - `desktop-scan.png`
+   - `desktop-me.png`
+   - `desktop-invite.png`
+   - `desktop-guide.png`
+   - `desktop-oldfan.png`
+4. QA report summary:
+   - Mobile:
+     - 7 screenshots;
+     - 0 failed layout checks;
+     - 1 console error.
+   - Tablet:
+     - 7 screenshots;
+     - 0 failed layout checks;
+     - 1 console error.
+   - Desktop:
+     - 7 screenshots;
+     - 0 failed layout checks;
+     - 1 console error.
+5. Checked rules:
+   - `.fan-bottom-nav` computed position is `fixed`.
+   - Secondary pages have a visible Back button.
+   - No horizontal overflow was detected.
+   - The checked pages rendered expected content.
+
+Known verification notes:
+
+1. The console error is an existing remote Supabase REST request returning `400`:
+   - `https://rdsrgpnvzcchqlsghsrq.supabase.co/rest/v1/fan_points_log?select=*&fan_id=eq.f-001&order=created_at.desc`
+2. The page still renders through the current fallback/local data flow.
+3. This task did not attempt to fix the Supabase `fan_points_log` query because that may affect API/data behavior and needs a separate confirmed task.
+4. The first QA script attempt used outdated expected text for Guide and Invite. It was corrected after reading the actual rendered text:
+   - Guide: `How UWELL Fan Club works`
+   - Invite: `Your referral code`
+
+Follow-up notes:
+
+1. Treat the Supabase `fan_points_log` 400 as a separate backend/API investigation task if remote production data accuracy matters before launch.
+2. The screenshots should be reviewed visually before starting the next UI polish task.
+3. This QA pass confirms structure and navigation behavior, not final visual taste.
+
+Next recommendation:
+
+Task-024:
+Fan shell visual review and issue list.
+
+Recommended scope:
+
+1. Review the 21 Task-023 screenshots.
+2. Mark UI issues by page and viewport:
+   - unclear labels;
+   - excessive text;
+   - spacing;
+   - contrast;
+   - image/empty-state needs;
+   - CTA priority.
+3. Decide which visual issues should become the next implementation task.

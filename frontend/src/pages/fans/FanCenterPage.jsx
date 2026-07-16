@@ -39,6 +39,7 @@ import { IS_LOCAL_MODE } from '../../services/api';
 import { isLocal } from '../../services/api/helpers';
 import { FAN_LEVELS, MALL_ITEMS } from '../../utils/constants';
 import { FAN_LEVEL_LABELS, readImageAsDataUrl } from '../../utils/uwellClosedLoop';
+import { getStoreExposureScore, sortStoresForFanExposure } from '../../utils/uwellLaunchRules';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { filterStoresForFanCity } from '../../utils/trialOps';
 
@@ -72,6 +73,40 @@ const formatDateTime = (value) => {
 
 const getTodayDateKey = () => new Date().toISOString().split('T')[0];
 
+const getStorefrontPhoto = (storeId) => {
+  if (!storeId) return null;
+  try {
+    return (localDb.find('store_display_uploads', (item) => (
+      item.store_id === storeId
+      && item.status === 'approved'
+      && item.category === 'store_front_photo'
+    )) || [])[0] || null;
+  } catch {
+    return null;
+  }
+};
+
+const getFanStoreCapabilities = (store = {}) => {
+  const exposureControls = store.exposure_controls || {};
+  return [
+    {
+      key: 'activity',
+      label: 'Activity store',
+      active: Boolean(exposureControls.store_events_visible || exposureControls.eligible_for_store_events_display),
+    },
+    {
+      key: 'pickup',
+      label: 'Pickup eligible',
+      active: Boolean(exposureControls.reward_pickup_recommended || ['S', 'A'].includes(store.level)),
+    },
+    {
+      key: 'display',
+      label: 'Display reviewed',
+      active: Boolean(exposureControls.fan_map_highlighted || store.display_status === 'approved'),
+    },
+  ];
+};
+
 const LevelBadge = ({ levelInfo }) => (
   <Tag className="fan-shell-level-tag" color={levelInfo?.color || 'gold'}>
     <CrownOutlined /> {FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label || 'Gold'}
@@ -83,6 +118,7 @@ const FanCenterPage = () => {
   const { user, signOut } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState('home');
+  const [returnView, setReturnView] = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const bgVideoRef = useRef(null);
@@ -217,6 +253,15 @@ const FanCenterPage = () => {
     setRefreshKey((k) => k + 1);
   };
 
+  const openSecondaryView = (view, from = activeView) => {
+    setReturnView(from || 'home');
+    setActiveView(view);
+  };
+
+  const handleSecondaryBack = () => {
+    setActiveView(returnView || 'home');
+  };
+
   const hasCheckedInToday = useMemo(() => {
     if (!currentFan?.id) return false;
     try {
@@ -230,7 +275,7 @@ const FanCenterPage = () => {
 
   const handleTaskCheckIn = async () => {
     if (!currentFan || hasCheckedInToday) {
-      setActiveView('checkin');
+      openSecondaryView('checkin', 'home');
       return;
     }
     try {
@@ -241,8 +286,12 @@ const FanCenterPage = () => {
       handlePointsChange();
     } catch {
       message.error('Check-in failed. Please try again.');
-      setActiveView('checkin');
+      openSecondaryView('checkin', 'home');
     }
+  };
+
+  const handleOpenCheckInDetails = () => {
+    openSecondaryView('checkin', 'home');
   };
 
   const handleTaskAction = (taskKey) => {
@@ -307,8 +356,39 @@ const FanCenterPage = () => {
 
   const recommendedStores = (() => {
     try {
-      return filterStoresForFanCity(localDb.all('stores') || [], currentFan)
-        .filter((store) => store.lat && store.lng && ['S', 'A', 'B'].includes(store.level))
+      return sortStoresForFanExposure(filterStoresForFanCity(localDb.all('stores') || [], currentFan))
+        .slice(0, 3);
+    } catch {
+      return [];
+    }
+  })();
+
+  const recentPointRows = pointLogs.slice(0, 3);
+
+  const recentRedemptionRows = (() => {
+    try {
+      return (localDb.find('mall_redemptions', (item) => item.fan_id === currentFan?.id) || [])
+        .sort((a, b) => new Date(b.created_at || b.redeemed_at || 0) - new Date(a.created_at || a.redeemed_at || 0))
+        .slice(0, 3);
+    } catch {
+      return [];
+    }
+  })();
+
+  const recentScanRows = (() => {
+    try {
+      return (localDb.find('scan_records', (item) => item.fan_id === currentFan?.id) || [])
+        .sort((a, b) => new Date(b.scanned_at || b.created_at || 0) - new Date(a.scanned_at || a.created_at || 0))
+        .slice(0, 3);
+    } catch {
+      return [];
+    }
+  })();
+
+  const recentActivityRows = (() => {
+    try {
+      return (localDb.find('fan_engagement_tasks', (item) => item.fan_id === currentFan?.id) || [])
+        .sort((a, b) => new Date(b.completed_at || b.created_at || 0) - new Date(a.completed_at || a.created_at || 0))
         .slice(0, 3);
     } catch {
       return [];
@@ -333,16 +413,17 @@ const FanCenterPage = () => {
 
   const fanNavItems = [
     { key: 'home', label: 'Home', icon: <HomeOutlined /> },
-    { key: 'tasks', label: 'Tasks', icon: <CalendarOutlined /> },
-    { key: 'mall', label: 'Rewards', icon: <GiftOutlined /> },
+    { key: 'activities', label: 'Activities', icon: <CalendarOutlined /> },
+    { key: 'community', label: 'Community', icon: <MessageOutlined /> },
+    { key: 'rewards', label: 'Rewards', icon: <GiftOutlined /> },
     { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined /> },
-    { key: 'profile', label: 'Me', icon: <UserOutlined /> },
+    { key: 'me', label: 'Me', icon: <UserOutlined /> },
   ];
 
   const fanFeatureItems = [
-    { key: 'tasks', label: 'Today', icon: <CalendarOutlined />, tone: 'gold' },
+    { key: 'checkin', label: 'Check in', icon: <CalendarOutlined />, tone: 'gold' },
     { key: 'scan', label: 'Scan', icon: <QrcodeOutlined />, tone: 'blue' },
-    { key: 'campaigns', label: 'Rewards', icon: <FireOutlined />, tone: 'red' },
+    { key: 'activities', label: 'Activities', icon: <FireOutlined />, tone: 'red' },
     { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined />, tone: 'teal' },
   ];
 
@@ -431,7 +512,7 @@ const FanCenterPage = () => {
           {settingsOpen && (
             <div className="store-settings-panel liquid-glass">
               <div className="store-settings-label">Fan settings</div>
-              <button type="button" className="store-settings-item" onClick={() => setActiveView('oldfan')}>
+              <button type="button" className="store-settings-item" onClick={() => openSecondaryView('oldfan', activeView)}>
                 <UploadOutlined /> My verification
               </button>
               <button type="button" className="store-settings-item" onClick={handleLogout}>
@@ -455,7 +536,7 @@ const FanCenterPage = () => {
             <div className="fan-profile-id">{t('fan_member_id')} {currentFan?.id || 'UW-20250608'}</div>
           </div>
         </div>
-        <Button className="fan-outline-pill" onClick={() => setActiveView('mall')}>{t('fan_points_store')}</Button>
+        <Button className="fan-outline-pill" onClick={() => setActiveView('rewards')}>{t('fan_points_store')}</Button>
       </div>
       <div className="fan-points-number">
         <span>{(currentFan?.points || 0).toLocaleString()}</span>
@@ -474,109 +555,97 @@ const FanCenterPage = () => {
   );
 
   const renderHome = () => (
-    <>
+    <section className="fan-home-shell">
       {renderMemberHero()}
-      <section className="fan-next-action-panel">
-        <span>Your next best action</span>
-        <h2>Start here</h2>
-        <p>Scan a UWELL product or open the weekly activity. Your points, tasks, and rewards are saved in this member center.</p>
-        <div className="fan-next-action-buttons">
-          <Button type="primary" onClick={() => setActiveView('scan')}>Scan product</Button>
-          <Button onClick={() => setActiveView('campaigns')}>View activity</Button>
+      <section className="fan-home-mission-control">
+        <div className="fan-home-mission-copy">
+          <span className="fan-mini-label">Today at a glance</span>
+          <h3>Today's power moves</h3>
+          <p>Grow your UWELL level with the two fastest actions today.</p>
+        </div>
+        <div className="fan-home-mission-score">
+          <strong>{hasCheckedInToday ? '1/2' : '0/2'}</strong>
+          <span>complete</span>
+        </div>
+        <div className="fan-home-action-grid fan-checkin-home-actions">
+          <button
+            type="button"
+            className={`fan-home-action-card${hasCheckedInToday ? ' is-done' : ''}`}
+            onClick={() => handleTaskAction('checkin')}
+          >
+            <CalendarOutlined />
+            <span>Daily check-in</span>
+            <strong>{hasCheckedInToday ? 'Checked in' : 'Check in'} +5 pts</strong>
+          </button>
+          <button type="button" className="fan-home-action-card is-scan" onClick={() => openSecondaryView('scan', 'home')}>
+            <QrcodeOutlined />
+            <span>Product scan</span>
+            <strong>Scan product</strong>
+          </button>
+          <Button className="fan-checkin-detail-link" onClick={handleOpenCheckInDetails}>
+            View streak
+          </Button>
         </div>
       </section>
-      <section className="fan-feature-grid fan-feature-grid-primary">
-        {fanFeatureItems.map((item) => (
-          <button key={item.key} type="button" className={`fan-feature-card tone-${item.tone}`} onClick={() => setActiveView(item.key)}>
-            <span>{item.icon}</span>
-            <strong>{item.label}</strong>
+
+      <section className="fan-home-spotlight-grid">
+        {displayCampaign && (
+          <article className="fan-home-activity-card">
+            <span className="fan-mini-label">Recommended activity</span>
+            <h3>{displayCampaign.name}</h3>
+            <p>Join one active UWELL challenge and earn extra points from Activities.</p>
+            <Button type="primary" onClick={() => setActiveView('activities')}>Open activity</Button>
+          </article>
+        )}
+
+        {MALL_ITEMS.slice(0, 1).map((item) => (
+          <button type="button" key={item.id} className="fan-home-reward-card" onClick={() => setActiveView('rewards')}>
+            <span className="fan-mini-label">Rewards you can aim for</span>
+            <GiftOutlined />
+            <strong>{item.name}</strong>
+            <small>{item.points_cost.toLocaleString()} points</small>
+            <em>Open rewards shop</em>
+          </button>
+        ))}
+
+        {recommendedStores.slice(0, 1).map((store) => (
+          <button type="button" key={store.id} className="fan-home-store-card" onClick={() => setActiveView('stores')}>
+            <span className="fan-mini-label">Nearby UWELL stores</span>
+            {store.exposure_controls?.fan_home_recommended && <Tag color="lime">Home priority</Tag>}
+            <span className="fan-store-card-head">
+              <strong>{store.name}</strong>
+              <b>{store.level || 'C'}</b>
+            </span>
+            <small>{store.level === 'S' ? 'Featured by UWELL operations' : store.level === 'A' ? 'Recommended UWELL partner' : 'Listed UWELL partner'}</small>
+            <small className="fan-store-trust-note">Exposure score {getStoreExposureScore(store)}</small>
+            <em>Open store map</em>
           </button>
         ))}
       </section>
-      <section className="fan-panel fan-today-panel">
-        <div className="fan-section-title"><StarOutlined /> Today's tasks <span>{fanTaskCards.filter((task) => task.done).length}/{fanTaskCards.length}</span></div>
-        {fanTaskCards.slice(0, 3).map((task) => (
-          <div key={task.key} className={`fan-task-row${task.done ? ' is-done' : ''}`}>
-            <CheckCircleOutlined />
-            <span>{task.title}</span>
-            <strong>{task.points}</strong>
-          </div>
-        ))}
-        <Button block type="primary" onClick={() => setActiveView('tasks')}>View all tasks</Button>
-      </section>
-      {displayCampaign && (
-        <section className="fan-campaign-poster">
-          <div>
-            <span className="fan-mini-label">Featured this week</span>
-            <h3>{displayCampaign.name}</h3>
-            <p>{displayCampaign.description}</p>
-          </div>
-          <div className="fan-campaign-step-strip">
-            {campaignSteps.map((step) => (
-              <div key={step.label}>
-                <span>{step.label}</span>
-                <strong>{step.title}</strong>
-              </div>
-            ))}
-          </div>
-          <Button type="primary" onClick={() => setActiveView('campaigns')}>See steps and rewards</Button>
-        </section>
-      )}
-      <section className="fan-section-block">
-        <div className="fan-section-heading">
-          <span>Trusted stores</span>
-          <button type="button" onClick={() => setActiveView('stores')}>View map</button>
-        </div>
-        <div className="fan-store-strip">
-          {recommendedStores.map((store) => (
-            <button type="button" key={store.id} className="fan-store-card" onClick={() => setActiveView('stores')}>
-              <strong>{store.name}</strong>
-              <span>{store.level || 'C'} level store</span>
-              <small>Recommended because it matches your city or has a stronger UWELL display.</small>
-              <em>{store.phone || 'Store information pending'}</em>
-            </button>
-          ))}
-        </div>
-      </section>
-      <section className="fan-section-block">
-        <div className="fan-section-heading">
-          <span>Popular rewards</span>
-          <button type="button" onClick={() => setActiveView('mall')}>Open rewards shop</button>
-        </div>
-        <div className="fan-reward-grid fan-reward-grid-home">
-          {MALL_ITEMS.slice(0, 3).map((item) => (
-            <button type="button" key={item.id} className="fan-reward-card" onClick={() => setActiveView('mall')}>
-              <GiftOutlined />
-              <strong>{item.name}</strong>
-              <span>{item.points_cost.toLocaleString()} points</span>
-            </button>
-          ))}
-        </div>
-      </section>
-      <section className="fan-section-block">
+
+      <section className="fan-home-recent-card">
         <div className="fan-section-heading">
           <span>{t('fan_recent_activity')}</span>
-          <button type="button" onClick={() => setActiveView('checkin')}>{t('view_all')}</button>
+          <button type="button" onClick={handleOpenCheckInDetails}>{t('view_all')}</button>
         </div>
-        <div className="fan-activity-list">
+        <div className="fan-home-recent-list">
           {(pointLogs.length ? pointLogs : [
             { id: 'demo-1', source: t('fan_task_checkin'), description: t('fan_activity_checkin'), points: 10, created_at: new Date().toISOString() },
             { id: 'demo-2', source: t('fan_feature_scan'), description: 'CALIBURN AIR', points: 20, created_at: new Date().toISOString() },
             { id: 'demo-3', source: t('fan_feature_redeem'), description: t('fan_reward_sample'), points: -500, created_at: new Date().toISOString() },
-          ]).map((item) => (
-            <div key={item.id} className="fan-activity-card">
+          ]).slice(0, 2).map((item) => (
+            <div key={item.id} className="fan-home-recent-row">
               <span className="fan-activity-icon"><CalendarOutlined /></span>
               <div>
-                    <strong>{getFanActivityText(item.source || item.type, t('fan_points_changed'))}</strong>
-                    <p>{getFanActivityText(item.description || item.reason)}</p>
-                <em>{formatDateTime(item.created_at)}</em>
+                <strong>{getFanActivityText(item.source || item.type, t('fan_points_changed'))}</strong>
+                <p>{getFanActivityText(item.description || item.reason)}</p>
               </div>
               <b className={item.points >= 0 ? 'is-positive' : 'is-negative'}>{item.points > 0 ? `+${item.points}` : item.points}</b>
             </div>
           ))}
         </div>
       </section>
-    </>
+    </section>
   );
 
   const renderTasks = () => (
@@ -585,15 +654,6 @@ const FanCenterPage = () => {
         <span className="fan-mini-label">Today's tasks</span>
         <h2>Start with the three easiest actions</h2>
         <p>Check in, scan your product, and view current activities. Points and rewards are recorded automatically in your member center.</p>
-      </section>
-      <section className="fan-campaign-guide">
-        {campaignSteps.map((step) => (
-          <div key={step.label} className="fan-campaign-guide-step">
-            <span>{step.label}</span>
-            <strong>{step.title}</strong>
-            <p>{step.desc}</p>
-          </div>
-        ))}
       </section>
       <section className="fan-task-card-list">
             {fanTaskCards.map((task) => (
@@ -614,9 +674,64 @@ const FanCenterPage = () => {
   const renderStores = () => (
     <>
       <section className="fan-panel fan-store-hero">
-        <span className="fan-mini-label">Recommended stores</span>
-        <h2>Visit verified UWELL stores first</h2>
-        <p>Store recommendations prioritize reviewed locations, stronger displays, and higher store ratings so fans know where to claim campaign benefits.</p>
+        <span className="fan-mini-label">Store map</span>
+        <h2>Find nearby UWELL partner stores</h2>
+        <p>Featured and Recommended stores are reviewed UWELL partners. Stores with risk or poor service are not recommended to fans.</p>
+      </section>
+      <section className="fan-section-block">
+        <div className="fan-section-heading">
+          <span>Featured store picks</span>
+          <button type="button" onClick={() => setActiveView('stores')}>Map highlighted</button>
+        </div>
+        <div className="fan-visible-store-list">
+          {recommendedStores.length ? recommendedStores.slice(0, 3).map((store) => {
+            const storefrontPhoto = getStorefrontPhoto(store.id);
+            const capabilities = getFanStoreCapabilities(store);
+            const exposureControls = store.exposure_controls || {};
+            return (
+              <article key={store.id} className="fan-visible-store-card">
+                <div className="fan-visible-store-photo">
+                  <div className="fan-visible-store-photo-frame">
+                    {storefrontPhoto?.image_url ? (
+                      <img className="fan-visible-store-photo-img" src={storefrontPhoto.image_url} alt={`${store.name} storefront`} />
+                    ) : (
+                      <span>UWELL</span>
+                    )}
+                  </div>
+                </div>
+                <div className="fan-visible-store-copy">
+                  <strong>{store.name}</strong>
+                  <p>{store.level || 'C'} level · {store.phone || 'Phone pending'}</p>
+                  <small className="fan-store-trust-note">
+                    {storefrontPhoto ? 'Storefront photo helps fans recognize this store' : 'Trust photo pending'}
+                  </small>
+                  <div className="fan-visible-store-capability-grid">
+                    {capabilities.map((capability) => (
+                      <Tag key={capability.key} color={capability.active ? 'lime' : 'default'}>
+                        {capability.label}
+                      </Tag>
+                    ))}
+                  </div>
+                  <div className="fan-visible-store-capability-grid">
+                    {exposureControls.fan_map_highlighted && <Tag color="green">Map highlighted</Tag>}
+                    {exposureControls.reward_pickup_recommended && <Tag color="gold">Reward pickup</Tag>}
+                    {(exposureControls.store_events_visible || exposureControls.eligible_for_store_events_display) && <Tag color="blue">Store Events</Tag>}
+                  </div>
+                </div>
+                <a
+                  className="fan-store-navigate-link"
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Navigate
+                </a>
+              </article>
+            );
+          }) : (
+            <Empty description="No nearby UWELL partner stores are available right now." />
+          )}
+        </div>
       </section>
       <MapTab fan={currentFan} />
     </>
@@ -656,23 +771,198 @@ const FanCenterPage = () => {
     </>
   );
 
+  const renderMeHistoryList = (rows, emptyText, getTitle, getMeta, getValue) => (
+    <div className="fan-me-history-list">
+      {rows.length ? rows.map((item) => {
+        const value = getValue?.(item);
+        return (
+          <div key={item.id || `${getTitle(item)}-${getMeta(item)}`} className="fan-me-history-row">
+            <div>
+              <strong>{getTitle(item)}</strong>
+              <span>{getMeta(item)}</span>
+            </div>
+            {value === null || value === undefined ? null : <b className={Number(value) >= 0 ? 'is-positive' : 'is-negative'}>{Number(value) > 0 ? `+${value}` : value}</b>}
+          </div>
+        );
+      }) : <div className="fan-me-empty-row">{emptyText}</div>}
+    </div>
+  );
+
   const renderProfile = () => (
-    <>
-      <section className="fan-panel fan-profile-panel">
-        <Avatar size={72} className="fan-shell-avatar fan-shell-avatar-lg">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
-        <h2>{currentFan?.name || 'UWELL Fan'}</h2>
-        <LevelBadge levelInfo={levelInfo} />
-        <p>{currentFan?.phone || currentFan?.id}</p>
+    <section className="fan-me-shell">
+      <div className="fan-me-hero">
+        <Avatar size={68} className="fan-shell-avatar fan-shell-avatar-lg">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+        <div>
+          <span className="fan-mini-label">Member account</span>
+          <h2>{currentFan?.name || 'UWELL Fan'}</h2>
+          <p>{currentFan?.phone || currentFan?.id}</p>
+          <LevelBadge levelInfo={levelInfo} />
+        </div>
+      </div>
+
+      <div className="fan-me-points-card">
+        <div className="fan-me-stat-card">
+          <span>Available points</span>
+          <strong>{(currentFan?.points || 0).toLocaleString()}</strong>
+        </div>
+        <div className="fan-me-stat-card">
+          <span>Current level</span>
+          <strong>{FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label}</strong>
+        </div>
+        <div className="fan-me-progress-row">
+          <span>{nextLevel ? `Next: ${FAN_LEVEL_LABELS[nextLevel.value] || nextLevel.label}` : 'Top level'}</span>
+          <span>{Math.round(levelProgress)}%</span>
+        </div>
+        <Progress percent={levelProgress} showInfo={false} strokeColor={{ from: '#ccff00', to: '#7ee000' }} railColor="rgba(17,22,10,0.10)" />
+      </div>
+
+      <section className="fan-me-overview-strip">
+        <div>
+          <span>Account overview</span>
+          <strong>{recentPointRows.length}</strong>
+          <small>point records</small>
+        </div>
+        <div>
+          <span>Rewards</span>
+          <strong>{recentRedemptionRows.length}</strong>
+          <small>redemptions</small>
+        </div>
+        <div>
+          <span>Scans</span>
+          <strong>{recentScanRows.length}</strong>
+          <small>product scans</small>
+        </div>
+        <div>
+          <span>Activities</span>
+          <strong>{recentActivityRows.length}</strong>
+          <small>task records</small>
+        </div>
       </section>
-      <section className="fan-profile-actions">
-        <button type="button" onClick={() => setActiveView('invite')}><TeamOutlined /> {t('fan_invite')}</button>
-        <button type="button" onClick={() => setActiveView('community')}><MessageOutlined /> {t('fan_community')}</button>
-        <button type="button" onClick={() => setActiveView('oldfan')}><UploadOutlined /> My verification</button>
-        <button type="button" onClick={() => setActiveView('mall')}><GiftOutlined /> Redeem points</button>
-        <button type="button" onClick={() => setActiveView('help')}><QuestionCircleOutlined /> {t('fan_help')}</button>
-        <button type="button" className="is-danger" onClick={handleLogout}><LogoutOutlined /> Sign out</button>
+
+      <section className="fan-me-history-panel">
+        <div className="fan-section-heading">
+          <span>Recent activity</span>
+          <button type="button" onClick={() => openSecondaryView('checkin', 'me')}>View points</button>
+        </div>
+        {renderMeHistoryList(
+          recentPointRows,
+          'No point records yet',
+          (item) => item.source || item.type || 'Point record',
+          (item) => item.description || formatDateTime(item.created_at),
+          (item) => item.points,
+        )}
       </section>
-    </>
+
+      <div className="fan-me-history-grid">
+        <button type="button" onClick={() => openSecondaryView('checkin', 'me')}>
+          <StarOutlined />
+          <strong>Points history</strong>
+          <span>{pointLogs.length ? `${pointLogs.length} recent` : 'No recent records'}</span>
+        </button>
+        <button type="button" onClick={() => setActiveView('rewards')}>
+          <GiftOutlined />
+          <strong>Reward history</strong>
+          <span>View redemptions</span>
+        </button>
+        <button type="button" onClick={() => openSecondaryView('scan', 'me')}>
+          <QrcodeOutlined />
+          <strong>Scan history</strong>
+          <span>Product scans</span>
+        </button>
+        <button type="button" onClick={() => setActiveView('activities')}>
+          <CalendarOutlined />
+          <strong>Activity history</strong>
+          <span>Campaign records</span>
+        </button>
+      </div>
+
+      <section className="fan-me-history-panel">
+        <div className="fan-section-heading">
+          <span>Reward history</span>
+          <button type="button" onClick={() => setActiveView('rewards')}>Open rewards</button>
+        </div>
+        {renderMeHistoryList(
+          recentRedemptionRows,
+          'No redemptions yet',
+          (item) => item.item_name || item.item_id || 'Reward redemption',
+          (item) => item.status || item.review_status || formatDateTime(item.created_at || item.redeemed_at),
+          (item) => item.points_cost ? -Number(item.points_cost) : null,
+        )}
+      </section>
+
+      <section className="fan-me-history-panel">
+        <div className="fan-section-heading">
+          <span>Scan history</span>
+          <button type="button" onClick={() => openSecondaryView('scan', 'me')}>Open scan</button>
+        </div>
+        {renderMeHistoryList(
+          recentScanRows,
+          'No scans yet',
+          (item) => item.scan_status || item.qr_code_id || 'Product scan',
+          (item) => formatDateTime(item.scanned_at || item.created_at),
+          (item) => item.points_earned || item.points,
+        )}
+      </section>
+
+      <section className="fan-me-history-panel">
+        <div className="fan-section-heading">
+          <span>Activity history</span>
+          <button type="button" onClick={() => setActiveView('activities')}>Open activities</button>
+        </div>
+        {renderMeHistoryList(
+          recentActivityRows,
+          'No activity records yet',
+          (item) => item.task_type || item.task_key || 'Activity task',
+          (item) => item.status || formatDateTime(item.completed_at || item.created_at),
+          (item) => item.points_awarded || item.points,
+        )}
+      </section>
+
+      <div className="fan-me-utility-grid">
+        <button type="button" onClick={() => openSecondaryView('invite', 'me')}>
+          <TeamOutlined />
+          <strong>Invite friends</strong>
+          <span>Share your link and earn points.</span>
+        </button>
+        <button type="button" onClick={() => openSecondaryView('oldfan', 'me')}>
+          <UploadOutlined />
+          <strong>Existing fan verification</strong>
+          <span>{oldFanVerifications[0] ? 'Review your submission.' : 'Submit proof for bonus points.'}</span>
+        </button>
+        <button type="button" onClick={() => openSecondaryView('help', 'me')}>
+          <QuestionCircleOutlined />
+          <strong>New user guide</strong>
+          <span>Scan, check in, activities, community.</span>
+        </button>
+        <button type="button" onClick={() => setActiveView('community')}>
+          <MessageOutlined />
+          <strong>Community</strong>
+          <span>Posts, likes, comments.</span>
+        </button>
+      </div>
+
+      <div className="fan-me-language-card">
+        <div>
+          <strong>Language</strong>
+          <span>English now. Arabic support is planned.</span>
+        </div>
+        <LanguageSwitcher
+          inline
+          showCurrent
+          sourceOnly
+          anchor="end"
+          tone="light"
+          labelOverride="Language"
+          buttonMinWidth={108}
+          menuMinWidth={180}
+          className="fan-me-language-switcher"
+        />
+      </div>
+
+      <button type="button" className="fan-me-signout" onClick={handleLogout}>
+        <LogoutOutlined /> Sign out
+      </button>
+    </section>
   );
 
   const renderOldFanVerification = () => {
@@ -680,41 +970,63 @@ const FanCenterPage = () => {
     const statusText = latest?.status === 'approved' ? 'Approved' : latest?.status === 'rejected' ? 'Rejected' : latest ? 'Pending review' : 'Not submitted';
     const statusColor = latest?.status === 'approved' ? 'green' : latest?.status === 'rejected' ? 'red' : 'gold';
     return (
-      <section className="fan-section-block">
-        <div className="fan-section-heading"><span>Fan verification</span></div>
-        <Card className="fan-panel">
-          <p style={{ color: 'rgba(255,255,255,0.72)', marginTop: 0 }}>
-            Upload an image showing at least 4 older UWELL products. After manual review, approved fans receive 100 bonus points.
-          </p>
-          <Tag color={statusColor} style={{ marginBottom: 12 }}>{statusText}</Tag>
+      <section className="fan-verification-page">
+        <div className="fan-verification-hero">
+          <UploadOutlined />
+          <div>
+            <span className="fan-mini-label">Existing fan</span>
+            <h2>Verify older UWELL products</h2>
+            <p>Upload an image showing at least 4 older UWELL products. Approved fans receive 100 bonus points.</p>
+          </div>
+        </div>
+
+        <section className="fan-verification-status-card">
+          <div>
+            <span>Review status</span>
+            <strong>{statusText}</strong>
+          </div>
+          <Tag color={statusColor}>{statusText}</Tag>
+        </section>
+
+        <section className="fan-verification-upload-card">
+          <div>
+            <strong>Submit proof image</strong>
+            <span>Clear product photo, one submission at a time.</span>
+          </div>
           <Upload accept="image/*" showUploadList={false} beforeUpload={handleOldFanUpload}>
             <Button type="primary" icon={<UploadOutlined />}>Upload proof image</Button>
           </Upload>
-          <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
-            {oldFanVerifications.length ? oldFanVerifications.map((item) => (
-              <div key={item.id} className="fan-activity-card">
-                <img src={item.image_url} alt="Fan verification" style={{ width: 54, height: 54, objectFit: 'cover', borderRadius: 10 }} />
-                <div>
-                  <strong>Verification image</strong>
-                  <p>{item.status === 'approved' ? 'Approved. Points have been added.' : item.status === 'rejected' ? 'Not approved' : 'Waiting for admin review'}</p>
-                  <em>{formatDateTime(item.submitted_at || item.created_at)}</em>
-                </div>
-                <b className={item.status === 'approved' ? 'is-positive' : ''}>{item.status === 'approved' ? '+100' : ''}</b>
-              </div>
-            )) : <Empty description="No submissions yet" />}
+        </section>
+
+        <section className="fan-verification-history-list">
+          <div className="fan-section-heading">
+            <span>Submission history</span>
+            <strong>{oldFanVerifications.length} records</strong>
           </div>
-        </Card>
+          {oldFanVerifications.length ? oldFanVerifications.map((item) => (
+            <div key={item.id} className="fan-verification-history-row">
+              <img src={item.image_url} alt="Fan verification" />
+              <div>
+                <strong>Verification image</strong>
+                <p>{item.status === 'approved' ? 'Approved. Points have been added.' : item.status === 'rejected' ? 'Not approved' : 'Waiting for admin review'}</p>
+                <em>{formatDateTime(item.submitted_at || item.created_at)}</em>
+              </div>
+              <b className={item.status === 'approved' ? 'is-positive' : ''}>{item.status === 'approved' ? '+100' : ''}</b>
+            </div>
+          )) : <div className="fan-me-empty-row">No submissions yet</div>}
+        </section>
       </section>
     );
   };
 
   const renderSecondaryView = () => {
     const viewMap = {
+      checkin: { title: 'Daily check-in', content: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} /> },
       scan: { title: t('fan_scan'), content: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} /> },
       mall: { title: t('fan_redeem'), content: <MallTab fan={currentFan} onPointsChange={handlePointsChange} /> },
       invite: { title: t('fan_invite'), content: <InviteTab fan={currentFan} /> },
-      community: { title: t('fan_community'), content: <CommunityTab fan={currentFan} /> },
       campaigns: { title: t('fan_activities'), content: <CampaignTab fan={currentFan} /> },
+      profile: { title: 'Me', content: renderProfile() },
       oldfan: { title: 'Fan verification', content: renderOldFanVerification() },
       map: { title: 'Store recommendations', content: renderStores() },
       help: { title: t('fan_help'), content: <HowItWorksTab /> },
@@ -724,7 +1036,7 @@ const FanCenterPage = () => {
     return (
       <section className="fan-secondary-view">
         <div className="fan-subpage-bar">
-          <Button type="text" onClick={() => setActiveView('home')}>{t('back')}</Button>
+          <Button type="text" onClick={handleSecondaryBack}>{t('back')}</Button>
           <strong>{selected.title}</strong>
           <span />
         </div>
@@ -735,10 +1047,12 @@ const FanCenterPage = () => {
 
   const renderContent = () => {
     if (activeView === 'home') return renderHome();
+    if (activeView === 'activities') return <CampaignTab fan={currentFan} />;
+    if (activeView === 'community') return <CommunityTab fan={currentFan} />;
+    if (activeView === 'rewards') return <MallTab fan={currentFan} onPointsChange={handlePointsChange} />;
     if (activeView === 'tasks') return renderTasks();
     if (activeView === 'stores') return renderStores();
-    if (activeView === 'profile') return renderProfile();
-    if (activeView === 'checkin') return <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} />;
+    if (activeView === 'me') return renderProfile();
     if (activeView === 'member') return renderMember();
     return renderSecondaryView();
   };
@@ -758,7 +1072,14 @@ const FanCenterPage = () => {
     );
   }
 
-  const activeNavKey = fanNavItems.some((item) => item.key === activeView) ? activeView : 'home';
+  const navKeyAliases = {
+    campaigns: 'activities',
+    mall: 'rewards',
+    profile: 'me',
+  };
+  const activeNavKey = fanNavItems.some((item) => item.key === activeView)
+    ? activeView
+    : navKeyAliases[activeView] || 'home';
 
   return (
     <div className="fan-shell">
