@@ -6,10 +6,10 @@ export const DISPLAY_CATEGORIES = [
 ];
 
 export const STORE_LEVEL_LABELS = {
-  S: { label: '钻石', color: '#B9F2FF' },
-  A: { label: '黄金', color: '#FFD700' },
-  B: { label: '白银', color: '#C0C0C0' },
-  C: { label: '青铜', color: '#CD7F32' },
+  S: { label: 'Featured', color: '#B9F2FF' },
+  A: { label: 'Recommended', color: '#FFD700' },
+  B: { label: 'Listed', color: '#C0C0C0' },
+  C: { label: 'Listed', color: '#CD7F32' },
 };
 
 export const FAN_LEVEL_LABELS = {
@@ -18,6 +18,15 @@ export const FAN_LEVEL_LABELS = {
   gold: 'Gold',
   platinum: 'Diamond',
   diamond: 'Diamond',
+};
+
+export const DISPLAY_CATEGORY_LABELS = {
+  product_placement: 'Product display position',
+  material_placement: 'In-store material placement',
+  activity_showcase: 'UWELL activity showcase',
+  hot_products: 'Best-selling UWELL products',
+  store_front_photo: 'Storefront photo',
+  display_photos: 'Display photos',
 };
 
 export const STORE_RECOMMEND_LEVELS = ['S', 'A', 'B', 'C'];
@@ -32,7 +41,7 @@ export function readImageAsDataUrl(file) {
 }
 
 export function getDisplayCategoryLabel(category) {
-  return DISPLAY_CATEGORIES.find((item) => item.key === category)?.label || category;
+  return DISPLAY_CATEGORY_LABELS[category] || DISPLAY_CATEGORIES.find((item) => item.key === category)?.label || category;
 }
 
 export function getStoreLevelLabel(level) {

@@ -94,10 +94,10 @@ const CheckInTab = ({ fan }) => {
     setWeekData((prev) => prev.map((d) => (d.date === todayStr ? { ...d, checkedIn: true } : d)));
     queryClient.invalidateQueries({ queryKey: ['fan-logs'] });
     queryClient.invalidateQueries({ queryKey: ['fans'] });
-    message.success('Check-in successful! +5 points');
+    message.success('签到成功！+5 积分');
   };
 
-  if (!fan) return <Empty description="No fan data" />;
+  if (!fan) return <Empty description="暂无粉丝数据" />;
 
   const levelInfo = getLevelInfo(fan.level);
   const nextLevel = getNextLevel(fan.level);
@@ -105,7 +105,7 @@ const CheckInTab = ({ fan }) => {
     ? Math.min(100, Math.round(((fan.points - levelInfo.min_points) / (nextLevel.min_points - levelInfo.min_points)) * 100))
     : 100;
 
-  const weekDayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekDayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
   return (
     <PageTransition>
@@ -113,41 +113,41 @@ const CheckInTab = ({ fan }) => {
       <Row gutter={16} className="fg-mb24">
         <Col xs={12} sm={12} lg={6}>
           <Card className="liquid-glass" size="small">
-            <Statistic title="Current Points" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: 'var(--uwell-gold)' } }} />
+            <Statistic title="当前积分" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: 'var(--uwell-gold)' } }} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
           <Card className="liquid-glass" size="small">
-            <Statistic title="Level" value={levelInfo.label} prefix={<CrownOutlined style={{ color: levelInfo.color }} />} />
+            <Statistic title="等级" value={levelInfo.label} prefix={<CrownOutlined style={{ color: levelInfo.color }} />} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
           <Card size="small">
-            <Statistic title="Today's Scans" value={`${todayScans}/${scanLimit}`} prefix={<ThunderboltOutlined />} styles={{ content: { color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' } }} />
+            <Statistic title="今日扫码" value={`${todayScans}/${scanLimit}`} prefix={<ThunderboltOutlined />} styles={{ content: { color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' } }} />
           </Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
           <Card size="small">
-            <Statistic title="Total Contribution" value={fan.total_contribution} />
+            <Statistic title="总贡献" value={fan.total_contribution} />
           </Card>
         </Col>
       </Row>
 
       {/* Level Progress */}
-      <Card title="Level Progress" size="small" className="fg-mb24">
+      <Card title="等级进度" size="small" className="fg-mb24">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <Tag color={levelInfo.color} style={{ fontSize: 14, padding: '4px 12px' }}>{levelInfo.label}</Tag>
           {nextLevel ? (
-            <Text type="secondary">{fan.points} / {nextLevel.min_points} pts to {nextLevel.label}</Text>
+            <Text type="secondary">{fan.points} / {nextLevel.min_points} 积分，距离 {nextLevel.label}</Text>
           ) : (
-            <Text type="success">Max level reached!</Text>
+            <Text type="success">已达到最高等级</Text>
           )}
         </div>
         <Progress percent={progressPct} strokeColor={levelInfo.color} />
       </Card>
 
       {/* Check-in Calendar */}
-      <Card title="Daily Check-in (+5 pts/day)" size="small" className="fg-mb24">
+      <Card title="每日签到（+5 积分/天）" size="small" className="fg-mb24">
         <Row gutter={8}>
           {weekData.map((day, idx) => (
             <Col span={24 / 7} key={idx} style={{ textAlign: 'center' }}>
@@ -186,13 +186,13 @@ const CheckInTab = ({ fan }) => {
             onClick={handleCheckIn}
             style={{ minWidth: 200 }}
           >
-            {todayCheckedIn ? 'Checked In Today' : 'Check In Now'}
+            {todayCheckedIn ? '今日已签到' : '立即签到'}
           </Button>
         </div>
       </Card>
 
       {/* Points History */}
-      <Card title="Recent Points History" size="small">
+      <Card title="最近积分记录" size="small">
         {logLoading ? (
           <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
         ) : pointsLog.length > 0 ? (
@@ -210,13 +210,13 @@ const CheckInTab = ({ fan }) => {
                       {item.source}
                     </Space>
                   }
-                  description={`${item.description} - ${new Date(item.created_at).toLocaleString('en-US')}`}
+                  description={`${item.description} - ${new Date(item.created_at).toLocaleString('zh-CN')}`}
                 />
               </List.Item>
             )}
           />
         ) : (
-          <Empty description="No points history" />
+          <Empty description="暂无积分记录" />
         )}
       </Card>
     </div>
@@ -258,7 +258,7 @@ const LuckyDrawTab = ({ fan }) => {
   const handleDraw = async () => {
     if (!fan) return;
     if (fan.points < DRAW_COST) {
-      message.error(`Not enough points! Need ${DRAW_COST} pts, you have ${fan.points}`);
+      message.error(`积分不足！需要 ${DRAW_COST} 积分，当前 ${fan.points} 积分`);
       return;
     }
 
@@ -298,24 +298,24 @@ const LuckyDrawTab = ({ fan }) => {
     }, 2000);
   };
 
-  if (!fan) return <Empty description="No fan data" />;
+  if (!fan) return <Empty description="暂无粉丝数据" />;
 
   return (
     <div>
       <Row gutter={16} className="fg-mb24">
         <Col xs={24} sm={8}>
           <Card size="small">
-            <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: '#1677ff' } }} />
+            <Statistic title="当前积分" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: '#1677ff' } }} />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
-            <Statistic title="Total Draws" value={totalDraws} prefix={<GiftOutlined />} />
+            <Statistic title="抽奖次数" value={totalDraws} prefix={<GiftOutlined />} />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
-            <Statistic title="Total Points Won" value={totalWon} prefix={<TrophyOutlined />} styles={{ content: { color: '#52c41a' } }} />
+            <Statistic title="中奖积分" value={totalWon} prefix={<TrophyOutlined />} styles={{ content: { color: '#52c41a' } }} />
           </Card>
         </Col>
       </Row>
@@ -360,7 +360,7 @@ const LuckyDrawTab = ({ fan }) => {
               ) : (
                 <>
                   <GiftOutlined style={{ fontSize: 48, color: '#722ed1' }} />
-                  <div style={{ marginTop: 8, color: '#999' }}>Press to draw</div>
+                  <div style={{ marginTop: 8, color: '#999' }}>点击抽奖</div>
                 </>
               )}
             </div>
@@ -375,18 +375,18 @@ const LuckyDrawTab = ({ fan }) => {
             disabled={fan.points < DRAW_COST}
             style={{ minWidth: 220, height: 48, fontSize: 16 }}
           >
-            {drawing ? 'Drawing...' : `Draw Now (${DRAW_COST} pts)`}
+            {drawing ? '抽奖中...' : `立即抽奖（${DRAW_COST} 积分）`}
           </Button>
           {fan.points < DRAW_COST && (
             <div style={{ marginTop: 8, color: '#ffccc7' }}>
-              <LockOutlined /> Need at least {DRAW_COST} points to draw
+              <LockOutlined /> 至少需要 {DRAW_COST} 积分才能抽奖
             </div>
           )}
         </div>
       </Card>
 
       {/* Prize List */}
-      <Card title="Prize Tiers" size="small" className="fg-mb24">
+      <Card title="奖品档位" size="small" className="fg-mb24">
         <Row gutter={[8, 8]}>
           {LOTTERY_PRIZES.map((prize) => (
             <Col xs={12} sm={8} key={prize.id}>
@@ -394,7 +394,7 @@ const LuckyDrawTab = ({ fan }) => {
                 <div className="fg-prize-icon">{prize.icon}</div>
                 <div className="fg-prize-label">{prize.label}</div>
                 <div style={{ color: prize.points > 0 ? '#52c41a' : '#999' }}>
-                  {prize.points > 0 ? `+${prize.points} pts` : 'No prize'}
+                  {prize.points > 0 ? `+${prize.points} 积分` : '未中奖'}
                 </div>
                 <Tag className="fg-mt8">{(prize.probability * 100).toFixed(0)}%</Tag>
               </Card>
@@ -404,7 +404,7 @@ const LuckyDrawTab = ({ fan }) => {
       </Card>
 
       {/* Draw History */}
-      <Card title="Draw History" size="small">
+      <Card title="抽奖记录" size="small">
         {history.length > 0 ? (
           <List
             size="small"
@@ -419,17 +419,17 @@ const LuckyDrawTab = ({ fan }) => {
                       {item.points_won > 0 ? (
                         <Tag color="green">+{item.points_won} pts</Tag>
                       ) : (
-                        <Tag>No prize</Tag>
+                        <Tag>未中奖</Tag>
                       )}
                     </Space>
                   }
-                  description={new Date(item.created_at).toLocaleString('en-US')}
+                  description={new Date(item.created_at).toLocaleString('zh-CN')}
                 />
               </List.Item>
             )}
           />
         ) : (
-          <Empty description="No draws yet. Try your luck!" />
+          <Empty description="暂无抽奖记录" />
         )}
       </Card>
 
@@ -437,7 +437,7 @@ const LuckyDrawTab = ({ fan }) => {
       <Modal
         open={resultModalOpen}
         onCancel={() => setResultModalOpen(false)}
-        footer={<Button type="primary" onClick={() => setResultModalOpen(false)}>Claim</Button>}
+        footer={<Button type="primary" onClick={() => setResultModalOpen(false)}>确认</Button>}
         centered
         width="90%" className="fg-spec-table"
       >
@@ -447,10 +447,10 @@ const LuckyDrawTab = ({ fan }) => {
             <Title level={3} style={{ marginBottom: 8 }}>{result.label}</Title>
             {result.points > 0 ? (
               <Paragraph type="success" style={{ fontSize: 20 }}>
-                +{result.points} points!
+                +{result.points} 积分！
               </Paragraph>
             ) : (
-              <Paragraph type="secondary">Better luck next time!</Paragraph>
+              <Paragraph type="secondary">下次好运！</Paragraph>
             )}
           </div>
         )}
@@ -477,11 +477,11 @@ const MallTab = ({ fan }) => {
   const handleRedeem = async (item) => {
     if (!fan) return;
     if (fan.points < item.points_cost) {
-      message.error(`Not enough points! Need ${item.points_cost}, you have ${fan.points}`);
+      message.error(`积分不足！需要 ${item.points_cost}，当前 ${fan.points}`);
       return;
     }
     if (item.stock <= 0) {
-      message.error('Out of stock!');
+      message.error('库存不足！');
       return;
     }
 
@@ -499,21 +499,21 @@ const MallTab = ({ fan }) => {
     setRedemptions(records.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
     queryClient.invalidateQueries({ queryKey: ['fans'] });
     queryClient.invalidateQueries({ queryKey: ['fan-logs'] });
-    message.success(`Redeemed: ${item.name}! -${item.points_cost} points`);
+    message.success(`已兑换：${item.name}！-${item.points_cost} 积分`);
   };
 
-  if (!fan) return <Empty description="No fan data" />;
+  if (!fan) return <Empty description="暂无粉丝数据" />;
 
   return (
     <div>
       <Card size="small" className="fg-card" style={{ marginBottom: 16, background: 'linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(18,18,26,0.95) 100%)' }}>
         <Row align="middle" justify="space-between">
           <Col>
-            <Statistic title="Your Points" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: '#1677ff', fontSize: 28 } }} />
+            <Statistic title="当前积分" value={fan.points} prefix={<StarOutlined />} styles={{ content: { color: '#1677ff', fontSize: 28 } }} />
           </Col>
           <Col>
             <Select
-              placeholder="All Categories"
+              placeholder="全部分类"
               value={category}
               onChange={setCategory}
               allowClear
@@ -566,7 +566,7 @@ const MallTab = ({ fan }) => {
                     onClick={() => handleRedeem(item)}
                     icon={!canAfford ? <LockOutlined /> : <ShoppingOutlined />}
                   >
-                    {item.stock <= 0 ? 'Out of Stock' : canAfford ? 'Redeem' : `${item.points_cost} pts`}
+                    {item.stock <= 0 ? '缺货' : canAfford ? '兑换' : `${item.points_cost} 积分`}
                   </Button>,
                 ]}
               >
@@ -574,8 +574,8 @@ const MallTab = ({ fan }) => {
                   title={<Text className="fg-fs13">{item.name}</Text>}
                   description={
                     <Space>
-                      <Tag color="orange">{item.points_cost} pts</Tag>
-                      <Text type="secondary" className="fg-fs12">Stock: {item.stock}</Text>
+                      <Tag color="orange">{item.points_cost} 积分</Tag>
+                      <Text type="secondary" className="fg-fs12">库存：{item.stock}</Text>
                     </Space>
                   }
                 />
@@ -586,7 +586,7 @@ const MallTab = ({ fan }) => {
       </Row>
 
       {/* Redemption History */}
-      <Card title="Redemption History" size="small">
+      <Card title="兑换记录" size="small">
         {redemptions.length > 0 ? (
           <List
             size="small"
@@ -598,8 +598,8 @@ const MallTab = ({ fan }) => {
                   title={item.item_name}
                   description={
                     <Space>
-                      <Tag color="red">-{item.points_cost} pts</Tag>
-                      {new Date(item.created_at).toLocaleString('en-US')}
+                      <Tag color="red">-{item.points_cost} 积分</Tag>
+                      {new Date(item.created_at).toLocaleString('zh-CN')}
                     </Space>
                   }
                 />
@@ -607,7 +607,7 @@ const MallTab = ({ fan }) => {
             )}
           />
         ) : (
-          <Empty description="No redemptions yet" />
+          <Empty description="暂无兑换记录" />
         )}
       </Card>
     </div>
@@ -627,7 +627,7 @@ const FanMapTab = ({ fans }) => {
   // Group by store
   const storeGroups = {};
   fans.forEach((f) => {
-    const storeName = f.stores?.name || 'Unassigned';
+    const storeName = f.stores?.name || '未分配';
     if (!storeGroups[storeName]) storeGroups[storeName] = [];
     storeGroups[storeName].push(f);
   });
@@ -636,23 +636,23 @@ const FanMapTab = ({ fans }) => {
     <div>
       <Row gutter={16} className="fg-mb24">
         <Col xs={12} sm={12} lg={6}>
-          <Card size="small"><Statistic title="Total Fans" value={fans.length} prefix={<EnvironmentOutlined />} /></Card>
+          <Card size="small"><Statistic title="粉丝总数" value={fans.length} prefix={<EnvironmentOutlined />} /></Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
           <Card size="small"><Statistic title="VIP (L5)" value={fans.filter((f) => f.level === 'diamond').length} prefix={<CrownOutlined />} styles={{ content: { color: '#B9F2FF' } }} /></Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
-          <Card size="small"><Statistic title="Active Stores" value={Object.keys(storeGroups).length} /></Card>
+          <Card size="small"><Statistic title="活跃门店" value={Object.keys(storeGroups).length} /></Card>
         </Col>
         <Col xs={12} sm={12} lg={6}>
-          <Card size="small"><Statistic title="Total Points" value={fans.reduce((s, f) => s + f.points, 0)} prefix={<StarOutlined />} /></Card>
+          <Card size="small"><Statistic title="总积分" value={fans.reduce((s, f) => s + f.points, 0)} prefix={<StarOutlined />} /></Card>
         </Col>
       </Row>
 
       <Row gutter={16}>
         {/* Level Distribution Chart */}
         <Col xs={24} lg={12}>
-          <Card title="Fan Level Distribution" size="small" className="fg-mb16">
+          <Card title="粉丝等级分布" size="small" className="fg-mb16">
             {levelData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={levelData} layout="vertical">
@@ -660,7 +660,7 @@ const FanMapTab = ({ fans }) => {
                   <XAxis type="number" allowDecimals={false} />
                   <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12 }} />
                   <RTooltip />
-                  <Bar dataKey="count" name="Fans" radius={[0, 4, 4, 0]}>
+                  <Bar dataKey="count" name="粉丝" radius={[0, 4, 4, 0]}>
                     {levelData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
@@ -668,20 +668,20 @@ const FanMapTab = ({ fans }) => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <Empty description="No data" className="fg-empty-p40" />
+              <Empty description="暂无数据" className="fg-empty-p40" />
             )}
           </Card>
         </Col>
 
         {/* Top Fans Leaderboard */}
         <Col xs={24} lg={12}>
-          <Card title={<><TrophyOutlined /> Top Fans Leaderboard</>} size="small" className="fg-mb16">
+          <Card title={<><TrophyOutlined /> 粉丝排行榜</>} size="small" className="fg-mb16">
             <List
               size="small"
               dataSource={topFans}
               renderItem={(fan, idx) => {
                 const levelInfo = getLevelInfo(fan.level);
-                const medal = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `${idx + 1}`;
+                const medal = idx === 0 ? '第1' : idx === 1 ? '第2' : idx === 2 ? '第3' : `${idx + 1}`;
                 return (
                   <List.Item>
                     <List.Item.Meta
@@ -695,7 +695,7 @@ const FanMapTab = ({ fans }) => {
                       description={
                         <Space>
                           <StarOutlined style={{ color: '#faad14' }} />
-                          <strong>{fan.points}</strong> pts
+                          <strong>{fan.points}</strong> 积分
                           <Text type="secondary" style={{ fontSize: 12 }}>- {fan.stores?.name || '-'}</Text>
                         </Space>
                       }
@@ -703,14 +703,14 @@ const FanMapTab = ({ fans }) => {
                   </List.Item>
                 );
               }}
-              locale={{ emptyText: <Empty description="No fans" /> }}
+              locale={{ emptyText: <Empty description="暂无粉丝" /> }}
             />
           </Card>
         </Col>
       </Row>
 
       {/* Fans by Store */}
-      <Card className="liquid-glass" title="Fans by Store" size="small">
+      <Card className="liquid-glass" title="按门店查看粉丝" size="small">
         {Object.keys(storeGroups).length > 0 ? (
           <List
             size="small"
@@ -731,11 +731,11 @@ const FanMapTab = ({ fans }) => {
                         const li = getLevelInfo(f.level);
                         return (
                           <Tag key={f.id} color={li.color} className="fg-fan-tag">
-                            {f.profiles?.name || `Fan #${f.id?.slice(0, 4)}`} - {f.points}pts
+                            {f.profiles?.name || `粉丝 #${f.id?.slice(0, 4)}`} - {f.points}积分
                           </Tag>
                         );
                       })}
-                      {storeFans.length > 8 && <Tag>+{storeFans.length - 8} more</Tag>}
+                      {storeFans.length > 8 && <Tag>还有 {storeFans.length - 8} 人</Tag>}
                     </Space>
                   }
                 />
@@ -743,7 +743,7 @@ const FanMapTab = ({ fans }) => {
             )}
           />
         ) : (
-          <Empty description="No fan distribution data" />
+          <Empty description="暂无粉丝分布数据" />
         )}
       </Card>
     </div>
@@ -770,7 +770,7 @@ const FanGrowthPage = () => {
   if (!fans.length) {
     return (
       <Card className="liquid-glass">
-        <Empty description="No fan data yet. Please add fans first in the Fans section." />
+        <Empty description="暂无粉丝数据，请先在粉丝列表中添加粉丝。" />
       </Card>
     );
   }
@@ -778,14 +778,14 @@ const FanGrowthPage = () => {
   return (
     <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
       <Title level={4} className="fg-mb16">
-        <ThunderboltOutlined /> Fan Growth Center
+        <ThunderboltOutlined /> 粉丝增长中心
       </Title>
 
       {/* Fan selector */}
       <Card size="small" className="fg-mb16 liquid-glass">
         <Row gutter={16} align="middle">
           <Col xs={24} sm={12} md={8}>
-            <Text strong>Select Fan: </Text>
+            <Text strong>选择粉丝：</Text>
             <Select
               value={currentFan?.id}
               onChange={setSelectedFanId}
@@ -793,7 +793,7 @@ const FanGrowthPage = () => {
               showSearch
               optionFilterProp="label"
               options={fans.map(f => ({
-                label: `${f.profiles?.name || 'Fan #' + (f.id?.slice(-6) || '')} - ${f.points}pts - ${f.level}`,
+                label: `${f.profiles?.name || '粉丝 #' + (f.id?.slice(-6) || '')} - ${f.points}积分 - ${f.level}`,
                 value: f.id,
               }))}
             />
@@ -804,8 +804,8 @@ const FanGrowthPage = () => {
                 <Tag color={FAN_LEVELS.find(l => l.value === currentFan.level)?.color}>
                   {FAN_LEVELS.find(l => l.value === currentFan.level)?.label || currentFan.level}
                 </Tag>
-                <Text strong>{currentFan.points} points</Text>
-                <Text type="secondary">Total contribution: {currentFan.total_contribution}</Text>
+                <Text strong>{currentFan.points} 积分</Text>
+                <Text type="secondary">总贡献：{currentFan.total_contribution}</Text>
               </Space>
             )}
           </Col>
@@ -818,22 +818,22 @@ const FanGrowthPage = () => {
         items={[
           {
             key: 'checkin',
-            label: <span><CheckCircleOutlined /> Check-in & Points</span>,
+            label: <span><CheckCircleOutlined /> 签到与积分</span>,
             children: <CheckInTab fan={currentFan} />,
           },
           {
             key: 'lottery',
-            label: <span><GiftOutlined /> Lucky Draw</span>,
+            label: <span><GiftOutlined /> 幸运抽奖</span>,
             children: <LuckyDrawTab fan={currentFan} />,
           },
           {
             key: 'mall',
-            label: <span><ShoppingOutlined /> Points Mall</span>,
+            label: <span><ShoppingOutlined /> 积分商城</span>,
             children: <MallTab fan={currentFan} />,
           },
           {
             key: 'map',
-            label: <span><EnvironmentOutlined /> Fan Map</span>,
+            label: <span><EnvironmentOutlined /> 粉丝地图</span>,
             children: <FanMapTab fans={fans} />,
           },
         ]}

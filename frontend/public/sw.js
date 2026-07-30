@@ -1,8 +1,14 @@
-﻿const CACHE_NAME = "uwell-crm-v1";
+const CACHE_NAME = "uwell-crm-v2";
 const PRECACHE_URLS = ["/", "/index.html"];
+
+const LOCAL_HOSTS = ["localhost", "127.0.0.1", "::1"];
 
 const isSupabaseApi = (url) => url.includes("/rest/v1/") || url.includes("/auth/v1/");
 const isStaticAsset = (url) => {
+  const parsed = new URL(url);
+  if (LOCAL_HOSTS.includes(parsed.hostname)) return false;
+  if (parsed.pathname.startsWith("/src/") || parsed.pathname.startsWith("/@vite/")) return false;
+
   const ext = url.split("?").shift().split(".").pop();
   return ["js", "css", "png", "jpg", "jpeg", "gif", "svg", "webp", "woff", "woff2", "ttf"].includes(ext);
 };
@@ -24,12 +30,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = event.request.url;
 
-  // Auth & realtime — never cache
+  // Auth and realtime: never cache.
   if (url.includes("/auth/") || url.includes("/realtime/")) {
     return;
   }
 
-  // Supabase API — Network First, fallback to cache
+  // Supabase API: network first, fallback to cache.
   if (isSupabaseApi(url)) {
     event.respondWith(
       fetch(event.request).then((res) => {
@@ -41,7 +47,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets — Cache First
+  // Static assets: cache first in production only.
   if (isStaticAsset(url)) {
     event.respondWith(
       caches.match(event.request).then((cached) => cached || fetch(event.request).then((res) => {
@@ -53,7 +59,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Navigation — Network First, fallback to index.html
+  // Navigation: network first, fallback to index.html.
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).catch(() => caches.match("/index.html"))

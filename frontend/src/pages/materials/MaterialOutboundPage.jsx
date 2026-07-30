@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Select, InputNumber, Input, Button, Card, Table, Tabs, Tag, message, Spin, Space, Empty } from 'antd';
+import { CheckOutlined, CloseOutlined, TruckOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMaterials, getStores, createOutbound, getOutbounds, updateOutboundStatus } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
@@ -24,59 +25,59 @@ const MaterialOutboundPage = () => {
 
   const mutation = useMutation({
     mutationFn: createOutbound,
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['outbounds'] }); message.success('Outbound request submitted'); form.resetFields(); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['outbounds'] }); message.success('出库申领已提交'); form.resetFields(); },
   });
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }) => updateOutboundStatus(id, status),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['outbounds'] }); queryClient.invalidateQueries({ queryKey: ['material-stocks'] }); message.success('Status updated'); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['outbounds'] }); queryClient.invalidateQueries({ queryKey: ['material-stocks'] }); message.success('状态已更新'); },
   });
 
   const handleSubmit = async (values) => {
     await mutation.mutateAsync({ ...values, applicant_id: profile?.id || 'u-admin', status: 'pending' });
   };
 
-  const statusMap = { pending: { color: 'orange', text: 'Pending' }, approved: { color: 'green', text: 'Approved' }, rejected: { color: 'red', text: 'Rejected' }, delivered: { color: 'blue', text: 'Delivered' } };
+  const statusMap = { pending: { color: 'orange', text: '待审批' }, approved: { color: 'green', text: '已通过' }, rejected: { color: 'red', text: '已拒绝' }, delivered: { color: 'blue', text: '已送达' } };
 
   const columns = [
-    { title: 'Date', dataIndex: 'created_at', key: 'date', render: (v) => new Date(v).toLocaleString('en-US') },
-    { title: 'Material', dataIndex: ['materials', 'name'], key: 'name' },
-    { title: 'Qty', dataIndex: 'qty', key: 'qty' },
-    { title: 'Store', dataIndex: ['stores', 'name'], key: 'store', render: (v) => v || '-' },
-    { title: 'Applicant', dataIndex: ['profiles', 'name'], key: 'app' },
-    { title: 'Reason', dataIndex: 'reason', key: 'reason', ellipsis: true },
-    { title: 'Status', dataIndex: 'status', key: 'status', render: (s) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.text || s}</Tag> },
+    { title: '日期', dataIndex: 'created_at', key: 'date', render: (v) => new Date(v).toLocaleString('zh-CN') },
+    { title: '物料', dataIndex: ['materials', 'name'], key: 'name' },
+    { title: '数量', dataIndex: 'qty', key: 'qty' },
+    { title: '门店', dataIndex: ['stores', 'name'], key: 'store', render: (v) => v || '-' },
+    { title: '申请人', dataIndex: ['profiles', 'name'], key: 'app' },
+    { title: '原因', dataIndex: 'reason', key: 'reason', ellipsis: true },
+    { title: '状态', dataIndex: 'status', key: 'status', render: (s) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.text || s}</Tag> },
     ...(canApprove ? [{
-      title: 'Actions', key: 'action', render: (_, r) => r.status === 'pending' ? (
+      title: '操作', key: 'action', render: (_, r) => r.status === 'pending' ? (
         <Space>
-          <Button type="link" size="small" onClick={() => statusMutation.mutate({ id: r.id, status: 'approved' })}>Approve</Button>
-          <Button type="link" danger size="small" onClick={() => statusMutation.mutate({ id: r.id, status: 'rejected' })}>Reject</Button>
+          <Button type="link" size="small" icon={<CheckOutlined />} title="Approve outbound" aria-label="Approve outbound" onClick={() => statusMutation.mutate({ id: r.id, status: 'approved' })}>通过</Button>
+          <Button type="link" danger size="small" icon={<CloseOutlined />} title="Reject outbound" aria-label="Reject outbound" onClick={() => statusMutation.mutate({ id: r.id, status: 'rejected' })}>拒绝</Button>
         </Space>
-      ) : r.status === 'approved' ? <Button type="link" size="small" onClick={() => statusMutation.mutate({ id: r.id, status: 'delivered' })}>Mark Delivered</Button> : null,
+      ) : r.status === 'approved' ? <Button type="link" size="small" icon={<TruckOutlined />} title="Mark outbound delivered" aria-label="Mark outbound delivered" onClick={() => statusMutation.mutate({ id: r.id, status: 'delivered' })}>标记送达</Button> : null,
     }] : []),
   ];
 
   return (
     <PageTransition>
-    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
-    <Card className="liquid-glass" title="Outbound / Requisition">
-      <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
-        { key: 'apply', label: 'New Requisition', children: (
-          <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ maxWidth: 500 }}>
-            <Form.Item name="material_id" label="Material" rules={[{ required: true, message: 'Required' }]}>
-              <Select placeholder="Select material" options={materials.map((m) => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
+    <div className="bg-radial-top admin-material-outbound-page" style={{minHeight:"100vh",padding:24}}>
+    <Card className="liquid-glass" title="出库 / 申领">
+      <Tabs className="admin-material-outbound-tabs" activeKey={activeTab} onChange={setActiveTab} items={[
+        { key: 'apply', label: '新建申领', children: (
+          <Form className="admin-material-outbound-form" form={form} layout="vertical" onFinish={handleSubmit} style={{ maxWidth: 500 }}>
+            <Form.Item name="material_id" label="物料" rules={[{ required: true, message: '必填' }]}>
+              <Select placeholder="选择物料" options={materials.map((m) => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
             </Form.Item>
-            <Form.Item name="qty" label="Quantity" rules={[{ required: true, message: 'Required' }]}>
+            <Form.Item name="qty" label="数量" rules={[{ required: true, message: '必填' }]}>
               <InputNumber min={1} style={{ width: '100%' }} />
             </Form.Item>
-            <Form.Item name="store_id" label="Store">
-              <Select placeholder="Select store" allowClear options={stores.map((s) => ({ label: s.name, value: s.id }))} />
+            <Form.Item name="store_id" label="门店">
+              <Select placeholder="选择门店" allowClear options={stores.map((s) => ({ label: s.name, value: s.id }))} />
             </Form.Item>
-            <Form.Item name="reason" label="Reason"><Input.TextArea placeholder="Reason for requisition" rows={2} /></Form.Item>
-            <Form.Item><Button type="primary" htmlType="submit" loading={mutation.isPending}>Submit Request</Button></Form.Item>
+            <Form.Item name="reason" label="原因"><Input.TextArea placeholder="填写申领原因" rows={2} /></Form.Item>
+            <Form.Item><Button type="primary" htmlType="submit" loading={mutation.isPending}>提交申请</Button></Form.Item>
           </Form>
         )},
-        { key: 'records', label: 'Outbound Records', children: isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> : <Table rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} locale={{ emptyText: <Empty description="No outbound records yet" /> }} /> },
+        { key: 'records', label: '出库记录', children: isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> : <Table className="admin-material-outbound-records-table" rowKey="id" dataSource={outbounds} columns={columns} pagination={{ pageSize: 10 }} scroll={{ x: 920 }} locale={{ emptyText: <Empty description="暂无出库记录" /> }} /> },
       ]} />
     </Card>
     </div>

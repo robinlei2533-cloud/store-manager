@@ -2,6 +2,8 @@
 // 种子数据 — 让用户打开就能看到完整功能
 // ============================================================
 
+import { DEFAULT_OPERATIONAL_RULES, OPERATIONAL_RULE_RECORD_ID } from '../../utils/uwellLaunchRules';
+
 const now = new Date();
 const daysAgo = (n) => {
   const d = new Date(now);
@@ -240,7 +242,7 @@ export const seedData = {
   // ============ 粉丝档案 ============
   fans: [
     { id: 'f-001', store_id: 's-001', user_id: 'u-rep1', name: 'Ahmed', phone: '+966501234001', level: 'gold', points: 580, total_contribution: 580, created_at: daysAgo(70), updated_at: daysAgo(1) },
-    { id: 'f-002', store_id: 's-002', user_id: null, name: 'Fatima', phone: '+966551234002', level: 'platinum', points: 2300, total_contribution: 2300, created_at: daysAgo(65), updated_at: daysAgo(2) },
+    { id: 'f-002', store_id: 's-002', user_id: null, name: 'Fatima', phone: '+966551234002', level: 'gold', points: 2300, total_contribution: 2300, created_at: daysAgo(65), updated_at: daysAgo(2) },
     { id: 'f-003', store_id: 's-003', user_id: null, name: 'Mohammed', phone: '+966501234003', level: 'silver', points: 150, total_contribution: 150, created_at: daysAgo(55), updated_at: daysAgo(5) },
     { id: 'f-004', store_id: 's-004', user_id: null, name: 'Layla', phone: '+966541234004', level: 'gold', points: 520, total_contribution: 520, created_at: daysAgo(45), updated_at: daysAgo(3) },
     { id: 'f-005', store_id: 's-005', user_id: null, name: 'Omar', phone: '+966531234005', level: 'bronze', points: 30, total_contribution: 30, created_at: daysAgo(35), updated_at: daysAgo(10) },
@@ -251,49 +253,58 @@ export const seedData = {
 
   // ============ 积分流水 ============
   fan_points_log: [
-    { id: 'fpl-001', fan_id: 'f-001', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(1) },
-    { id: 'fpl-002', fan_id: 'f-001', points: 5, type: 'earn', source: '扫码积分', description: 'G4 Pod 扫码 x1', created_at: daysAgo(1) },
-    { id: 'fpl-003', fan_id: 'f-001', points: -500, type: 'redeem', source: '积分兑换', description: '兑换 UWELL KOKO Device', created_at: daysAgo(1) },
-    { id: 'fpl-004', fan_id: 'f-002', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(2) },
-    { id: 'fpl-005', fan_id: 'f-002', points: 50, type: 'earn', source: '扫码积分', description: '消费者扫码 p-002 x10', created_at: daysAgo(2) },
-    { id: 'fpl-006', fan_id: 'f-007', points: 100, type: 'earn', source: '扫码积分', description: '消费者扫码 p-001 x20', created_at: daysAgo(1) },
-    { id: 'fpl-007', fan_id: 'f-007', points: 30, type: 'redeem', source: '兑换奖励', description: '兑换精美水杯一个', created_at: daysAgo(3) },
-    { id: 'fpl-008', fan_id: 'f-004', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(3) },
-    { id: 'fpl-real-001', fan_id: 'f-001', points: -150, type: 'redeem', source: '积分兑换', description: '兑换 UWELL Pod Pack - 3 pcs', created_at: daysAgo(1) },
-    { id: 'fpl-real-002', fan_id: 'f-001', points: 5, type: 'earn', source: '扫码积分', description: '消费者扫码 G4 PRO x10', created_at: daysAgo(1) },
-    { id: 'fpl-real-003', fan_id: 'f-001', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(1) },
-    { id: 'fpl-real-004', fan_id: 'f-002', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(2) },
-    { id: 'fpl-real-005', fan_id: 'f-002', points: 30, type: 'earn', source: '推荐新粉丝', description: '推荐 Amwaj Oasis 店主注册', created_at: daysAgo(2) },
-    { id: 'fpl-real-006', fan_id: 'f-007', points: 50, type: 'earn', source: '扫码积分', description: 'G5 demo event 扫码 x10', created_at: daysAgo(1) },
-    { id: 'fpl-real-007', fan_id: 'f-007', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(2) },
-    { id: 'fpl-real-008', fan_id: 'f-007', points: 5, type: 'earn', source: '签到奖励', description: '连续签到7天 +5', created_at: daysAgo(3) },
-    { id: 'fpl-real-009', fan_id: 'f-004', points: 30, type: 'earn', source: '推荐新粉丝', description: '推荐 3 位新粉丝注册', created_at: daysAgo(3) },
-    { id: 'fpl-real-010', fan_id: 'f-004', points: 5, type: 'earn', source: '扫码积分', description: 'KOKO 扫码 x5', created_at: daysAgo(4) },
-    { id: 'fpl-real-011', fan_id: 'f-001', points: 30, type: 'earn', source: '推荐新粉丝', description: '推荐 rabie alkayf 升级为 A 级门店', created_at: daysAgo(5) },
-    { id: 'fpl-real-012', fan_id: 'f-003', points: 5, type: 'earn', source: '扫码积分', description: 'G4 PRO 扫码 x1', created_at: daysAgo(4) },
-    { id: 'fpl-real-013', fan_id: 'f-003', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(5) },
-    { id: 'fpl-real-014', fan_id: 'f-006', points: 5, type: 'earn', source: '扫码积分', description: 'G4 Pod 扫码 x3', created_at: daysAgo(6) },
-    { id: 'fpl-real-015', fan_id: 'f-007', points: 30, type: 'redeem', source: '兑换奖励', description: '兑换 UWELLCare 礼品包', created_at: daysAgo(7) },
-    { id: 'fpl-real-016', fan_id: 'f-002', points: 5, type: 'earn', source: '签到奖励', description: '每日签到 +5', created_at: daysAgo(7) }
+    { id: 'fpl-001', fan_id: 'f-001', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(1) },
+    { id: 'fpl-002', fan_id: 'f-001', points: 5, type: 'earn', source: 'Product scan', description: 'Verified G4 Pod unique code scan', created_at: daysAgo(1) },
+    { id: 'fpl-003', fan_id: 'f-001', points: -500, type: 'redeem', source: 'Reward redemption', description: 'Redeemed UWELL KOKO device reward', created_at: daysAgo(1) },
+    { id: 'fpl-004', fan_id: 'f-002', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(2) },
+    { id: 'fpl-005', fan_id: 'f-002', points: 50, type: 'earn', source: 'Invite friend', description: 'Invited one new fan to register', created_at: daysAgo(2) },
+    { id: 'fpl-006', fan_id: 'f-007', points: 10, type: 'earn', source: 'Community post', description: 'First community post of the day', created_at: daysAgo(1) },
+    { id: 'fpl-007', fan_id: 'f-007', points: -300, type: 'redeem', source: 'Reward redemption', description: 'Redeemed UWELL cap reward', created_at: daysAgo(3) },
+    { id: 'fpl-008', fan_id: 'f-004', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(3) },
+    { id: 'fpl-real-001', fan_id: 'f-001', points: -150, type: 'redeem', source: 'Reward redemption', description: 'Redeemed UWELL Pod Pack - 3 pcs', created_at: daysAgo(1) },
+    { id: 'fpl-real-002', fan_id: 'f-001', points: 5, type: 'earn', source: 'Product scan', description: 'Verified G4 PRO unique code scan', created_at: daysAgo(1) },
+    { id: 'fpl-real-003', fan_id: 'f-001', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(1) },
+    { id: 'fpl-real-004', fan_id: 'f-002', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(2) },
+    { id: 'fpl-real-005', fan_id: 'f-002', points: 50, type: 'earn', source: 'Invite friend', description: 'Invited a new fan to register', created_at: daysAgo(2) },
+    { id: 'fpl-real-006', fan_id: 'f-007', points: 20, type: 'earn', source: 'Campaign check-in', description: 'Store owner confirmed G5 demo participation', created_at: daysAgo(1) },
+    { id: 'fpl-real-007', fan_id: 'f-007', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(2) },
+    { id: 'fpl-real-008', fan_id: 'f-007', points: 5, type: 'earn', source: 'Daily check-in', description: 'Seven-day streak bonus +5', created_at: daysAgo(3) },
+    { id: 'fpl-real-009', fan_id: 'f-004', points: 50, type: 'earn', source: 'Invite friend', description: 'Invited a new fan to register', created_at: daysAgo(3) },
+    { id: 'fpl-real-010', fan_id: 'f-004', points: 5, type: 'earn', source: 'Product scan', description: 'Verified KOKO unique code scan', created_at: daysAgo(4) },
+    { id: 'fpl-real-011', fan_id: 'f-001', points: 50, type: 'earn', source: 'Invite friend', description: 'Invited a new fan to register', created_at: daysAgo(5) },
+    { id: 'fpl-real-012', fan_id: 'f-003', points: 5, type: 'earn', source: 'Product scan', description: 'Verified G4 PRO unique code scan', created_at: daysAgo(4) },
+    { id: 'fpl-real-013', fan_id: 'f-003', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(5) },
+    { id: 'fpl-real-014', fan_id: 'f-006', points: 5, type: 'earn', source: 'Product scan', description: 'Verified G4 Pod unique code scan', created_at: daysAgo(6) },
+    { id: 'fpl-real-015', fan_id: 'f-007', points: -400, type: 'redeem', source: 'Reward redemption', description: 'Redeemed UWELL gift box reward', created_at: daysAgo(7) },
+    { id: 'fpl-real-016', fan_id: 'f-002', points: 5, type: 'earn', source: 'Daily check-in', description: 'Daily check-in reward +5', created_at: daysAgo(7) }
   ],
 
   // ============ 积分规则 ============
   fan_points_rules: [
-    { id: 'r-001', action_type: '每日签到', points: 5, description: '每天打开会员中心签到一次', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-002', action_type: '扫码积分', points: 5, description: '消费者每扫一个产品码', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-003', action_type: '积分兑换', points: 0, description: '使用积分兑换会员奖品', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-004', action_type: '新增门店', points: 20, description: '成功录入一个新门店', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-005', action_type: '活动奖励', points: 50, description: '完成当前品牌活动要求', is_active: true, created_at: daysAgo(90) },
-    { id: 'r-006', action_type: '推荐新粉丝', points: 30, description: '每推荐一位新粉丝注册', is_active: true, created_at: daysAgo(90) },
+    {
+      id: OPERATIONAL_RULE_RECORD_ID,
+      action_type: 'Trial operational rules',
+      points: 0,
+      description: 'Shared first-launch rule settings consumed by fan, store, admin, and materials workflows.',
+      settings: DEFAULT_OPERATIONAL_RULES,
+      is_active: true,
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    },
+    { id: 'r-001', action_type: 'Daily check-in', points: 5, description: 'Fan opens the center and checks in once per day', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-002', action_type: 'Product scan', points: 5, description: 'Fan scans one verified UWELL unique product code, up to 3 scans per day', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-003', action_type: 'Reward redemption', points: 0, description: 'Fan spends points to redeem approved rewards based on level eligibility', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-004', action_type: 'Store visit check-in', points: 20, description: 'Store owner confirms fan participation through fan QR code or account lookup', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-005', action_type: 'Campaign reward', points: 50, description: 'Fan completes the current official or store campaign requirements', is_active: true, created_at: daysAgo(90) },
+    { id: 'r-006', action_type: 'Invite friend registration', points: 50, description: 'Invite one new fan to register', is_active: true, created_at: daysAgo(90) },
   ],
 
   // ============ 等级规则 ============
   fan_level_rules: [
-    { id: 'lr-001', level: 'bronze', min_points: 0, benefits: '基础权益', updated_at: daysAgo(90) },
-    { id: 'lr-002', level: 'silver', min_points: 100, benefits: '享受95折优惠', updated_at: daysAgo(90) },
-    { id: 'lr-003', level: 'gold', min_points: 500, benefits: '享受9折优惠 + 优先配送', updated_at: daysAgo(90) },
-    { id: 'lr-004', level: 'platinum', min_points: 2000, benefits: '享受85折优惠 + 优先配送 + 新品试用', updated_at: daysAgo(90) },
-    { id: 'lr-005', level: 'diamond', min_points: 5000, benefits: '享受8折优惠 + 优先配送 + 新品试用 + 专属客服', updated_at: daysAgo(90) },
+    { id: 'lr-001', level: 'bronze', min_points: 0, benefits: 'Starter access, check-in rewards, basic community actions, and entry rewards', updated_at: daysAgo(90) },
+    { id: 'lr-002', level: 'silver', min_points: 300, benefits: 'Silver reward access, campaign participation, and priority store activity reminders', updated_at: daysAgo(90) },
+    { id: 'lr-003', level: 'gold', min_points: 1000, benefits: 'Gold reward access, stronger campaign eligibility, and highlighted community participation', updated_at: daysAgo(90) },
+    { id: 'lr-004', level: 'diamond', min_points: 5000, benefits: 'Diamond rewards, luxury review eligibility, premium activities, and China trip eligibility at 10000 points', updated_at: daysAgo(90) },
   ],
 
   // ============ 物料 ============
@@ -310,31 +321,47 @@ export const seedData = {
 
   // ============ 物料库存 ============
   material_stocks: [
-    { id: 'ms-001', material_id: 'm-001', warehouse: 'Default', qty: 350, safety_stock: 100, created_at: daysAgo(90), updated_at: daysAgo(5) },
-    { id: 'ms-002', material_id: 'm-002', warehouse: 'Default', qty: 1200, safety_stock: 500, created_at: daysAgo(90), updated_at: daysAgo(8) },
-    { id: 'ms-003', material_id: 'm-003', warehouse: 'Default', qty: 12, safety_stock: 20, created_at: daysAgo(90), updated_at: daysAgo(8) },
-    { id: 'ms-004', material_id: 'm-004', warehouse: 'Default', qty: 25, safety_stock: 15, created_at: daysAgo(90), updated_at: daysAgo(10) },
-    { id: 'ms-005', material_id: 'm-005', warehouse: 'Default', qty: 800, safety_stock: 200, created_at: daysAgo(90), updated_at: daysAgo(3) },
-    { id: 'ms-006', material_id: 'm-006', warehouse: 'Default', qty: 8, safety_stock: 50, created_at: daysAgo(90), updated_at: daysAgo(2) },
-    { id: 'ms-007', material_id: 'm-007', warehouse: 'Default', qty: 45, safety_stock: 30, created_at: daysAgo(90), updated_at: daysAgo(10) },
-    { id: 'ms-008', material_id: 'm-008', warehouse: 'Default', qty: 300, safety_stock: 100, created_at: daysAgo(90), updated_at: daysAgo(3) },
+    { id: 'ms-001-r', material_id: 'm-001', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 170, safety_stock: 60, created_at: daysAgo(90), updated_at: daysAgo(5) },
+    { id: 'ms-001-d', material_id: 'm-001', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 95, safety_stock: 35, created_at: daysAgo(90), updated_at: daysAgo(5) },
+    { id: 'ms-001-j', material_id: 'm-001', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 85, safety_stock: 35, created_at: daysAgo(90), updated_at: daysAgo(5) },
+    { id: 'ms-002-r', material_id: 'm-002', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 540, safety_stock: 220, created_at: daysAgo(90), updated_at: daysAgo(8) },
+    { id: 'ms-002-d', material_id: 'm-002', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 360, safety_stock: 140, created_at: daysAgo(90), updated_at: daysAgo(8) },
+    { id: 'ms-002-j', material_id: 'm-002', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 300, safety_stock: 140, created_at: daysAgo(90), updated_at: daysAgo(8) },
+    { id: 'ms-003-r', material_id: 'm-003', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 9, safety_stock: 8, created_at: daysAgo(90), updated_at: daysAgo(8) },
+    { id: 'ms-003-d', material_id: 'm-003', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 2, safety_stock: 6, created_at: daysAgo(90), updated_at: daysAgo(8) },
+    { id: 'ms-003-j', material_id: 'm-003', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 1, safety_stock: 6, created_at: daysAgo(90), updated_at: daysAgo(8) },
+    { id: 'ms-004-r', material_id: 'm-004', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 11, safety_stock: 6, created_at: daysAgo(90), updated_at: daysAgo(10) },
+    { id: 'ms-004-d', material_id: 'm-004', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 7, safety_stock: 5, created_at: daysAgo(90), updated_at: daysAgo(10) },
+    { id: 'ms-004-j', material_id: 'm-004', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 7, safety_stock: 5, created_at: daysAgo(90), updated_at: daysAgo(10) },
+    { id: 'ms-005-r', material_id: 'm-005', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 360, safety_stock: 90, created_at: daysAgo(90), updated_at: daysAgo(3) },
+    { id: 'ms-005-d', material_id: 'm-005', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 230, safety_stock: 55, created_at: daysAgo(90), updated_at: daysAgo(3) },
+    { id: 'ms-005-j', material_id: 'm-005', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 210, safety_stock: 55, created_at: daysAgo(90), updated_at: daysAgo(3) },
+    { id: 'ms-006-r', material_id: 'm-006', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 4, safety_stock: 18, created_at: daysAgo(90), updated_at: daysAgo(2) },
+    { id: 'ms-006-d', material_id: 'm-006', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 2, safety_stock: 16, created_at: daysAgo(90), updated_at: daysAgo(2) },
+    { id: 'ms-006-j', material_id: 'm-006', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 2, safety_stock: 16, created_at: daysAgo(90), updated_at: daysAgo(2) },
+    { id: 'ms-007-r', material_id: 'm-007', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 20, safety_stock: 12, created_at: daysAgo(90), updated_at: daysAgo(10) },
+    { id: 'ms-007-d', material_id: 'm-007', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 13, safety_stock: 9, created_at: daysAgo(90), updated_at: daysAgo(10) },
+    { id: 'ms-007-j', material_id: 'm-007', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 12, safety_stock: 9, created_at: daysAgo(90), updated_at: daysAgo(10) },
+    { id: 'ms-008-r', material_id: 'm-008', warehouse: 'Riyadh Warehouse', region: 'Riyadh', qty: 140, safety_stock: 45, created_at: daysAgo(90), updated_at: daysAgo(3) },
+    { id: 'ms-008-d', material_id: 'm-008', warehouse: 'Dammam Warehouse', region: 'Dammam', qty: 85, safety_stock: 30, created_at: daysAgo(90), updated_at: daysAgo(3) },
+    { id: 'ms-008-j', material_id: 'm-008', warehouse: 'Jeddah Warehouse', region: 'Jeddah', qty: 75, safety_stock: 25, created_at: daysAgo(90), updated_at: daysAgo(3) },
   ],
 
   // ============ 入库记录 ============
   material_inbound: [
-    { id: 'mi-001', material_id: 'm-001', qty: 500, operator_id: 'u-manager', notes: '首批海报印制', created_at: daysAgo(60) },
-    { id: 'mi-002', material_id: 'm-002', qty: 30, operator_id: 'u-manager', notes: '展架采购入库', created_at: daysAgo(45) },
-    { id: 'mi-003', material_id: 'm-003', qty: 1000, operator_id: 'u-admin', notes: '试用装大批量入库', created_at: daysAgo(30) },
-    { id: 'mi-004', material_id: 'm-004', qty: 50, operator_id: 'u-manager', notes: '工服换季采购', created_at: daysAgo(20) },
+    { id: 'mi-001', material_id: 'm-001', qty: 500, operator_id: 'u-manager', notes: 'Initial door panel production for Riyadh, Dammam, and Jeddah warehouses', created_at: daysAgo(60) },
+    { id: 'mi-002', material_id: 'm-002', qty: 30, operator_id: 'u-manager', notes: 'Sticker stock received for store onboarding kits', created_at: daysAgo(45) },
+    { id: 'mi-003', material_id: 'm-003', qty: 1000, operator_id: 'u-admin', notes: 'Lightbox display batch received for S and A stores', created_at: daysAgo(30) },
+    { id: 'mi-004', material_id: 'm-004', qty: 50, operator_id: 'u-manager', notes: 'Acrylic stand batch received for display upgrade program', created_at: daysAgo(20) },
   ],
 
   // ============ 出库记录 ============
   material_outbound: [
-    { id: 'mo-001', material_id: 'm-001', qty: 50, applicant_id: 'u-rep1', store_id: 's-001', status: 'delivered', reason: '门店宣传海报更新', created_at: daysAgo(5), updated_at: daysAgo(4) },
-    { id: 'mo-002', material_id: 'm-002', qty: 3, applicant_id: 'u-rep2', store_id: 's-002', status: 'delivered', reason: '产品展架更换', created_at: daysAgo(8), updated_at: daysAgo(7) },
-    { id: 'mo-003', material_id: 'm-003', qty: 100, applicant_id: 'u-rep1', store_id: 's-001', status: 'approved', reason: '周末促销试用装', created_at: daysAgo(3), updated_at: daysAgo(2) },
-    { id: 'mo-004', material_id: 'm-004', qty: 5, applicant_id: 'u-rep3', store_id: 's-005', status: 'pending', reason: '新员工工服', created_at: daysAgo(1), updated_at: daysAgo(1) },
-    { id: 'mo-005', material_id: 'm-006', qty: 10, applicant_id: 'u-rep2', store_id: 's-007', status: 'pending', reason: '高端社区促销立牌', created_at: daysAgo(0), updated_at: daysAgo(0) },
+    { id: 'mo-001', material_id: 'm-001', qty: 50, applicant_id: 'u-rep1', store_id: 's-001', status: 'delivered', reason: 'Refresh UWELL door panel and shelf visibility', created_at: daysAgo(5), updated_at: daysAgo(4) },
+    { id: 'mo-002', material_id: 'm-002', qty: 3, applicant_id: 'u-rep2', store_id: 's-002', status: 'delivered', reason: 'Replace worn product stickers for owner onboarding', created_at: daysAgo(8), updated_at: daysAgo(7) },
+    { id: 'mo-003', material_id: 'm-003', qty: 100, applicant_id: 'u-rep1', store_id: 's-001', status: 'approved', reason: 'Weekend G5 demo event sample support', created_at: daysAgo(3), updated_at: daysAgo(2) },
+    { id: 'mo-004', material_id: 'm-004', qty: 5, applicant_id: 'u-rep3', store_id: 's-005', status: 'pending', reason: 'New staff display training kit', created_at: daysAgo(1), updated_at: daysAgo(1) },
+    { id: 'mo-005', material_id: 'm-006', qty: 10, applicant_id: 'u-rep2', store_id: 's-007', status: 'pending', reason: 'Premium community promotion standee request', created_at: daysAgo(0), updated_at: daysAgo(0) },
   ],
 
   // ============ 店铺评估 ============
@@ -358,22 +385,22 @@ export const seedData = {
 
   // ============ 活动 ============
   campaigns: [
-    { id: 'ca-real-001', name: 'G5 Launch Promotion', type: '新品上市', start_date: dateAgo(20), end_date: dateAgo(5), status: 'completed', description: 'G5 flagship device launch campaign targeting A-level stores. Demo events, staff training, and POSM rollout. Goal: establish G5 as premium pod system in market.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039'], budget: 25000, actual_cost: 21800, created_at: daysAgo(25), updated_at: daysAgo(5) },
-    { id: 'ca-real-002', name: 'Ramadan Vape Giveaway', type: '节日营销', start_date: dateAgo(15), end_date: dateAgo(2), status: 'completed', description: 'Ramadan holiday promotion: buy 2 G4 devices get 1 pod free. QR scan earns double points. Covered A and B level stores across Riyadh.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039', 's-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011'], budget: 18000, actual_cost: 16500, created_at: daysAgo(20), updated_at: daysAgo(2) },
-    { id: 'ca-real-003', name: 'Store Display Upgrade Program', type: '渠道建设', start_date: dateAgo(10), end_date: dateAgo(-20), status: 'ongoing', description: 'Provide UWELL lightbox + acrylic stand to top 20 stores. Goal: increase shelf visibility and brand presence. Stores with lightbox sell 2.3x more.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039', 's-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011', 's-real-016', 's-real-020', 's-real-022', 's-real-024', 's-real-025'], budget: 30000, actual_cost: 14200, created_at: daysAgo(15), updated_at: daysAgo(1) },
-    { id: 'ca-real-004', name: 'WhatsApp Community Build', type: '社群运营', start_date: dateAgo(30), end_date: dateAgo(-60), status: 'ongoing', description: 'Add all store owners and key staff to UWELL WhatsApp groups. Daily G5 tips, coil care guides, and competitor intel sharing. Build loyal community.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039', 's-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011', 's-real-016', 's-real-020', 's-real-022', 's-real-024', 's-real-025', 's-real-026', 's-real-027', 's-real-029', 's-real-030', 's-real-002', 's-real-005', 's-real-009', 's-real-015', 's-real-017'], budget: 5000, actual_cost: 1200, created_at: daysAgo(35), updated_at: daysAgo(0) },
-    { id: 'ca-real-005', name: 'Summer Pod Promotion', type: '促销活动', start_date: dateAgo(3), end_date: dateAgo(-25), status: 'ongoing', description: 'Discount on G4 pods (12 SAR instead of 15) targeting B/C stores. Drive pod attach rate and recruit new UWELL users. Bundle KOKO device with pod multipack.', target_stores: ['s-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011', 's-real-016', 's-real-020', 's-real-022', 's-real-024', 's-real-025', 's-real-026', 's-real-027', 's-real-029', 's-real-030', 's-real-002', 's-real-005', 's-real-009', 's-real-015', 's-real-017', 's-real-018', 's-real-019', 's-real-021', 's-real-023', 's-real-028'], budget: 12000, actual_cost: 3200, created_at: daysAgo(8), updated_at: daysAgo(1) }
+    { id: 'ca-real-001', name: 'G5 Launch Promotion', type: 'New product launch', start_date: dateAgo(20), end_date: dateAgo(5), status: 'completed', description: 'G5 flagship device launch campaign targeting A-level stores. Demo events, staff training, and POSM rollout. Goal: establish G5 as premium pod system in market.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039'], budget: 25000, actual_cost: 21800, created_at: daysAgo(25), updated_at: daysAgo(5) },
+    { id: 'ca-real-002', name: 'Ramadan Vape Giveaway', type: 'Seasonal campaign', start_date: dateAgo(15), end_date: dateAgo(2), status: 'completed', description: 'Ramadan holiday promotion: buy 2 G4 devices get 1 pod free. QR scan earns double points. Covered A and B level stores across Riyadh.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039', 's-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011'], budget: 18000, actual_cost: 16500, created_at: daysAgo(20), updated_at: daysAgo(2) },
+    { id: 'ca-real-003', name: 'Store Display Upgrade Program', type: 'Channel development', start_date: dateAgo(10), end_date: dateAgo(-20), status: 'ongoing', description: 'Provide UWELL lightbox and acrylic stand to top 20 stores. Goal: increase shelf visibility and brand presence. Stores with lightbox sell 2.3x more.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039', 's-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011', 's-real-016', 's-real-020', 's-real-022', 's-real-024', 's-real-025'], budget: 30000, actual_cost: 14200, created_at: daysAgo(15), updated_at: daysAgo(1) },
+    { id: 'ca-real-004', name: 'WhatsApp Community Build', type: 'Community operations', start_date: dateAgo(30), end_date: dateAgo(-60), status: 'ongoing', description: 'Add store owners and key staff to UWELL WhatsApp groups. Daily G5 tips, coil care guides, and competitor intel sharing. Build loyal community.', target_stores: ['s-real-012', 's-real-013', 's-real-014', 's-real-032', 's-real-035', 's-real-036', 's-real-039', 's-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011', 's-real-016', 's-real-020', 's-real-022', 's-real-024', 's-real-025', 's-real-026', 's-real-027', 's-real-029', 's-real-030', 's-real-002', 's-real-005', 's-real-009', 's-real-015', 's-real-017'], budget: 5000, actual_cost: 1200, created_at: daysAgo(35), updated_at: daysAgo(0) },
+    { id: 'ca-real-005', name: 'Summer Pod Promotion', type: 'Sales promotion', start_date: dateAgo(3), end_date: dateAgo(-25), status: 'ongoing', description: 'Discount on G4 pods targeting B and C stores. Drive pod attach rate and recruit new UWELL users. Bundle KOKO device with pod multipack.', target_stores: ['s-real-001', 's-real-003', 's-real-004', 's-real-006', 's-real-007', 's-real-008', 's-real-010', 's-real-011', 's-real-016', 's-real-020', 's-real-022', 's-real-024', 's-real-025', 's-real-026', 's-real-027', 's-real-029', 's-real-030', 's-real-002', 's-real-005', 's-real-009', 's-real-015', 's-real-017', 's-real-018', 's-real-019', 's-real-021', 's-real-023', 's-real-028'], budget: 12000, actual_cost: 3200, created_at: daysAgo(8), updated_at: daysAgo(1) }
   ],
 
   // ============ 活动任务 ============
   campaign_tasks: [
-    { id: 'ct-001', campaign_id: 'ca-001', title: '制作夏季促销海报', assignee_id: 'u-rep1', due_date: dateAgo(12), status: 'done', created_at: daysAgo(15), updated_at: daysAgo(12) },
-    { id: 'ct-002', campaign_id: 'ca-001', title: '门店展架布置', assignee_id: 'u-rep2', due_date: dateAgo(11), status: 'done', created_at: daysAgo(15), updated_at: daysAgo(10) },
-    { id: 'ct-003', campaign_id: 'ca-001', title: '试用装分发', assignee_id: 'u-rep3', due_date: dateAgo(10), status: 'done', created_at: daysAgo(15), updated_at: daysAgo(9) },
-    { id: 'ct-004', campaign_id: 'ca-002', title: '试吃台搭建', assignee_id: 'u-rep1', due_date: daysAgo(2), status: 'done', created_at: daysAgo(7), updated_at: daysAgo(2) },
-    { id: 'ct-005', campaign_id: 'ca-002', title: '每日动销数据收集', assignee_id: 'u-rep3', due_date: dateAgo(0), status: 'ongoing', created_at: daysAgo(7), updated_at: daysAgo(1) },
-    { id: 'ct-006', campaign_id: 'ca-003', title: '礼盒样品确认', assignee_id: 'u-manager', due_date: dateAgo(-3), status: 'pending', created_at: daysAgo(1), updated_at: daysAgo(1) },
-    { id: 'ct-007', campaign_id: 'ca-003', title: '扫码积分码库生成', assignee_id: 'u-admin', due_date: dateAgo(-2), status: 'pending', created_at: daysAgo(1), updated_at: daysAgo(1) },
+    { id: 'ct-001', campaign_id: 'ca-real-001', title: 'Prepare G5 launch posters', assignee_id: 'u-rep1', due_date: dateAgo(12), status: 'done', created_at: daysAgo(15), updated_at: daysAgo(12) },
+    { id: 'ct-002', campaign_id: 'ca-real-001', title: 'Set up store display stands', assignee_id: 'u-rep2', due_date: dateAgo(11), status: 'done', created_at: daysAgo(15), updated_at: daysAgo(10) },
+    { id: 'ct-003', campaign_id: 'ca-real-001', title: 'Distribute demo sample pods', assignee_id: 'u-rep3', due_date: dateAgo(10), status: 'done', created_at: daysAgo(15), updated_at: daysAgo(9) },
+    { id: 'ct-004', campaign_id: 'ca-real-002', title: 'Build reward pickup counter flow', assignee_id: 'u-rep1', due_date: daysAgo(2), status: 'done', created_at: daysAgo(7), updated_at: daysAgo(2) },
+    { id: 'ct-005', campaign_id: 'ca-real-002', title: 'Collect daily sell-out and scan data', assignee_id: 'u-rep3', due_date: dateAgo(0), status: 'ongoing', created_at: daysAgo(7), updated_at: daysAgo(1) },
+    { id: 'ct-006', campaign_id: 'ca-real-003', title: 'Confirm display upgrade sample kit', assignee_id: 'u-manager', due_date: dateAgo(-3), status: 'pending', created_at: daysAgo(1), updated_at: daysAgo(1) },
+    { id: 'ct-007', campaign_id: 'ca-real-003', title: 'Generate verified unique code pool', assignee_id: 'u-admin', due_date: dateAgo(-2), status: 'pending', created_at: daysAgo(1), updated_at: daysAgo(1) },
   ],
 
   // ============ 活动复盘报告 ============
@@ -386,12 +413,12 @@ export const seedData = {
   ],
   campaign_reports: [
     {
-      id: 'cr-001', campaign_id: 'ca-001',
+      id: 'cr-001', campaign_id: 'ca-real-001',
       report_date: dateAgo(3),
       total_sales: 12500, total_visits: 45, total_scans: 320, total_participants: 5,
       achievement_rate: 105, cost_ratio: 84,
-      summary: '夏季清凉饮品促销周圆满结束，5家门店参与，总销售额12500元，超额完成5%。橙汁和矿泉水动销最佳，展架陈列效果显著。建议后续类似活动继续采用试吃+买赠组合策略。',
-      improvements: '1. 部分门店补货不够及时，下次需提前协调库存；2. 试用装消耗超预期，需增加备货；3. 可考虑增加线上扫码领券引流到店。',
+      summary: 'G5 launch week closed successfully with 5 participating stores, 320 verified scans, and sales 5% above target. Demo counters and shelf visibility drove the strongest results.',
+      improvements: 'Coordinate inventory earlier for top stores. Increase sample pod reserve before weekend demos. Add fan QR confirmation at pickup to close the campaign loop.',
       photos: ['https://images.unsplash.com/photo-1626202378011-4b0bf3a99fcd?w=400'],
       created_at: daysAgo(3), updated_at: daysAgo(3),
     },
@@ -472,17 +499,17 @@ export const seedData = {
   // ============ 门店 UWELL 展示、老粉审核与客诉 ============
   store_display_uploads: [
     { id: 'sdu-demo-001', store_id: 's-real-001', store_name: 'rabie alkayf lilshiyshat walmueasal', category: 'product_placement', image_url: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?q=80&w=600&auto=format&fit=crop', status: 'pending', submitted_at: daysAgo(1), reviewed_at: null, review_note: '' },
-    { id: 'sdu-demo-002', store_id: 's-real-003', store_name: 'mizaj almashhur lilshiysh walmueasalat', category: 'material_placement', image_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=600&auto=format&fit=crop', status: 'approved', submitted_at: daysAgo(3), reviewed_at: daysAgo(2), review_note: '展示清晰，允许推荐页展示' },
+    { id: 'sdu-demo-002', store_id: 's-real-003', store_name: 'mizaj almashhur lilshiysh walmueasalat', category: 'material_placement', image_url: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=600&auto=format&fit=crop', status: 'approved', submitted_at: daysAgo(3), reviewed_at: daysAgo(2), review_note: 'Display is clear and approved for fan map exposure' },
     { id: 'sdu-demo-003', store_id: 's-real-005', store_name: 'rihlat zaman lilshiysh walmueasalat', category: 'hot_products', image_url: 'https://images.unsplash.com/photo-1556741533-6e6a62bd8b49?q=80&w=600&auto=format&fit=crop', status: 'pending', submitted_at: daysAgo(2), reviewed_at: null, review_note: '' },
   ],
   old_fan_verifications: [
     { id: 'ofv-demo-001', fan_id: 'f-001', fan_name: 'Ahmed', image_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop', status: 'pending', submitted_at: daysAgo(1), reviewed_at: null, review_note: '' },
-    { id: 'ofv-demo-002', fan_id: 'f-002', fan_name: 'Fatima', image_url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=600&auto=format&fit=crop', status: 'approved', submitted_at: daysAgo(5), reviewed_at: daysAgo(4), review_note: '老粉验证通过，奖励 100 积分' },
+    { id: 'ofv-demo-002', fan_id: 'f-002', fan_name: 'Fatima', image_url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=600&auto=format&fit=crop', status: 'approved', submitted_at: daysAgo(5), reviewed_at: daysAgo(4), review_note: 'Existing fan verification approved with 100 bonus points' },
   ],
   fan_complaints: [
-    { id: 'fc-demo-001', fan_id: 'f-001', fan_name: 'Ahmed', store_id: 's-real-001', store_name: 'rabie alkayf lilshiyshat walmueasal', content: '扫码后积分没有到账，请协助确认。', status: 'open', reply: '', created_at: daysAgo(1), replied_at: null, replied_by: null },
-    { id: 'fc-demo-002', fan_id: 'f-003', fan_name: 'Mohammed', store_id: 's-real-003', store_name: 'mizaj almashhur lilshiysh walmueasalat', content: '门店活动礼品库存不足，店员说需要等通知。', status: 'open', reply: '', created_at: daysAgo(2), replied_at: null, replied_by: null },
-    { id: 'fc-demo-003', fan_id: 'f-005', fan_name: 'Omar', store_id: 's-real-005', store_name: 'rihlat zaman lilshiysh walmueasalat', content: '已上传老粉照片，想确认审核进度。', status: 'replied', reply: '您好，资料已进入人工审核队列，通过后会自动发放 100 积分。', created_at: daysAgo(4), replied_at: daysAgo(3), replied_by: 'u-rep2' },
+    { id: 'fc-demo-001', fan_id: 'f-001', fan_name: 'Ahmed', store_id: 's-real-001', store_name: 'rabie alkayf lilshiyshat walmueasal', content: 'My points did not arrive after a verified product scan. Please help confirm.', status: 'open', reply: '', created_at: daysAgo(1), replied_at: null, replied_by: null },
+    { id: 'fc-demo-002', fan_id: 'f-003', fan_name: 'Mohammed', store_id: 's-real-003', store_name: 'mizaj almashhur lilshiysh walmueasalat', content: 'The store campaign reward was out of stock and staff said to wait for notice.', status: 'open', reply: '', created_at: daysAgo(2), replied_at: null, replied_by: null },
+    { id: 'fc-demo-003', fan_id: 'f-005', fan_name: 'Omar', store_id: 's-real-005', store_name: 'rihlat zaman lilshiysh walmueasalat', content: 'I uploaded my existing fan proof and want to check the review progress.', status: 'replied', reply: 'Your proof is in manual review. Once approved, 100 bonus points will be issued automatically.', created_at: daysAgo(4), replied_at: daysAgo(3), replied_by: 'u-rep2' },
   ],
 };
 
@@ -585,12 +612,156 @@ function enhanceTrialSeedData(data) {
       rep_id: repId,
       display_status: store.display_status || (['S', 'A'].includes(level) ? 'approved' : 'pending'),
       rating_status: store.rating_status || (evaluationStoreIds.has(store.id) ? 'evaluated' : 'pending'),
+      is_s_store: store.is_s_store ?? level === 'S',
+      s_store_status: store.s_store_status || (level === 'S' ? 'active' : null),
+      became_s_at: store.became_s_at || (level === 'S' ? daysAgo(45) : null),
+      s_store_source: store.s_store_source || (level === 'S' ? 'selected_from_a_store' : ''),
+      cooperation_note: store.cooperation_note || (level === 'S' ? 'High willingness to recommend UWELL and cooperate with terminal reporting.' : ''),
+      owner_profile_id: store.id === trialStoreOwnerAccount.store_id ? trialStoreOwnerAccount.id : store.owner_profile_id,
       owner_email: store.id === trialStoreOwnerAccount.store_id ? trialStoreOwnerAccount.email : store.owner_email,
       owner_password_preview: store.id === trialStoreOwnerAccount.store_id ? trialStoreOwnerAccount.password : store.owner_password_preview,
     };
   });
 
   const storeById = new Map((data.stores || []).map((store) => [store.id, store]));
+  const activeSStores = (data.stores || []).filter((store) => store.is_s_store || store.level === 'S').slice(0, 2);
+  data.s_store_status_history = data.s_store_status_history?.length ? data.s_store_status_history : activeSStores.map((store, index) => ({
+    id: `ssh-trial-${String(index + 1).padStart(3, '0')}`,
+    store_id: store.id,
+    action_type: 'promote_to_s',
+    before_status: 'a_store_candidate',
+    after_status: 'active',
+    reason: 'Selected as UWELL Brand Store based on cooperation willingness and owner support.',
+    operator_id: 'u-manager',
+    action_at: store.became_s_at || daysAgo(45 - index * 7),
+    note: store.cooperation_note,
+    created_at: store.became_s_at || daysAgo(45 - index * 7),
+    updated_at: daysAgo(1),
+  }));
+  data.s_store_sell_through = data.s_store_sell_through?.length ? data.s_store_sell_through : activeSStores.flatMap((store, storeIndex) => ([
+    {
+      id: `sst-week-trial-${String(storeIndex + 1).padStart(3, '0')}`,
+      store_id: store.id,
+      period_type: 'weekly',
+      period_start: dateAgo(7),
+      period_end: dateAgo(1),
+      open_system_sold_qty: 18 + storeIndex * 4,
+      disposable_sold_qty: 42 + storeIndex * 6,
+      submitted_by: store.owner_profile_id || trialStoreOwnerAccount.id,
+      submitted_at: daysAgo(1),
+      locked: true,
+      correction_note: '',
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    },
+    {
+      id: `sst-month-trial-${String(storeIndex + 1).padStart(3, '0')}`,
+      store_id: store.id,
+      period_type: 'monthly',
+      period_start: dateAgo(30),
+      period_end: dateAgo(1),
+      open_system_sold_qty: 74 + storeIndex * 10,
+      disposable_sold_qty: 168 + storeIndex * 16,
+      submitted_by: store.owner_profile_id || trialStoreOwnerAccount.id,
+      submitted_at: daysAgo(1),
+      locked: true,
+      correction_note: '',
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    },
+  ]));
+  data.s_store_product_inventory_snapshots = data.s_store_product_inventory_snapshots?.length ? data.s_store_product_inventory_snapshots : activeSStores.map((store, index) => {
+    const openSystemCurrent = index === 0 ? 24 : 8;
+    const openSystemTarget = 36;
+    const disposableCurrent = index === 0 ? 72 : 20;
+    const disposableTarget = 90;
+    return {
+      id: `sspi-trial-${String(index + 1).padStart(3, '0')}`,
+      store_id: store.id,
+      open_system_current_stock: openSystemCurrent,
+      disposable_current_stock: disposableCurrent,
+      open_system_target_stock: openSystemTarget,
+      disposable_target_stock: disposableTarget,
+      open_system_low_stock: openSystemCurrent <= openSystemTarget / 3,
+      disposable_low_stock: disposableCurrent <= disposableTarget / 3,
+      low_stock: openSystemCurrent <= openSystemTarget / 3 || disposableCurrent <= disposableTarget / 3,
+      submitted_by: store.owner_profile_id || trialStoreOwnerAccount.id,
+      submitted_at: daysAgo(1),
+      note: index === 0 ? 'Healthy stock for weekend traffic.' : 'Open-system stock needs field rep follow-up.',
+      locked: true,
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    };
+  });
+  data.s_store_material_inventory_snapshots = data.s_store_material_inventory_snapshots?.length ? data.s_store_material_inventory_snapshots : activeSStores.flatMap((store, index) => ([
+    {
+      id: `ssmi-poster-trial-${String(index + 1).padStart(3, '0')}`,
+      store_id: store.id,
+      material_type: 'poster',
+      current_quantity: index === 0 ? 14 : 3,
+      target_quantity: 12,
+      low_stock: (index === 0 ? 14 : 3) <= 12 / 3,
+      submitted_by: store.owner_profile_id || trialStoreOwnerAccount.id,
+      submitted_at: daysAgo(1),
+      note: 'Monthly material count.',
+      locked: true,
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    },
+    {
+      id: `ssmi-gift-trial-${String(index + 1).padStart(3, '0')}`,
+      store_id: store.id,
+      material_type: 'gift',
+      current_quantity: index === 0 ? 30 : 8,
+      target_quantity: 24,
+      low_stock: (index === 0 ? 30 : 8) <= 24 / 3,
+      submitted_by: store.owner_profile_id || trialStoreOwnerAccount.id,
+      submitted_at: daysAgo(1),
+      note: 'Reward pickup support material.',
+      locked: true,
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    },
+  ]));
+  data.s_store_visit_details = data.s_store_visit_details?.length ? data.s_store_visit_details : activeSStores.map((store, index) => ({
+    id: `ssvd-trial-${String(index + 1).padStart(3, '0')}`,
+    visit_id: `v-real-0${index + 12}`,
+    store_id: store.id,
+    field_rep_id: store.rep_id || trialRepIds[index % trialRepIds.length],
+    inventory_status: index === 0 ? 'healthy' : 'needs_replenishment',
+    display_status: 'approved',
+    sell_through_observation: 'UWELL open-system products are recommended first by trained staff.',
+    competitor_situation: 'OXVA and Vaporesso remain visible near the counter.',
+    hot_brands: ['UWELL', 'OXVA', 'Vaporesso'],
+    hot_flavors: ['mint', 'blueberry', 'grape'],
+    consumer_feedback: 'Customers ask for stronger flavor consistency and pod availability.',
+    market_notes: 'Weekend traffic is strong; demo support helps conversion.',
+    support_needed: index === 0 ? 'Keep monthly display refresh.' : 'Restock open-system products and refresh counter materials.',
+    replenishment_needed: index !== 0,
+    visit_photos: [],
+    submitted_by: store.rep_id || trialRepIds[index % trialRepIds.length],
+    submitted_at: daysAgo(1),
+    created_at: daysAgo(1),
+    updated_at: daysAgo(1),
+  }));
+  data.s_store_replenishment_tasks = data.s_store_replenishment_tasks?.length ? data.s_store_replenishment_tasks : activeSStores
+    .filter((store, index) => index !== 0)
+    .map((store, index) => ({
+      id: `ssrt-trial-${String(index + 1).padStart(3, '0')}`,
+      store_id: store.id,
+      trigger_source: 'low_stock',
+      item_type: 'open_system',
+      requested_quantity: 28,
+      assigned_rep_id: store.rep_id || trialRepIds[index % trialRepIds.length],
+      status: 'pending',
+      completed_at: null,
+      completion_photos: [],
+      note: 'Open-system inventory is at or below one third of target stock.',
+      created_by: 'u-manager',
+      created_at: daysAgo(1),
+      updated_at: daysAgo(1),
+    }));
+
   data.fans = (data.fans || []).map((fan, index) => {
     const store = storeById.get(fan.store_id);
     const normalizedName = String(fan.name || `Fan ${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
@@ -617,6 +788,30 @@ function enhanceTrialSeedData(data) {
       { id: 'mr-trial-003', store_id: 's-real-023', material_id: 'm-006', qty: 8, status: 'rejected', reason: 'Duplicate request, stock already allocated this week.', requested_at: daysAgo(5), reviewed_at: daysAgo(4), reviewed_by: 'u-manager', created_at: daysAgo(5), updated_at: daysAgo(4) },
     ];
   }
+
+  data.material_requests = (data.material_requests || []).map((request) => {
+    const store = storeById.get(request.store_id) || {};
+    const region = request.region || store.region || store.city || 'Riyadh';
+    const warehouse = request.warehouse || `${region} Warehouse`;
+    const material = (data.materials || []).find((item) => item.id === request.material_id);
+    return {
+      ...request,
+      requester: request.requester || store.owner_name || store.name || request.store_id,
+      requester_role: request.requester_role || 'store_owner',
+      store_name: request.store_name || store.name || request.store_id,
+      region,
+      warehouse,
+      material_name: request.material_name || material?.name || request.material_id,
+      campaign_relation: request.campaign_relation || '',
+      priority: request.priority || (request.status === 'pending' ? 'normal' : 'low'),
+    };
+  });
+
+  data.store_exposure_events = data.store_exposure_events?.length ? data.store_exposure_events : [
+    { id: 'see-trial-001', store_id: 's-real-001', store_name: 'rabie alkayf lilshiyshat walmueasal', event_type: 'store_view', source: 'fan_stores', created_at: daysAgo(1) },
+    { id: 'see-trial-002', store_id: 's-real-001', store_name: 'rabie alkayf lilshiyshat walmueasal', event_type: 'store_navigate', source: 'fan_stores', created_at: daysAgo(1) },
+    { id: 'see-trial-003', store_id: 's-real-001', store_name: 'rabie alkayf lilshiyshat walmueasal', event_type: 'store_verified_visit', source: 'store_verify', created_at: daysAgo(0) },
+  ];
 
   data.trial_accounts = [
     ...trialStaffAccounts.map(({ email, password, role, name }) => ({ email, password, role, name })),

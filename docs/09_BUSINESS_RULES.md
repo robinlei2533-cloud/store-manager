@@ -17,6 +17,34 @@ These rules are not normal admin settings:
 - Region-based access control is mandatory.
 - Critical operations write Audit Log records.
 
+## Planned Backend Governance Rules
+
+Backend Governance V1 should be implemented in this order:
+
+1. RBAC and data scope.
+2. Audit Log service.
+3. Reviews V1.
+4. Risk Center V1.
+5. Connect governance to S Store and Fan Growth.
+
+Reviews V1 should include:
+
+- store registration / profile review;
+- store level change / S Store status change;
+- store display / photo review;
+- store-created activity review;
+- high-value reward redemption review;
+- old fan verification.
+
+Risk Center V1 should include:
+
+- scan risk;
+- points risk;
+- reward risk;
+- S Store data risk.
+
+Audit Log V1 should record key permission, rule, review, risk, store level, S Store, reward, points, material, and inventory operations.
+
 ## Configurable Operational Parameters
 
 Admin can configure:
@@ -62,6 +90,49 @@ Premium rewards may require 10000+ points without creating a new level.
 | Community comment | +2, up to 5/day |
 | Community post/share | +10, first valid post/day |
 
+## Planned Points Economy Rules
+
+UWELL should keep two point concepts:
+
+- Available points: spendable points for reward redemption.
+- Lifetime growth: accumulated growth score for membership level.
+
+Reward redemption deducts Available points and does not deduct Lifetime growth.
+
+Planned routine cap:
+
+```text
+Daily routine cap = 50 points/day
+```
+
+Included in routine cap:
+
+- check-in;
+- scan counted points;
+- community like/comment/post;
+- official light tasks.
+
+Not included in routine cap:
+
+- store activity rewards;
+- invite rewards;
+- old fan verification;
+- backend-approved compensation;
+- special campaign rewards.
+
+Category caps:
+
+| Action | Planned cap |
+|---|---|
+| Check-in | 1/day |
+| Scan counted points | 3/day |
+| Community like | 10/day |
+| Community comment | 5/day |
+| Community post/share | 1/day |
+| Store activity | 1 time per activity per fan |
+| Invite | 1 time per valid invited fan |
+| Old fan verification | 1 time per fan |
+
 ## Scan Code Rules
 
 - Product codes are globally unique.
@@ -81,6 +152,49 @@ Premium rewards may require 10000+ points without creating a new level.
 - Diamond/high-value rewards require backend review.
 - Luxury rewards must not auto-approve in first version.
 - Fan app should show locked rewards instead of hiding them.
+
+Planned reward tiers:
+
+| Reward tier | Purpose |
+|---|---|
+| Normal | Make points useful for new and regular fans |
+| Premium | Encourage level growth and S Store visits |
+| Diamond / High-value | Build high-trust and VIP brand feeling |
+| Experience | Strengthen product and brand experience |
+
+High-value rewards must require review and should not auto-approve.
+
+## Planned Membership Journey
+
+The existing level thresholds remain:
+
+| Level | Lifetime growth points | Fan identity |
+|---|---:|---|
+| Bronze | 0 | New fan |
+| Silver | 300 | Active fan |
+| Gold | 1000 | Core fan |
+| Diamond | 5000 | VIP fan |
+
+Membership benefits should emphasize access, priority, experience, and identity rather than only physical gifts.
+
+## Planned Activity Freshness Rules
+
+Fan activities should include:
+
+- always-on activities;
+- weekly/monthly activities;
+- campaign/launch activities.
+
+Suggested operating rhythm:
+
+```text
+Daily: always-on tasks
+Weekly: at least one light activity
+Monthly: at least one key activity
+Launch/holiday: special campaign activity
+```
+
+Store-created activities still require review before fan-facing exposure.
 
 ## Store Rating Rules
 
@@ -108,6 +222,52 @@ Suggested level:
 
 Field Rep submits score. Manager reviews. Admin confirms or adjusts final level with reason and audit log.
 
+## Planned S Store Rules
+
+S Store means **UWELL Brand Store**.
+
+An S Store is selected from A-level stores. It is a strategic brand cooperation store, not only a high-score store.
+
+S Store selection standard:
+
+- must first be an A-level store;
+- owner has strong cooperation willingness;
+- store is willing to recommend UWELL products;
+- store is willing to cooperate with sell-through, inventory, field visits, reward pickup, and brand activities;
+- renovation, display, sales foundation, and training can be improved later with UWELL support.
+
+S Store sell-through first version:
+
+- weekly open-system sold quantity;
+- weekly disposable sold quantity;
+- monthly open-system sold quantity;
+- monthly disposable sold quantity.
+
+Store-submitted historical sell-through records are locked after submission. Corrections are handled by backend users with audit trail.
+
+S Store low-stock rule:
+
+```text
+current stock <= target stock / 3
+```
+
+S Store downgrade rule:
+
+An S Store can be directly downgraded to A when any of the following occurs:
+
+- UWELL products are out of stock for more than one month;
+- the store is unreachable for more than one month;
+- owner cooperation attitude clearly declines;
+- the store no longer wants to act as a UWELL Brand Store.
+
+S Store restoration rule:
+
+- downgraded S Store returns to A;
+- it can reapply or be re-evaluated later;
+- restoration uses the same S Store selection standard;
+- at least one natural month of observation is recommended;
+- downgrade and restoration records must keep reason, operator, time, before/after status, and notes.
+
 ## Warehouses
 
 Initial warehouses:
@@ -117,4 +277,3 @@ Initial warehouses:
 - Jeddah
 
 Inventory must be tracked by warehouse. Total stock alone is not enough.
-

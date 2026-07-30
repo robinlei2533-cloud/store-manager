@@ -3,13 +3,13 @@ import { Empty } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 
 /**
- * 通用空状态组件
- * @param {string} title - 标题
- * @param {string} description - 描述文案
- * @param {React.ReactNode} action - 操作按钮
- * @param {string} icon - 图标类型
+ * Shared empty-state component.
+ * @param {string} title - Short empty-state title.
+ * @param {string} description - Optional supporting copy.
+ * @param {React.ReactNode} action - Optional action button.
+ * @param {string} icon - Optional Ant Design empty image.
  */
-const EmptyState = ({ title = '暂无数据', description, action, icon }) => {
+const EmptyState = ({ title = 'No data yet', description, action, icon }) => {
   return (
     <div style={{
       display: 'flex',

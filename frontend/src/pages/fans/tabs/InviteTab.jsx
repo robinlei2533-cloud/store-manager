@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { message, Button, Card, Statistic, Row, Col, Typography } from 'antd';
+import { message, Button } from 'antd';
 import { TeamOutlined, CopyOutlined, UserOutlined, StarOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
 import { getFanPointsLog } from '../../../services/api';
 import { buildReferralCode } from '../../../utils/trialOps';
-const { Text, Title, Paragraph } = Typography;
+import useLanguageStore from '../../../stores/languageStore';
+const INVITE_REWARD_POINTS = 50;
+
 const InviteTab = ({ fan }) => {
+  const { t } = useLanguageStore();
   const [inviteCount, setInviteCount] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
 
@@ -14,7 +17,7 @@ const InviteTab = ({ fan }) => {
     let disposed = false;
     async function loadReferralStats() {
       const localRecords = localDb.find('mall_redemptions', (r) => r.fan_id === fan.id && r.source === 'invite');
-      let referralLogs = [];
+      let referralLogs;
       try {
         referralLogs = await getFanPointsLog(fan.id);
       } catch {
@@ -27,7 +30,7 @@ const InviteTab = ({ fan }) => {
         && String(log.description || '').startsWith('Friend registered')
       ));
       setInviteCount(Math.max(localRecords.length, inviterLogs.length));
-      setPointsEarned(inviterLogs.reduce((sum, log) => sum + Number(log.points || 0), 0) || localRecords.length * 30);
+      setPointsEarned(inviterLogs.reduce((sum, log) => sum + Number(log.points || 0), 0) || localRecords.length * INVITE_REWARD_POINTS);
     }
     loadReferralStats();
     return () => { disposed = true; };
@@ -38,52 +41,49 @@ const InviteTab = ({ fan }) => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
-      message.success('Link copied! Share with your friends.');
+      message.success(t('fan_real_invite_copied'));
     }).catch(() => {
-      message.info(`Share this code: ${referralCode}`);
+      message.info(`${t('fan_real_invite_share_code')} ${referralCode}`);
     });
   };
 
   return (
-    <div style={{ padding: '8px 0' }}>
-      <Card className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
-        <TeamOutlined style={{ fontSize: 56, color: '#667eea', marginBottom: 16 }} />
-        <Title level={4}>Invite Friends, Earn 30 Points!</Title>
-        <Paragraph type="secondary" style={{ fontSize: 13 }}>
-          Share your unique referral link. When your friends register, you get <strong style={{ color: '#52c41a' }}>30 points</strong> per friend!
-        </Paragraph>
-      </Card>
-
-      <Card title="Your Referral Code" size="small" className='liquid-glass' style={{ borderRadius: 12, marginBottom: 16 }}>
-        <div style={{
-          textAlign: 'center', padding: 16, background: '#f5f5f5', borderRadius: 12, marginBottom: 12,
-          fontFamily: 'monospace', fontSize: 20, fontWeight: 700, letterSpacing: 2, color: '#667eea',
-        }}>
-          {referralCode}
+    <div className="fan-invite-shell">
+      <section className="fan-invite-hero">
+        <TeamOutlined />
+        <div>
+          <span className="fan-mini-label">{t('fan_real_invite_label')}</span>
+          <h2>{t('fan_real_invite_title')}</h2>
+          <strong>{t('fan_real_invite_earn')}</strong>
+          <p>{t('fan_real_invite_desc')}</p>
         </div>
-        <Button type="primary" block size="large" icon={<CopyOutlined />} onClick={handleCopy} style={{ borderRadius: 12, height: 48 }}>
-          Copy Referral Link
+      </section>
+
+      <section className="fan-invite-code-card">
+        <span>{t('fan_real_referral_code')}</span>
+        <strong>{referralCode}</strong>
+        <Button type="primary" block size="large" icon={<CopyOutlined />} onClick={handleCopy}>
+          {t('fan_real_copy_referral')}
         </Button>
-      </Card>
+      </section>
 
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 12 }}>
-            <Statistic title="Friends Invited" value={inviteCount} prefix={<UserOutlined />} />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card size="small" style={{ textAlign: 'center', borderRadius: 12 }}>
-            <Statistic title="Points Earned" value={pointsEarned} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { color: '#52c41a' } }} />
-          </Card>
-        </Col>
-      </Row>
+      <section className="fan-invite-stat-grid">
+        <div>
+          <UserOutlined />
+          <span>{t('fan_real_friends_invited')}</span>
+          <strong>{inviteCount}</strong>
+        </div>
+        <div>
+          <StarOutlined />
+          <span>{t('fan_real_points_earned')}</span>
+          <strong>{pointsEarned}</strong>
+        </div>
+      </section>
 
-      <Card size="small" className='liquid-glass' style={{ marginTop: 16, borderRadius: 12 }}>
-        <Text style={{ fontSize: 12, color: '#666' }}>
-          <strong>How it works:</strong> Your friend clicks the link, registers as a UWELL fan, and you both earn points. The more friends you invite, the more rewards you unlock!
-        </Text>
-      </Card>
+      <section className="fan-invite-rule-note">
+        <strong>{t('fan_real_how_it_works')}</strong>
+        <p>{t('fan_real_invite_rule_desc')}</p>
+      </section>
     </div>
   );
 };

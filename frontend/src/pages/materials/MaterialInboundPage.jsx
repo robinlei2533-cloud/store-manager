@@ -15,7 +15,7 @@ const MaterialInboundPage = () => {
 
   const mutation = useMutation({
     mutationFn: createInbound,
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['inbounds'] }); queryClient.invalidateQueries({ queryKey: ['material-stocks'] }); message.success('Inbound recorded successfully'); form.resetFields(); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['inbounds'] }); queryClient.invalidateQueries({ queryKey: ['material-stocks'] }); message.success('入库记录已提交'); form.resetFields(); },
   });
 
   const handleSubmit = async (values) => {
@@ -23,38 +23,38 @@ const MaterialInboundPage = () => {
   };
 
   const columns = [
-    { title: 'Date', dataIndex: 'created_at', key: 'date', render: (v) => new Date(v).toLocaleString('en-US') },
-    { title: 'Material', dataIndex: ['materials', 'name'], key: 'name' },
+    { title: '日期', dataIndex: 'created_at', key: 'date', render: (v) => new Date(v).toLocaleString('zh-CN') },
+    { title: '物料', dataIndex: ['materials', 'name'], key: 'name' },
     { title: 'SKU', dataIndex: ['materials', 'sku'], key: 'sku' },
-    { title: 'Quantity', dataIndex: 'qty', key: 'qty' },
-    { title: 'Operator', dataIndex: ['profiles', 'name'], key: 'op' },
-    { title: 'Notes', dataIndex: 'notes', key: 'notes', ellipsis: true },
+    { title: '数量', dataIndex: 'qty', key: 'qty' },
+    { title: '操作人', dataIndex: ['profiles', 'name'], key: 'op' },
+    { title: '备注', dataIndex: 'notes', key: 'notes', ellipsis: true },
   ];
 
   return (
     <PageTransition>
-    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
-      <Card className="liquid-glass" title="Inbound Management" style={{ marginBottom: 16 }}>
+    <div className="bg-radial-top admin-material-inbound-page" style={{minHeight:"100vh",padding:24}}>
+      <Card className="liquid-glass admin-material-inbound-form-card" title="入库管理" style={{ marginBottom: 16 }}>
         <Form form={form} layout="inline" onFinish={handleSubmit} style={{ marginBottom: 16 }}>
-          <Form.Item name="material_id" label="Material" rules={[{ required: true, message: 'Required' }]}>
-            <Select placeholder="Select material" style={{ width: 200 }} options={materials.map((m) => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
+          <Form.Item name="material_id" label="物料" rules={[{ required: true, message: '必填' }]}>
+            <Select placeholder="选择物料" style={{ width: 200 }} options={materials.map((m) => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
           </Form.Item>
-          <Form.Item name="qty" label="Quantity" rules={[{ required: true, message: 'Required' }]}>
+          <Form.Item name="qty" label="数量" rules={[{ required: true, message: '必填' }]}>
             <InputNumber min={1} placeholder="0" style={{ width: 120 }} />
           </Form.Item>
-          <Form.Item name="notes" label="Notes">
-            <Input placeholder="Optional notes" style={{ width: 250 }} />
+          <Form.Item name="notes" label="备注">
+            <Input placeholder="可选备注" style={{ width: 250 }} />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={mutation.isPending}>Submit Inbound</Button>
+            <Button type="primary" htmlType="submit" loading={mutation.isPending}>提交入库</Button>
           </Form.Item>
         </Form>
       </Card>
 
-      <Card className="liquid-glass" title="Inbound History">
+      <Card className="liquid-glass" title="入库历史">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
-         <Table rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }}
-           locale={{ emptyText: <Empty description="No inbound records yet" /> }} />}
+         <Table className="admin-material-inbound-table" rowKey="id" dataSource={inbounds} columns={columns} pagination={{ pageSize: 10 }} scroll={{ x: 760 }}
+           locale={{ emptyText: <Empty description="暂无入库记录" /> }} />}
       </Card>
     </div>
     </PageTransition>);

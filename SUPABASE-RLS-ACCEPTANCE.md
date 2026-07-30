@@ -45,6 +45,25 @@ The migration adds:
 - RLS policies for the main CRM tables.
 - No `anon` or broad `public` table policies for protected CRM data.
 
+## S Store RLS Draft
+
+Task-053 added a policy-only S Store RLS draft migration:
+
+- `supabase/migrations/20260718000200_s_store_rls_policies.sql`
+
+The draft covers:
+
+- `s_store_status_history`;
+- `s_store_sell_through`;
+- `s_store_product_inventory_snapshots`;
+- `s_store_material_inventory_snapshots`;
+- `s_store_visit_details`;
+- `s_store_replenishment_tasks`.
+
+The draft intentionally does not add RPCs, page behavior, or `anon` policies.
+
+It has not been applied to the remote Supabase project in Task-053. Before production acceptance, apply the S Store schema and RLS migrations in a controlled environment, then extend the SQL acceptance checks to include the S Store tables.
+
 ## SQL Acceptance Checks
 
 Run after applying migrations to the preview Supabase project.

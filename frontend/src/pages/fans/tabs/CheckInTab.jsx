@@ -1,13 +1,15 @@
-﻿import useLanguageStore from '../../../stores/languageStore';
-import { useState, useEffect } from 'react';
-import { message, Button, Card, Statistic, Tag, Progress, Typography, Row, Col } from 'antd';
-import { StarOutlined, FireOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import { Button, Progress, Tag, message } from 'antd';
+import { CheckCircleOutlined, FireOutlined, StarOutlined } from '@ant-design/icons';
+import useLanguageStore from '../../../stores/languageStore';
 import localDb from '../../../services/db/localDb';
 import { addFanPoints } from '../../../services/api';
 import { FAN_LEVELS } from '../../../utils/constants';
-const { Text } = Typography;
+import { OPERATIONAL_RULE_RECORD_ID, mergeOperationalRules } from '../../../utils/uwellLaunchRules';
+
 const CheckInTab = ({ fan, onPointsChange }) => {
   const { t } = useLanguageStore();
+  const operationalRules = mergeOperationalRules(localDb.findById('fan_points_rules', OPERATIONAL_RULE_RECORD_ID)?.settings);
   const [checkinStreak, setCheckinStreak] = useState(0);
   const [todayChecked, setTodayChecked] = useState(false);
   const [weekData, setWeekData] = useState([]);
@@ -18,24 +20,22 @@ const CheckInTab = ({ fan, onPointsChange }) => {
     const today = new Date().toISOString().split('T')[0];
     setTodayChecked(checkins.some((c) => c.date === today));
 
-    // Calculate streak
     let streak = 0;
-    for (let i = 0; i < 365; i++) {
+    for (let i = 0; i < 365; i += 1) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
       if (checkins.some((c) => c.date === dateStr)) {
-        streak++;
+        streak += 1;
       } else if (i > 0) {
         break;
       }
     }
     setCheckinStreak(streak);
 
-    // Build week data
     const week = [];
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    for (let i = 6; i >= 0; i--) {
+    const weekdays = ['weekday_sun', 'weekday_mon', 'weekday_tue', 'weekday_wed', 'weekday_thu', 'weekday_fri', 'weekday_sat'];
+    for (let i = 6; i >= 0; i -= 1) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
@@ -53,12 +53,12 @@ const CheckInTab = ({ fan, onPointsChange }) => {
   const handleCheckIn = async () => {
     if (!fan || todayChecked) return;
     const today = new Date().toISOString().split('T')[0];
-    await addFanPoints(fan.id, 5, 'earn', 'Daily Check-in', 'Daily check-in bonus');
-    localDb.insert('fan_checkins', { fan_id: fan.id, date: today, points: 5 });
+    await addFanPoints(fan.id, operationalRules.checkInPoints, 'earn', 'Daily Check-in', 'Daily check-in bonus');
+    localDb.insert('fan_checkins', { fan_id: fan.id, date: today, points: operationalRules.checkInPoints });
     setTodayChecked(true);
     setCheckinStreak((s) => s + 1);
     setWeekData((prev) => prev.map((d) => (d.isToday ? { ...d, checked: true } : d)));
-    message.success(t('fan_checkin_success').replace('+10', '+5'));
+    message.success(t('fan_checkin_success').replace('+10', `+${operationalRules.checkInPoints}`).replace('+5', `+${operationalRules.checkInPoints}`));
     onPointsChange();
   };
 
@@ -69,71 +69,75 @@ const CheckInTab = ({ fan, onPointsChange }) => {
     : 100;
 
   return (
-    <div style={{ padding: '8px 0' }}>
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={8}>
-          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)' }}>
-            <Statistic title={t('fan_my_points')} value={fan?.points || 0} prefix={<StarOutlined style={{ color: '#faad14' }} />} styles={{ content: { color: '#FFD700', fontWeight: 700 } }} />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8}>
-          <Card size="small" style={{ textAlign: 'center', borderRadius: 16 }}>
-            <div style={{ fontSize: 12, color: '#999' }}>{t('fan_level')}</div>
-            <Tag color={levelInfo.color} style={{ fontSize: 14, padding: '4px 12px', marginTop: 4 }}>{levelInfo.label}</Tag>
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card size="small" className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, background: 'rgba(59,130,246,0.08)' }}>
-            <Statistic title={t('fan_streak')} value={checkinStreak} suffix={t('days')} prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} styles={{ content: { color: '#ff4d4f' } }} />
-          </Card>
-        </Col>
-      </Row>
+    <div className="fan-checkin-page">
+      <section className="fan-checkin-hero">
+        <div>
+          <span className="fan-mini-label">{t('fan_real_checkin_title')}</span>
+          <h2>{t('fan_real_checkin_build_streak')}</h2>
+          <p>{t('fan_real_checkin_desc')}</p>
+        </div>
+        <div className="fan-checkin-streak-badge">
+          <FireOutlined />
+          <strong>{checkinStreak}</strong>
+          <span>{t('days')}</span>
+        </div>
+      </section>
 
-      {/* Week calendar */}
-      <Card title={t('fan_check_in')} size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
-        <Row gutter={4}>
+      <section className="fan-checkin-action-card fan-checkin-priority-action">
+        <div>
+          <strong>{todayChecked ? t('fan_real_checkin_you_checked') : t('fan_real_checkin_collect_today')}</strong>
+          <span>{todayChecked ? t('fan_real_checkin_come_back') : `${t('fan_real_checkin_daily_reward')}: +${operationalRules.checkInPoints} ${t('fan_real_points_unit')}.`}</span>
+        </div>
+        <Button
+          type="primary"
+          size="large"
+          disabled={todayChecked}
+          onClick={handleCheckIn}
+        >
+          {todayChecked ? t('fan_already_checked') : `${t('fan_check_in')} (+${operationalRules.checkInPoints})`}
+        </Button>
+      </section>
+
+      <section className="fan-checkin-stat-grid">
+        <div>
+          <StarOutlined />
+          <span>{t('fan_my_points')}</span>
+          <strong>{(fan?.points || 0).toLocaleString()}</strong>
+        </div>
+        <div>
+          <span>{t('fan_level')}</span>
+          <Tag color={levelInfo.color}>{levelInfo.label}</Tag>
+        </div>
+        <div>
+          <span>{t('fan_real_checkin_today')}</span>
+          <strong>{todayChecked ? t('fan_real_checkin_done') : `+${operationalRules.checkInPoints} ${t('fan_real_pts_unit')}`}</strong>
+        </div>
+      </section>
+
+      <section className="fan-checkin-week-card">
+        <div className="fan-section-heading">
+          <span>{t('fan_real_checkin_this_week')}</span>
+          <strong>{todayChecked ? t('fan_real_checkin_checked_today') : t('fan_real_checkin_ready_now')}</strong>
+        </div>
+        <div className="fan-checkin-week-strip">
           {weekData.map((day, idx) => (
-            <Col span={24 / 7} key={idx} style={{ textAlign: 'center' }}>
-              <div style={{
-                padding: '12px 2px',
-                borderRadius: 12,
-                background: day.checked ? 'linear-gradient(135deg, rgba(22,163,74,0.15) 0%, rgba(56,157,13,0.15) 100%)' : day.isToday ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.02)',
-                border: day.isToday ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.08)',
-              }}>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{day.weekday}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: day.checked ? '#52c41a' : 'var(--uw-text-primary)', margin: '4px 0' }}>{day.date}</div>
-                {day.checked ? <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 16 }} /> : <div style={{ height: 16 }} />}
-              </div>
-            </Col>
+            <div key={idx} className={`fan-checkin-day${day.checked ? ' is-checked' : ''}${day.isToday ? ' is-today' : ''}`}>
+              <span>{t(day.weekday)}</span>
+              <strong>{day.date}</strong>
+              {day.checked ? <CheckCircleOutlined /> : <i />}
+            </div>
           ))}
-        </Row>
-      </Card>
+        </div>
+      </section>
 
-      {/* Check-in button */}
-      <Button
-        type="primary"
-        size="large"
-        block
-        disabled={todayChecked}
-        onClick={handleCheckIn}
-        style={{
-          height: 56, fontSize: 18, fontWeight: 700, borderRadius: 16,
-          background: todayChecked ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, rgba(102,126,234,0.6) 0%, rgba(118,75,162,0.6) 100%)',
-          border: 'none',
-        }}
-      >
-        {todayChecked ? t('fan_already_checked') : `${t('fan_check_in')} (+5 ${t('fan_points_unit')})`}
-      </Button>
-
-      {/* Level progress */}
       {nextLevel && (
-        <Card size="small" className='liquid-glass' style={{ marginTop: 16, borderRadius: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text>{levelInfo.label}</Text>
-            <Text type="secondary">{nextLevel.min_points - (fan?.points || 0)} {t('fan_points_unit')} {t('fan_next_level')} {nextLevel.label}</Text>
+        <section className="fan-checkin-progress-card">
+          <div>
+            <strong>{levelInfo.label}</strong>
+            <span>{nextLevel.min_points - (fan?.points || 0)} {t('fan_points_unit')} {t('fan_next_level')} {nextLevel.label}</span>
           </div>
-          <Progress percent={levelProgress} strokeColor={{ from: '#FFD700', to: '#FFF3B0' }} />
-        </Card>
+          <Progress percent={levelProgress} showInfo={false} strokeColor={{ from: '#ccff00', to: '#7ee000' }} railColor="rgba(17,22,10,0.12)" />
+        </section>
       )}
     </div>
   );

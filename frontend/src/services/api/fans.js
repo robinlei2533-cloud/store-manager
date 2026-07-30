@@ -4,6 +4,8 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import { isLocal, ensureLocalInit, enrichFan } from './helpers';
+import { calculateFanPointUpdate } from '../../utils/fanPointsRules';
+import { canAccessFan, filterFansByScope } from '../../utils/uwellRoleAccess';
 
 const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
 
@@ -11,14 +13,12 @@ function addFanPointsLocal(fanId, points, type, source, description) {
   localDb.insert('fan_points_log', { fan_id: fanId, points, type, source, description });
   const fan = localDb.findById('fans', fanId);
   if (fan) {
-    const newPoints = fan.points + points;
-    const rules = localDb.all('fan_level_rules').sort((a, b) => b.min_points - a.min_points);
-    const newLevel = rules.find((r) => newPoints >= r.min_points);
-    localDb.update('fans', fanId, {
-      points: newPoints,
-      total_contribution: fan.total_contribution + (type === 'earn' ? points : 0),
-      level: newLevel ? newLevel.level : fan.level,
-    });
+    localDb.update('fans', fanId, calculateFanPointUpdate({
+      fan,
+      points,
+      type,
+      levelRules: localDb.all('fan_level_rules'),
+    }));
   }
   return localDb.findById('fans', fanId);
 }
@@ -31,6 +31,7 @@ export async function getFans(filters = {}) {
     let data = localDb.all('fans');
     if (filters.level) data = data.filter((f) => f.level === filters.level);
     if (filters.store_id) data = data.filter((f) => f.store_id === filters.store_id);
+    if (filters.scopeProfile) data = filterFansByScope(filters.scopeProfile, data, localDb.all('stores'));
     return data.map(enrichFan).sort((a, b) => b.points - a.points);
   }
   let query = supabase.from('fans').select('*, stores(name), profiles!fans_user_id_fkey(name)').order('points', { ascending: false });
@@ -41,11 +42,12 @@ export async function getFans(filters = {}) {
   return data;
 }
 
-export async function getFanById(id) {
+export async function getFanById(id, options = {}) {
   ensureLocalInit();
   if (isLocal()) {
     const fan = localDb.findById('fans', id);
     if (!fan) return null;
+    if (options.scopeProfile && !canAccessFan(options.scopeProfile, fan, localDb.all('stores'))) return null;
     return enrichFan(fan);
   }
   const { data, error } = await supabase.from('fans').select('*, stores(*), profiles!fans_user_id_fkey(name)').eq('id', id).single();
@@ -75,22 +77,21 @@ export async function addFanPoints(fanId, points, type, source, description) {
       .single();
     if (fanError) throw fanError;
 
-    const newPoints = (fan?.points || 0) + points;
-    const newContribution = (fan?.total_contribution || 0) + (type === 'earn' ? points : 0);
     const { data: levelRules, error: rulesError } = await supabase
       .from('fan_level_rules')
       .select('level, min_points')
       .order('min_points', { ascending: false });
     if (rulesError) throw rulesError;
 
-    const newLevel = (levelRules || []).find((rule) => newPoints >= rule.min_points)?.level || fan?.level;
+    const fanUpdate = calculateFanPointUpdate({
+      fan,
+      points,
+      type,
+      levelRules: levelRules || [],
+    });
     const { data: updatedFan, error: updateError } = await supabase
       .from('fans')
-      .update({
-        points: newPoints,
-        total_contribution: newContribution,
-        level: newLevel,
-      })
+      .update(fanUpdate)
       .eq('id', fanId)
       .select()
       .single();

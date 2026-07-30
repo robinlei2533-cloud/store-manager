@@ -1,19 +1,42 @@
 import useLanguageStore from '../../stores/languageStore';
 import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Upload, message, Space, Card, Spin, Empty, Popconfirm, Image, Tag, Tabs, Tooltip, Statistic, Row, Col, Progress } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, Upload, message, Space, Card, Spin, Empty, Popconfirm, Image, Tag, Tabs, Tooltip, Statistic, Row, Col, Progress, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, InboxOutlined, WarningOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMaterials, createMaterial, updateMaterial, deleteMaterial, getMaterialStocks, updateMaterialStock, getInbounds, createInbound, getOutbounds, createOutbound, updateOutboundStatus, getStores } from '../../services/api';
 import useAuthStore from '../../stores/authStore';
-import { ROLES } from '../../utils/constants';
 import PageTransition from "../../components/common/PageTransition";
+import localDb from '../../services/db/localDb';
+import { approveMaterialRequest, findWarehouseStock } from '../admin-ops/admin-ops-workflows';
+import { OPERATIONAL_RULE_RECORD_ID, mergeOperationalRules } from '../../utils/uwellLaunchRules';
+import {
+  canApproveMaterialRequest,
+  canSubmitMaterialRequest,
+  canUpdateMaterialStock,
+} from '../../utils/uwellRoleAccess';
 
 const MATERIAL_CATEGORIES = ['Promotional', 'Display', 'Office Supply', 'Gift', 'Store', 'Uniform', 'Sample', 'Other'];
+const { Text } = Typography;
+const getOperationalRules = () => mergeOperationalRules(localDb.findById('fan_points_rules', OPERATIONAL_RULE_RECORD_ID)?.settings);
+const getEffectiveSafetyStock = (stock) => Math.max(Number(stock?.safety_stock || 0), getOperationalRules().materialLowStockThreshold);
+
+const REQUEST_STATUS_COLOR = {
+  pending: 'blue',
+  approved: 'green',
+  rejected: 'red',
+  need_more_info: 'orange',
+  packed: 'purple',
+  shipped: 'cyan',
+  delivered: 'green',
+  escalated: 'volcano',
+};
 
 // ============ Material Catalog Tab ============
 const CatalogTab = () => {
   const { t } = useLanguageStore();
   const queryClient = useQueryClient();
+  const profile = useAuthStore(s => s.profile);
+  const canEditStock = canUpdateMaterialStock(profile);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
@@ -69,17 +92,29 @@ const CatalogTab = () => {
 
   const getStockInfo = (materialId) => {
     const stock = stocks.find(s => s.material_id === materialId);
-    return stock || { qty: 0, safety_stock: 10 };
+    if (!stock) return { qty: 0, safety_stock: getOperationalRules().materialLowStockThreshold };
+    return { ...stock, effective_safety_stock: getEffectiveSafetyStock(stock) };
   };
 
   const columns = [
     {
-      title: 'Image', dataIndex: 'image_url', key: 'image', width: 70,
+      title: 'Image', dataIndex: 'image_url', key: 'image', width: 64,
       render: (url) => url
         ? <Image src={url} width={48} height={48} style={{ objectFit: 'cover', borderRadius: 6 }} />
-        : <div style={{ width: 48, height: 48, background: '#f5f5f5', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc', fontSize: 10 }}>N/A</div>,
+        : <div className="admin-material-image-placeholder">No image</div>,
     },
-    { title: 'Name', dataIndex: 'name', key: 'name', width: 180 },
+    { title: 'Name', dataIndex: 'name', key: 'name', width: 156 },
+    {
+      title: 'Actions', key: 'action', width: 88,
+      render: (_, record) => (
+        <Space>
+          <Button type="link" size="small" icon={<EditOutlined />} title="Edit material" aria-label="Edit material" onClick={() => openEditModal(record)}>Edit</Button>
+          <Popconfirm title="Delete this material?" onConfirm={() => deleteMutation.mutate(record.id)}>
+            <Button type="link" danger size="small" icon={<DeleteOutlined />} title="Delete material" aria-label="Delete material">Delete</Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
     { title: 'SKU', dataIndex: 'sku', key: 'sku', width: 120, render: v => v || '-' },
     { title: 'Category', dataIndex: 'category', key: 'category', width: 110, render: v => v ? <Tag>{v}</Tag> : '-' },
     { title: 'Unit', dataIndex: 'unit', key: 'unit', width: 70 },
@@ -95,6 +130,7 @@ const CatalogTab = () => {
               value={stock.qty}
               min={0}
               size="small"
+              disabled={!canEditStock}
               style={{ width: 80 }}
               onChange={(v) => updateStockMutation.mutate({ materialId: record.id, qty: v || 0, safetyStock: stock.safety_stock })}
             />
@@ -111,6 +147,7 @@ const CatalogTab = () => {
             value={stock.safety_stock}
             min={0}
             size="small"
+            disabled={!canEditStock}
             style={{ width: 80 }}
             onChange={(v) => updateStockMutation.mutate({ materialId: record.id, qty: stock.qty, safetyStock: v || 0 })}
           />
@@ -122,30 +159,20 @@ const CatalogTab = () => {
       render: (_, record) => {
         const stock = getStockInfo(record.id);
         if (stock.qty === 0) return <Tag color="red">Out of Stock</Tag>;
-        if (stock.qty <= stock.safety_stock) return <Tag color="orange">Low Stock</Tag>;
+        if (stock.qty <= getEffectiveSafetyStock(stock)) return <Tag color="orange">Low Stock</Tag>;
         return <Tag color="green">Normal</Tag>;
       },
-    },
-    {
-      title: 'Actions', key: 'action', width: 140, fixed: 'right',
-      render: (_, record) => (
-        <Space>
-          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEditModal(record)}>Edit</Button>
-          <Popconfirm title="Delete this material?" onConfirm={() => deleteMutation.mutate(record.id)}>
-            <Button type="link" danger size="small" icon={<DeleteOutlined />}>Delete</Button>
-          </Popconfirm>
-        </Space>
-      ),
     },
   ];
 
   return (
-    <Card title={<span style={{ fontSize: 18, fontWeight: 600 }}>{t('material_catalog')}</span>} extra={
+    <Card className="admin-materials-catalog-card" title={<span style={{ fontSize: 18, fontWeight: 600 }}>{t('material_catalog')}</span>} extra={
       <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>{t('add_material')}</Button>
     }>
       {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div> :
        !materials.length ? <Empty description="No materials yet. Click Add Material to create one." /> :
        <Table
+         className="admin-materials-table"
          rowKey="id"
          dataSource={materials}
          columns={columns}
@@ -186,7 +213,7 @@ const CatalogTab = () => {
             </Col>
           </Row>
           <Form.Item label="Image">
-            <Space direction="vertical">
+            <Space orientation="vertical">
               {imageUrl && <img src={imageUrl} alt="preview" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />}
               <Upload accept="image/*" showUploadList={false} beforeUpload={handleImageUpload}>
                 <Button icon={<UploadOutlined />}>{imageUrl ? 'Change Image' : 'Upload Image'}</Button>
@@ -210,7 +237,7 @@ const StockTab = () => {
     return { ...s, image_url: mat?.image_url };
   });
 
-  const lowStockCount = enrichedStocks.filter(s => s.qty <= s.safety_stock).length;
+  const lowStockCount = enrichedStocks.filter(s => s.qty <= getEffectiveSafetyStock(s)).length;
   const outOfStockCount = enrichedStocks.filter(s => s.qty === 0).length;
   const totalValue = enrichedStocks.reduce((sum, s) => sum + (s.qty * (s.materials?.unit_cost || 0)), 0);
 
@@ -232,15 +259,16 @@ const StockTab = () => {
       title: 'Status', key: 'status', width: 120,
       render: (_, r) => {
         if (r.qty === 0) return <Tag color="red">Out of Stock</Tag>;
-        if (r.qty <= r.safety_stock) return <Tag color="orange">Low Stock</Tag>;
+        if (r.qty <= getEffectiveSafetyStock(r)) return <Tag color="orange">Low Stock</Tag>;
         return <Tag color="green">Normal</Tag>;
       },
     },
     {
       title: 'Stock Level', key: 'bar', width: 150,
       render: (_, r) => {
-        const pct = r.safety_stock > 0 ? Math.min(100, Math.round((r.qty / (r.safety_stock * 2)) * 100)) : 100;
-        return <Progress percent={pct} size="small" status={r.qty === 0 ? 'exception' : r.qty <= r.safety_stock ? 'active' : 'success'} />;
+        const effectiveSafety = getEffectiveSafetyStock(r);
+        const pct = effectiveSafety > 0 ? Math.min(100, Math.round((r.qty / (effectiveSafety * 2)) * 100)) : 100;
+        return <Progress percent={pct} size="small" status={r.qty === 0 ? 'exception' : r.qty <= effectiveSafety ? 'active' : 'success'} />;
       },
     },
   ];
@@ -263,9 +291,120 @@ const StockTab = () => {
            columns={columns}
            pagination={{ pageSize: 15, showTotal: (t) => `Total ${t} items` }}
            scroll={{ x: 1000 }}
-           rowClassName={(r) => r.qty <= r.safety_stock ? 'low-stock-row' : ''}
+           rowClassName={(r) => r.qty <= getEffectiveSafetyStock(r) ? 'low-stock-row' : ''}
          />
         }
+      </Card>
+    </div>
+  );
+};
+
+// ============ Store Material Requests Tab ============
+const MaterialRequestsTab = () => {
+  const profile = useAuthStore(s => s.profile);
+  const canApprove = canApproveMaterialRequest(profile);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const requests = (localDb.all('material_requests') || [])
+    .map((request) => {
+      const store = localDb.findById('stores', request.store_id);
+      const material = localDb.findById('materials', request.material_id);
+      const stock = findWarehouseStock(request.material_id, request.warehouse);
+      return {
+        ...request,
+        store_name: request.store_name || store?.name || request.store_id,
+        material_name: request.material_name || material?.name || request.material_id,
+        warehouse_stock_qty: stock?.qty ?? 0,
+        warehouse_safety_stock: stock ? getEffectiveSafetyStock(stock) : getOperationalRules().materialLowStockThreshold,
+        stock_warning: stock ? (stock.qty || 0) < (request.qty || 0) || (stock.qty || 0) <= getEffectiveSafetyStock(stock) : true,
+      };
+    })
+    .sort((a, b) => new Date(b.created_at || b.requested_at || 0) - new Date(a.created_at || a.requested_at || 0));
+
+  const pendingCount = requests.filter((item) => item.status === 'pending').length;
+  const lowStockCount = requests.filter((item) => item.stock_warning).length;
+  const approvedCount = requests.filter((item) => ['approved', 'packed', 'shipped', 'delivered'].includes(item.status)).length;
+
+  const refresh = () => setRefreshKey((value) => value + 1);
+  void refreshKey;
+
+  const runRequestAction = (record, action) => {
+    try {
+      approveMaterialRequest(record.id, action);
+      refresh();
+      message.success('Material request updated');
+    } catch (error) {
+      message.error(error?.message || 'Material request update failed');
+    }
+  };
+
+  const columns = [
+    { title: 'Store', dataIndex: 'store_name', width: 180 },
+    { title: 'Material', dataIndex: 'material_name', width: 180 },
+    { title: 'Qty', dataIndex: 'qty', width: 80, render: (value) => <Text strong>{value}</Text> },
+    { title: 'Region', dataIndex: 'region', width: 110 },
+    { title: 'Warehouse', dataIndex: 'warehouse', width: 150 },
+    {
+      title: 'Warehouse Stock',
+      width: 160,
+      render: (_, record) => (
+        <Space orientation="vertical" size={0}>
+          <Text>{record.warehouse_stock_qty} available</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>Safety {record.warehouse_safety_stock}</Text>
+        </Space>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      width: 130,
+      render: (value, record) => (
+        <Space>
+          <Tag color={REQUEST_STATUS_COLOR[value] || 'default'}>{value}</Tag>
+          {record.stock_warning && <Tag color="volcano">Stock risk</Tag>}
+        </Space>
+      ),
+    },
+    { title: 'Reason', dataIndex: 'reason', ellipsis: true },
+    ...(canApprove ? [{
+      title: 'Actions',
+      width: 260,
+      fixed: 'right',
+      render: (_, record) => (
+        <Space wrap>
+          {record.status === 'pending' && (
+            <>
+              <Button size="small" type="primary" onClick={() => runRequestAction(record, 'approve')}>Approve & reserve</Button>
+              <Button size="small" onClick={() => runRequestAction(record, 'need_more_info')}>More info</Button>
+              <Button size="small" danger onClick={() => runRequestAction(record, 'reject')}>Reject</Button>
+            </>
+          )}
+          {record.status === 'approved' && <Button size="small" onClick={() => runRequestAction(record, 'packed')}>Pack</Button>}
+          {record.status === 'packed' && <Button size="small" onClick={() => runRequestAction(record, 'shipped')}>Ship</Button>}
+          {record.status === 'shipped' && <Button size="small" onClick={() => runRequestAction(record, 'delivered')}>Deliver</Button>}
+        </Space>
+      ),
+    }] : []),
+  ];
+
+  return (
+    <div>
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col xs={12} sm={8}><Card size="small"><Statistic title="Pending requests" value={pendingCount} /></Card></Col>
+        <Col xs={12} sm={8}><Card size="small"><Statistic title="Stock risks" value={lowStockCount} styles={{ content: { color: '#fa541c' } }} /></Card></Col>
+        <Col xs={12} sm={8}><Card size="small"><Statistic title="Approved / logistics" value={approvedCount} /></Card></Col>
+      </Row>
+      <Card
+        title="Store material requests"
+        extra={<Text type="secondary">Approval reserves stock from the selected regional warehouse and creates an outbound record. Trial low-stock floor: {getOperationalRules().materialLowStockThreshold}.</Text>}
+      >
+        <Table
+          rowKey="id"
+          dataSource={requests}
+          columns={columns}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: 1200 }}
+          rowClassName={(record) => record.stock_warning ? 'low-stock-row' : ''}
+        />
       </Card>
     </div>
   );
@@ -275,6 +414,7 @@ const StockTab = () => {
 const InboundTab = () => {
   const queryClient = useQueryClient();
   const profile = useAuthStore(s => s.profile);
+  const canEditStock = canUpdateMaterialStock(profile);
   const [form] = Form.useForm();
 
   const { data: materials = [] } = useQuery({ queryKey: ['materials'], queryFn: getMaterials });
@@ -286,6 +426,10 @@ const InboundTab = () => {
   });
 
   const handleSubmit = async (values) => {
+    if (!canEditStock) {
+      message.error('You do not have permission to update warehouse stock.');
+      return;
+    }
     await mutation.mutateAsync({ ...values, operator_id: profile?.id || 'u-admin' });
   };
 
@@ -312,9 +456,10 @@ const InboundTab = () => {
             <Input placeholder="Optional notes" style={{ width: 250 }} />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={mutation.isPending}>Submit Inbound</Button>
+            <Button type="primary" htmlType="submit" loading={mutation.isPending} disabled={!canEditStock}>Submit Inbound</Button>
           </Form.Item>
         </Form>
+        {!canEditStock && <Text type="secondary">Only admin can update direct warehouse stock.</Text>}
       </Card>
       <Card className="liquid-glass" title="Inbound History">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
@@ -329,7 +474,8 @@ const OutboundTab = () => {
   const queryClient = useQueryClient();
   const profile = useAuthStore(s => s.profile);
   const [form] = Form.useForm();
-  const canApprove = profile?.role === ROLES.ADMIN || profile?.role === ROLES.MANAGER;
+  const canApprove = canApproveMaterialRequest(profile);
+  const canSubmitRequest = canSubmitMaterialRequest(profile);
 
   const { data: materials = [] } = useQuery({ queryKey: ['materials'], queryFn: getMaterials });
   const { data: stores = [] } = useQuery({ queryKey: ['stores-all'], queryFn: () => getStores({}) });
@@ -367,7 +513,13 @@ const OutboundTab = () => {
   return (
     <div>
       <Card className="liquid-glass" title="New Requisition" style={{ marginBottom: 16 }}>
-        <Form form={form} layout="vertical" onFinish={async (v) => { await mutation.mutateAsync({ ...v, applicant_id: profile?.id || 'u-admin', status: 'pending' }); }} style={{ maxWidth: 500 }}>
+        <Form form={form} layout="vertical" onFinish={async (v) => {
+          if (!canSubmitRequest) {
+            message.error('You do not have permission to submit material requests.');
+            return;
+          }
+          await mutation.mutateAsync({ ...v, applicant_id: profile?.id || 'u-admin', status: 'pending' });
+        }} style={{ maxWidth: 500 }}>
           <Form.Item name="material_id" label="Material" rules={[{ required: true }]}>
             <Select placeholder="Select material" options={materials.map(m => ({ label: `${m.name} (${m.sku})`, value: m.id }))} />
           </Form.Item>
@@ -378,8 +530,9 @@ const OutboundTab = () => {
             <Select placeholder="Select store" allowClear options={stores.map(s => ({ label: s.name, value: s.id }))} />
           </Form.Item>
           <Form.Item name="reason" label="Reason"><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item><Button type="primary" htmlType="submit" loading={mutation.isPending}>Submit Request</Button></Form.Item>
+          <Form.Item><Button type="primary" htmlType="submit" loading={mutation.isPending} disabled={!canSubmitRequest}>Submit Request</Button></Form.Item>
         </Form>
+        {!canSubmitRequest && <Text type="secondary">Your role cannot submit material requests.</Text>}
       </Card>
       <Card className="liquid-glass" title="Outbound Records">
         {isLoading ? <div style={{ textAlign: 'center', padding: 48 }}><Spin /></div> :
@@ -395,13 +548,15 @@ const MaterialListPage = () => {
   const [activeTab, setActiveTab] = useState('catalog');
 
   return (
-    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <div className="bg-radial-top admin-materials-page" style={{minHeight:"100vh",padding:24}}>
       <Tabs
+        className="admin-materials-tabs"
         activeKey={activeTab}
         onChange={setActiveTab}
         items={[
           { key: 'catalog', label: <span><InboxOutlined /> {t('material_catalog_stock')}</span>, children: <CatalogTab /> },
           { key: 'dashboard', label: <span><WarningOutlined /> {t('stock_dashboard')}</span>, children: <StockTab /> },
+          { key: 'requests', label: 'Store Requests', children: <MaterialRequestsTab /> },
           { key: 'inbound', label: t('material_inbound'), children: <InboundTab /> },
           { key: 'outbound', label: t('material_outbound'), children: <OutboundTab /> },
         ]}

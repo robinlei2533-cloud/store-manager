@@ -14,7 +14,7 @@ class ErrorBoundary extends React.Component {
     this.setState({ errorInfo });
     console.error('[ErrorBoundary] Caught error:', error);
     console.error('[ErrorBoundary] Component stack:', errorInfo?.componentStack);
-    // 上报到 Sentry（如已配置）
+    // Report to Sentry when the host app provides it.
     try {
       if (window.Sentry) {
         window.Sentry.captureException(error, { contexts: { react: errorInfo } });
@@ -24,7 +24,6 @@ class ErrorBoundary extends React.Component {
 
   handleReload = () => {
     this.setState({ hasError: false, error: null, errorInfo: null });
-    // 根据当前路由判断恢复目标
     const hash = window.location.hash;
     if (hash.includes('fan-center') || hash.includes('fan-entry')) {
       window.location.hash = '#/fan-entry';
@@ -37,7 +36,7 @@ class ErrorBoundary extends React.Component {
   };
 
   handleClearData = () => {
-    if (window.confirm('这会清除本地演示数据并重新加载页面，是否继续？')) {
+    if (window.confirm('This will clear local demo data and reload the page. Continue?')) {
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('store_manager_')) {
           localStorage.removeItem(key);
@@ -57,9 +56,9 @@ class ErrorBoundary extends React.Component {
         }}>
           <div style={{ textAlign: 'center', maxWidth: 500 }}>
             <div style={{ fontSize: 48, marginBottom: 16, color: '#FFD700' }}>U</div>
-            <h2 style={{ marginBottom: 8, color: '#e5e5e5' }}>页面遇到了一点问题</h2>
+            <h2 style={{ marginBottom: 8, color: '#e5e5e5' }}>This portal needs a quick reload</h2>
             <p style={{ color: '#888', marginBottom: 24 }}>
-              可以先刷新页面。如果仍然无法恢复，清除本地演示数据通常可以解决缓存数据导致的问题。
+              Reload the current portal first. If the issue continues, reset local demo data to clear stale cached records.
             </p>
             <div style={{
               background: '#0d0d14', padding: 16, borderRadius: 8, marginBottom: 24,
@@ -74,13 +73,13 @@ class ErrorBoundary extends React.Component {
                 padding: '8px 24px', background: '#1677ff', color: '#fff',
                 border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14,
               }}>
-                重新加载
+                Reload current portal
               </button>
               <button onClick={this.handleClearData} style={{
                 padding: '8px 24px', background: '#fff', color: '#ff4d4f',
                 border: '1px solid #ff4d4f', borderRadius: 6, cursor: 'pointer', fontSize: 14,
               }}>
-                清除本地数据
+                Reset demo data
               </button>
             </div>
           </div>

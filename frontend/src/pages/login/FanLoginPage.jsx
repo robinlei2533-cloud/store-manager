@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Typography, Button, Modal, Form, Input, message } from 'antd';
 import {
@@ -11,6 +11,7 @@ import {
   LoginOutlined,
 } from '@ant-design/icons';
 import useAuthStore from '../../stores/authStore';
+import { isValidBusinessEmail } from '../../utils/uwellLaunchRules';
 
 const { Title, Text } = Typography;
 
@@ -19,7 +20,6 @@ const FanLoginPage = () => {
   const { user, loading, signIn, signUp } = useAuthStore();
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [ownerModalOpen, setOwnerModalOpen] = useState(false);
   const [registerForm] = Form.useForm();
   const [loginForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
@@ -35,11 +35,15 @@ const FanLoginPage = () => {
   const handleRegister = async (values) => {
     setSubmitting(true);
     try {
+      if (!isValidBusinessEmail(values.email)) {
+        message.error('Use a real email domain suffix. Fake numeric domains are not accepted.');
+        return;
+      }
       await signUp(values.email, values.password, { name: values.name, role: 'fan' });
-      message.success('欢迎加入 UWELL 粉丝俱乐部');
+      message.success('Welcome to UWELL Fan Club.');
       navigate('/fan-center', { replace: true });
     } catch (err) {
-      message.error(err.message || '注册失败');
+      message.error(err.message || 'Registration failed.');
     } finally {
       setSubmitting(false);
     }
@@ -49,10 +53,10 @@ const FanLoginPage = () => {
     setSubmitting(true);
     try {
       await signIn(values.email, values.password);
-      message.success('欢迎回来');
+      message.success('Welcome back.');
       navigate('/fan-center', { replace: true });
     } catch (err) {
-      message.error(err.message || '登录失败');
+      message.error(err.message || 'Login failed.');
     } finally {
       setSubmitting(false);
     }
@@ -66,9 +70,9 @@ const FanLoginPage = () => {
         <div className="fan-entry-brand">UWELL</div>
         <Text className="fan-entry-subtitle">FAN CLUB</Text>
 
-        <Title level={1}>你是 UWELL 粉丝吗？</Title>
+        <Title level={1}>Ready to join UWELL Fan Club?</Title>
         <Text className="fan-entry-desc">
-          加入会员、签到积分、扫码认证、兑换奖励，和更多 UWELL 用户一起参与品牌活动。
+          Sign in for check-ins, unique product-code scans, member rewards, store events, and community points.
         </Text>
 
         <Button
@@ -78,19 +82,19 @@ const FanLoginPage = () => {
           className="fan-entry-cta"
           onClick={() => setRegisterModalOpen(true)}
         >
-          粉丝进入
+          Enter Fan Club
         </Button>
 
         <Button type="link" className="fan-entry-login" onClick={() => setLoginModalOpen(true)}>
-          已是会员？登录粉丝中心
+          Already a member? Sign in
         </Button>
 
         <div className="fan-entry-features">
           {[
-            { title: '每日签到', desc: '连续活跃累积积分' },
-            { title: '扫码积分', desc: '购买产品后扫码获得奖励' },
-            { title: '老粉认证', desc: '上传老产品照片升级白银' },
-            { title: '积分商城', desc: '兑换产品与会员权益' },
+            { title: 'Daily check-in', desc: 'Open daily and collect base points.' },
+            { title: 'Scan UWELL code', desc: 'Unique product codes count up to three scans per day.' },
+            { title: 'Existing fan verification', desc: 'Upload older UWELL products for manual review.' },
+            { title: 'Rewards mall', desc: 'Redeem gifts without losing your growth level.' },
           ].map((item) => (
             <div className="fan-entry-feature liquid-glass" key={item.title}>
               <strong>{item.title}</strong>
@@ -101,25 +105,12 @@ const FanLoginPage = () => {
       </div>
 
       <div className="entry-switcher">
-        <Button icon={<ShopOutlined />} onClick={() => setOwnerModalOpen(true)}>店主进入</Button>
-        <Button icon={<SafetyCertificateOutlined />} onClick={() => navigate('/admin')}>管理员进入</Button>
+        <Button icon={<ShopOutlined />} onClick={() => navigate('/store-login')}>Store Portal</Button>
+        <Button icon={<SafetyCertificateOutlined />} onClick={() => navigate('/admin')}>Admin Portal</Button>
       </div>
 
       <Modal
-        title="店主入口"
-        open={ownerModalOpen}
-        onCancel={() => setOwnerModalOpen(false)}
-        footer={[
-          <Button key="close" type="primary" onClick={() => setOwnerModalOpen(false)}>知道了</Button>,
-        ]}
-      >
-        <Text>
-          店主端入口已预留。后续可以用于门店老板查看门店等级、扫码积分、活动任务、物料申请和门店资料确认。
-        </Text>
-      </Modal>
-
-      <Modal
-        title="加入 UWELL 粉丝俱乐部"
+        title="Join UWELL Fan Club"
         open={registerModalOpen}
         onCancel={() => setRegisterModalOpen(false)}
         footer={null}
@@ -127,25 +118,25 @@ const FanLoginPage = () => {
         style={{ maxWidth: 420 }}
       >
         <Form form={registerForm} layout="vertical" onFinish={handleRegister} style={{ marginTop: 16 }}>
-          <Form.Item name="name" rules={[{ required: true, message: '请输入姓名' }]}>
-            <Input prefix={<UserOutlined />} placeholder="姓名" size="large" />
+          <Form.Item name="name" rules={[{ required: true, message: 'Name is required.' }]}>
+            <Input prefix={<UserOutlined />} placeholder="Name" size="large" />
           </Form.Item>
-          <Form.Item name="email" rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" size="large" />
+          <Form.Item name="email" rules={[{ required: true, message: 'Email is required.' }, { type: 'email', message: 'Enter a valid email.' }]}>
+            <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }, { min: 6, message: '至少 6 位字符' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码，至少 6 位" size="large" />
+          <Form.Item name="password" rules={[{ required: true, message: 'Password is required.' }, { min: 6, message: 'Use at least 6 characters.' }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="Password, at least 6 characters" size="large" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block size="large" loading={submitting} style={{ height: 48 }} icon={<LoginOutlined />}>
-              注册并进入
+              Register and enter
             </Button>
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="粉丝登录"
+        title="Fan sign in"
         open={loginModalOpen}
         onCancel={() => setLoginModalOpen(false)}
         footer={null}
@@ -153,15 +144,15 @@ const FanLoginPage = () => {
         style={{ maxWidth: 420 }}
       >
         <Form form={loginForm} layout="vertical" onFinish={handleLogin} style={{ marginTop: 16 }}>
-          <Form.Item name="email" rules={[{ required: true, message: '请输入邮箱' }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" size="large" />
+          <Form.Item name="email" rules={[{ required: true, message: 'Email is required.' }]}>
+            <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" size="large" />
+          <Form.Item name="password" rules={[{ required: true, message: 'Password is required.' }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block size="large" loading={submitting} style={{ height: 48 }}>
-              登录
+              Sign in
             </Button>
           </Form.Item>
         </Form>

@@ -4,7 +4,8 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import { isLocal, ensureLocalInit } from './helpers';
-import { isAssignedStore } from '../../utils/uwellRoleAccess';
+import { canAccessStore, isAssignedStore } from '../../utils/uwellRoleAccess';
+import { sortStoresForFanExposure } from '../../utils/uwellLaunchRules';
 
 // ============ STORES ============
 
@@ -22,24 +23,39 @@ export async function getStores(filters = {}) {
     return data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
-  let query = supabase.from('stores').select('*');
-  if (filters.level) query = query.eq('level', filters.level);
-  if (filters.country) query = query.eq('country', filters.country);
-  if (filters.city) query = query.eq('city', filters.city);
-  if (filters.status) query = query.eq('status', filters.status);
-  if (filters.chain_id) query = query.eq('chain_id', filters.chain_id);
-  if (filters.search) query = query.ilike('name', `%${filters.search}%`);
-  const { data, error } = await query.order('created_at', { ascending: false });
+  const { data, error } = await supabase.rpc('get_internal_stores', { p_filters: filters });
   if (error) throw error;
   return data;
 }
 
-export async function getStoreById(id) {
+export async function getStoreById(id, options = {}) {
   ensureLocalInit();
-  if (isLocal()) return localDb.findById('stores', id);
-  const { data, error } = await supabase.from('stores').select('*').eq('id', id).single();
+  if (isLocal()) {
+    const store = localDb.findById('stores', id);
+    if (!store) return null;
+    if (options.scopeProfile && !canAccessStore(options.scopeProfile, store, localDb.all('stores'))) return null;
+    return store;
+  }
+  const { data, error } = await supabase.rpc('get_internal_store', { p_store_id: id });
   if (error) throw error;
   return data;
+}
+
+export async function getFanSafeStores(filters = {}) {
+  ensureLocalInit();
+  if (isLocal()) {
+    let data = sortStoresForFanExposure(localDb.all('stores') || []);
+    if (filters.level) data = data.filter((s) => s.level === filters.level);
+    if (filters.country) data = data.filter((s) => s.country === filters.country);
+    if (filters.city) data = data.filter((s) => s.city === filters.city);
+    if (filters.status) data = data.filter((s) => s.status === filters.status);
+    if (filters.search) data = data.filter((s) => String(s.name || '').toLowerCase().includes(filters.search.toLowerCase()));
+    return data;
+  }
+
+  const { data, error } = await supabase.rpc('get_fan_safe_stores', { p_filters: filters });
+  if (error) throw error;
+  return sortStoresForFanExposure(data || []);
 }
 
 export async function createStore(store) {

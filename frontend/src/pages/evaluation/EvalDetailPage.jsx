@@ -4,15 +4,19 @@ import { Card, Descriptions, Tag, Button, Spin, Row, Col, Progress, Empty, messa
 import { useQuery } from '@tanstack/react-query';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { getEvaluationById } from '../../services/api';
-import PageTransition from "../../components/common/PageTransition";
+import PageTransition from '../../components/common/PageTransition';
 
 const EvalDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: evalData, isLoading } = useQuery({ queryKey: ['evaluation', id], queryFn: () => getEvaluationById(id), enabled: !!id });
+  const { data: evalData, isLoading } = useQuery({
+    queryKey: ['evaluation', id],
+    queryFn: () => getEvaluationById(id),
+    enabled: !!id,
+  });
 
   if (isLoading) return <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>;
-  if (!evalData) return <Empty />;
+  if (!evalData) return <Empty description="No rating record" />;
 
   const isBdRating = evalData.score_model === 'bd_store_rating_v1' || Number(evalData.total_score || 0) > 60;
   const maxScore = isBdRating ? 110 : 60;
@@ -39,26 +43,26 @@ const EvalDetailPage = () => {
       { label: 'Store Appearance', score: evalData.score_appearance, max: 10 },
     ];
 
-  const levelColor = { A: 'green', B: 'blue', C: 'orange', D: 'red' }[evalData.recommended_level] || 'default';
+  const levelColor = { S: 'gold', A: 'green', B: 'blue', C: 'orange', D: 'red' }[evalData.recommended_level] || 'default';
 
   const buildCopyText = () => [
-    `UWELL 门店评级结果`,
-    `门店：${evalData.stores?.name || '-'}`,
-    `日期：${evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString() : '-'}`,
-    `评级：${evalData.recommended_level || '-'} 级`,
-    `总分：${evalData.total_score || 0} / ${maxScore}`,
+    'UWELL Store Rating Result',
+    `Store: ${evalData.stores?.name || '-'}`,
+    `Date: ${evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString('en-US') : '-'}`,
+    `Rating: ${evalData.recommended_level || '-'}`,
+    `Total score: ${evalData.total_score || 0} / ${maxScore}`,
     '',
-    '分项：',
+    'Breakdown:',
     ...dims.map((item) => `- ${item.label}: ${item.score} / ${item.max}`),
     '',
-    `备注：${evalData.notes || '-'}`,
+    `Notes: ${evalData.notes || '-'}`,
   ].join('\n');
 
   const handleCopy = async () => {
     const text = buildCopyText();
     try {
       await navigator.clipboard.writeText(text);
-      message.success('评分结果已复制');
+      message.success('Rating result copied.');
     } catch {
       const textarea = document.createElement('textarea');
       textarea.value = text;
@@ -66,61 +70,72 @@ const EvalDetailPage = () => {
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      message.success('评分结果已复制');
+      message.success('Rating result copied.');
     }
   };
 
   return (
     <PageTransition>
-    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
-      <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Evaluations</Button>
-      <Card className="crud-card" title={`Store Rating: ${evalData.stores?.name || ''}`} extra={
-        <Space wrap>
-          <Button onClick={() => navigate(`/app/evaluation/create?id=${evalData.id}`)}>编辑评分</Button>
-          <Button type="primary" onClick={handleCopy}>复制评分结果</Button>
-        </Space>
-      }>
-        <Descriptions column={3} bordered style={{ marginBottom: 24 }}>
-          <Descriptions.Item label="Store">{evalData.stores?.name}</Descriptions.Item>
-          <Descriptions.Item label="Date">{evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString('en-US') : '-'}</Descriptions.Item>
-          <Descriptions.Item label="Level"><Tag color={levelColor}>{evalData.recommended_level}</Tag></Descriptions.Item>
-          <Descriptions.Item label="Total Score"><span style={{ fontSize: 20, fontWeight: 700 }}>{evalData.total_score}</span> / {maxScore}</Descriptions.Item>
-          <Descriptions.Item label="Rate">{Math.round((Number(evalData.total_score || 0) / maxScore) * 100)}%</Descriptions.Item>
-          <Descriptions.Item label="Evaluator">{evalData.evaluator?.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label="Notes" span={3}>{evalData.notes || '-'}</Descriptions.Item>
-        </Descriptions>
+      <div className="bg-radial-top" style={{ minHeight: '100vh', padding: 24 }}>
+        <Button type="link" onClick={() => navigate('/app/evaluation')} style={{ marginBottom: 16, paddingLeft: 0 }}>
+          &larr; Back to Evaluations
+        </Button>
+        <Card
+          className="crud-card"
+          title={`Store Rating: ${evalData.stores?.name || ''}`}
+          extra={(
+            <Space wrap>
+              <Button onClick={() => navigate(`/app/evaluation/create?id=${evalData.id}`)}>Edit rating</Button>
+              <Button type="primary" onClick={handleCopy}>Copy rating result</Button>
+            </Space>
+          )}
+        >
+          <Descriptions column={3} bordered style={{ marginBottom: 24 }}>
+            <Descriptions.Item label="Store">{evalData.stores?.name}</Descriptions.Item>
+            <Descriptions.Item label="Date">{evalData.eval_date ? new Date(evalData.eval_date).toLocaleDateString('en-US') : '-'}</Descriptions.Item>
+            <Descriptions.Item label="Level"><Tag color={levelColor}>{evalData.recommended_level}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Total Score"><span style={{ fontSize: 20, fontWeight: 700 }}>{evalData.total_score}</span> / {maxScore}</Descriptions.Item>
+            <Descriptions.Item label="Rate">{Math.round((Number(evalData.total_score || 0) / maxScore) * 100)}%</Descriptions.Item>
+            <Descriptions.Item label="Evaluator">{evalData.evaluator?.name || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Notes" span={3}>{evalData.notes || '-'}</Descriptions.Item>
+          </Descriptions>
 
-        <Row gutter={24}>
-          <Col xs={24} lg={12}>
-            <Card className="liquid-glass" title="Radar Chart" size="small">
-              <ResponsiveContainer width="100%" height={350}>
-                <RadarChart data={radarData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11 }} />
-                  <PolarRadiusAxis domain={[0, radarMax]} />
-                  <Radar dataKey="score" stroke="#1677ff" fill="#1677ff" fillOpacity={0.3} />
-                  <Tooltip />
-                </RadarChart>
-              </ResponsiveContainer>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card className="liquid-glass" title="Dimension Scores" size="small">
-              {dims.map((d, i) => (
-                <div key={i} style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span>{d.label}</span><span style={{ fontWeight: 600 }}>{d.score} / {d.max}</span>
+          <Row gutter={24}>
+            <Col xs={24} lg={12}>
+              <Card className="liquid-glass" title="Radar Chart" size="small">
+                <ResponsiveContainer width="100%" height={350}>
+                  <RadarChart data={radarData}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11 }} />
+                    <PolarRadiusAxis domain={[0, radarMax]} />
+                    <Radar dataKey="score" stroke="#1677ff" fill="#1677ff" fillOpacity={0.3} />
+                    <Tooltip />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+            <Col xs={24} lg={12}>
+              <Card className="liquid-glass" title="Dimension Scores" size="small">
+                {dims.map((dimension) => (
+                  <div key={dimension.label} style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span>{dimension.label}</span>
+                      <span style={{ fontWeight: 600 }}>{dimension.score} / {dimension.max}</span>
+                    </div>
+                    <Progress
+                      percent={Math.round((Number(dimension.score || 0) / (dimension.max || 10)) * 100)}
+                      size="small"
+                      strokeColor="#d6a84f"
+                    />
                   </div>
-                  <Progress percent={Math.round((Number(d.score || 0) / (d.max || 10)) * 100)} size="small" strokeColor="#d6a84f" />
-                </div>
-              ))}
-            </Card>
-          </Col>
-        </Row>
-      </Card>
-    </div>
-    </PageTransition>);
+                ))}
+              </Card>
+            </Col>
+          </Row>
+        </Card>
+      </div>
+    </PageTransition>
+  );
 };
 
 export default EvalDetailPage;
-

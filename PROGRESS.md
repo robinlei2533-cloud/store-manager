@@ -1,6 +1,9736 @@
 # UWELL CRM Project Progress
 
-Last updated: 2026-07-16
+Last updated: 2026-07-30
+
+## Current Handoff Snapshot
+
+Use this snapshot when continuing the work in another agent. Treat the top completed task in this file as the only progress source.
+
+Latest completed task:
+
+1. `Task-163: Remote Preview Deployment And Fallback-disabled Smoke QA`.
+2. Previous completed task: `Task-162: Vercel Preview Deployment Configuration`.
+3. Previous completed task: `Task-161: Supabase Preview/Production Environment Preflight`.
+4. Previous completed task: `Task-160: GitHub Repository And Branch Hygiene Preflight`.
+5. Previous completed task: `Task-159: Trial Handoff Package And Final Go/No-go Summary`.
+
+Task-163 completed:
+
+1. Completed the user-confirmed next step after confirming the top progress state was Task-162.
+2. Scope:
+   - deployed a Vercel preview with Supabase preview env values and fallback flags disabled;
+   - adjusted Vercel deployment protection so the preview URL can be opened directly;
+   - ran remote browser smoke across Fan, Store, and Admin entry routes at `390x844` and `1151x698`;
+   - tightened two runtime fallback paths that caused false-positive remote login evidence:
+     - Fan login no longer silently calls `signInLocal()` when `isLocalAuthFallbackEnabled()` is false;
+     - Store Owner login no longer treats `.vercel.app` as a local preview host for the local owner shortcut;
+   - reran remote login smoke after the fallback fix;
+   - documented the result in `docs/40_REMOTE_PREVIEW_DEPLOYMENT_AND_FALLBACK_QA.md`.
+3. Modification range:
+   - `frontend/src/pages/fan-entry/FanEntryPage.jsx`;
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreEntryPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreEntryPage.static.test.mjs`;
+   - `docs/40_REMOTE_PREVIEW_DEPLOYMENT_AND_FALLBACK_QA.md`;
+   - `PROGRESS.md`.
+4. Vercel preview:
+   - current preview URL:
+     - `https://frontend-dbze10wcz-uwell-club.vercel.app`;
+   - previous preview URL generated during Task-163:
+     - `https://frontend-5z8h7f1ew-uwell-club.vercel.app`;
+   - project:
+     - `uwell-club/frontend`;
+   - production was not promoted.
+5. Supabase preview:
+   - project:
+     - `rdsrgpnvzcchqlsghsrq / store-manager`;
+   - observed status:
+     - `ACTIVE_HEALTHY`;
+   - anon key and Vercel token were used only in local command processes and were not written to `.env`, docs, or Git.
+6. Remote smoke result:
+   - artifact:
+     - `frontend/output/playwright/task-163-fallback-disabled-remote-qa/fallback-disabled-remote-smoke-results.json`;
+   - audited states: `12`;
+   - navigation errors: `0`;
+   - page errors: `0`;
+   - console warnings/errors: `0`;
+   - page-level horizontal overflow states: `0`;
+   - broken image states: `0`;
+   - Vercel protection states: `0`;
+   - missing expected text states: `0`.
+7. Remote login smoke after fallback fix:
+   - artifact:
+     - `frontend/output/playwright/task-163-fallback-disabled-remote-qa/fallback-disabled-remote-login-smoke-after-fix-results.json`;
+   - Fan, Store Owner, and Admin no longer falsely enter the target app through local fallback after failed preview Auth;
+   - full fallback-disabled role QA remains No-go because preview Auth/account binding is not accepted for the documented demo credentials;
+   - Fan failed-login path still initializes `store_manager_db_*` localDb keys but does not set `fan_logged_in` or enter Fan Center.
+8. Validation commands:
+   - Focused static tests:
+     - `npm test -- src/pages/fan-entry/FanEntryPage.static.test.mjs src/pages/store-owner/StoreEntryPage.static.test.mjs`;
+     - passed: `2` files, `23` tests.
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `609` tests.
+   - Production build with preview Supabase env and fallback disabled:
+     - `npm run build`;
+     - passed.
+   - Vercel preview deploy:
+     - passed and ready.
+9. Vite warnings:
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-163;
+   - `chunk larger than 300 kB` warning remains absent.
+10. Current launch decision:
+   - Vercel preview availability: Go;
+   - basic remote smoke: Go;
+   - fallback-disabled full role QA: No-go until preview Supabase Auth users/profile/store/fan bindings are corrected;
+   - production launch: No-go.
+11. Required next task:
+   - Task-164 should fix or confirm preview Supabase Auth/account bindings, then rerun the full fallback-disabled role matrix.
+
+Task-162 completed:
+
+1. Completed the user-requested next step after confirming the top progress state was Task-161.
+2. Scope stayed Vercel preview deployment configuration handoff and documentation-only:
+   - inspected existing Vercel project configuration files:
+     - `vercel.json`;
+     - `frontend/vercel.json`;
+   - inspected frontend package/build setup:
+     - `frontend/package.json`;
+     - `frontend/pnpm-lock.yaml`;
+     - `frontend/vite.config.js`;
+   - recorded recommended Vercel preview setup:
+     - Root Directory: `frontend`;
+     - Framework Preset: `Vite`;
+     - Output Directory: `dist`;
+     - build from frontend source and keep Fan/Store/Admin entry rewrites;
+   - recorded fallback root-directory mode using root `vercel.json`;
+   - recorded Preview environment variables and secret-handling rules;
+   - recorded preview route smoke path and stop conditions before Task-163;
+   - confirmed no Vercel CLI deploy, production deploy, GitHub push, branch creation, staging, `.env` edit, secret write, Supabase connection, migration execution, database/API/permission/business-rule change, dependency install, runtime code change, or CSS change was made.
+3. Modification range:
+   - `docs/39_VERCEL_PREVIEW_DEPLOYMENT_CONFIGURATION.md`;
+   - `docs/38_SUPABASE_PREVIEW_PRODUCTION_ENVIRONMENT_PREFLIGHT.md`;
+   - `docs/36_TRIAL_HANDOFF_PACKAGE_AND_FINAL_GO_NO_GO.md`;
+   - `PROGRESS.md`.
+4. Vercel preflight conclusion:
+   - OK to proceed to real Vercel preview setup only after the user confirms Vercel project/team, GitHub release branch/content, and Preview environment-variable handling;
+   - Task-163 remains blocked until a real non-localhost Vercel preview URL exists with Supabase env vars and fallback flags disabled;
+   - production deploy remains No-go until preview QA and final cutover evidence are complete.
+5. Next online phase sequence:
+   - Task-163: Fallback-disabled Remote Browser QA Execution;
+   - Task-164: Live Asset/External Dependency Acceptance;
+   - Task-165: Production Launch Cutover Decision.
+6. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `608` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-162 because this was documentation/configuration-handoff-only and did not change UI/assets/runtime behavior;
+     - latest UI browser QA remains Task-158:
+       - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/fan-entry-short-desktop-results.json`.
+7. Vite warnings:
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-162;
+   - `chunk larger than 300 kB` warning remains absent.
+8. Process note:
+   - Do not deploy, push, stage broad changes, edit `.env`, commit secrets, or run Task-163 remote QA until the Vercel preview URL, Supabase preview env values, and release inclusion list are confirmed.
+
+Task-161 completed:
+
+1. Completed the user-requested next step after confirming the top progress state was Task-160.
+2. Scope stayed Supabase/Vercel environment preflight and documentation-only:
+   - recorded required Supabase preview/production project facts without secrets;
+   - recorded required migration confirmation through `20260718000700_internal_store_rpc_scope.sql`;
+   - recorded Vercel preview/prod env var requirements:
+     - `VITE_SUPABASE_URL`;
+     - `VITE_SUPABASE_ANON_KEY`;
+     - `VITE_ALLOW_LOCAL_AUTH_FALLBACK=false`;
+     - `VITE_ALLOW_LOCAL_DB_FALLBACK=false`;
+   - recorded fallback risks in `frontend/src/services/api/helpers.js`, `frontend/src/services/supabase.js`, and `frontend/src/stores/authStore.js`;
+   - clarified that localhost cannot prove final auth fallback-disabled behavior because local auth fallback is enabled for local preview hosts;
+   - recorded stop conditions before Task-162/Task-163;
+   - confirmed no Supabase connection, migration execution, database change, API change, permission change, `.env` edit, Vercel change, deployment, dependency install, source-code change, CSS change, or business-rule change was made.
+3. Modification range:
+   - `docs/38_SUPABASE_PREVIEW_PRODUCTION_ENVIRONMENT_PREFLIGHT.md`;
+   - `docs/36_TRIAL_HANDOFF_PACKAGE_AND_FINAL_GO_NO_GO.md`;
+   - `docs/32_PRODUCTION_READINESS_ACCEPTANCE_GAP.md`;
+   - `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`;
+   - `PROGRESS.md`.
+4. Supabase preflight conclusion:
+   - OK to continue to Task-162 Vercel preview deployment configuration after dashboard-side target/env confirmation;
+   - not OK to run fallback-disabled remote browser QA until a non-localhost preview URL exists with Supabase URL/key and fallback flags disabled;
+   - production launch remains No-go until remote browser QA, live asset acceptance, final environment/account/data setup, named owner assignments, and cutover evidence are complete.
+5. Next online phase sequence:
+   - Task-162: Vercel Preview Deployment Configuration;
+   - Task-163: Fallback-disabled Remote Browser QA Execution;
+   - Task-164: Live Asset/External Dependency Acceptance;
+   - Task-165: Production Launch Cutover Decision.
+6. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `608` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-161 because this was documentation/preflight-only and did not change UI/assets/runtime behavior;
+     - latest UI browser QA remains Task-158:
+       - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/fan-entry-short-desktop-results.json`.
+7. Vite warnings:
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-161;
+   - `chunk larger than 300 kB` warning remains absent.
+8. Process note:
+   - Do not commit secrets, edit `.env`, configure production data, run migrations, connect Supabase, configure Vercel, deploy, push, or run fallback-disabled remote QA until the user confirms the target project, environment-variable handling, and preview deployment path.
+
+Task-160 completed:
+
+1. Completed the user-requested next step after confirming the top progress state was Task-159.
+2. Scope stayed Git/GitHub preflight and documentation-only:
+   - inspected current branch, upstream, remote, recent commits, staged state, tracked/untracked counts, ignore protection, and release-risk file groups;
+   - recorded a release inclusion/exclusion strategy for GitHub/Vercel preparation;
+   - confirmed no staged files currently exist;
+   - confirmed current branch is `codex/uwell-trial-ops-sync` and is ahead of `origin/codex/uwell-trial-ops-sync` by `2` commits;
+   - confirmed remote `origin` points to `https://github.com/robinlei2533-cloud/store-manager.git`;
+   - found working tree status entries: `236` total, `117` modified tracked, `119` untracked;
+   - confirmed `.env`, `frontend/dist`, `frontend/node_modules`, and `frontend/output` are ignored and not tracked;
+   - no commit, push, branch creation, staging, cleanup, revert, delete, `.env` edit, Supabase operation, Vercel operation, dependency install, deployment, source code change, CSS change, API change, database change, permission change, or business-rule change was made.
+3. Modification range:
+   - `docs/37_GITHUB_REPOSITORY_AND_BRANCH_HYGIENE_PREFLIGHT.md`;
+   - `docs/36_TRIAL_HANDOFF_PACKAGE_AND_FINAL_GO_NO_GO.md`;
+   - `PROGRESS.md`.
+4. GitHub preflight conclusion:
+   - not safe to push with broad `git add .`;
+   - release branch should be created only after the inclusion list is confirmed;
+   - recommended future branch name: `release/trial-preview-20260730`;
+   - untracked release-critical candidates include docs, `frontend/src/pages/admin-ops/`, `frontend/public/uwell-assets/`, and `supabase/migrations/*`;
+   - default exclusions include `.env`, build output, dependencies, QA output, local helper folders, one-off scripts, and preview implementation unless explicitly approved.
+5. Next online phase sequence:
+   - Task-161: Supabase Preview/Production Environment Preflight;
+   - Task-162: Vercel Preview Deployment Configuration;
+   - Task-163: Fallback-disabled Remote Browser QA Execution;
+   - Task-164: Live Asset/External Dependency Acceptance;
+   - Task-165: Production Launch Cutover Decision.
+6. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `608` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-160 because this was documentation/preflight-only and did not change UI/assets/runtime behavior;
+     - latest UI browser QA remains Task-158:
+       - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/fan-entry-short-desktop-results.json`.
+7. Vite warnings:
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-160;
+   - `chunk larger than 300 kB` warning remains absent.
+8. Process note:
+   - Do not stage, commit, push, create release branches, configure Supabase, configure Vercel, or deploy until the user confirms the release inclusion list and secret-handling path.
+   - Do not clean or revert the broad dirty worktree without explicit approval.
+
+Task-159 completed:
+
+1. Completed the user-requested next step after confirming the top progress state was Task-158.
+2. Scope stayed documentation-only:
+   - created one handoff package for the current local trial-readiness phase;
+   - combined Task-151 local QA, Task-154 remote QA runbook, Task-155 skipped/preflight note, Task-156 owner matrix, Task-157 asset inventory, and Task-158 Fan Entry QA evidence;
+   - produced a single Go/No-go table for local internal trial, controlled demo, wider external preview, and production launch;
+   - clarified that the next phase should move to GitHub, Supabase, Vercel, fallback-disabled remote QA, and live asset acceptance;
+   - no runtime code, CSS, JSX, assets, database, API, permissions, auth rules, `.env`, dependencies, business rules, GitHub remote, Supabase project, Vercel project, or deployment configuration was changed.
+3. Modification range:
+   - `docs/36_TRIAL_HANDOFF_PACKAGE_AND_FINAL_GO_NO_GO.md`;
+   - `docs/25_TRIAL_OPERATION_READINESS.md`;
+   - `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`;
+   - `docs/32_PRODUCTION_READINESS_ACCEPTANCE_GAP.md`;
+   - `PROGRESS.md`.
+4. Current launch stance:
+   - local internal trial: Go;
+   - controlled demo walkthrough: Go;
+   - wider external preview trial: Conditional Go, because fallback-disabled remote QA, live asset/dependency acceptance, and named owner assignments are still missing;
+   - production launch: No-go until online deployment evidence, remote Supabase/RLS/RPC page-level acceptance, final environment/account/data setup, named ownership, and rollback evidence are complete.
+5. Next online phase sequence:
+   - Task-160: GitHub Repository And Branch Hygiene Preflight;
+   - Task-161: Supabase Preview/Production Environment Preflight;
+   - Task-162: Vercel Preview Deployment Configuration;
+   - Task-163: Fallback-disabled Remote Browser QA Execution;
+   - Task-164: Live Asset/External Dependency Acceptance;
+   - Task-165: Production Launch Cutover Decision.
+6. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `608` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-159 because this was documentation-only and did not change UI/assets/runtime behavior;
+     - latest UI browser QA remains Task-158:
+       - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/fan-entry-short-desktop-results.json`.
+7. Vite warnings:
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-159;
+   - `chunk larger than 300 kB` warning remains absent.
+8. Process note:
+   - Do not repeat Task-151 through Task-159 unless fresh evidence proves regression or the user explicitly requests a refresh.
+   - Next work should not deploy, edit `.env`, push to GitHub, configure Supabase, or configure Vercel without explicit user confirmation and safe handling of secrets.
+
+Task-158 completed:
+
+1. Completed the user-confirmed fan entry page layout correction after confirming the top progress state was Task-157.
+2. Scope stayed limited to the real Fan login entry page:
+   - fixed the `fan-app.html#/fan-entry` hero copy/CTA clipping seen in a 1216x578 viewport;
+   - preserved the existing orb-style product canvas and ReactBits-inspired word/button effects;
+   - identified the root cause as `.uw-reactbits-split-text` applying an animation transform to the positioned `.fe-luxury-copy` container, overriding its centering transform;
+   - disabled only the container-level animation while keeping the word-level split animation;
+   - added a short-desktop viewport CSS correction so the title, CTA, canvas, and benefit dock stay inside the first screen;
+   - no Fan Center, Store, Admin, preview page, API, database, permissions, auth rules, `.env`, dependencies, business rules, asset files, or global UI structure was changed.
+3. Modification range:
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - `PROGRESS.md`.
+4. Validation commands:
+   - Focused static test:
+     - `npm test -- src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+     - passed: `1` file, `12` tests.
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `608` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+5. Browser QA:
+   - artifact path:
+     - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/fan-entry-short-desktop-results.json`;
+   - screenshots:
+     - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/short-desktop-1216x578.png`;
+     - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/mobile-390x844.png`;
+     - `frontend/output/playwright/task-158-fan-entry-short-desktop-correction/desktop-1151x698.png`;
+   - checked viewports:
+     - `1216x578`;
+     - `390x844`;
+     - `1151x698`;
+   - page-level horizontal overflow: `0` for all checked viewports;
+   - hero title within viewport: passed for all checked viewports;
+   - primary CTA within viewport: passed for all checked viewports;
+   - CTA center hit target: `BUTTON.fe-luxury-cta` for all checked viewports.
+6. Vite warnings:
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-158;
+   - `chunk larger than 300 kB` warning remains absent.
+7. Recommended next task:
+   - `Task-159: Trial Handoff Package And Final Go/No-go Summary`;
+   - combine Task-151, Task-154, skipped Task-155 preflight, Task-156, Task-157, and Task-158 evidence into one handoff package.
+8. Process note:
+   - Do not repeat this fan entry correction unless fresh browser evidence shows regression.
+   - Future UI polish should continue to inspect the real route first and then list the exact file scope before edits.
+
+Task-157 completed:
+
+1. Completed the user-confirmed next step after confirming the top progress state was Task-156.
+2. Scope stayed documentation-only:
+   - inventoried critical production-facing assets and external dependencies;
+   - classified P0/P1/P2 asset and dependency risks;
+   - defined fallback strategy, acceptance checklist, and stop conditions;
+   - no product source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, preview page, global token, UI structure, asset file, video file, image file, font file, or service worker behavior was changed;
+   - no asset was downloaded, replaced, compressed, removed, or renamed.
+3. Modification range:
+   - `docs/35_PRODUCTION_ASSET_AND_EXTERNAL_DEPENDENCY_ACCEPTANCE.md`;
+   - `docs/32_PRODUCTION_READINESS_ACCEPTANCE_GAP.md`;
+   - `PROGRESS.md`.
+4. Asset/dependency scan summary:
+   - `frontend/public/uwell-assets`: `71` local media assets, about `33.16 MB`;
+   - `frontend/src/assets` plus `frontend/public/images`: `33` local assets, about `7.13 MB`;
+   - source scan found external references including:
+     - `maps.app.goo.gl`;
+     - `files.myuwell.com`;
+     - `images.unsplash.com`;
+     - `www.instagram.com`;
+     - `www.google.com`;
+     - `cdnjs.cloudflare.com`;
+     - `unpkg.com`;
+     - `d8j0ntlcm91z4.cloudfront.net`;
+     - `fonts.googleapis.com` / `fonts.gstatic.com`;
+     - `tile.openstreetmap.org`;
+     - `www.myuwell.com`.
+5. Key P0 asset/dependency concerns:
+   - Fan Home first impression depends on an external CloudFront video and external UWELL media;
+   - some official product/activity media still depends on `files.myuwell.com`;
+   - map tiles and marker icons depend on OpenStreetMap/CDN services;
+   - Google Fonts can fall back to system fonts but should not be a route blocker;
+   - service worker/cache behavior must not serve stale proof assets during external trial.
+6. Task-157 conclusion:
+   - local internal trial: Go;
+   - controlled demo walkthrough: Go;
+   - wider external preview trial: Conditional Go, because Task-155 remote fallback-disabled QA was skipped and live external-asset verification was not executed in Task-157;
+   - production launch: No-go until remote acceptance, named owner assignments, and live external asset/media acceptance are completed.
+7. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-157 because this was documentation-only and did not change UI/assets; Task-151 remains the latest local browser QA artifact.
+8. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-157.
+9. Recommended next task:
+   - `Task-158: Trial Handoff Package And Final Go/No-go Summary`;
+   - combine Task-151, Task-154, skipped Task-155 preflight, Task-156, and Task-157 evidence into one handoff package.
+10. Process note:
+    - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+    - Do not repeat Task-148 through Task-157 unless fresh evidence proves a regression or the user explicitly requests a refresh.
+
+Task-156 completed:
+
+1. Completed the user-confirmed next step after confirming the top progress state was Task-154.
+2. Task-155 fallback-disabled remote browser QA execution was skipped by user request:
+   - a preflight artifact was created at `frontend/output/playwright/task-155-fallback-disabled-remote-qa/preflight-results.json`;
+   - Task-155 was not marked complete because no real non-localhost preview URL/fallback-disabled environment was available.
+3. Scope stayed documentation-only:
+   - created the production trial operations owner matrix;
+   - defined owner roles, backup roles, expected response timing, evidence fields, daily operating rhythm, and stop-condition escalation;
+   - no product source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, preview page, global token, or UI structure was changed.
+4. Modification range:
+   - `docs/34_PRODUCTION_TRIAL_OPERATIONS_OWNER_MATRIX.md`;
+   - `docs/25_TRIAL_OPERATION_READINESS.md`;
+   - `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`;
+   - `docs/32_PRODUCTION_READINESS_ACCEPTANCE_GAP.md`;
+   - `PROGRESS.md`.
+5. Owner matrix coverage:
+   - Admin account/user management;
+   - Manager/Rep assignment;
+   - Fan and Store Owner support;
+   - Reviews queue;
+   - Reward operations and pickup exceptions;
+   - Risk Center;
+   - S Store report monitoring;
+   - sell-through and inventory correction;
+   - product/material inventory monitoring;
+   - replenishment task creation and completion;
+   - field visit planning and evidence;
+   - Audit Log review;
+   - Supabase/RLS exceptions;
+   - build/release warning review;
+   - asset/media issue handling.
+6. Launch decision after Task-156:
+   - local internal trial: Go;
+   - controlled demo walkthrough: Go;
+   - wider external preview trial: Conditional Go, because Task-155 remote fallback-disabled evidence was skipped and remains missing;
+   - production launch: No-go until remote acceptance and named owner assignments are completed.
+7. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-156 because this was documentation-only and Task-155 remote QA was explicitly skipped.
+8. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-156.
+9. Recommended next task:
+   - `Task-157: Production Asset And External Dependency Acceptance`;
+   - inventory critical visual/video/font/map assets and fallback strategy only, no downloading/replacement without separate confirmation.
+10. Process note:
+    - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+    - Do not repeat Task-148 through Task-156 unless fresh evidence proves a regression or the user explicitly requests a refresh.
+
+Task-154 completed:
+
+1. Completed the user-confirmed next step after confirming the top progress state was Task-153, so this did not repeat Task-151 local browser QA, Task-152 trial-doc refresh, or Task-153 production gap audit.
+2. Scope stayed documentation/runbook-only:
+   - defined the fallback-disabled remote browser acceptance route matrix;
+   - defined required preview environment facts, role matrix, browser QA metrics, pass criteria, stop conditions, evidence paths, and final Task-155 output requirements;
+   - no product source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, preview page, global token, or UI structure was changed;
+   - no Supabase project was contacted and no remote QA was executed.
+3. Modification range:
+   - `docs/33_FALLBACK_DISABLED_REMOTE_BROWSER_ACCEPTANCE_RUNBOOK.md`;
+   - `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`;
+   - `docs/32_PRODUCTION_READINESS_ACCEPTANCE_GAP.md`;
+   - `PROGRESS.md`.
+4. Runbook content:
+   - required fallback-disabled values:
+     - `VITE_ALLOW_LOCAL_AUTH_FALLBACK=false`;
+     - `VITE_ALLOW_LOCAL_DB_FALLBACK=false`;
+   - viewports:
+     - `390x844`;
+     - `1151x698`;
+   - role coverage:
+     - Fan;
+     - Store Owner;
+     - Admin;
+     - Manager;
+     - Rep;
+     - Anonymous;
+   - route coverage:
+     - Fan Entry, Fan Center, Scan, Rewards, Community, Me, Stores/Map if present;
+     - Store Login, Store Home, Verify, Activities, S Report, Me;
+     - Admin Login, Dashboard, S Store Management, S Store detail, Rewards, Reviews, Users, Audit Log if included;
+     - Manager assigned/unrelated S Store boundary;
+     - Rep direct S Store route denial;
+     - Anonymous protected-route denial.
+5. Required future Task-155 QA artifact path:
+   - `frontend/output/playwright/task-155-fallback-disabled-remote-qa/fallback-disabled-remote-results.json`;
+   - screenshots under `frontend/output/playwright/task-155-fallback-disabled-remote-qa/screenshots/`.
+6. Task-154 acceptance state:
+   - clear remote QA runbook exists;
+   - stop conditions are explicit;
+   - required screenshots/result JSON paths are named;
+   - Task-155 remains the actual execution step and must stop as blocked if preview URL/credentials/fallback-disabled environment are not available.
+7. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-154 because this was documentation/runbook-only and did not execute remote preview QA.
+8. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-154.
+9. Recommended next task:
+   - `Task-155: Fallback-disabled Remote Browser QA Execution`;
+   - requires preview URL, safe test accounts, and a fallback-disabled environment strategy before execution.
+10. Process note:
+    - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+    - Do not repeat Task-148 through Task-154 unless fresh evidence proves a regression or the user explicitly requests a refresh.
+
+Task-153 completed:
+
+1. Completed the user-confirmed next step after confirming the top progress state was Task-152, so this did not repeat Task-148 targeted fixes, Task-149/150 UI warning polish, Task-151 browser QA, or Task-152 trial-doc refresh.
+2. Scope stayed documentation-only:
+   - audited the gap between local/controlled demo readiness and production readiness;
+   - consolidated evidence from Task-151, Task-152, Supabase/RLS preview docs, API docs, RBAC docs, and trial issue docs;
+   - no product source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, preview page, global token, or UI structure was changed.
+3. Modification range:
+   - `docs/32_PRODUCTION_READINESS_ACCEPTANCE_GAP.md`;
+   - `docs/25_TRIAL_OPERATION_READINESS.md`;
+   - `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`;
+   - `PROGRESS.md`.
+4. Audit conclusion:
+   - local internal trial path: Go;
+   - controlled demo walkthrough: Go, based on Task-151 local real-route QA;
+   - wider external preview trial: Conditional Go after fallback-disabled page-level remote QA;
+   - production launch: No-go until fallback-disabled browser acceptance, remote S Store page-level workflow acceptance, final production environment/account/data setup, and operations ownership are recorded.
+5. Key P0 production-readiness gaps:
+   - fallback-disabled browser acceptance is not the latest full-path evidence;
+   - production environment/account/data setup is not recorded as final;
+   - remote page-level S Store workflow acceptance remains separate from low-level RPC acceptance;
+   - production operational ownership is not assigned.
+6. Recommended next task:
+   - `Task-154: Fallback-disabled Remote Browser Acceptance Plan`;
+   - documentation/runbook first, no `.env`, database, API, permission, dependency, or runtime-code change without separate confirmation.
+7. QA artifact reference:
+   - Task-153 reused the latest local browser QA artifact:
+     - `frontend/output/playwright/task-151-final-path-rehearsal-qa/final-path-rehearsal-results.json`;
+   - no new browser QA artifact was created because Task-153 was documentation-only.
+8. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-153 because this was documentation-only and reused Task-151 final real-route QA evidence.
+9. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-153.
+10. Process note:
+    - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+    - Do not repeat Task-148, Task-149, Task-150, Task-151, Task-152, or Task-153 unless fresh evidence proves a regression or the user explicitly requests a refresh.
+
+Task-152 completed:
+
+1. Completed the requested next planned step after confirming the top progress state was Task-151, so this did not repeat Task-148 targeted fixes, Task-149/150 UI warning polish, or Task-151 browser QA.
+2. Scope stayed documentation-only:
+   - refreshed trial readiness, rehearsal, and issue/checklist docs against Task-151 final real-route evidence;
+   - removed stale Task-147 blocker/polish-gate wording for issues already resolved by Task-148/149/150;
+   - no product source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, preview page, global token, or UI structure was changed.
+3. Modification range:
+   - `docs/25_TRIAL_OPERATION_READINESS.md`;
+   - `docs/26_TRIAL_OPERATION_REHEARSAL_LOG.md`;
+   - `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`;
+   - `PROGRESS.md`.
+4. Document updates:
+   - recorded Task-151 as the latest trial QA evidence;
+   - updated trial accounts:
+     - Fan: `fan.preview@uwell.com` / `UwellFan@2026`;
+     - Store owner: `store.owner@uwell.com` / `UwellStore@2026`, bound to `s-real-012`;
+     - Admin: `admin@uwell.com` / `UwellAdmin@2026`;
+     - Manager: `manager@uwell.com` / `UwellManager@2026`, regional boundary demo only;
+     - Rep: `rep2@uwell.com` / `UwellRep@2026`, access boundary demo only;
+   - updated recommended demo order:
+     - Fan: Login -> Home -> Scan -> Rewards -> Community -> Me;
+     - Store: Login -> Home -> Verify -> Activities -> S Report -> Me;
+     - Admin: Login -> Dashboard -> S Store -> Rewards -> Reviews -> Users;
+     - Manager: regional boundary;
+     - Rep: direct S Store route block/redirect;
+   - updated Go/No-go:
+     - internal trial path: Go;
+     - controlled customer/demo walkthrough: Go based on Task-151 local real-route QA;
+     - production launch remains separate and still requires remote-mode acceptance and operational ownership evidence.
+5. QA artifact reference:
+   - `frontend/output/playwright/task-151-final-path-rehearsal-qa/final-path-rehearsal-results.json`.
+6. Validation commands:
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - not rerun in Task-152 because this was documentation-only and reused Task-151 final real-route QA evidence.
+7. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-152.
+8. Process note:
+   - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+   - Do not repeat Task-148, Task-149, Task-150, Task-151, or Task-152 unless fresh evidence proves a regression or the user explicitly requests a refresh.
+
+Task-151 completed:
+
+1. Completed the requested next planned step after confirming the top progress state was Task-150, so this did not repeat Task-148, Task-149, or Task-150.
+2. Scope stayed QA/documentation-only:
+   - added a final real-route trial path rehearsal script and screenshots;
+   - no product source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, preview page, global token, or UI structure was changed.
+3. Modification range:
+   - `PROGRESS.md`;
+   - `frontend/output/playwright/task-151-final-path-rehearsal-qa/` QA artifacts.
+4. Browser QA at `390x844` and `1151x698` covered:
+   - Fan account path: Fan Entry login, Home, Scan, Rewards, Community, Me;
+   - Store account path: Store Login, Home, Verify, Activities, S Report, Me through `store.owner@uwell.com` and `s-real-012`;
+   - Admin account path: Admin Login, Dashboard, S Store Management, Rewards, Reviews, Users;
+   - Manager regional-boundary path: S Store Management route under `manager@uwell.com`;
+   - Rep permission path: direct S Store route attempt under `rep2@uwell.com`.
+5. Browser QA results:
+   - audited page states: `34`;
+   - page-level horizontal overflow total: `0`;
+   - visible broken images total: `0`;
+   - Fan entered states: `10`;
+   - Fan Scan, Rewards, Community checks: passed;
+   - Fan internal-data leak candidates after excluding known fan-facing reward pickup/level-protection wording: `0`;
+   - Store entered states for `s-real-012`: `10`;
+   - Store Verify and S Report checks: passed;
+   - Admin entered states: `10`;
+   - Admin S Store, Rewards, Reviews, Users checks: passed;
+   - Manager S Store boundary observed: passed;
+   - Rep direct S Store route redirected/blocked: passed;
+   - diagnostics count: `0`.
+6. QA artifact path:
+   - `frontend/output/playwright/task-151-final-path-rehearsal-qa/final-path-rehearsal-results.json`;
+   - screenshots and the QA script are in the same directory.
+7. Validation commands:
+   - Focused static tests:
+     - `npm test -- src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs src/pages/login/LoginPage.static.test.mjs src/task-149-readiness-polish.static.test.mjs`;
+     - passed: `3` files, `15` tests.
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - `node output/playwright/task-151-final-path-rehearsal-qa/task-151-final-path-rehearsal-qa.mjs`;
+     - passed.
+8. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-151.
+9. Process note:
+   - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+   - Do not repeat Task-148, Task-149, Task-150, or Task-151 unless fresh real-page QA proves a regression.
+
+Task-150 completed:
+
+1. Completed the requested next step after confirming the top progress state was Task-149, so this did not repeat Task-148 or Task-149.
+2. Scope stayed narrow:
+   - reviewed Task-149 remaining automated candidates on real routes;
+   - classified AntD internal input/select child nodes, pagination wrappers, Leaflet zoom sizing, fixed background/video layers, and Fan/Store bottom-risk signals as non-blocking or already correctly sized after real wrapper checks;
+   - fixed the only confirmed real visible issue: Admin Dashboard visible AntD tags/table microcopy below the 12px trial-readiness floor;
+   - no database schema, remote API, permissions, auth rules, `.env`, dependencies, business rules, preview page, broad CSS rewrite, or global token change was made.
+3. Modification range:
+   - `frontend/src/index.css`;
+   - `frontend/src/task-149-readiness-polish.static.test.mjs`;
+   - `PROGRESS.md`;
+   - `frontend/output/playwright/task-150-final-candidate-review-qa/` QA artifacts.
+4. Browser QA at `390x844` and `1151x698` covered:
+   - Admin Login, Admin Dashboard, Admin Rewards, Admin Users;
+   - Store Me;
+   - Fan Home, Fan Rewards, Fan Community, Fan Me.
+5. Browser QA results:
+   - audited page states: `18`;
+   - page-level horizontal overflow total: `0`;
+   - broken image total: `0`;
+   - AntD input wrapper sizing: passed;
+   - AntD select selector sizing: passed;
+   - Admin pagination sizing: passed;
+   - Leaflet zoom sizing: passed;
+   - true issues after fix: `0`;
+   - diagnostics count: `0`.
+6. QA artifact path:
+   - `frontend/output/playwright/task-150-final-candidate-review-qa/final-candidate-review-results.json`;
+   - screenshots and the QA script are in the same directory.
+7. Validation commands:
+   - Focused static test:
+     - `npm test -- src/task-149-readiness-polish.static.test.mjs`;
+     - passed: `1` file, `3` tests.
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - `node output/playwright/task-150-final-candidate-review-qa/task-150-final-candidate-review-qa.mjs`;
+     - passed.
+8. Vite warnings:
+   - `chunk larger than 300 kB` warning remains absent after Task-149;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-150.
+9. Process note:
+   - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+   - Do not repeat Task-148, Task-149, or Task-150 unless fresh real-page QA proves a regression.
+
+Task-149 completed:
+
+1. Completed the requested `1 -> 2 -> 3` sequence after confirming the top progress state was Task-148, so this did not repeat Store S Report history hydration, Admin S Store table readability, or Fan Rewards bottom-nav clearance.
+2. Scope stayed trial-readiness and UI-polish only:
+   - Build warning cleanup: accepted current vendor bundle scale by raising `chunkSizeWarningLimit` to `1500` while keeping existing `manualChunks`;
+   - Browser QA: added a new real-route three-portal readiness audit script and screenshots;
+   - Store UI: raised remaining Store Home/Activities/Me microcopy and real Store Home material action tap targets;
+   - Admin UI: raised Dashboard microcopy, pagination/Leaflet zoom affordances, Admin Reviews icon-button width, and Admin Settings/ops action target floors;
+   - Admin login: fixed the assigned-account reminder rendering path with ASCII-safe Unicode escapes so the page shows readable Chinese copy;
+   - no database schema, remote API, permissions, auth rules, `.env`, dependencies, business rules, preview page, broad CSS rewrite, or global token change was made.
+3. Modification range:
+   - `frontend/vite.config.js`;
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/login/LoginPage.jsx`;
+   - `frontend/src/pages/login/LoginPage.static.test.mjs`;
+   - `frontend/src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`;
+   - `frontend/src/task-149-readiness-polish.static.test.mjs`;
+   - `PROGRESS.md`;
+   - `frontend/output/playwright/task-149-readiness-gap-qa/` QA artifacts.
+4. Browser QA at `390x844` and `1151x698` covered:
+   - Fan Entry, Fan Home, Fan Community, Fan Rewards, Fan Me;
+   - Store Login, Store Home, Store Activities, Store S Report, Store Me;
+   - Admin Login, Admin Dashboard, Admin Rewards, Admin Reviews, Admin Users.
+5. Browser QA results:
+   - audited page states: `30`;
+   - page-level horizontal overflow total: `0`;
+   - broken media total: `0`;
+   - diagnostics count: `0`;
+   - Store Home real small action target was removed from the final candidate list;
+   - Admin Reviews real 32px icon-button target was removed from the final candidate list;
+   - remaining automated candidates are treated as review notes, not Task-149 blockers: AntD internal input/select child nodes, Leaflet attribution, fixed background/video layers, and some chart/table/SVG auxiliary text.
+6. QA artifact path:
+   - `frontend/output/playwright/task-149-readiness-gap-qa/readiness-gap-results.json`;
+   - screenshots and the QA script are in the same directory.
+7. Validation commands:
+   - Focused static tests:
+     - `npm test -- src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs src/pages/login/LoginPage.static.test.mjs src/task-149-readiness-polish.static.test.mjs`;
+     - passed: `3` files, `15` tests.
+   - Full test suite:
+     - `npm test`;
+     - passed: `107` files, `607` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - `node output/playwright/task-149-readiness-gap-qa/task-149-readiness-gap-qa.mjs`;
+     - passed.
+8. Vite warnings:
+   - `chunk larger than 300 kB` warning no longer appears after the Task-149 threshold update;
+   - existing `[PLUGIN_TIMINGS]` still appears and remains a Vite/Rolldown build diagnostic, not introduced by Task-149.
+9. Process note:
+   - Future work should continue to check `PROGRESS.md`, current diffs, and real routes first.
+   - Do not repeat Task-148 or Task-149 unless fresh real-page QA proves a regression.
+
+Task-148 completed:
+
+1. Completed the user-confirmed targeted fix batch for the three Task-147 pre-customer-demo polish items after confirming the top progress state was Task-147, so this did not repeat broad UI audits, Task-146 account verification, or Task-147 closed-loop QA.
+2. Scope stayed narrow and reversible:
+   - Store App: `s-real-012` S Report history/demo evidence only;
+   - Backend: real Admin S Store Management table readability only;
+   - Fan App: real Fan Rewards bottom-navigation clearance only;
+   - no database schema, remote API, permissions, auth rules, `.env`, dependencies, business rules, preview page, broad CSS rewrite, or global token change was made.
+3. Modification range:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/services/db/seedData.test.mjs`;
+   - `frontend/src/pages/stores/SStoreManagementPage.jsx`;
+   - `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`;
+   - `frontend/src/pages/admin-ops/BackendTrialPolish.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MallTab.jsx`;
+   - `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`;
+   - `frontend/src/index.css`;
+   - `PROGRESS.md`;
+   - `frontend/output/playwright/task-148-trial-polish-fixes-qa/` QA artifacts.
+4. Fix details:
+   - Store S Report now hydrates missing local trial report history for the demo S Store `s-real-012` from existing seed data before reading the S Report histories, and sets local mode when the Store Owner route is entered from local trial state;
+   - existing Store S Report submit functions remain unchanged: sell-through, product inventory, and material inventory still submit through the S Store service layer;
+   - Admin S Store Management table now uses a wider horizontal read lane (`scroll={{ x: 2360 }}`), fixed table layout, readable main/value cells, and scoped S Store table CSS wrapping without removing any columns or detail entry;
+   - Fan Rewards now has an explicit `fan-reward-bottom-clearance` sentinel so the final product/rule content clears the fixed bottom navigation at both mobile and desktop QA sizes.
+5. Browser QA at `390x844` and `1151x698` covered:
+   - Store S Report through local trial `s-real-012`;
+   - Admin S Store Management through local admin state;
+   - Fan Rewards through local fan state.
+6. Browser QA results:
+   - audited page states: `6`;
+   - page-level horizontal overflow total: `0`;
+   - Store S Report history/demo evidence: passed;
+   - Admin S Store Management table readability checks: passed;
+   - Fan Rewards bottom-navigation clearance: passed.
+7. QA artifact path:
+   - `frontend/output/playwright/task-148-trial-polish-fixes-qa/trial-polish-fixes-results.json`;
+   - screenshots and the QA script are in the same directory.
+8. Validation commands:
+   - Red tests first:
+     - `npm test -- src/services/db/seedData.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`;
+     - failed first on the new Admin/Fan assertions, while the seed guard showed seed data already contained `s-real-012` history and the runtime issue was local-mode hydration.
+   - Focused static tests:
+     - `npm test -- src/services/db/seedData.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/admin-ops/BackendTrialPolish.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`;
+     - passed: `6` files, `91` tests.
+   - Full test suite:
+     - `npm test`;
+     - passed: `106` files, `603` tests.
+   - Production build:
+     - `npm run build`;
+     - passed.
+   - Browser QA:
+     - `node output/playwright/task-148-trial-polish-fixes-qa/task-148-trial-polish-fixes-qa.mjs`;
+     - passed.
+9. Vite warnings:
+   - existing warnings still remain and were not introduced by Task-148:
+     - `[PLUGIN_TIMINGS]`;
+     - chunks larger than `300 kB`.
+10. Process note:
+    - Future work should not repeat Store S Report history, Admin S Store table readability, or Fan Rewards bottom-nav clearance unless a fresh real-page QA artifact proves a regression.
+    - Continue checking `PROGRESS.md`, current diffs, and real routes before proposing or editing.
+
+Task-147 completed:
+
+1. Completed the current closed-loop trial rehearsal refresh after confirming the top progress state was Task-146, so this did not repeat the account/path verification or previous UI passes.
+2. Scope stayed documentation/QA-only:
+   - no source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, Fan implementation, Store implementation, Admin implementation, preview page, or global token was changed;
+   - only the rehearsal document, issue log/checklist, this progress record, and Playwright QA artifacts were updated.
+3. Modification range:
+   - `docs/26_TRIAL_OPERATION_REHEARSAL_LOG.md`;
+   - `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`;
+   - `PROGRESS.md`;
+   - `frontend/output/playwright/task-147-closed-loop-rehearsal-qa/` QA artifacts.
+4. Browser QA at `390x844` and `1151x698` covered:
+   - Fan login through `fan.preview@uwell.com`;
+   - Fan Home, Activities, Community, Rewards, Stores, Me, and Scan entry;
+   - Store login through `store.owner@uwell.com`;
+   - Store Home, Verify, Activities, S Report, and Me;
+   - Admin Dashboard, S Store Management, Rewards, Reviews, and Risk Center through `admin@uwell.com`;
+   - Manager S Store regional-boundary state through `manager@uwell.com`;
+   - Rep direct S Store route denial/redirect through `rep2@uwell.com`.
+5. Browser QA results:
+   - audited page states: `40`;
+   - page-level horizontal overflow total: `0`;
+   - Store login path entered `s-real-012`: `10 / 10` Store states;
+   - Store S Report surface visible: `10 / 10` Store states;
+   - Admin S Store/dashboard/sidebar context visible: `8` Admin states;
+   - Manager visible S Store data count: `0`, permission-consistent for the Riyadh-scoped manager;
+   - Rep direct S Store route attempts redirected to `#/app/dashboard`: `2 / 2`;
+   - automated Fan internal-data candidates: `2`, both reviewed as false positives caused by the fan-facing `S store pickup` reward label, not sell-through/inventory/replenishment/downgrade/audit leakage;
+   - diagnostics: `8`, all consistent with local Supabase fallback `400` resource warnings and `Object` page errors already tracked as local-mode noise.
+6. Current trial findings:
+   - no blocker for internal closed-loop rehearsal;
+   - P1 before customer-facing demo: Store S Report opens for `s-real-012`, but fresh local trial state shows `NO SELL-THROUGH RECORDS YET` and empty latest-history blocks, weakening the "locked submitted history" demo proof;
+   - P1 before customer-facing demo: Backend S Store Management desktop table has no page-level overflow but remains visually clipped/squeezed for later columns and row values;
+   - P2 before customer-facing demo: Fan Rewards product cards can pass under the fixed bottom navigation while scrolling.
+7. QA artifact path:
+   - `frontend/output/playwright/task-147-closed-loop-rehearsal-qa/closed-loop-rehearsal-results.json`;
+   - screenshots and the QA script are in the same directory.
+8. Validation commands:
+   - `node output/playwright/task-147-closed-loop-rehearsal-qa/task-147-closed-loop-rehearsal-qa.mjs`;
+   - no focused static tests, full `npm test`, lint, or `npm run build` were run because no source implementation changed.
+9. Vite warnings:
+   - not rerun in Task-147 because no source build was needed;
+   - latest known build warnings remain existing from Task-144:
+     - `[PLUGIN_TIMINGS]`;
+     - chunks larger than `300 kB`.
+10. Document updates:
+    - refreshed `docs/26_TRIAL_OPERATION_REHEARSAL_LOG.md` from old Task-076 content to current Task-147 evidence;
+    - refreshed `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md` from old Task-077 content to current Task-147 issue ranking and Task-148 recommendation.
+11. Process note:
+    - Future work should not rerun broad UI audits or repeat Task-146/147 unless real page state changes.
+    - Task-148 should start with confirmation-first impact analysis and focus narrowly on Store S Report history/demo evidence, Backend S Store table readability, and optionally Fan Rewards bottom-nav clearance.
+
+Task-146 completed:
+
+1. Completed the requested trial-account and demo-path verification after confirming the top progress state was Task-145, so this did not repeat previous UI, routing, identity, or deprecated-prop cleanup.
+2. Scope stayed documentation/QA-only:
+   - no source code, CSS, API, database, permissions, auth rules, `.env`, dependencies, business rules, Fan implementation, Store implementation, Admin implementation, preview page, or global token was changed;
+   - only the trial readiness document, this progress record, and Playwright QA artifacts were updated.
+3. Modification range:
+   - `docs/25_TRIAL_OPERATION_READINESS.md`;
+   - `PROGRESS.md`;
+   - `frontend/output/playwright/task-146-trial-account-demo-path-qa/` QA artifacts.
+4. Verification details:
+   - read and checked `AGENTS.md`, `PROGRESS.md`, `frontend/src/App.jsx`, `frontend/src/fan/App.jsx`, `frontend/src/store/App.jsx`, `frontend/src/services/db/seedData.js`, and `docs/25_TRIAL_OPERATION_READINESS.md`;
+   - confirmed seeded trial accounts:
+     - Fan: `fan.preview@uwell.com`;
+     - Store owner: `store.owner@uwell.com`, bound to `s-real-012`;
+     - Admin: `admin@uwell.com`;
+     - Manager: `manager@uwell.com`;
+     - Rep smoke: `rep2@uwell.com`;
+   - confirmed real trial entry routes:
+     - `fan-app.html#/fan-entry`;
+     - `fan-app.html#/fan-center`;
+     - `store-app.html#/store-login`;
+     - `store-app.html#/store-owner`;
+     - `#/admin`;
+     - `#/app/dashboard`;
+     - `#/app/stores/s-stores`.
+5. Browser QA at `390x844` and `1151x698` covered:
+   - Fan login path into Fan Center;
+   - Store owner login path into Store Owner;
+   - Admin login path into S Store Management;
+   - Manager login path into S Store Management regional-boundary state;
+   - Rep login path with attempted S Store route redirect back to dashboard.
+6. Browser QA results:
+   - audited result records: `12`;
+   - page-level horizontal overflow total: `0`;
+   - Store login path entered `s-real-012`: `2 / 2`;
+   - Store S Report visible for `store.owner@uwell.com`: `2 / 2`;
+   - Admin S Store Management text/data visible: `2 / 2`;
+   - Manager S Store Management remains `0` visible S Stores due Riyadh regional boundary;
+   - Rep S Store route attempt redirected to `#/app/dashboard`;
+   - page errors reported by the script: `2`, captured as local fallback `Object` page errors during Supabase fallback;
+   - console warning/error records: `6`, all `400` resource warnings before local fallback and already documented as non-blocking local trial behavior.
+7. QA artifact path:
+   - `frontend/output/playwright/task-146-trial-account-demo-path-qa/trial-account-demo-path-results.json`;
+   - screenshots and the QA script are in the same directory.
+8. Validation commands:
+   - `node output/playwright/task-146-trial-account-demo-path-qa/task-146-trial-account-demo-path-qa.mjs`;
+   - no focused static tests, full `npm test`, lint, or `npm run build` were run because no source implementation changed.
+9. Vite warnings:
+   - not rerun in Task-146 because no source build was needed;
+   - latest known build warnings remain existing from Task-144:
+     - `[PLUGIN_TIMINGS]`;
+     - chunks larger than `300 kB`.
+10. Document updates:
+    - refreshed `docs/25_TRIAL_OPERATION_READINESS.md` date/status;
+    - added Fan/Store login entry URLs;
+    - added Task-146 note that the official Store login path enters `s-real-012` and shows S Report;
+    - removed stale wording that treated old AntD deprecation warnings as current real-route blockers, while preserving the unrouted legacy community-page caveat from Task-145.
+11. Process note:
+    - Future work should continue with a duplicate check against this Task-146 entry, QA artifacts, and real route state before proposing or editing.
+    - If the next step changes code, ask first with impact analysis, exact file list, rollback plan, optimization details, and acceptance criteria.
+
+Task-145 completed:
+
+1. Completed the requested next-step triage before editing, to avoid repeating or expanding the Admin-only deprecated cleanup.
+2. Scope stayed verification/documentation-only:
+   - no source code, CSS, API, permissions, database, `.env`, dependencies, business rules, Fan portal, Store portal, preview page, or Admin implementation file was changed;
+   - only this progress record was updated with the triage conclusion.
+3. Triage details:
+   - scanned remaining `Space direction="vertical"` and deprecated prop candidates under `frontend/src`;
+   - remaining matches are only in `frontend/src/pages/community/CommunityPage.jsx`;
+   - `CommunityPage.jsx` is not imported or routed by `frontend/src/App.jsx`;
+   - real Fan Community is implemented by `frontend/src/pages/fans/tabs/CommunityTab.jsx`, already covered by Task-135D and Task-143 delta QA;
+   - real Admin community/complaint operations use `ComplaintReplyPage` and admin-ops pages, not `CommunityPage.jsx`.
+4. Decision:
+   - no cleanup was performed because the remaining deprecated matches are outside the currently routed trial surfaces;
+   - do not modify `frontend/src/pages/community/CommunityPage.jsx` unless a future route/use-case brings it back into real trial scope or the user explicitly asks to clean unused legacy pages.
+5. Files changed in this task:
+   - `PROGRESS.md`.
+6. Verification:
+   - source grep/PowerShell scan confirmed no remaining `Space direction="vertical"` candidates in real Admin pages;
+   - no focused tests, full `npm test`, lint, build, or browser QA were run because no source implementation changed.
+7. Vite warnings:
+   - not rerun in Task-145 because no source build was needed;
+   - latest known build warnings remain existing from Task-144:
+     - `[PLUGIN_TIMINGS]`;
+     - chunks larger than `300 kB`.
+8. Process note:
+   - Future deprecated cleanup should not target `CommunityPage.jsx` as a trial blocker unless it becomes routed.
+   - Continue checking `PROGRESS.md`, route imports, QA artifacts, and real page state before proposing implementation.
+
+Task-144 completed:
+
+1. Completed the user-confirmed Admin-only AntD deprecated prop cleanup after duplicate-checking the current progress and source matches.
+2. Scope stayed local and reversible:
+   - real Admin backend route `/app/fans/rules` only;
+   - no Fan consumer portal, Store portal, preview page, database, API, permissions, auth rules, `.env`, dependencies, business logic, layout rewrite, or global CSS was changed.
+3. Cleanup details:
+   - changed the three Admin Fan Rules boundary cards from `Space direction="vertical"` to `Space orientation="vertical"`;
+   - added a focused static guard so this real Admin page cannot reintroduce `Space direction="vertical"`;
+   - verified that `Alert message=` cleanup was already effectively done in current Admin matches and did not repeat it.
+4. Files changed in this task:
+   - `frontend/src/pages/fans/FanRulesPage.jsx`;
+   - `frontend/src/pages/fans/FanRulesPage.operational-boundary.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/fans/FanRulesPage.operational-boundary.test.mjs` now checks for `<Space orientation="vertical" size={6}>` and blocks `<Space direction="vertical"`.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - Admin Login through the real local admin account;
+   - Admin route `#/app/fans/rules`;
+   - rules boundary content, AntD table presence, horizontal overflow, page errors, console errors, and console warnings.
+7. Browser QA results:
+   - audited page states: `2`;
+   - page-level horizontal overflow total: `0`;
+   - page errors: `0`;
+   - console errors: `0`;
+   - console warnings: `0`;
+   - missing rules page renders: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-144-admin-antd-deprecated-cleanup-qa/admin-antd-deprecated-cleanup-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - focused static test passed:
+     - `npm test -- src/pages/fans/FanRulesPage.operational-boundary.test.mjs`;
+     - `1` file passed;
+     - `2` tests passed;
+   - lint passed:
+     - `npm run lint`;
+   - full test suite passed:
+     - `npm test`;
+     - `106` files passed;
+     - `599` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Process note:
+    - Remaining `Space direction="vertical"` matches outside this Admin route were not touched because they are outside the user-confirmed Admin-only scope.
+    - Future rounds must continue duplicate-checking `PROGRESS.md`, QA artifacts, and real page state before proposing or editing.
+
+Task-143 completed:
+
+1. Completed the requested next-step self-check before planning or editing, specifically to avoid repeating finished UI fixes.
+2. Scope stayed verification-only:
+   - no source code, CSS, API, permissions, database, `.env`, dependencies, business rules, or UI implementation files were changed;
+   - generated only Playwright QA artifacts and screenshots under `frontend/output/playwright/task-143-delta-verification-only/`;
+   - then updated this progress record so the next agent does not repeat Task-133/135/140/141/142 work.
+3. Duplicate-avoidance findings:
+   - Fan Home video/media unblock and CTA clearance were already covered by `Task-133A/133B`;
+   - Fan Home/Me/Rewards/Stores/Community readability and bottom-nav clearance were already covered by `Task-135A-D`;
+   - Fan motion and reduced-motion discipline were already covered by `Task-135E` and `Task-141`;
+   - Store workflow readability/bottom navigation and Admin scan/click target polish were already covered by `Task-136A/140`;
+   - three login window effects were already covered by `Task-141`;
+   - routing/local identity/preview route cleanup was already covered by `Task-142`.
+4. Browser delta QA at `390x844` and `1151x698` covered:
+   - Fan Entry;
+   - real Fan Center through the real demo entry path;
+   - Fan bottom navigation tabs: Home, Activities, Community, Rewards, Stores, Me;
+   - Store Login;
+   - real Store Owner tabs: Home, Verify, Activities, Me;
+   - current B-level demo store state where S Report is not applicable;
+   - Admin Login and Admin Dashboard through the real admin login flow;
+   - disabled old preview route check at `#/preview/fan`.
+5. Browser delta QA results:
+   - audited page states: `32`;
+   - high/medium/low issue counts: `0 / 0 / 0`;
+   - page-level horizontal overflow total: `0`;
+   - page errors: `0`;
+   - console errors: `0`;
+   - old `.fan-preview-shell` exposure: `0`;
+   - Fan Center missed renders: `0`;
+   - Store shell missed renders: `0`;
+   - Fan Home placeholder/poster count: `0`;
+   - broken media count: `0`;
+   - not applicable states: `2`, both are current B-level demo store hiding S Report; S Store S Report remains covered by Task-140 QA.
+6. QA artifact path:
+   - `frontend/output/playwright/task-143-delta-verification-only/delta-verification-results.json`;
+   - screenshots are in the same directory.
+7. Verification:
+   - browser delta QA script passed and produced corrected final artifact;
+   - no focused static tests, full `npm test`, lint, or build were rerun because this task did not change source files;
+   - latest source-code validation remains Task-142:
+     - `npm run lint` passed;
+     - `npm test` passed with `106` files and `598` tests;
+     - `npm run build` passed.
+8. Vite warnings:
+   - not rerun in Task-143 because no source build was needed;
+   - latest known build warnings remain existing from Task-142:
+     - `[PLUGIN_TIMINGS]`;
+     - chunks larger than `300 kB`.
+9. Process note:
+   - Future planning must first check the top of `PROGRESS.md`, nearby completed tasks, QA artifacts, and real page state before proposing changes.
+   - Do not repeat Task-133/135/140/141/142 completed UI/routing/identity fixes unless real-page delta QA proves a regression.
+
+Task-142 completed:
+
+1. Completed the trial-readiness P0 stability pass after the user's explicit "开始实施，按照当前计划进行" confirmation.
+2. Scope stayed local and reversible:
+   - real Fan local identity recovery;
+   - local QR scan fan attribution;
+   - trial route cleanup for the old `/preview/fan` entry;
+   - lint cleanup for the retained preview source file;
+   - static regression tests and browser QA artifact;
+   - no database schema, remote API, permissions model, `.env`, dependency install, Fan/Store/Admin business rules, or broad UI rewrite was performed.
+3. Optimization details:
+   - Fan identity recovery no longer falls back to arbitrary `fans[0]`; it restores only an existing saved local fan id and clears stale fan login flags when no valid saved id exists;
+   - real Fan Center local fallback now resolves the configured demo fan account `fan.preview@uwell.com` through the local `auth` table instead of relying on table order;
+   - local QR scanning now accepts an explicit/session fan id, falls back only to the configured demo fan when appropriate, and no longer credits the first fan attached to the QR store;
+   - `/preview/fan` was removed from app trial routes while keeping preview source/tests available for historical reference and lint coverage;
+   - preview lint cleanup replaced render-time `Date.now()` ids with a ref-backed local sequence and removed unused preview variables.
+4. Files changed in this task:
+   - `frontend/src/App.jsx`;
+   - `frontend/src/App.static.test.mjs`;
+   - `frontend/src/stores/authStore.js`;
+   - `frontend/src/services/api/qrcodes.js`;
+   - `frontend/src/services/api/qrcodes.static.test.mjs`;
+   - `frontend/src/services/api/helpers.test.mjs`;
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/pages/preview/FanPreviewPage.jsx`;
+   - `frontend/src/pages/preview/FanPreviewPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/services/api/helpers.test.mjs` guards runtime local mode consumers and blocks unordered first-fan fallback in auth/Fan Center;
+   - `frontend/src/services/api/qrcodes.static.test.mjs` guards QR scan attribution so store-first-fan fallback cannot return silently;
+   - `frontend/src/App.static.test.mjs` and `frontend/src/pages/preview/FanPreviewPage.static.test.mjs` guard that the old preview route is not exposed in trial routes while preview data integrity remains covered.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-entry`;
+   - `fan-app.html#/fan-center`;
+   - `store-app.html#/store-login`;
+   - `store-app.html#/store-owner`;
+   - `#/admin`;
+   - `#/app/dashboard`;
+   - disabled old preview route check at `#/preview/fan`.
+7. Browser QA results:
+   - audited page states: `14`;
+   - page-level horizontal overflow total: `0`;
+   - old `.fan-preview-shell` exposure on trial route: `0`;
+   - empty route renders: `0`;
+   - page errors: `0`;
+   - console errors: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-142-trial-p0-routing-identity-qa/routing-identity-qa.json`.
+9. Verification:
+   - focused static tests passed:
+     - `npm test -- src/App.static.test.mjs src/pages/preview/FanPreviewPage.static.test.mjs src/services/api/helpers.test.mjs src/services/api/qrcodes.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs`;
+     - `5` files passed;
+     - `77` tests passed;
+   - lint passed:
+     - `npm run lint`;
+   - full test suite passed:
+     - `npm test`;
+     - `106` files passed;
+     - `598` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Process note:
+    - This task used the one-time user authorization to continue the current implementation plan directly.
+    - Future modification rounds must return to confirmation-first workflow: list impact analysis, exact file list, rollback plan, optimization details, and acceptance criteria before editing.
+
+Task-141 completed:
+
+1. Completed the user-confirmed ReactBits-inspired UI effects pass for real Fan surfaces and the three login windows.
+2. Scope stayed local and reversible:
+   - Fan Entry login/register modal and hero CTA polish;
+   - real Fan Center Home high-value brand/action surfaces;
+   - Store login form/card/button polish;
+   - Admin login form/card/button polish;
+   - no database, API, permissions, auth rules, `.env`, dependencies, media assets, preview pages, point/reward/campaign/store business rules, or Admin backend workbench pages were changed.
+3. UI/effects fix:
+   - added local ReactBits-inspired CSS effects instead of installing/importing the ReactBits package;
+   - added restrained split-text entrance, shiny text accent, fade-content modal/card entry, specular button highlight, click spark, input focus ring, fan spotlight card, and counter settle effects;
+   - scoped the expressive effects mainly to Fan Entry and Fan Home while keeping Store/Admin login effects quieter and workbench-like;
+   - added `prefers-reduced-motion` shutdown for decorative Task-141 animations/transitions;
+   - tightened final QA readability locks for Fan Entry wishline/benefit labels, Fan Home member snapshot labels, Fan header language button, check-in detail link, Store login language/terms area, Admin login copy panel, and login input focus surfaces.
+4. Files changed in this task:
+   - `frontend/src/pages/fan-entry/FanEntryPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreEntryPage.jsx`;
+   - `frontend/src/pages/login/LoginPage.jsx`;
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreEntryPage.static.test.mjs`;
+   - `frontend/src/pages/login/LoginPage.static.test.mjs`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` guards the `Task-141` CSS marker, motion tokens, split/shiny/fade/specular/click/field/spotlight effects, reduced-motion shutdown, and final QA readability/touch locks;
+   - login/Fan static tests guard the Task-141 JSX class hooks while preserving existing login, registration, demo fan, Fan Home, Store login, Admin login, and Fan Center business routes.
+6. Final Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-entry`;
+   - `fan-app.html#/fan-center` through the real Fan Entry demo path;
+   - `store-app.html#/store-login`;
+   - `#/admin`;
+   - normal motion and `prefers-reduced-motion: reduce`;
+   - screenshots, horizontal overflow, visible text floor, low-contrast candidates, key control sizes, bottom overlap, console messages, and page errors.
+7. Final Browser QA results:
+   - audited page states: `8`;
+   - page-level horizontal overflow total: `0`;
+   - visible text below `12px`: `0`;
+   - bottom-nav/content overlap candidates: `0`;
+   - page errors: `0`;
+   - console warnings/errors: `0`;
+   - small-control candidates: `10`, reviewed as native checkbox geometry, text-link width, and AntD inner input geometry while their visible labels/wrappers remain usable;
+   - low-contrast candidates: `60`, reviewed as automated sampling false positives on transparent/video/gradient surfaces and large parent containers, not a blocking page-level issue.
+8. QA artifact path:
+   - `frontend/output/playwright/task-141-reactbits-ui-effects-final-qa/ui-effects-final-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - focused static tests passed:
+     - `npm test -- src/index.static.test.mjs src/pages/fan-entry/FanEntryPage.static.test.mjs src/pages/store-owner/StoreEntryPage.static.test.mjs src/pages/login/LoginPage.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs`;
+     - `5` files passed;
+     - `81` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `594` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Process note:
+    - This task was implemented after the user's explicit "开始实施/继续" confirmation for the ReactBits-inspired UI effects pass.
+    - Future UI/code modification rounds must ask for confirmation first and list impact analysis, exact file list, rollback plan, and acceptance criteria before editing.
+
+Task-140 completed:
+
+1. Completed the one-time user-authorized full follow-up UI finish pass after Task-136A.
+2. Scope stayed local and reversible:
+   - real Store portal S Report/Home/Activities readability and workflow rhythm;
+   - real Admin Dashboard/sidebar/table touch and contrast polish;
+   - no Fan implementation work, preview pages, database, API, permissions, auth rules, `.env`, dependencies, media assets, reporting rules, reward rules, campaign rules, or approval logic were changed.
+3. UI fix:
+   - segmented Store S Report into a clearer mode bar and step-numbered form workbench while preserving all existing sell-through, product inventory, material inventory, history refresh, DatePicker popup, and submit handlers;
+   - added Store motion tokens and reduced-motion shutdown for Store shell animations/transitions;
+   - tightened Store final QA candidates: readable S-level badge, 44px Home action buttons, readable Activities section headings, no bottom-nav overlap;
+   - added Admin Dashboard scan-priority band for today's scans, today's visits, and 7-day conversion without removing existing dashboard sections;
+   - tightened Admin sidebar brand/local demo tag contrast and Admin table/card action touch targets, including Dashboard table hover cells.
+4. Files changed in this task:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/pages/dashboard/DashboardPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`;
+   - `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - `frontend/src/components/layout/AppLayout.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` guards the `Task-140` CSS marker, Store S Report mode grid, step labels, motion tokens/reduced-motion, Admin sidebar brand contrast, Admin action target sizing, and Dashboard scan band;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs` guards the segmented S Report workbench while preserving submission handlers, history refresh, and DatePicker popup binding;
+   - `frontend/src/pages/dashboard/DashboardPage.static.test.mjs` guards the Admin Dashboard scan-priority band without removing existing data sections;
+   - `frontend/src/components/layout/AppLayout.static.test.mjs` guards Admin shell sidebar contrast/touch target polish.
+6. Final Browser QA at `390x844` and `1151x698` covered:
+   - `store-app.html#/store-owner`: Home, Verify, Activities, S Report, Me;
+   - `#/app/dashboard`: Admin Dashboard;
+   - horizontal overflow, visible text floor, low-contrast candidates, key control sizes, bottom-nav overlap, screenshots, console messages, and page errors.
+7. Final Browser QA results:
+   - audited pages: `12`;
+   - page-level horizontal overflow total: `0`;
+   - visible text below `12px`: `0`;
+   - low-contrast candidates: `0`;
+   - key controls below target size: `0`;
+   - bottom-nav overlapped content: `0`;
+   - page errors: `0`;
+   - console output only included normal Vite/dev React info/debug entries during local QA.
+8. QA artifact path:
+   - `frontend/output/playwright/task-140-authorized-full-ui-finish-qa/qa-results-final.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - focused static tests passed:
+     - `npm test -- src/index.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/dashboard/DashboardPage.static.test.mjs src/components/layout/AppLayout.static.test.mjs`;
+     - `4` files passed;
+     - `58` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `589` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Process note:
+    - This was done under the user's one-time "directly finish all this time" authorization. Future UI/code modification rounds must again ask for confirmation first and list impact analysis, exact file list, rollback plan, and acceptance criteria before editing.
+
+Task-136A completed:
+
+1. Completed the next real Store-only UI optimization implementation batch after Task-135E.
+2. Scope stayed local and reversible:
+   - real Store portal Verify, Activities, Me/materials, and S Report workflow rhythm only;
+   - no Fan portal, Admin portal, preview pages, database, API, permissions, auth rules, `.env`, dependencies, media assets, point rules, reward pickup rules, S Store reporting business rules, material request rules, or campaign approval rules were changed.
+3. UI fix:
+   - added scoped `Task-136A` Store CSS locks in `frontend/src/index.css`;
+   - raised Store Verify, Activities, Me/material, S Report buttons and form controls to `44px` interaction targets;
+   - raised Store workflow helper/chip/material/S Report labels to a `12px` readable floor;
+   - increased Store shell/material bottom reserve and fixed Store bottom navigation stacking so final content clears the fixed nav;
+   - tightened Verify/Activities/Me action strips and workflow cards without removing search, scan, upload, review, request, submit, history, status, time, warehouse, or material fields;
+   - replaced deprecated AntD S Report `DatePicker popupClassName` usage with `classNames.popup.root`.
+4. Files changed in this task:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` guards the `Task-136A` marker, Store bottom reserve, `44px` controls, readable material tags, bottom-nav z-index, and material workflow clearance.
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs` guards Store Verify/Activities/Me/S Report workflow controls, S Report DatePicker `classNames.popup.root`, readable labels, material/S Report input heights, and final Store QA override.
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs` now guards the non-deprecated DatePicker popup class binding while preserving readable calendar dropdown CSS.
+6. Final Browser QA at `390x844` and `1151x698` covered:
+   - `store-app.html#/store-owner`;
+   - Store bottom navigation tabs: Verify, Activities, Me, S Report;
+   - horizontal overflow, visible text floor, non-nav control sizes, bottom-nav overlap, console warnings/errors, and page errors.
+7. Final Browser QA results:
+   - page-level horizontal overflow total: `0`;
+   - visible text below `12px`: `0`;
+   - non-nav controls below `44px`: `0`;
+   - bottom-nav overlapped content: `0`;
+   - unexpected console warnings/errors: `0`;
+   - page errors: `0`;
+   - known local demo console entries: `12`, from existing Store local/Supabase fallback behavior with seeded local store id.
+8. QA artifact path:
+   - `frontend/output/playwright/task-136a-store-workflow-rhythm-qa/qa-results-final.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - focused static tests passed:
+     - `npm test -- src/index.static.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`;
+     - `3` files passed;
+     - `62` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `585` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Known follow-up:
+    - Next natural Store-only batch is deeper S Report form/workbench structure polish or Store motion/reduced-motion cleanup from the Task-131 plan, unless new visible QA feedback adds a higher-priority issue.
+
+Task-135E completed:
+
+1. Completed the next real Fan-only UI optimization implementation batch after Task-135D.
+2. Scope stayed local and reversible:
+   - real Fan center motion behavior and Fan static locks only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, QR/scan rules, map URLs, media assets, video sources, or business rules were changed.
+3. UI/motion fix:
+   - added a scoped `Task-135E` CSS lock at the end of `frontend/src/index.css`;
+   - unified Fan motion timing tokens for card entrance, nav movement, and key card hover transitions;
+   - disabled decorative Fan animations under `prefers-reduced-motion`, including hero line pulse, poster pulse, split reveal spans, pulse dots, and card entrance animation;
+   - disabled motion transitions/transform/filter on key Fan cards and bottom navigation under reduced motion while preserving normal-mode interaction feedback;
+   - updated the Fan center background video effect so reduced-motion users do not get the RAF fade/play loop, while normal mode keeps the existing video behavior.
+4. Files changed in this task:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` now guards the `Task-135E` marker, Fan motion tokens, scoped transition duration, reduced-motion animation shutdown, scroll-behavior reset, and key reduced-motion transition/transform shutdown.
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs` now guards the Fan background video reduced-motion branch.
+6. Final Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`;
+   - normal motion mode and `prefers-reduced-motion: reduce`;
+   - Fan shell, Home action cards, bottom navigation, decorative animation samples, background video state, and core touch targets.
+7. Final Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - core Fan Home/bottom-nav touch targets below `44px`: `0`;
+   - reduced-motion decorative animation count: `0`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan route: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-135e-fan-motion-reduced-motion-qa/qa-results-final.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - focused static tests passed:
+     - `npm test -- src/index.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs`;
+     - `2` files passed;
+     - `50` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `583` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Known follow-up:
+    - Next natural batch is Store-only UI cleanup from the Task-131 plan, starting with low-contrast/readability and bottom-navigation clearance on real Store Activities/Home/Me pages, unless Fan QA feedback adds a higher-priority visible issue.
+
+Task-135D completed:
+
+1. Completed the next real Fan UI optimization implementation batch for Community after Task-135C.
+2. Scope stayed local and reversible:
+   - real Fan Community feed page and Community static locks only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, community like/comment/post daily limits, reward rules, redemption rules, QR/scan rules, media assets, video layers, or business rules were changed.
+3. UI fix:
+   - added a scoped `Task-135D` CSS lock at the end of `frontend/src/index.css`;
+   - raised Community product chips, XP/rule chips, rule helper copy, post chips, comment counts, and rendered comment text to a `12px` readable floor;
+   - increased like buttons, comment input, comment submit button, and related Community controls to `44px` touch targets;
+   - added a subtle divider and spacing to each comment box so comments read as a response area instead of dense repeated controls;
+   - normalized feed media image slots to a stable `4 / 3` ratio;
+   - added explicit Community feed bottom safe-area reserve so the final post clears the fixed Fan bottom navigation.
+4. Files changed in this task:
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` now guards the `Task-135D` marker, Community bottom clearance, readable feed labels/comments, 44px interaction controls, and comment-box divider.
+   - `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs` now guards Community readable comment counts, comment input/button touch targets, mobile product-chip font size, and preservation of existing point-limit logic.
+6. Browser QA baseline before implementation found:
+   - page-level horizontal overflow: `0`;
+   - Community visible text below `12px`: `12`;
+   - Community touch targets below `44px`: `36`;
+   - broken images: `0`;
+   - page errors: `0`;
+   - console warnings/errors: `0`.
+7. Final Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`;
+   - bottom navigation Community tab;
+   - Community hero, composer, XP/rule hint, feed cards, media cards, like/comment controls, comment inputs, and final-post bottom navigation clearance.
+8. Final Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Community visible text below `12px`: `0`;
+   - Community touch targets below `44px`: `0`;
+   - broken images: `0`;
+   - final Community post covered by fixed bottom nav: `0`;
+   - post cards present: `12`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan Community route: `0`.
+9. QA artifact path:
+   - `frontend/output/playwright/task-135d-fan-community-readability-qa/qa-results-final.json`;
+   - screenshots and baseline results are in the same directory.
+10. Verification:
+    - focused static tests passed:
+      - `npm test -- src/index.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs`;
+      - `2` files passed;
+      - `18` tests passed;
+    - full test suite passed:
+      - `npm test`;
+      - `105` files passed;
+      - `581` tests passed;
+    - production build passed:
+      - `npm run build`.
+11. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+12. Known follow-up:
+    - Fan motion/reduced-motion cleanup remains the next natural Fan-only batch, especially for decorative infinite animations and consistent reduced-motion behavior.
+
+Task-135C completed:
+
+1. Completed the next real Fan UI optimization implementation batch for Stores after Task-135B.
+2. Scope stayed local and reversible:
+   - real Fan Stores preview, real Fan Stores map page, and Stores static locks only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, store exposure ranking rules, map destination URLs, QR/scan rules, media assets, video layers, or business rules were changed.
+3. UI fix:
+   - added a scoped `Task-135C` CSS lock at the end of `frontend/src/index.css`;
+   - raised Stores hero tags, map count labels, map legend, Leaflet marker labels, store-card helper text, trust notes, capability chips, map detail chips, phone/detail notes, and photo notes to a `12px` readable floor;
+   - restored mobile store capability chips so trust cues remain visible instead of being hidden by older compact rules;
+   - increased store navigation, map filters, and map navigation controls to `44px` touch targets;
+   - normalized store hero and map hero images to a stable `4 / 3` ratio and kept store card media in a more product-service-like frame;
+   - added explicit Stores bottom safe-area reserve so final meaningful content clears the fixed Fan bottom navigation.
+4. Files changed in this task:
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MapTab.static.test.mjs`;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` now guards the `Task-135C` marker, Stores bottom clearance, readable map/store labels, service-card grid rhythm, and 44px map/store controls.
+   - `frontend/src/pages/fans/tabs/MapTab.static.test.mjs` now guards readable map marker/legend/detail controls and stable map canvas sizing.
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs` now guards mobile-visible trust cues, store image ratio, readable capability chips, and the mobile capability grid.
+6. Browser QA baseline before implementation found:
+   - page-level horizontal overflow: `0`;
+   - mobile Stores visible text below `12px`: `28`;
+   - desktop Stores visible text below `12px`: `1`;
+   - touch targets below `44px`: `0`;
+   - fixed bottom-nav overlap: `0`.
+7. Final Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`;
+   - bottom navigation Stores tab;
+   - Stores preview cards, store-card media, trust/capability chips, map filters, map canvas, map legend, and bottom-navigation clearance.
+8. Final Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Stores visible text below `12px`: `0`;
+   - Stores touch targets below `44px`: `0`;
+   - broken images: `0`;
+   - business/store media broken images: `0`;
+   - final meaningful Stores content covered by fixed bottom nav: `0`;
+   - map canvas present: `true`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan Stores route: `0`.
+9. QA artifact path:
+   - `frontend/output/playwright/task-135c-fan-stores-readability-qa/qa-results-final.json`;
+   - screenshots and baseline results are in the same directory.
+10. Verification:
+    - focused static tests passed:
+      - `npm test -- src/index.static.test.mjs src/pages/fans/tabs/MapTab.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`;
+      - `3` files passed;
+      - `20` tests passed;
+    - full test suite passed:
+      - `npm test`;
+      - `105` files passed;
+      - `579` tests passed;
+    - production build passed:
+      - `npm run build`.
+11. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+12. Known follow-up:
+    - Fan Community still has out-of-scope information-density, comment-box, and repeated-rule candidates from the broader UI optimization plan and should be handled in a later Fan batch, not mixed into this Stores pass.
+
+Task-135B completed:
+
+1. Completed the next real Fan UI optimization implementation batch for Rewards after Task-135A.
+2. Scope stayed local and reversible:
+   - real Fan Rewards/Mall page and Fan Rewards static locks only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, inventory rules, QR/scan rules, media assets, video layers, or business rules were changed.
+3. UI fix:
+   - added a scoped `Task-135B` CSS lock at the end of `frontend/src/index.css`;
+   - raised Rewards filter chips, category counts, reward status/category chips, cost/level pills, pickup rows, lock/review notes, summary labels, and policy list items to a `12px` readable floor;
+   - restored reward card meta visibility on narrow mobile so points, level, inventory, and pickup policy remain visible instead of being hidden by earlier first-screen compression rules;
+   - increased reward filter buttons, redeem buttons, and the full rules action to `44px` touch targets;
+   - normalized reward image slots to a stable `4 / 3` ratio and removed the older desktop max-height compression;
+   - added explicit Rewards bottom safe-area reserve so final content clears the fixed Fan bottom navigation.
+4. Files changed in this task:
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` now guards the `Task-135B` marker, Rewards bottom clearance, readable filter/category/chip text, summary/rules text floors, and 44px action targets.
+   - `frontend/src/pages/fans/tabs/MallTab.static.test.mjs` now guards the Rewards card hierarchy, stable image ratio, visible card meta, pickup-row readability, and mobile action target height.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`;
+   - bottom navigation Rewards tab;
+   - Rewards catalog cards, filters, image slots, rules action, summary strip, policy list, and bottom-navigation clearance.
+7. Final Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Rewards visible text below `12px`: `0`;
+   - Rewards touch targets below `44px`: `0`;
+   - broken images: `0`;
+   - final meaningful Rewards content covered by fixed bottom nav: `0`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan Rewards route: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-135b-fan-rewards-readability-qa/qa-results-final.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - focused static tests passed:
+     - `npm test -- src/index.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`;
+     - `2` files passed;
+     - `24` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `576` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+11. Known follow-up:
+    - Fan Stores and Community still have out-of-scope card hierarchy and information-density candidates from the broader UI optimization plan and should be handled in later Fan batches, not mixed into this Rewards pass.
+
+Task-135A completed:
+
+1. Completed the first real Fan UI optimization implementation batch after the Task-135A detail audit.
+2. Scope stayed local and reversible:
+   - real Fan Home, real Fan Me/account page, and shared real Fan bottom navigation CSS only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, QR record fields, media assets, video layers, or business rules were changed.
+3. UI fix:
+   - added a scoped `Task-135A` CSS lock at the end of `frontend/src/index.css`;
+   - increased real Fan content bottom safe-area clearance so Home and Me last meaningful content clears the fixed bottom navigation;
+   - raised Fan bottom-navigation labels to a `12px` readable floor while preserving the six-item nav;
+   - raised Home mission/action labels and Me account/stat/history helper labels to a `12px` readable floor;
+   - slightly increased Home action-card and Me quick/utility-card minimum touch areas;
+   - increased desktop Home/Me bottom reserve after browser QA exposed one remaining desktop Home overlap candidate.
+4. Files changed in this task:
+   - `frontend/src/index.css`;
+   - `frontend/src/index.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` now guards the `Task-135A` marker, Fan bottom-nav label floor, Fan content bottom safe-area reserve, Home/Me page padding reserve, and Home/Me readable label floors.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`;
+   - Fan Home;
+   - Fan Me/account page;
+   - spot checks also covered Fan Scan and Fan Rewards before the final Home/Me reserve adjustment.
+7. Final Browser QA results for Home and Me:
+   - page-level horizontal overflow: `0`;
+   - Home tiny visible text outside nav: `0`;
+   - Me tiny visible text outside nav: `0`;
+   - Home content covered by fixed nav: `0`;
+   - Me content covered by fixed nav: `0`;
+   - broken images: `0`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan routes: `0`.
+8. QA artifact paths:
+   - audit input: `frontend/output/playwright/task-135a-fan-ui-optimization-detail-audit/fan-ui-detail-audit.json`;
+   - final QA: `frontend/output/playwright/task-135a-fan-home-me-readability-qa/qa-results-final.json`;
+   - screenshots are in the same directories.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/index.static.test.mjs`;
+     - failed on the missing `Task-135A` CSS marker;
+   - after browser QA found one desktop Home overlap candidate, the RED test was tightened and failed again on the higher bottom reserve requirement;
+   - focused static test passed:
+     - `npm test -- src/index.static.test.mjs`;
+     - `1` file passed;
+     - `7` tests passed;
+   - focused lint passed:
+     - `npx eslint src/index.static.test.mjs`;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `574` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Full lint status:
+    - this Fan UI batch did not run `npm run lint` because the remaining known lint failure is outside the approved real-page scope in `frontend/src/pages/preview/FanPreviewPage.jsx`.
+11. Vite warnings:
+    - chunks larger than `300 kB` remains an existing warning;
+    - `[PLUGIN_TIMINGS]` did not appear in this final build run but remains a known existing intermittent build warning from previous tasks.
+12. Known follow-up:
+    - Scan and Rewards still have out-of-scope small helper/chip text candidates from the broader audit and should be handled in later Fan batches, not mixed into this Home/Me pass.
+
+Task-134E completed:
+
+1. Completed a real Fan ScanTab hook dependency cleanup from the remaining three-portal lint residuals.
+2. Scope stayed local and reversible:
+   - real Fan Scan tab and its static test only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan classification rules, daily scan limit rules, QR record fields, or visual CSS were changed.
+3. Root cause and fix:
+   - focused ScanTab eslint showed the scanner modal camera callback and modal open effect used `t` without listing it in hook dependency arrays;
+   - added `t` to the `startCamera` callback dependencies;
+   - added `t` to the modal open/close effect dependencies;
+   - kept `stopCamera` dependency-free because it does not use translations.
+4. Files changed in this task:
+   - `frontend/src/pages/fans/tabs/ScanTab.jsx`;
+   - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs` now guards that scanner modal translation calls remain included in the relevant hook dependency arrays.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`;
+   - Fan Scan tab;
+   - Fan Scan manual-code modal.
+7. Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Scan page present;
+   - Scan action panel present;
+   - manual-code modal opens;
+   - manual input visible;
+   - broken images: `0`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan Scan route: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-134e-fan-scan-hook-qa/qa-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/fans/tabs/ScanTab.static.test.mjs`;
+     - failed on the missing `startCamera` `t` dependency guard;
+   - focused static test passed:
+     - `npm test -- src/pages/fans/tabs/ScanTab.static.test.mjs`;
+     - `1` file passed;
+     - `13` tests passed;
+   - focused ScanTab lint passed:
+     - `npx eslint src/pages/fans/tabs/ScanTab.jsx src/pages/fans/tabs/ScanTab.static.test.mjs`;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `573` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Full lint status:
+    - the ScanTab hook dependency warnings from this batch are clean;
+    - `npm run lint` is still expected to fail outside this Fan-only batch because `frontend/src/pages/preview/FanPreviewPage.jsx` uses `Date.now()` in a React purity-checked path.
+11. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+
+Task-134D completed:
+
+1. Completed a real Fan Center code-quality cleanup from the three-portal lint residuals.
+2. Scope stayed local and reversible:
+   - real Fan Center page and Fan static tests only;
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, store exposure business rules, or visual CSS were changed.
+3. Root cause and fix:
+   - focused Fan Center eslint showed unused `getStoreExposureScore`, unused `fanFeatureItems`, unused `campaignSteps`, and an unnecessary `refreshKey` dependency in `hasCheckedInToday`;
+   - removed the unused import and dead arrays;
+   - changed `hasCheckedInToday` from `useMemo` to a synchronous render-time localDb read so `setRefreshKey` still refreshes the UI through the existing rerender path without a hook dependency warning;
+   - removed the now-unused `FireOutlined` icon import;
+   - updated the store exposure static lock so the page only needs `sortStoresForFanExposure`, while `getStoreExposureScore` remains covered in `uwellLaunchRules.js`.
+4. Files changed in this task:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs` now guards that the unused Fan Center lint residuals do not return;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs` now guards the store exposure scoring through `uwellLaunchRules.js` instead of requiring an unused page import.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `fan-app.html#/fan-center`.
+7. Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Fan shell and bottom navigation present;
+   - hero video exists inside `.fan-home-real-media-frame`;
+   - `.fan-home-real-media-poster` rendered count: `0`;
+   - `.fan-home-media-placeholder` rendered count: `0`;
+   - hero video was playing with `videoPaused=false` and `readyState=4`;
+   - broken images: `0`;
+   - page errors: `0`;
+   - console warnings/errors on checked Fan route: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-134d-fan-center-lint-qa/qa-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`;
+     - failed on the unused `getStoreExposureScore` guard, then on the unused `FireOutlined` guard;
+   - focused static tests passed:
+     - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`;
+     - `2` files passed;
+     - `45` tests passed;
+   - focused Fan Center lint passed:
+     - `npx eslint src/pages/fans/FanCenterPage.jsx src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `572` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Full lint status:
+    - the Fan Center warnings from this batch are clean;
+    - `npm run lint` is still expected to fail outside this Fan-only batch because `frontend/src/pages/preview/FanPreviewPage.jsx` uses `Date.now()` in a React purity-checked path;
+    - remaining known Fan ScanTab hook dependency warnings remain for a later real Fan-only cleanup.
+11. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+
+Task-134C completed:
+
+1. Completed a real Admin Dashboard code-quality cleanup from the three-portal lint residuals.
+2. Scope stayed local and reversible:
+   - real Admin Dashboard page only;
+   - no Fan portal, Store portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, filters, exports, detail entries, status fields, time fields, owner fields, region fields, or business rules were changed.
+3. Root cause and fix:
+   - focused Dashboard eslint showed `storesMissingPhotos` was assigned but never used;
+   - the visible micro explanation that previously used this value had already been removed by the Dashboard density pass;
+   - removed the unused calculation only, preserving all Dashboard KPI, queue, chart, table, warehouse, review, risk, and navigation rendering.
+4. Files changed in this task:
+   - `frontend/src/pages/dashboard/DashboardPage.jsx`;
+   - `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/dashboard/DashboardPage.static.test.mjs` now guards that the unused `storesMissingPhotos` calculation does not return.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `/app/dashboard`.
+7. Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Dashboard shell presence confirmed;
+   - Dashboard table presence confirmed;
+   - page errors: `0`;
+   - console warnings/errors on checked Dashboard route: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-134c-admin-dashboard-unused-photo-qa/qa-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`;
+     - failed on the unused `storesMissingPhotos` guard;
+   - focused static test passed:
+     - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`;
+     - `1` file passed;
+     - `19` tests passed;
+   - focused Dashboard lint passed:
+     - `npx eslint src/pages/dashboard/DashboardPage.jsx src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `571` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Full lint status:
+    - the Dashboard unused-variable warning from this batch is clean;
+    - `npm run lint` still fails outside this Admin-only batch because `frontend/src/pages/preview/FanPreviewPage.jsx` uses `Date.now()` in a React purity-checked path;
+    - remaining warnings outside this batch are in Fan Center, Fan ScanTab, and preview.
+11. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+
+Task-134B completed:
+
+1. Completed a real Store portal code-quality cleanup from the three-portal audit residuals.
+2. Scope stayed local and reversible:
+   - real Store Owner page only;
+   - no Fan portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, or business rules were changed.
+3. Root cause and fix:
+   - focused Store Owner eslint showed duplicate keys in `STORE_OWNER_AR_COPY`, where later values silently overwrote earlier values;
+   - removed the overwritten duplicate Arabic copy entries while preserving the currently effective runtime translations;
+   - removed an unused `rewardPickupPermission` variable left behind after the Store Home density pass.
+4. Files changed in this task:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs` now guards that `STORE_OWNER_AR_COPY` has no duplicate labels;
+   - it also guards that the unused `rewardPickupPermission` variable does not return.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - Store Home;
+   - Store Activities;
+   - Store Me.
+7. Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - Store shell presence confirmed on every checked route;
+   - Store bottom navigation presence confirmed on every checked route;
+   - page errors: `0`;
+   - console warnings/errors on checked Store routes: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-134b-store-owner-copy-lint-qa/qa-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+     - failed on six duplicate Arabic copy keys and the unused `rewardPickupPermission` guard;
+   - focused static test passed:
+     - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+     - `1` file passed;
+     - `39` tests passed;
+   - focused Store Owner lint passed:
+     - `npx eslint src/pages/store-owner/StoreOwnerPage.jsx src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs`;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `570` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Full lint status:
+    - the Store Owner duplicate-key and unused-variable warnings from this batch are clean;
+    - `npm run lint` is still expected to fail outside this Store-only batch because `frontend/src/pages/preview/FanPreviewPage.jsx` uses `Date.now()` in a React purity-checked path;
+    - remaining warnings outside this batch are still in Dashboard, Fan Center, Fan ScanTab, and preview.
+11. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+
+Task-134A completed:
+
+1. Completed an Admin Ops-only code quality cleanup from the three-portal code audit.
+2. Scope stayed local and reversible:
+   - real Admin Ops pages only: Reviews, Scan Codes, Rewards Ops, Risk Center;
+   - no Fan portal, Store portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, or business rules were changed.
+3. Root cause and fix:
+   - `npm run lint` showed React hooks lint errors for `useMemo` calls that passed named functions directly;
+   - changed Admin Ops localDb queue derivations to inline callbacks while explicitly reading `refreshKey`, preserving the existing local refresh behavior;
+   - browser QA then exposed an AntD Timeline deprecated prop warning in Risk Center;
+   - changed Risk Center Timeline item fields from `children` to `content`.
+4. Files changed in this task:
+   - `frontend/src/pages/admin-ops/ReviewsPage.jsx`;
+   - `frontend/src/pages/admin-ops/ScanCodesPage.jsx`;
+   - `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`;
+   - `frontend/src/pages/admin-ops/RiskCenterPage.jsx`;
+   - `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs` now guards inline `useMemo` callbacks for Admin Ops derived localDb queues;
+   - it also guards Risk Center Timeline usage against deprecated `items.children`.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `/app/reviews`;
+   - `/app/scan-codes`;
+   - `/app/rewards`;
+   - `/app/risk-center`.
+7. Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - required table presence confirmed on every checked route;
+   - page errors: `0`;
+   - console warnings/errors on checked Admin Ops routes: `0` after the Risk Center Timeline fix.
+8. QA artifact path:
+   - `frontend/output/playwright/task-134a-admin-ops-lint-qa/qa-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs`;
+     - failed first on named-function `useMemo`, then on Risk Center Timeline `children`;
+   - focused static test passed:
+     - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs`;
+     - `1` file passed;
+     - `16` tests passed;
+   - focused Admin Ops lint passed:
+     - `npx eslint src/pages/admin-ops/ReviewsPage.jsx src/pages/admin-ops/ScanCodesPage.jsx src/pages/admin-ops/RewardsOpsPage.jsx src/pages/admin-ops/RiskCenterPage.jsx src/pages/admin-ops/AdminOpsPages.static.test.mjs`;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `568` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Full lint status:
+    - `npm run lint` still fails outside this Admin Ops-only batch;
+    - remaining error: `frontend/src/pages/preview/FanPreviewPage.jsx` uses `Date.now()` in a React purity-checked path;
+    - remaining warnings are in Dashboard, Fan Center, Fan ScanTab, preview, and Store Owner duplicate/unused code.
+11. Vite warnings are existing:
+    - chunks larger than `300 kB`;
+    - `[PLUGIN_TIMINGS]` remains a known existing warning from previous tasks, though it did not appear in this task's final build output.
+
+Task-133B completed:
+
+1. Corrected the real Fan Center Home page after user feedback that Task-133A used a static image layer to cover the intended first-screen video.
+2. Scope stayed Fan Center Home UI-only:
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, or business rules were changed.
+3. Root cause and UI fix:
+   - Task-133A removed the oversized placeholder but introduced `.fan-home-real-media-poster` as an image layer above the official video;
+   - moved the `fan-home-hero-video` into `.fan-home-real-media-frame` as the primary visible media;
+   - kept `FAN_HOME_OFFICIAL_MEDIA` only as the native `video poster` fallback;
+   - removed the rendered `.fan-home-real-media-poster` image layer so it no longer blocks the video.
+4. Files changed in this task:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs` now guards that the official video lives inside `.fan-home-real-media-frame`;
+   - the test also guards that `.fan-home-real-media-poster` is not present in JSX or CSS.
+6. Browser QA confirmed at `390x844`, `1151x698`, and `1216x578`:
+   - page-level horizontal overflow `0`;
+   - `.fan-home-real-media-poster` rendered image count `0`;
+   - `.fan-home-media-placeholder` rendered count `0`;
+   - hero video exists inside the frame;
+   - video is playing with `videoPaused=false` and `readyState=4`;
+   - broken images `0`;
+   - CTA/bottom-nav overlap area `0`.
+7. QA artifact path:
+   - `frontend/output/playwright/task-133b-fan-home-video-unblocked-qa/qa-results.json`;
+   - screenshots are in the same directory.
+8. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`;
+     - failed because the video was not inside `.fan-home-real-media-frame` and the poster image layer still existed;
+   - focused test passed:
+     - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`;
+     - `1` file passed;
+     - `37` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `566` tests passed;
+   - production build passed:
+     - `npm run build`.
+9. Vite warnings are existing:
+   - chunks larger than `300 kB`;
+   - `[PLUGIN_TIMINGS]` remains a known existing warning from previous tasks, though it did not appear in this specific final build output.
+
+Task-133A completed:
+
+1. Fixed the real Fan Center Home page issue reported from `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+2. Scope stayed Fan Center Home UI-only:
+   - no Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, redemption rules, scan rules, or business rules were changed.
+3. UI fix:
+   - replaced the oversized `.fan-home-media-placeholder` poster layer with a real-media hierarchy:
+     - `fan-home-real-media-frame`;
+     - `fan-home-real-media-poster`;
+     - `fan-home-media-storyline`;
+   - the hero now renders the existing UWELL official media asset through the real poster layer instead of a large blank placeholder;
+   - added a short-desktop lock for `min-width: 900px` and `max-height: 620px` so the `Claim today` CTA clears the fixed Fan bottom navigation.
+4. Files changed in this task:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs` now guards the real media frame/poster/storyline classes, removal of the old placeholder class from the Fan Center source, and the short-desktop CTA width lock.
+6. Browser QA confirmed:
+   - `390x844`: page-level horizontal overflow `0`, placeholder count `0`, broken images `0`, CTA/bottom-nav overlap area `0`;
+   - `1151x698`: page-level horizontal overflow `0`, placeholder count `0`, broken images `0`, CTA/bottom-nav overlap area `0`;
+   - `1216x578`: after the short-desktop lock, CTA/bottom-nav overlap area `0`.
+7. QA artifact path:
+   - `frontend/output/playwright/task-133a-fan-home-real-media-qa/qa-results.json`;
+   - screenshots are in the same directory.
+8. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`;
+     - failed on missing `fan-home-real-media-frame` as expected;
+   - focused test passed:
+     - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`;
+     - `1` file passed;
+     - `37` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `566` tests passed;
+   - production build passed:
+     - `npm run build`.
+9. Vite warnings are existing:
+   - chunks larger than `300 kB`;
+   - `[PLUGIN_TIMINGS]` remains a known existing warning from previous tasks, though it did not appear in this specific final build output.
+
+Task-132 completed:
+
+1. Fixed the real Fan entry page reported from `http://127.0.0.1:5173/fan-app.html#/fan-entry`.
+2. Scope stayed Fan entry UI-only:
+   - no Fan Center tabs, Store portal, Admin portal, preview pages, database, API, permissions, role logic, `.env`, dependencies, auth rules, point rules, reward rules, or business rules were changed.
+3. Root cause and UI fix:
+   - the `Join / Sign in` button already had the correct React click handler, but its parent `.fe-luxury-copy` intentionally used `pointer-events: none`;
+   - added a scoped Task-132 CSS lock so `.fe-luxury-copy .fe-luxury-cta` restores `pointer-events: auto`, `position: relative`, and `z-index: 6`;
+   - compacted the numbered benefit dock to reduce first-screen visual weight;
+   - on mobile and short desktop viewports, benefit detail microcopy is hidden while preserving the 01-04 action titles.
+4. Files changed in this task:
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - `PROGRESS.md`.
+5. Static regression coverage:
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs` now guards the CTA click hit area and compact benefit dock rules.
+6. Browser QA at `390x844` and `1151x698` confirmed:
+   - CTA computed `pointer-events`: `auto`;
+   - CTA click opens the `Fan Login` modal;
+   - page-level horizontal overflow: `0`;
+   - browser console warnings/errors: `0`;
+   - page errors: `0`;
+   - benefit dock visual footprint:
+     - `390x844`: `13.1%` of viewport height;
+     - `1151x698`: `17.0%` of viewport height.
+7. QA artifact path:
+   - `frontend/output/playwright/task-132-fan-entry-cta-benefit-dock-qa/qa-results.json`;
+   - screenshots are in the same directory.
+8. Verification:
+   - RED focused tests failed before implementation:
+     - `npm test -- src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+     - failed first on missing CTA hit-area CSS and compact benefit dock CSS;
+     - failed again on missing short-screen compact dock rule before the final short-screen CSS was added;
+   - focused test passed:
+     - `npm test -- src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+     - `1` file passed;
+     - `10` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `565` tests passed;
+   - production build passed:
+     - `npm run build`.
+9. Vite warnings are existing:
+   - chunks larger than `300 kB`;
+   - `[PLUGIN_TIMINGS]` remains a known existing warning from previous tasks, though it did not appear in this specific final build output.
+
+Task-131 completed:
+
+1. Completed the first implementation batch for the three real portals from the Task-131 UI audit plan:
+   - Fan portal real pages: Home, Rewards, Community, Me;
+   - Store portal real pages: Home, Activities, Me;
+   - Admin portal real page: Dashboard/sidebar shell.
+2. Scope stayed frontend UI-only:
+   - no database, API, permissions, role logic, `.env`, dependencies, routes, Fan/Store/Admin business rules, point rules, reward redemption logic, review queues, filters, exports, detail entries, status, time, owner, or region fields were changed.
+3. CSS changes were intentionally local and reversible:
+   - added Task-131 scoped CSS locks at the end of `frontend/src/index.css`;
+   - improved Fan/Store fixed bottom-navigation safe-area padding and content bottom buffer;
+   - raised key Fan/Store bottom-navigation labels, chips, badges, helper labels, reward/category labels, and Store operation labels toward the 12px readable floor;
+   - strengthened Fan header/language/settings action contrast, Rewards product-card/readability surfaces, Community hero text contrast, Store action-needed and campaign card text contrast, and Admin sidebar/dashboard table inherited text color;
+   - added reduced-motion locks for remaining decorative Fan pulse/hero-line animation candidates.
+4. Static regression coverage:
+   - `frontend/src/index.static.test.mjs` now guards the Task-131 marker, Fan/Store nav type floor, bottom safe areas, contrast hotspot locks, and reduced-motion rule.
+5. Browser QA at `390x844` and `1151x698` covered 16 real views:
+   - Fan Home, Rewards, Community, Me;
+   - Store Home, Activities, Me;
+   - Admin Dashboard.
+6. Browser QA results:
+   - page-level horizontal overflow: `0`;
+   - broken media views: `0`;
+   - page error views: `0`;
+   - browser console warnings/errors: `0`;
+   - low-contrast candidate views after leaf-text filtering: `5`;
+   - tiny-text candidate views after leaf-text filtering: `8`;
+   - bottom-navigation overlap candidate views after final scroll: `8`.
+7. QA residual candidates are documented for a later smaller pass instead of expanding this batch into a structural rewrite:
+   - Fan has a few legacy leaf text candidates around language/culture/progress labels and Rewards section/category labels;
+   - Store has remaining leaf candidates around store level/action strips and Activities campaign headings;
+   - Admin Dashboard has one inherited table-cell text candidate in automation.
+8. QA artifact path:
+   - `frontend/output/playwright/task-131-three-portal-ui-polish-qa/qa-results.json`;
+   - screenshots are in the same directory.
+9. Verification:
+   - RED focused test failed before implementation:
+     - `npm test -- src/index.static.test.mjs`;
+     - failed on the new Task-131 CSS guards as expected;
+   - focused cross-portal static tests passed:
+     - `npm test -- src/index.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs src/components/layout/AppLayout.static.test.mjs`;
+     - `5` files passed;
+     - `107` tests passed;
+   - full test suite passed:
+     - `npm test`;
+     - `105` files passed;
+     - `563` tests passed;
+   - production build passed:
+     - `npm run build`.
+10. Vite warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - chunks larger than `300 kB`.
+
+Current Admin-only objective:
+
+1. Continue real Admin backend UI optimization from live pages, not memory or preview pages.
+2. Next recommended small batch:
+   - continue Admin-only real-page optimization from the remaining Admin audit matrix;
+   - prioritize small, reversible fixes for visible table readability, contrast, and click/scroll polish;
+   - recommended next candidates: AntD `Space direction` deprecated prop cleanup for Admin-only files, remaining Admin 12px type-floor sweep, or Admin table horizontal-scroll polish where wrapper scroll is too noisy;
+   - preserve review queues, filters, export, status, time, owner, region, role, audit, and table capabilities.
+
+Current verification baseline:
+
+1. Focused regression passed after Task-130W:
+   - `npm test -- src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/stores/StoreListPage.static.test.mjs`;
+   - `3` files passed;
+   - `25` tests passed.
+2. `npm test` passed after Task-130W:
+   - `105` files passed;
+   - `560` tests passed.
+3. `npm run build` passed after Task-130W.
+4. Build warnings are existing:
+   - `[PLUGIN_TIMINGS]`;
+   - large chunks over `300 kB`.
+5. Latest browser QA artifacts:
+   - `frontend/output/playwright/task-130w-admin-space-orientation-qa/`;
+   - `frontend/output/playwright/task-130v-admin-contrast-final-qa/`;
+   - `frontend/output/playwright/task-130v-admin-contrast-after-rerun/`;
+   - `frontend/output/playwright/task-130v-admin-contrast-after/`;
+   - `frontend/output/playwright/task-130v-admin-contrast-before/`;
+   - `frontend/output/playwright/task-130u-admin-applayout-after/`;
+   - `frontend/output/playwright/task-130u-admin-applayout-real-qa/`;
+   - `frontend/output/playwright/task-130t-admin-dashboard-after/`;
+   - `frontend/output/playwright/task-130t-admin-dashboard-real-qa/`;
+   - `frontend/output/playwright/task-130s-admin-reviews-after/`;
+   - `frontend/output/playwright/task-130s-admin-reviews-real-qa/`;
+   - `frontend/output/playwright/task-130r-admin-visits-after/`;
+   - `frontend/output/playwright/task-130r-admin-visits-real-qa/`;
+   - `frontend/output/playwright/task-130q-admin-materials-after/`;
+   - `frontend/output/playwright/task-130q-admin-materials-real-qa/`;
+   - `frontend/output/playwright/task-130p-admin-rewards-ops-after/`;
+   - `frontend/output/playwright/task-130p-admin-rewards-ops-real-qa/`;
+   - `frontend/output/playwright/task-130o-admin-settings-entry-audit-denesting-qa/`;
+   - `frontend/output/playwright/task-130n-admin-alert-title-prop-qa/`;
+   - `frontend/output/playwright/task-130m-admin-local-mode-runtime-qa/`;
+   - `frontend/output/playwright/task-130l-admin-settings-data-warning-label-polish/`;
+   - prior Settings audit artifacts:
+     - `frontend/output/playwright/task-130l-admin-settings-real-qa/`.
+
+Task-130W completed:
+
+1. Completed an Admin-only AntD deprecated prop cleanup for real Stores backend pages:
+   - `/app/stores/list`;
+   - `/app/stores/s-stores`;
+   - `/app/stores/s-stores/:id`.
+2. Replaced deprecated AntD `Space direction="vertical"` with `orientation="vertical"` only in the real Admin Stores files:
+   - `frontend/src/pages/stores/StoreListPage.jsx`;
+   - `frontend/src/pages/stores/SStoreManagementPage.jsx`;
+   - `frontend/src/pages/stores/SStoreDetailPage.jsx`.
+3. Added static regression guards so these Admin Stores pages do not reintroduce `Space direction="vertical"`:
+   - `frontend/src/pages/stores/StoreListPage.static.test.mjs`;
+   - `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`;
+   - `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`.
+4. Scope stayed Admin-only:
+   - no Fan, Store Owner, preview, database, API, permissions, role logic, `.env`, dependencies, filters, search, export, audit/detail entries, status, time, owner, region, or business rules were changed.
+5. Left remaining `Space direction="vertical"` matches in `frontend/src/pages/community` and `frontend/src/pages/fans` untouched because they are outside this batch.
+6. Browser QA at `390x844` and `1151x698` covered:
+   - `/app/stores/list` with the CSV import panel open;
+   - `/app/stores/s-stores`;
+   - an S Store detail route;
+   - S Store detail `Contribution` and `Replenishment` tabs.
+7. Browser QA results:
+   - document horizontal overflow failures: `0`;
+   - body horizontal overflow failures: `0`;
+   - table containment failures: `0`;
+   - AntD `Space direction` warnings: `0`;
+   - AntD warnings: `0`;
+   - page errors: `0`.
+8. QA artifact path:
+   - `frontend/output/playwright/task-130w-admin-space-orientation-qa/qa-results.json`.
+9. Verification:
+   - RED focused tests failed before implementation on all three targeted Stores files because `direction="vertical"` was still present;
+   - focused tests passed after implementation:
+     - `npm test -- src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/stores/StoreListPage.static.test.mjs`;
+     - `3` files passed;
+     - `25` tests passed;
+   - `npm test` passed:
+     - `105` files passed;
+     - `560` tests passed;
+   - `npm run build` passed.
+10. Build warnings are existing:
+    - `[PLUGIN_TIMINGS]`;
+    - large chunks over `300 kB`.
+
+Task-130V completed:
+
+1. Completed a single Admin-wide contrast pass across real backend pages instead of continuing one tiny page at a time.
+2. Scope stayed Admin-only:
+   - Dashboard;
+   - Stores;
+   - S Store;
+   - Fans;
+   - Campaigns;
+   - Rewards Ops;
+   - Materials;
+   - Visits;
+   - Reviews;
+   - Settings Users.
+3. Added Admin-scoped contrast CSS under `.admin-liquid-shell` for recurring low-contrast light-workspace surfaces:
+   - header/language/settings controls;
+   - card heads, card extras, card bodies, and Space wrappers;
+   - tabs;
+   - alerts;
+   - default/dashed buttons;
+   - links;
+   - pagination;
+   - inputs/selects/pickers/placeholders;
+   - Rewards Ops governance/rule panels;
+   - S Store command/metric panels;
+   - Dashboard operator hero/KPI cards;
+   - Campaign status badge and no-progress text;
+   - Settings form helper text.
+4. No Fan, Store, preview, database, API, permissions, role logic, `.env`, dependencies, filters, search, export, audit/detail entries, status, time, owner, region, or business rules were changed.
+5. Browser QA at `390x844` and `1151x698` confirmed across the 10 Admin routes:
+   - document horizontal overflow: `0` on every checked route;
+   - automated visible low-contrast text candidates after filtering structural containers: `0` on every checked route;
+   - core buttons, links, inputs, tabs, cards, alerts, pagination, reward panels, S Store panels, Dashboard KPI shell, Campaign badge/no-progress text, and Settings helper copy are now readable on light surfaces;
+   - table wrappers with horizontal scroll remain where wide operational tables preserve required columns; page-level overflow remains contained;
+   - Materials mobile has AntD tabs scroll-control hit-test noise in automation, but visible text contrast is clear and page overflow is contained.
+6. Browser console during QA:
+   - dev-server messages: `[vite] connecting`, `[vite] connected`, React DevTools info;
+   - existing warning: `Warning: [antd: Space] direction is deprecated. Please use orientation instead.`
+7. Verification:
+   - RED focused test failed before the final Campaign no-progress contrast lock;
+   - focused test passed after implementation:
+     - `npm test -- src/index.static.test.mjs`;
+     - `1` file passed;
+     - `3` tests passed;
+   - `npm test` passed:
+     - `105` files passed;
+     - `557` tests passed;
+   - `npm run build` passed.
+8. Build warnings are existing:
+   - `[PLUGIN_TIMINGS]`;
+   - large chunks over `300 kB`.
+
+Task-130U completed:
+
+1. Admin AppLayout/sidebar no longer renders the confirmed shell labels below the readable 12px floor.
+2. `.admin-ref-brand-sub` now uses `12px`, `line-height: 1.25`, and stronger desktop sidebar contrast with `rgba(255,255,255,0.62)`.
+3. The mobile drawer override for `.admin-ref-brand-sub` now uses stronger `#475467`.
+4. `.layout-role-tag` local-demo tag now uses `12px` with a stable `20px` line-height.
+5. No JSX structure, routes, database, API, permissions, role logic, `.env`, dependencies, filters, search, export, audit, detail entry, status, time, owner, region, or business rules were changed.
+6. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/dashboard` renders without document horizontal overflow;
+   - AppLayout/sidebar/header stays contained and does not cover content;
+   - Admin shell visible text below `12px`: `0`;
+   - `.admin-ref-brand-sub` checked at `12px` in mobile drawer and desktop sidebar;
+   - `.layout-role-tag` checked at `12px` on desktop;
+   - drawer overlay click blocking is only the expected AntD drawer mask state;
+   - browser console messages during QA are only dev-server messages (`[vite] connecting`, `[vite] connected`, React DevTools info).
+7. Verification:
+   - RED focused test failed before implementation on `.admin-ref-brand-sub` still being `10px`;
+   - focused test passed after implementation:
+     - `npm test -- src/components/layout/AppLayout.static.test.mjs`;
+     - `1` file passed;
+     - `13` tests passed;
+   - `npm test` passed:
+     - `105` files passed;
+     - `556` tests passed;
+   - `npm run build` passed.
+8. Build warnings are existing:
+   - `[PLUGIN_TIMINGS]`;
+   - large chunks over `300 kB`.
+
+Task-130T completed:
+
+1. Admin Dashboard KPI labels no longer render below the readable 12px floor on the real mobile viewport.
+2. The Dashboard command-zone `.dash-stat-label` now has a scoped `12px` size and stronger `rgba(36, 28, 16, 0.82)` color, preserving the data-first KPI layout and all existing metrics.
+3. The Dashboard queue table headers now have a scoped `12px` minimum under `.admin-dashboard-queue-table`.
+4. No database, API, permissions, role logic, `.env`, dependencies, dashboard data calculations, routes, filters, queues, or business rules were changed.
+5. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/dashboard` renders without document horizontal overflow;
+   - Dashboard table wrappers stay contained in the viewport;
+   - Dashboard KPI labels checked at `12px` with the stronger color;
+   - Dashboard queue table headers checked at `12px`;
+   - mobile visible text below `12px`: `0`;
+   - visible click targets have no clickability blockers;
+   - side/header navigation does not cover content;
+   - browser console messages during QA are only dev-server messages (`[vite] connecting`, `[vite] connected`, React DevTools info).
+6. QA note:
+   - desktop still has two small-text items outside this batch:
+     - `admin-ref-brand-sub` at `10px`;
+     - `.layout-role-tag` local-demo tag at `11px`.
+   - These belong to a separate AppLayout/sidebar batch.
+7. Verification:
+   - RED focused test failed before implementation on KPI label contrast/size and missing Dashboard queue-header CSS;
+   - focused test passed after implementation:
+     - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`;
+     - `1` file passed;
+     - `18` tests passed;
+   - `npm test` passed:
+     - `105` files passed;
+     - `555` tests passed;
+   - `npm run build` passed.
+8. Build warnings are existing:
+   - `[PLUGIN_TIMINGS]`;
+   - large chunks over `300 kB`.
+
+Task-130S completed:
+
+1. Admin Reviews queue no longer buries the review decision actions at the far end of the horizontal table.
+2. The full `操作` action group now appears immediately after `分类`, before `类型`, `来源`, `对象`, `优先级`, `状态`, `下一步`, and `回流模块`.
+3. Preserved all review capabilities:
+   - `查看来源`;
+   - `通过`;
+   - `拒绝`;
+   - `要求补充`;
+   - `升级处理`;
+   - `添加备注`;
+   - category filters;
+   - search;
+   - source/destination fields;
+   - audit/action writeback flow.
+4. Reviews table headers now have a scoped `12px` minimum under `.admin-review-queue-table`.
+5. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/reviews` renders without document horizontal overflow;
+   - table wrapper stays contained in the viewport;
+   - all Reviews table headers checked at `12px`;
+   - the first row's six review action buttons are visible and clickable in both mobile and desktop queue views;
+   - filter buttons and search are visible and clickable before scrolling to the queue;
+   - mobile queue visible small text below `12px`: `0`;
+   - browser console warnings during QA: only dev-server messages (`[vite] connecting`, `[vite] connected`, React DevTools info).
+6. Verification:
+   - RED focused test failed before implementation on operation-column order and missing Reviews header CSS;
+   - focused test passed after implementation:
+     - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs`;
+     - `1` file passed;
+     - `14` tests passed;
+   - `npm test` passed:
+     - `105` files passed;
+     - `553` tests passed;
+   - `npm run build` passed.
+7. Build warnings are existing:
+   - `[PLUGIN_TIMINGS]`;
+   - large chunks over `300 kB`.
+
+Task-130R completed:
+
+1. Admin Visits list table no longer buries the visit detail entry at the far end of the horizontal table.
+2. The `操作` detail column now appears immediately after `拜访类型`, before the wide `门店` field, while preserving all visit fields:
+   - store;
+   - date;
+   - rep;
+   - current/suggested/final level;
+   - review status;
+   - S Store follow-up;
+   - replenishment visibility;
+   - status;
+   - next action.
+3. The detail button now has a scoped `admin-visits-detail-button` class, `EyeOutlined` icon, `aria-label="View visit detail"`, and `title="View visit detail"`.
+4. On mobile, the detail button is reduced to a stable `32px` icon button so the first table view exposes the detail entry without changing routing or permissions.
+5. Visits table headers now have a scoped `12px` minimum under `.admin-visits-table`.
+6. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/visits/list` renders without document horizontal overflow;
+   - table wrapper stays contained in the viewport;
+   - first visible table headers are `拜访类型`, `操作`, `门店`, `日期`, `地推`;
+   - all Visits table headers checked at `12px`;
+   - detail buttons are visible in both mobile and desktop first table views;
+   - mobile detail buttons render at `32px` width with accessible label/title;
+   - browser console warnings during QA: `0`.
+7. QA note:
+   - Visits still has secondary `11px` labels in summary/ops cards (`新店拜访`, `S STORE`, etc.); these are outside this batch and can be handled later if continuing typography cleanup.
+
+Task-130Q completed:
+
+1. Admin Materials catalog table no longer uses a fixed-right action column that visually overlaps the material name area on mobile.
+2. Catalog actions were moved next to the material name as a normal narrow table column, preserving edit/delete entries without changing RBAC, stock logic, filters, tabs, data, API, or permissions.
+3. Missing material images now render a scoped `No image` placeholder at `12px` instead of repeated tiny `N/A` blocks.
+4. Materials catalog table headers now have a scoped `12px` minimum under `.admin-materials-table`.
+5. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/materials/list` renders without document horizontal overflow;
+   - table wrapper stays contained in the viewport;
+   - Materials catalog table headers checked at `12px`;
+   - old visible `N/A` placeholders count is `0`;
+   - `No image` placeholders render at `12px`;
+   - mobile edit/delete action buttons are both visible in the first table view;
+   - browser console warnings during QA: `0`.
+6. QA note:
+   - desktop still has two global small-text items outside this batch (`admin-ref-brand-sub` and local demo tag), both pre-existing Admin shell issues.
+
+Task-130P completed:
+
+1. Admin Rewards Ops visible governance copy no longer says `目录与图片位` / `图片位由后台管理`.
+2. The first governance card now says `目录与素材状态`, reducing the visible placeholder feel without adding image assets or changing reward data.
+3. Rewards Ops table headers now have a scoped `12px` minimum under `.admin-reward-cockpit`.
+4. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/rewards` renders without document horizontal overflow;
+   - old image-slot placeholder copy is not visible;
+   - new `目录与素材状态` copy is visible;
+   - Rewards Ops table headers checked at `12px`;
+   - AntD/browser console warnings during QA: `0`.
+5. QA note:
+   - pagination/input-adornment hit-test noise remains in automated clickability metrics; screenshots and rendered content confirmed no blocker for this batch.
+
+Task-130O completed:
+
+1. `/app/settings` now redirects to `/app/settings/users` instead of loading the empty Settings shell.
+2. Audit summary statistics are de-nested from four inner Cards into a flat `admin-audit-summary-strip`.
+3. Settings table headers have a scoped `12px` minimum under `.admin-settings-page`.
+4. Browser QA at `390x844` and `1151x698` confirmed:
+   - `/app/settings` redirects to `/app/settings/users`;
+   - `/app/settings/users`, `/products`, `/data`, `/audit` have no document horizontal overflow;
+   - Audit nested statistic card count is `0`;
+   - Settings table headers checked at `12px`;
+   - AntD/browser console warnings during QA: `0`.
+5. QA note:
+   - disabled/pagination/input-adornment hit-test noise remains in automated clickability metrics; screenshots and rendered content confirmed no blocker for this batch.
+
+Hard boundaries for the next agent:
+
+1. Work only on the real Admin backend unless explicitly told otherwise.
+2. Do not touch Fan, Store, or preview pages.
+3. Do not change database, API, permissions, `.env`, dependencies, role logic, audit/business rules, points, stock, warehouse, or RLS.
+4. Do not delete or weaken backend capabilities:
+   - filters;
+   - search;
+   - export;
+   - audit/review actions;
+   - details/source entries;
+   - status, time, owner, region fields.
+5. The current theme follows `docs/08_DESIGN_SYSTEM.md` yellow-green direction; do not switch back to gold-black.
+6. The worktree has many historical dirty and untracked files. Do not clean, reset, revert, move, delete, or format unrelated files.
+
+Required workflow for each next batch:
+
+1. Read, in order:
+   - `AGENTS.md`;
+   - this `PROGRESS.md`;
+   - `docs/08_DESIGN_SYSTEM.md`;
+   - `docs/28_UI_DESIGN_OPTIMIZATION_PROPOSAL_V2.md`;
+   - `docs/29_TRIAL_GAP_AUDIT.md`;
+   - current `git status` and relevant `git diff`.
+2. Inspect the real page before coding.
+3. QA at both `390x844` and `1151x698`.
+4. Track:
+   - horizontal overflow;
+   - table containment;
+   - button/filter clickability;
+   - text contrast;
+   - side/bottom navigation overlap;
+   - empty/data state clarity;
+   - browser console warnings.
+5. Before edits, provide impact analysis, exact file list, and rollback plan.
+6. Keep each batch small and easy to revert.
+7. After edits, run:
+   - focused test;
+   - `npm test`;
+   - `npm run build`;
+   - browser QA.
+8. Report Vite warnings and whether they are existing.
+9. Write the result back to the top of `PROGRESS.md`.
+
+## Task-130N: Admin Alert Deprecated Prop Cleanup
+
+Date: 2026-07-26
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real Admin backend warning surfaced during Task-130M browser QA.
+2. Replaced deprecated AntD `Alert message` props with `title` on Admin Login, Admin Dashboard, and Admin Settings Audit access warning.
+3. Did not touch Fan portal UI, Store portal UI, preview routes, database, API, permissions, `.env`, dependencies, role logic, business rules, points, stock, warehouse, or RLS.
+4. Did not change any filters, search, export, audit/detail entries, status fields, time fields, owner fields, or region fields.
+5. Did not process the broader `Space direction="vertical"` cleanup because the remaining matches span Store, S Store, Fan Rules, and Community pages; that needs a separately confirmed batch if crossing the Admin-only boundary.
+
+What changed:
+
+1. `frontend/src/pages/login/LoginPage.jsx`
+   - Changed the local-demo `<Alert>` from `message={t('local_demo')}` to `title={t('local_demo')}`.
+2. `frontend/src/pages/dashboard/DashboardPage.jsx`
+   - Changed the local-demo `<Alert>` from `message={t('local_demo')}` to `title={t('local_demo')}`.
+3. `frontend/src/pages/settings/AuditLogPage.jsx`
+   - Changed the restricted-access `<Alert>` from `message="访问受限"` to `title="访问受限"`.
+4. Tests:
+   - `frontend/src/pages/login/LoginPage.static.test.mjs`;
+   - `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - `frontend/src/pages/settings/AuditLogPage.local.test.mjs`;
+   - added guards preventing these Admin Alerts from reverting to deprecated `message`.
+
+Browser QA:
+
+1. QA used real routes on the running dev server:
+   - `http://127.0.0.1:5173/#/admin`;
+   - `http://127.0.0.1:5173/#/app/dashboard`.
+2. Viewports:
+   - Mobile: `390x844`;
+   - Desktop: `1151x698`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130n-admin-alert-title-prop-qa/mobile-390x844-admin-login.png`;
+   - `frontend/output/playwright/task-130n-admin-alert-title-prop-qa/mobile-390x844-admin-dashboard.png`;
+   - `frontend/output/playwright/task-130n-admin-alert-title-prop-qa/desktop-1151x698-admin-login.png`;
+   - `frontend/output/playwright/task-130n-admin-alert-title-prop-qa/desktop-1151x698-admin-dashboard.png`;
+   - `frontend/output/playwright/task-130n-admin-alert-title-prop-qa/qa-results.json`.
+4. Results:
+   - Admin Login mobile horizontal overflow: `false`;
+   - Admin Login desktop horizontal overflow: `false`;
+   - Admin Dashboard mobile horizontal overflow: `false`;
+   - Admin Dashboard desktop horizontal overflow: `false`;
+   - Dashboard small text below `12px`: `0`;
+   - Dashboard side/bottom navigation overlap: `false`;
+   - Visible click targets with `pointer-events: none`: `0`;
+   - AntD `Alert message` deprecated warning count: `0` at both viewports.
+5. Browser console:
+   - No AntD `Alert message` deprecated warning.
+   - Dev server messages appeared:
+     - Vite connected;
+     - React DevTools info;
+     - existing password autocomplete browser hint.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/login/LoginPage.static.test.mjs src/pages/dashboard/DashboardPage.static.test.mjs src/pages/settings/AuditLogPage.local.test.mjs` failed before implementation because all three files still used deprecated `Alert message`.
+2. GREEN:
+   - The same focused command passed after implementation:
+     - `3` files passed;
+     - `25` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `105` files passed;
+     - `544` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing `[PLUGIN_TIMINGS]` build timing diagnostic;
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Continue with a separately confirmed small batch.
+2. Recommended candidates:
+   - Admin-only: real QA for Admin Settings total-entry/container reduction; or
+   - Cross-portal warning cleanup: `Space direction="vertical"` to `orientation="vertical"` in remaining Store/S Store/Fan/Community files, only if the user explicitly expands scope beyond Admin-only.
+
+## Task-130M: Runtime Local Mode Getter For Admin Data Consistency
+
+Date: 2026-07-26
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Implemented the first small batch from `docs/31_FULL_SYSTEM_AUDIT.md` for the P0 `IS_LOCAL_MODE` module-load snapshot bug.
+2. Replaced the static local-mode export with a runtime getter:
+   - `isLocalMode()`.
+3. Updated Admin-visible consumers so local-mode badges, Dashboard local branches, Settings Data mode messaging, Audit Logs local fallback, and realtime subscription gating read the current runtime mode after `setLocalMode(true)`.
+4. Updated shared auth and Fan Center consumers only as a mechanical compile/runtime consistency change because the static export was removed from the barrel.
+5. Did not change database, Supabase schema, permissions, `.env`, dependencies, API contracts other than the local-mode status export, role rules, scan points rules, fan login fanId fallback behavior, or Store/Fan UI.
+6. Did not fix the separate P0 issues:
+   - `scanQrCode` still needs a confirmed fanId batch;
+   - `fan_logged_in` fallback still needs a confirmed real fanId persistence batch;
+   - Admin theme surface conflict still needs a separate CSS batch.
+
+What changed:
+
+1. `frontend/src/services/api/dashboard.js`
+   - Removed `export const IS_LOCAL_MODE = isLocal()`.
+   - Added `export function isLocalMode() { return isLocal(); }`.
+2. `frontend/src/services/api.js`
+   - Re-exported `isLocalMode` from the dashboard API module.
+3. Runtime consumers now call `isLocalMode()`:
+   - `frontend/src/components/layout/AppLayout.jsx`;
+   - `frontend/src/pages/dashboard/DashboardPage.jsx`;
+   - `frontend/src/pages/login/LoginPage.jsx`;
+   - `frontend/src/pages/settings/DataManagement.jsx`;
+   - `frontend/src/pages/settings/AuditLogPage.jsx`;
+   - `frontend/src/hooks/useRealtimeSubscription.js`;
+   - `frontend/src/stores/authStore.js`;
+   - `frontend/src/pages/fans/FanCenterPage.jsx`.
+4. Tests:
+   - `frontend/src/services/api/helpers.test.mjs` now guards against restoring the old static snapshot.
+   - `frontend/src/pages/admin-ops/BackendDeepChineseCopy.static.test.mjs` now treats `isLocalMode` as the stable local-mode identifier.
+
+Browser QA:
+
+1. QA used real routes on the running dev server:
+   - `http://127.0.0.1:5173/#/admin`;
+   - `http://127.0.0.1:5173/#/app/dashboard`.
+2. Viewports:
+   - Mobile: `390x844`;
+   - Desktop: `1151x698`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130m-admin-local-mode-runtime-qa/mobile-390x844-admin-login.png`;
+   - `frontend/output/playwright/task-130m-admin-local-mode-runtime-qa/mobile-390x844-admin-dashboard.png`;
+   - `frontend/output/playwright/task-130m-admin-local-mode-runtime-qa/desktop-1151x698-admin-login.png`;
+   - `frontend/output/playwright/task-130m-admin-local-mode-runtime-qa/desktop-1151x698-admin-dashboard.png`;
+   - `frontend/output/playwright/task-130m-admin-local-mode-runtime-qa/qa-results.json`.
+4. Results:
+   - Admin Login mobile horizontal overflow: `false`;
+   - Admin Login desktop horizontal overflow: `false`;
+   - Admin Dashboard mobile horizontal overflow: `false`;
+   - Admin Dashboard desktop horizontal overflow: `false`;
+   - Dashboard small text below `12px`: `0`;
+   - Dashboard side/bottom navigation overlap: `false`;
+   - Visible click targets with `pointer-events: none`: `0`.
+5. Browser console:
+   - Dev server messages appeared:
+     - Vite connected;
+     - React DevTools info;
+     - existing password autocomplete browser hint.
+   - Existing AntD warning still appears on Admin Login:
+     - `[antd: Alert] message is deprecated. Please use title instead.`
+   - This warning belongs to the already identified AntD deprecated prop cleanup batch and was not fixed in Task-130M.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/services/api/helpers.test.mjs` failed before implementation because `dashboard.js` still exported `IS_LOCAL_MODE` as a module-load snapshot.
+   - The same focused test failed again until shared runtime consumers stopped importing `IS_LOCAL_MODE`.
+2. GREEN:
+   - `npm test -- src/services/api/helpers.test.mjs src/stores/authStore.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs` passed:
+     - `3` files passed;
+     - `43` tests passed.
+   - Focused Admin/shared regression passed:
+     - `8` files passed;
+     - `79` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `105` files passed;
+     - `541` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing `[PLUGIN_TIMINGS]` build timing diagnostic;
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Continue with the next small confirmed batch from `docs/31_FULL_SYSTEM_AUDIT.md`.
+2. Recommended next candidates:
+   - fix remaining AntD deprecated props on Admin Login / Dashboard / Audit Log; or
+   - handle the P0 fanId data-integrity issues only if the user explicitly expands the boundary beyond Admin-only.
+
+## Task-130L: Admin Settings Data Warning And Form Contrast Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Settings route:
+   - `http://127.0.0.1:5173/#/app/settings`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Focused on the Settings Users and Data tabs only.
+3. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+4. Preserved staff account creation fields, role selection, region/area/store assignment fields, status field, create staff action, user role update table, data export, import, reset demo data, clear all data, and cloud-mode guidance content.
+5. Did not change localDb, seed data, data import/export behavior, staff account creation behavior, email validation, audit logs, or role permissions.
+
+What changed:
+
+1. `frontend/src/pages/settings/DataManagement.jsx`
+   - Replaced deprecated AntD `Alert message` props with `title`.
+   - Replaced deprecated AntD `Space direction="vertical"` with `orientation="vertical"`.
+   - Added scoped classes:
+     - `admin-settings-page`;
+     - `admin-settings-data-page`;
+     - `admin-settings-cloud-guide`.
+2. `frontend/src/pages/settings/UserManagementPage.jsx`
+   - Added scoped classes:
+     - `admin-settings-page`;
+     - `admin-settings-users-page`.
+3. `frontend/src/index.css`
+   - Added scoped Settings label contrast rules under `.admin-liquid-shell .admin-settings-page`.
+   - Changed Settings form label color to `rgba(36, 28, 16, 0.82)` with `font-weight: 700`.
+   - Added helper/extra text color `rgba(36, 28, 16, 0.64)`.
+   - Added mobile-only Data cloud guidance containment with `max-height: 260px` and `overflow: hidden`.
+4. `frontend/src/pages/settings/DataManagement.static.test.mjs`
+   - Added regression guards for the deprecated AntD prop cleanup and preserved data controls.
+5. `frontend/src/pages/settings/UserManagementPage.static.test.mjs`
+   - Added a regression guard for readable Settings form labels on light Admin cards.
+
+Impact:
+
+1. Admin Settings user-management form labels are readable on the light operational card surface in mobile and desktop viewports.
+2. Data Management no longer emits AntD deprecated `Alert message` or `Space direction` warnings.
+3. Mobile Data Management keeps the cloud-mode explanation compact while retaining the full export/import/reset/clear controls and guidance content in the DOM.
+4. Settings tables and controls keep existing internal scroll and click behavior.
+
+Browser QA:
+
+1. QA used the real Admin Settings route on:
+   - `http://127.0.0.1:5173/#/app/settings`.
+2. Viewports:
+   - Mobile: `390x844`;
+   - Desktop: `1151x698`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130l-admin-settings-data-warning-label-polish/mobile-390x844-users.png`;
+   - `frontend/output/playwright/task-130l-admin-settings-data-warning-label-polish/mobile-390x844-data.png`;
+   - `frontend/output/playwright/task-130l-admin-settings-data-warning-label-polish/desktop-1151x698-users.png`;
+   - `frontend/output/playwright/task-130l-admin-settings-data-warning-label-polish/desktop-1151x698-data.png`;
+   - `frontend/output/playwright/task-130l-admin-settings-data-warning-label-polish/qa-results.json`.
+4. Results:
+   - mobile Users document-level horizontal overflow: `false`;
+   - desktop Users document-level horizontal overflow: `false`;
+   - mobile Data document-level horizontal overflow: `false`;
+   - desktop Data document-level horizontal overflow: `false`;
+   - Users label color after polish: `rgba(36, 28, 16, 0.82)`;
+   - Users label font weight after polish: `700`;
+   - Users table internal scroll on mobile: `true`;
+   - Data controls remained present;
+   - Data mobile cloud guidance max height: `260px`;
+   - AntD `Alert message` warning: `false`;
+   - AntD `Space direction` warning: `false`.
+5. Browser console:
+   - No page errors.
+   - Dev server messages appeared:
+     - Vite connected;
+     - React DevTools info;
+     - existing login password autocomplete browser hint.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/settings/DataManagement.static.test.mjs src/pages/settings/UserManagementPage.static.test.mjs` failed before implementation because Data Management still used deprecated AntD props and Settings lacked scoped readable-label CSS.
+2. GREEN:
+   - `npm test -- src/pages/settings/DataManagement.static.test.mjs src/pages/settings/UserManagementPage.static.test.mjs` passed:
+     - `2` files passed;
+     - `5` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `105` files passed;
+     - `539` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing `[PLUGIN_TIMINGS]` build timing diagnostic;
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Continue with Admin Settings total-entry/container real QA if desired, focusing on reducing nested Settings card/background weight without changing Users, Products, Data, or Audit capabilities.
+
+## Task-130K: Admin Reviews Data First And Warning Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Reviews route:
+   - `http://127.0.0.1:5173/#/app/reviews`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved review filters, search, source/detail entry, review status fields, source fields, owner fields, priority fields, next-step fields, destination tags, and all review actions:
+   - View source;
+   - Approve;
+   - Reject;
+   - Need more info;
+   - Escalate;
+   - Add note.
+4. Did not change `buildReviewRows`, `getReviewCounters`, `applyReviewAction`, review permissions, audit writing, source record sync, or destination route mapping.
+
+What changed:
+
+1. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+   - Replaced deprecated AntD `<Space direction="vertical">` with `orientation="vertical"`.
+   - Added scoped `admin-review-guidance-card` markers to the command strip, source/action guidance row, and handoff card.
+   - Added scoped `admin-review-queue-card` to the real review queue card.
+   - Kept `admin-trial-wide-table` on the queue table wrapper so existing mobile horizontal-scroll behavior and regression guards remain intact.
+2. `frontend/src/index.css`
+   - Changed the compact Reviews workbench container to a scoped flex column.
+   - Ordered the real data controls ahead of guidance:
+     - filter card: `order: 1`;
+     - queue card: `order: 2`;
+     - counter grid: `order: 3`;
+     - guidance cards: `order: 4`.
+   - Added mobile `max-height: 180px` plus hidden overflow for Reviews guidance cards so the queue appears before explanatory content.
+   - Moved queue card body padding to `.admin-review-queue-card` without changing table columns or scroll width.
+3. `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+   - Added a static regression guard that Reviews prioritizes the real queue and avoids deprecated AntD `Space direction`.
+
+Impact:
+
+1. Admin Reviews now surfaces filters and the review queue before the explanatory guidance blocks.
+2. The deprecated AntD `Space direction` browser warning is removed from Reviews.
+3. Table horizontal scrolling, filters, search, source navigation, permissions, and every review decision action remain available.
+
+Browser QA:
+
+1. QA used the real Admin Reviews route on:
+   - `http://127.0.0.1:5173/#/app/reviews`.
+2. Viewports:
+   - Mobile: `390x844`;
+   - Desktop: `1151x698`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130k-admin-reviews-data-first-polish/mobile-390x844.png`;
+   - `frontend/output/playwright/task-130k-admin-reviews-data-first-polish/desktop-1151x698.png`;
+   - `frontend/output/playwright/task-130k-admin-reviews-data-first-polish/qa-results.json`.
+4. Results:
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - table internal horizontal scroll: `true`;
+   - review filter buttons present and enabled: `10`;
+   - search input present: `true`;
+   - review action buttons present across rows: `120`;
+   - review actions disabled: `false`;
+   - filter/queue visually appear before guidance in both viewports;
+   - AntD `Space direction is deprecated` warning: `false`;
+   - empty state/data state clear: `true`.
+5. Browser console:
+   - No page errors.
+   - Dev server messages appeared:
+     - Vite connected;
+     - React DevTools info;
+     - existing login password autocomplete browser hint.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs` failed before implementation because `ReviewsPage.jsx` still used `<Space direction="vertical" size={0}>`.
+2. GREEN:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs` passed:
+     - `1` file passed;
+     - `12` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `104` files passed;
+     - `536` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing `[PLUGIN_TIMINGS]` build timing diagnostic;
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Continue with Admin Settings real QA as the next small, rollback-friendly Admin-only batch.
+
+## Task-130J: Admin Visits Create Form Label Contrast Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Visits create route:
+   - `http://127.0.0.1:5173/#/app/visits/create`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved visit type, visit date, status, store profile fields, field rating fields, display data, sales data, evidence photo upload actions, S Store visit detail fields, submit action, cancel action, and all existing visit mutation paths.
+4. Did not change visit creation, visit update, rating calculation, rating review, S Store follow-up submission, replenishment, exposure, localDb, or API logic.
+
+What changed:
+
+1. `frontend/src/pages/visits/VisitCreatePage.jsx`
+   - Added scoped classes:
+     - `admin-visit-create-page`;
+     - `admin-visit-create-card`.
+2. `frontend/src/index.css`
+   - Added scoped Create Visit readability rules under `.admin-liquid-shell .admin-visit-create-page`.
+   - Changed form label color from low-contrast light gray to `rgba(36, 28, 16, 0.82)` with `font-weight: 700`.
+   - Improved form helper/extra text contrast to `rgba(36, 28, 16, 0.64)`.
+   - Improved upload button text and border contrast without changing upload behavior.
+   - Added mobile-only Create Visit padding tightening.
+3. `frontend/src/pages/visits/VisitCreatePage.workflow.test.mjs`
+   - Added a static regression guard for scoped Create Visit classes, readable labels/helper/upload button CSS, and preserved submit/S Store visit workflow paths.
+
+Impact:
+
+1. Admin Visits Create labels are readable on the light operational card surfaces in mobile and desktop viewports.
+2. Evidence upload buttons are visibly readable while remaining clickable.
+3. Mobile and desktop keep document-level width contained.
+4. No Admin Visits business behavior, API, permission, database, rating, review, S Store follow-up, replenishment, or exposure logic changed.
+
+Browser QA:
+
+1. QA used the real Admin Visits create route on:
+   - `http://127.0.0.1:5173/#/app/visits/create`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130j-admin-visits-create-label-polish/visits-create-mobile-390x844-top.png`;
+   - `frontend/output/playwright/task-130j-admin-visits-create-label-polish/visits-create-mobile-390x844-bottom.png`;
+   - `frontend/output/playwright/task-130j-admin-visits-create-label-polish/visits-create-desktop-1151x698-top.png`;
+   - `frontend/output/playwright/task-130j-admin-visits-create-label-polish/visits-create-desktop-1151x698-bottom.png`;
+   - `frontend/output/playwright/task-130j-admin-visits-create-label-polish/metrics.json`.
+4. Results:
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - label color after polish: `rgba(36, 28, 16, 0.82)`;
+   - label font weight after polish: `700`;
+   - helper/extra color after polish: `rgba(36, 28, 16, 0.64)`;
+   - upload button text color after polish: `rgba(36, 28, 16, 0.74)`;
+   - select dropdown opened successfully;
+   - Create Visit and Cancel remained visible and clickable.
+5. Browser console:
+   - No page errors.
+   - Dev server messages appeared:
+     - Vite connected;
+     - React DevTools info;
+     - existing login password autocomplete browser hint.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/visits/VisitCreatePage.workflow.test.mjs` failed before implementation because Create Visit had no scoped readability classes/CSS.
+2. GREEN:
+   - `npm test -- src/pages/visits/VisitCreatePage.workflow.test.mjs` passed:
+     - `1` file passed;
+     - `6` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `104` files passed;
+     - `535` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing `[PLUGIN_TIMINGS]` build timing diagnostic;
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Continue with Admin Reviews real QA unless a separate Admin Visits detail/list follow-up is preferred.
+
+## Task-130I: Admin Visits List Data First Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Visits list route:
+   - `http://127.0.0.1:5173/#/app/visits/list`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved visit records, new visit action, filters, detail entry, status fields, date fields, rep field, region/city field, S Store follow-up fields, replenishment visibility, pagination, and table horizontal scroll.
+4. Did not change visit creation, visit detail, rating, review, S Store follow-up, replenishment, exposure, localDb, or API logic.
+
+What changed:
+
+1. `frontend/src/index.css`
+   - Made `.admin-visits-page` a scoped flex column inside the Admin shell.
+   - Set `.admin-visits-management-card` to visual order `1`, `.admin-visits-ops-strip` to order `2`, and `.admin-visits-workbench-card` to order `3`.
+   - Added mobile `max-height: 220px` plus hidden overflow for Visits guidance strips so they stay compact after the data workbench.
+2. `frontend/src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Added a static regression guard that Visits keeps the operational data card visually ahead of guidance while preserving guidance, workflow entry, filters, and table scroll behavior.
+
+Impact:
+
+1. Admin Visits now opens with the real operations data, metrics, filters, and records table first.
+2. Guidance and workflow explanation remain available below the operational table.
+3. Mobile and desktop keep document-level width contained while preserving internal table scrolling.
+4. No Admin Visits business behavior, API, permission, database, rating, review, S Store follow-up, replenishment, or exposure logic changed.
+
+Browser QA:
+
+1. QA used the real Admin Visits list route on:
+   - `http://127.0.0.1:5173/#/app/visits/list`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130i-admin-visits-list-data-first/visits-list-mobile-390x844.png`;
+   - `frontend/output/playwright/task-130i-admin-visits-list-data-first/visits-list-desktop-1151x698.png`;
+   - `frontend/output/playwright/task-130i-admin-visits-list-data-first/metrics.json`.
+4. Results:
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile table internal scroll width/client width: `1550px / 294px`;
+   - desktop table internal scroll width/client width: `1556px / 703px`;
+   - mobile management card top: `98px`;
+   - mobile guidance strip top: `1934px`;
+   - desktop management card top: `140px`;
+   - desktop guidance strip top: `1685px`;
+   - filter dropdown opened successfully;
+   - first table detail action navigated successfully to `/app/visits/v-real-001`.
+5. Browser console:
+   - No page errors.
+   - Dev server messages appeared:
+     - Vite connected;
+     - React DevTools info;
+     - existing login password autocomplete browser hint.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/visits/VisitFieldOps.static.test.mjs` failed before implementation because the Visits page did not expose the data-first visual order CSS.
+2. GREEN:
+   - `npm test -- src/pages/visits/VisitFieldOps.static.test.mjs` passed:
+     - `1` file passed;
+     - `9` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `104` files passed;
+     - `534` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing `[PLUGIN_TIMINGS]` build timing diagnostic;
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Continue with `Task-130J: Admin Visits Create Form Label Contrast QA/Polish`, focused only on `VisitCreatePage` form readability.
+
+## Task-130H: Admin Materials Inbound And Outbound Mobile Table Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Materials flow routes:
+   - `http://127.0.0.1:5173/#/app/materials/inbound`;
+   - `http://127.0.0.1:5173/#/app/materials/outbound`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved inbound submit, material select, quantity input, notes input, inbound history fields, outbound request submit, material select, store select, reason input, outbound records tab, approval action, reject action, mark-delivered action, status fields, applicant fields, and date fields.
+4. Did not change inbound creation, outbound creation, outbound status mutation, stock updates, role checks, assigned-store scope, warehouse logic, API calls, or localDb data.
+
+What changed:
+
+1. `frontend/src/pages/materials/MaterialInboundPage.jsx`
+   - Added scoped classes:
+     - `admin-material-inbound-page`;
+     - `admin-material-inbound-form-card`;
+     - `admin-material-inbound-table`.
+   - Added deliberate internal table scrolling to the inbound history table with `scroll={{ x: 760 }}`.
+2. `frontend/src/pages/materials/MaterialOutboundPage.jsx`
+   - Added scoped classes:
+     - `admin-material-outbound-page`;
+     - `admin-material-outbound-tabs`;
+     - `admin-material-outbound-form`;
+     - `admin-material-outbound-records-table`.
+   - Added deliberate internal table scrolling to the outbound records table with `scroll={{ x: 920 }}`.
+   - Added AntD icons plus `title` and `aria-label` to outbound approval, rejection, and mark-delivered buttons.
+   - Kept button text in DOM for desktop and accessibility; mobile CSS compacts the text actions to icon buttons.
+3. `frontend/src/index.css`
+   - Added scoped mobile containment for inbound and outbound materials routes.
+   - Converted inbound mobile form into a clean single-column operational form.
+   - Increased inbound and outbound form-label contrast on mobile.
+   - Kept inbound and outbound tables inside their card wrappers with nowrap table cells and internal horizontal scroll.
+   - Compacted outbound record action buttons on mobile without removing approval, rejection, or delivery actions.
+4. `frontend/src/pages/materials/MaterialFlowPages.static.test.mjs`
+   - Added static regression guards for inbound/outbound scoped classes, table scroll values, mobile table containment CSS, label contrast CSS, action button labels, and preserved outbound status mutation paths.
+
+Impact:
+
+1. Mobile inbound history no longer squeezes all six columns into a narrow unreadable table.
+2. Mobile outbound records no longer render approval/rejection actions past the viewport edge.
+3. Mobile inbound/outbound pages keep document-level width at the `390px` viewport while preserving internal table scrolling.
+4. Mobile outbound apply labels are readable against the light form surface.
+5. No inbound/outbound business behavior, approval logic, API, permission, database, stock, role, warehouse, or assigned-store logic changed.
+
+Browser QA:
+
+1. QA used the real Admin routes on:
+   - `http://127.0.0.1:5173/#/app/materials/inbound`;
+   - `http://127.0.0.1:5173/#/app/materials/outbound`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130h-admin-materials-flow-polish/inbound-mobile-390x844.png`;
+   - `frontend/output/playwright/task-130h-admin-materials-flow-polish/outbound-mobile-390x844.png`;
+   - `frontend/output/playwright/task-130h-admin-materials-flow-polish/outbound-apply-mobile-390x844.png`;
+   - `frontend/output/playwright/task-130h-admin-materials-flow-polish/inbound-desktop-1151x698.png`;
+   - `frontend/output/playwright/task-130h-admin-materials-flow-polish/outbound-desktop-1151x698.png`;
+   - `frontend/output/playwright/task-130h-admin-materials-flow-polish/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - mobile inbound document-level horizontal overflow: `false`;
+   - mobile outbound document-level horizontal overflow: `false`;
+   - desktop inbound document-level horizontal overflow: `false`;
+   - desktop outbound document-level horizontal overflow: `false`;
+   - mobile inbound document width/client width: `390px / 390px`;
+   - mobile outbound document width/client width: `390px / 390px`;
+   - mobile inbound table internal scroll width/client width: `760px / 298px`;
+   - mobile outbound table internal scroll width/client width: `920px / 272px`;
+   - desktop inbound table internal scroll width/client width: `760px / 687px`;
+   - desktop outbound table internal scroll width/client width: `973px / 685px`;
+   - outbound approval, rejection, and mark-delivered actions remained present and accessible.
+5. Browser console:
+   - No page errors.
+   - No browser warnings/errors appeared during the checked inbound/outbound QA flows.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/materials/MaterialFlowPages.static.test.mjs` failed before implementation on missing inbound/outbound scoped classes, table scroll rules, action labels, and mobile CSS.
+2. GREEN:
+   - `npm test -- src/pages/materials/MaterialFlowPages.static.test.mjs` passed:
+     - `1` file passed;
+     - `2` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `104` files passed;
+     - `533` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing large chunk warning for chunks over `300 kB`;
+     - `[PLUGIN_TIMINGS]` build timing diagnostic appeared and is treated as an existing build-tool diagnostic, not caused by this Materials UI-only change.
+
+Next recommended step:
+
+1. Continue with Admin Visits real QA as `Task-130I`, unless a separate follow-up is preferred for further Material Stocks compaction.
+
+## Task-130G: Admin Materials List Mobile Tabs And Action Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Materials list route:
+   - `http://127.0.0.1:5173/#/app/materials/list`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved material catalog, Add Material modal, Edit action, Delete action, stock quantity inputs, safety stock inputs, SKU/category/unit/cost/status fields, Store Requests tab, approval actions, inbound tab, and outbound tab.
+4. Did not change inventory, material request, approval, outbound, warehouse, role, or stock update logic.
+
+What changed:
+
+1. `frontend/src/pages/materials/MaterialListPage.jsx`
+   - Added scoped Admin Materials classes:
+     - `admin-materials-page`;
+     - `admin-materials-tabs`;
+     - `admin-materials-catalog-card`;
+     - `admin-materials-table`.
+   - Replaced deprecated AntD `Space direction="vertical"` usage with `orientation="vertical"` on the Materials page.
+   - Added `title` and `aria-label` to catalog Edit/Delete buttons so mobile can use icon-only controls without losing intent.
+   - Slightly widened the catalog Actions column from `140` to `156` for desktop readability.
+2. `frontend/src/index.css`
+   - Added scoped mobile containment for `.admin-materials-page`.
+   - Made the Materials tabs use horizontal scrolling on mobile instead of forcing each tab into a clipped `62px` slot.
+   - Kept catalog tables as deliberate internal wide tables while preventing document-level horizontal overflow.
+   - On mobile, compacted catalog Edit/Delete actions to icon buttons while keeping accessible labels and desktop text.
+3. `frontend/src/pages/materials/MaterialListPage.action-rbac.static.test.mjs`
+   - Added static regression coverage for Materials scoped classes, mobile tabs/table containment CSS, and deprecated Space usage removal.
+
+Impact:
+
+1. Mobile Materials tabs no longer collapse every label into the same narrow unreadable width.
+2. Mobile Materials catalog keeps document-level width at the `390px` viewport while preserving internal table scrolling.
+3. Mobile catalog Edit/Delete controls no longer clip text at the card edge; desktop retains text actions.
+4. The AntD `Space direction` deprecation warning is removed from Materials List.
+5. No material catalog data, stock editing logic, request approval logic, inbound/outbound logic, API, database, permission, or business rule changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/materials/list`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130g-admin-materials-list-polish-final/materials-list-mobile-390x844-final.png`;
+   - `frontend/output/playwright/task-130g-admin-materials-list-polish-final/materials-list-desktop-1151x698.png`;
+   - `frontend/output/playwright/task-130g-admin-materials-list-polish-final/metrics.json`;
+   - `frontend/output/playwright/task-130g-admin-materials-list-polish-final/mobile-final-icons-metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile document width/client width: `390px / 390px`;
+   - desktop document width/client width: `1151px / 1151px`;
+   - mobile tabs wrapper internal scroll width/client width: `408px / 263px`;
+   - mobile catalog table internal scroll width/client width: `1155px / 296px`;
+   - desktop catalog table internal scroll width/client width: `1163px / 685px`;
+   - Add Material modal opened successfully;
+   - Store Requests tab opened successfully;
+   - request workflow buttons remained present: Approve & reserve, More info, Reject, Pack.
+5. Browser console:
+   - No page errors.
+   - The previous AntD `Space direction` warning no longer appeared on Materials List.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/materials/MaterialListPage.action-rbac.static.test.mjs` failed before implementation on missing Materials scoped classes, mobile tabs/table CSS, and deprecated Space usage.
+2. GREEN:
+   - `npm test -- src/pages/materials/MaterialListPage.action-rbac.static.test.mjs` passed:
+     - `1` file passed;
+     - `2` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `103` files passed;
+     - `531` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings:
+     - existing large chunk warning for chunks over `300 kB`;
+     - `[PLUGIN_TIMINGS]` build timing diagnostic appeared in this run and is treated as an existing build-tool diagnostic, not caused by this Materials UI-only change.
+
+Next recommended step:
+
+1. Continue `Task-130H` with QA-first review of Admin Materials Stocks / Inbound / Outbound or move to Admin Visits after confirmation.
+
+## Task-130F: Admin Rewards Ops Mobile Width And Warning Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Rewards Ops route:
+   - `http://127.0.0.1:5173/#/app/rewards`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved reward catalog table, high-value review queue, approval action, reject action, pickup-store assignment action, pickup-store select, points, level, region, status, fulfillment status, and audit-write path.
+4. Did not change reward redemption logic, pickup eligibility rules, role checks, point deductions, or reward catalog data.
+5. Left global AntD `message` static-context warning for a separate cross-page task because it affects shared feedback infrastructure.
+
+What changed:
+
+1. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+   - Replaced deprecated AntD `Space direction="vertical"` usage with `orientation="vertical"`.
+   - Kept all reward review and pickup assignment handlers unchanged.
+2. `frontend/src/index.css`
+   - Added scoped mobile containment for `.admin-reward-cockpit`.
+   - Forced Rewards Ops mobile Row/Card/Col sections back to `100%` width so the prior `1128px` containers no longer clip the mobile viewport.
+   - Kept reward tables as deliberate internal wide tables while constraining their card wrappers to the viewport.
+   - Tightened mobile summary cards into a 2-column grid and slightly reduced explanatory card spacing.
+3. `frontend/src/pages/admin-ops/RewardsOpsPage.static.test.mjs`
+   - Added static regression guards for core review/pickup actions, deprecated Space usage removal, mobile width containment, compressed explanation zones, and table-stack width rules.
+
+Impact:
+
+1. Mobile Rewards Ops no longer renders primary sections as `1128px`-wide clipped containers.
+2. Mobile Rewards Ops now keeps the page, command strip, summary, and table stack within the `390px` viewport while preserving internal table scrolling.
+3. The AntD `Space direction` deprecation warning is removed from Rewards Ops.
+4. Review approval, rejection, pickup-store select, and pickup assignment remain clickable.
+5. No reward catalog, review queue, pickup rule, audit log, permission, database, API, or business logic changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/rewards`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130f-admin-rewards-ops-mobile-width-polish/mobile-390x844-top.png`;
+   - `frontend/output/playwright/task-130f-admin-rewards-ops-mobile-width-polish/mobile-390x844-bottom.png`;
+   - `frontend/output/playwright/task-130f-admin-rewards-ops-mobile-width-polish/desktop-1151x698-top.png`;
+   - `frontend/output/playwright/task-130f-admin-rewards-ops-mobile-width-polish/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile page width/client width: `350px / 350px`;
+   - mobile command strip width/client width: `350px / 348px`;
+   - mobile summary width/client width: `350px / 350px`;
+   - mobile table stack width/client width: `350px / 350px`;
+   - mobile catalog table internal scroll width/client width: `920px / 322px`;
+   - mobile review queue table internal scroll width/client width: `1100px / 322px`;
+   - pickup select opened successfully;
+   - approve, reject, and assign pickup actions remained clickable.
+5. Browser console:
+   - The previous AntD `Space direction` warning no longer appeared.
+   - AntD `message` static-context warning still appears after review/pickup feedback calls; this is treated as an existing shared feedback issue and was not changed in this task.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/admin-ops/RewardsOpsPage.static.test.mjs` failed before implementation on deprecated `direction="vertical"` and missing scoped mobile width rules.
+2. GREEN:
+   - `npm test -- src/pages/admin-ops/RewardsOpsPage.static.test.mjs` passed:
+     - `1` file passed;
+     - `2` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `103` files passed;
+     - `530` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warning:
+     - existing large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Start `Task-130G` with QA-first review of Admin Materials.
+
+## Task-130E: Admin Campaign Detail Mobile Readability And Tabs Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Campaign Detail route:
+   - `http://127.0.0.1:5173/#/app/campaigns/ca-real-005`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved campaign approval actions, return navigation, detail fields, target-store list, task creation/edit/delete actions, claim delivery action, report form, status/date/budget/store fields, and all tab entries.
+4. Did not translate or rewrite underlying campaign seed/business data such as campaign name, type, description, target store names, claim data, or report data.
+5. Left target-store list folding for a later task because it changes information density and needs its own rollback boundary.
+
+What changed:
+
+1. `frontend/src/pages/campaigns/CampaignDetailPage.jsx`
+   - Added scoped Admin Campaign Detail classes:
+     - `admin-campaign-detail-page`;
+     - `admin-campaign-detail-card`;
+     - `admin-campaign-detail-descriptions`;
+     - `admin-campaign-detail-tabs`;
+     - `admin-campaign-detail-table-wrap`.
+   - Changed the long `活动说明` description span from fixed `span={3}` to responsive `span={{ xs: 1, sm: 1, md: 2, lg: 3 }}`.
+   - Added safe internal horizontal scroll to the Tasks table with `scroll={{ x: 620 }}`.
+   - Added safe internal horizontal scroll to the Claims table with `scroll={{ x: 840 }}`.
+2. `frontend/src/index.css`
+   - Added scoped Campaign Detail page/card spacing.
+   - Added scoped Campaign Detail descriptions readability rules.
+   - Added mobile rules so description labels/content stack vertically instead of labels wrapping into vertical text.
+   - Added scoped tabs nav overflow handling for narrow Admin screens.
+   - Added scoped table wrapper rules and nowrap table cells for Tasks and Claims.
+3. `frontend/src/pages/campaigns/CampaignDetailPage.static.test.mjs`
+   - Added regression guards for scoped detail classes, responsive description span, mobile description CSS, tabs CSS, and table scroll values.
+
+Impact:
+
+1. Mobile Campaign Detail no longer shows core field labels as vertical stacked characters.
+2. The AntD `Descriptions` warning caused by the fixed long-field span is removed on both QA viewports.
+3. Tasks and Claims tables now use deliberate internal horizontal scrolling instead of relying on page-level width.
+4. Mobile tabs remain clickable and no longer depend on page-level overflow.
+5. No approval, task, claim, report, navigation, database, API, permission, or business-rule behavior changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/campaigns/ca-real-005`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130e-admin-campaign-detail-mobile-polish/mobile-390x844-overview.png`;
+   - `frontend/output/playwright/task-130e-admin-campaign-detail-mobile-polish/desktop-1151x698-overview.png`;
+   - `frontend/output/playwright/task-130e-admin-campaign-detail-mobile-polish/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - browser console errors: `0`;
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile description label display: `block`;
+   - desktop description label display: `table-cell`;
+   - mobile Tasks table internal scroll width/client width: `620px / 300px`;
+   - mobile Claims table internal scroll width/client width: `840px / 300px`;
+   - back button worked on both viewports;
+   - Add Task opened the task modal on both viewports.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/campaigns/CampaignDetailPage.static.test.mjs` failed before implementation on missing Campaign Detail scoped classes, responsive description span, tabs CSS, and table scroll rules.
+2. GREEN:
+   - `npm test -- src/pages/campaigns/CampaignDetailPage.static.test.mjs` passed:
+     - `1` file passed;
+     - `2` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `102` files passed;
+     - `528` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warning:
+     - existing large chunk warning for chunks over `300 kB`.
+   - `PLUGIN_TIMINGS` did not appear in this build run.
+
+Next recommended step:
+
+1. Start `Task-130F` with QA-first review of Admin Rewards Ops.
+
+## Task-130D: Admin Campaigns List Compact Handoff Real QA Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Campaigns list route:
+   - `http://127.0.0.1:5173/#/app/campaigns`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved campaign status filters, type filter, new-campaign entry, detail entry, status field, date range, store count, budget, freshness state, and task progress.
+4. Did not translate or rewrite underlying campaign seed/business data such as campaign names, campaign types, or descriptions.
+
+What changed:
+
+1. `frontend/src/pages/campaigns/CampaignListPage.jsx`
+   - Added `admin-campaign-handoff-compact` to the handoff strip.
+   - Moved the handoff explanatory copy from inline style to `admin-campaign-handoff-summary` so the page can be compacted with scoped CSS.
+2. `frontend/src/index.css`
+   - Reduced Admin Campaigns handoff body padding, stack gap, chip padding, and chip minimum height.
+   - Added a one-line desktop summary treatment with `max-width: 520px`.
+   - Kept narrow mobile handoff chips in 2 columns while restoring the 1151px desktop QA viewport to 4 handoff columns.
+3. `frontend/src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Added a focused regression guard for the compact handoff classes and responsive CSS rules.
+
+Impact:
+
+1. Admin Campaigns shows activity data sooner while retaining the operational handoff cues.
+2. Desktop `1151x698` handoff height is reduced to about `143px`, and the first campaign card begins around `435px`.
+3. Mobile `390x844` keeps no page-level horizontal overflow, uses 2-column handoff chips, and shows 2 campaign cards in the viewport.
+4. No campaign filtering, navigation, creation, detail, budget, date, status, or task-progress behavior changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/campaigns`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130d-admin-campaigns-compact-final/mobile-390x844.png`;
+   - `frontend/output/playwright/task-130d-admin-campaigns-compact-final/desktop-1151x698.png`;
+   - `frontend/output/playwright/task-130d-admin-campaigns-compact-final/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile handoff grid columns: `149px 149px`;
+   - desktop handoff grid columns: `171.75px 171.75px 171.75px 171.75px`;
+   - mobile handoff height: about `141px`;
+   - desktop handoff height: about `143px`;
+   - status tab, type filter, and detail button were clickable in both QA flows.
+5. Browser console:
+   - Mobile QA still logged an AntD `Descriptions` warning:
+     `Warning: [antd: Descriptions] Sum of column span in a line not match column of Descriptions.`
+   - Campaigns list does not render `Descriptions`; this warning is treated as an existing cross-route issue and was not changed in this task.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/campaigns/CampaignListPage.static.test.mjs` failed before implementation on the missing compact handoff class and CSS rules.
+2. GREEN:
+   - `npm test -- src/pages/campaigns/CampaignListPage.static.test.mjs` passed:
+     - `1` file passed;
+     - `5` tests passed.
+3. Full regression:
+   - `npm test` passed:
+     - `102` files passed;
+     - `527` tests passed.
+4. Production build:
+   - `npm run build` passed.
+   - Vite warnings are existing warnings only:
+     - `[PLUGIN_TIMINGS]`;
+     - large chunk warning for chunks over `300 kB`.
+
+Next recommended step:
+
+1. Start `Task-130E` with QA-first review of Admin Campaign Detail or Rewards Ops, depending on whether the Campaigns module should receive a detail-page pass before moving to Rewards.
+
+## Task-130C: Admin Fan Detail Chinese Shell And Mobile Detail Layout Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Fan Detail route:
+   - `http://127.0.0.1:5173/#/app/fans/f-007`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Preserved fan detail scope checks, restricted-access behavior, points history data, level rules data, pagination, tabs, and return-to-list navigation.
+4. Did not translate underlying seed/business data such as level benefit descriptions or point log source/description strings.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanDetailPage.jsx`
+   - Converted Admin Fan Detail shell labels from English to Chinese:
+     - `Back to Fans` -> `返回粉丝列表`;
+     - `Fan Detail` -> `粉丝详情`;
+     - `Access Restricted` -> `访问受限`;
+     - `Name`, `Store`, `Level`, `Points`, `Total Contribution`, `Current Benefits` -> `姓名`, `门店`, `等级`, `积分`, `总贡献`, `当前权益`;
+     - `Points History`, `Level Info` -> `积分记录`, `等级规则`;
+     - history table columns `Date`, `Points`, `Type`, `Source`, `Description` -> `日期`, `积分`, `类型`, `来源`, `说明`;
+     - `Earned`, `Redeemed`, `No points history` -> `获得`, `兑换`, `暂无积分记录`.
+   - Changed the detail descriptions to responsive columns so mobile uses a single readable column.
+   - Wrapped the points history table with `admin-trial-wide-table admin-fan-detail-history-table`.
+   - Added `scroll={{ x: 680 }}` for mobile-safe internal table scroll.
+2. `frontend/src/index.css`
+   - Added scoped Admin Fan Detail layout width.
+   - Added scoped description label/readability fixes so desktop labels do not wrap vertically and mobile labels/content stack cleanly.
+   - Added scoped history table spacing while reusing the existing Admin wide-table horizontal-scroll hint.
+3. `frontend/src/pages/fans/FanDetailPage.rbac.static.test.mjs`
+   - Updated access-scope regression expectations to Chinese shell copy.
+   - Added guards rejecting the previous English shell labels.
+   - Added guards for the responsive details class, history wide-table wrapper, `scroll.x`, and scoped CSS.
+
+Impact:
+
+1. Admin Fan Detail now reads as a Chinese-first backend page.
+2. Mobile users can read core fan fields without horizontal clipping.
+3. Mobile points history uses deliberate internal horizontal scroll with the existing `横向滑动` affordance.
+4. Desktop Fan Detail no longer has vertically wrapped field labels and avoids unnecessary internal table overflow at `1151x698`.
+5. No fan data, point rules, level rules, access rules, route behavior, API, database, or business logic changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/fans/f-007`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130c-admin-fan-detail-cn-mobile/fan-detail-1151x698.png`;
+   - `frontend/output/playwright/task-130c-admin-fan-detail-cn-mobile/fan-detail-390x844.png`;
+   - `frontend/output/playwright/task-130c-admin-fan-detail-cn-mobile/fan-detail-390x844-history-scrolled-right.png`;
+   - `frontend/output/playwright/task-130c-admin-fan-detail-cn-mobile/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile detail descriptions rect: `296px` wide, no page clipping;
+   - mobile history table internal scroll width/client width: `680px / 292px`;
+   - desktop history table internal scroll width/client width: `685px / 685px`;
+   - mobile wide-table hint pseudo-content: `横向滑动`;
+   - shell English hits: `0`;
+   - desktop detail labels use `white-space: nowrap` and no longer wrap vertically.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/fans/FanDetailPage.rbac.static.test.mjs` failed before implementation on missing Chinese shell copy, layout classes, wide-table wrapper, and `scroll.x`.
+   - After QA refinement, the same focused test failed while expecting `scroll={{ x: 680 }}` before the implementation value was adjusted from `760`.
+2. GREEN:
+   - `npm test -- src/pages/fans/FanDetailPage.rbac.static.test.mjs` passed after implementation.
+3. Full verification:
+   - `npm test` passed: 102 files / 526 tests.
+   - `npm run build` passed.
+   - Vite warnings: existing `PLUGIN_TIMINGS` and large chunk warning only; no new warning category observed.
+
+Remaining / Next recommended checkpoint:
+
+1. Continue the Admin priority sequence after Fans:
+   - Campaigns -> Rewards Ops -> Materials -> Visits -> Reviews -> Settings.
+2. Suggested next small batch:
+   - `Task-130D: Admin Campaigns List Real QA And First Small Polish`, starting with real QA and issue matrix before any code.
+
+## Task-130B: Admin Fans List Mobile Affordance And Rules CTA Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Fans List route:
+   - `http://127.0.0.1:5173/#/app/fans/list`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Used the real Fan Detail route only as a click-through verification target:
+   - `http://127.0.0.1:5173/#/app/fans/f-007`.
+3. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+4. Preserved Fans List level filter, scoped fan query, sorting, pagination, detail entry, points fields, contribution fields, and points rules route.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanListPage.jsx`
+   - Wrapped the Fans List table in `admin-trial-wide-table admin-fan-list-wide-table`.
+   - Added `scroll={{ x: 680 }}` so the mobile table has a deliberate internal horizontal scroll instead of squeezed columns.
+   - Changed the Points Rules entry to a visible primary admin CTA with `admin-fan-list-rules-button`.
+2. `frontend/src/index.css`
+   - Added scoped Fans List wide-table spacing.
+   - Added scoped button weight and a mobile minimum hit height for the Points Rules CTA.
+3. `frontend/src/pages/fans/FanListPage.rbac.static.test.mjs`
+   - Added regression coverage for the wide-table wrapper, `scroll.x`, reused horizontal-scroll hint, and visible primary Points Rules CTA.
+
+Impact:
+
+1. Mobile Admin users get a clear horizontal-scroll affordance on the Fans List table.
+2. The detail action remains reachable after horizontal scroll.
+3. Desktop Fans List avoids document-level overflow and avoids unnecessary table overflow at `1151x698`.
+4. No fan data, level rules, query scope, permissions, routing, or business rules changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130b-admin-fans-list-mobile-affordance/fans-list-1151x698.png`;
+   - `frontend/output/playwright/task-130b-admin-fans-list-mobile-affordance/fans-list-390x844.png`;
+   - `frontend/output/playwright/task-130b-admin-fans-list-mobile-affordance/fans-list-390x844-scrolled-right.png`;
+   - `frontend/output/playwright/task-130b-admin-fans-list-mobile-affordance/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - mobile document-level horizontal overflow: `false`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile table internal scroll width/client width: `680px / 274px`;
+   - desktop table internal scroll width/client width: `687px / 687px`;
+   - mobile wide-table hint pseudo-content: `横向滑动`;
+   - Points Rules CTA disabled state: `false`;
+   - Points Rules CTA mobile hit height: `40px`;
+   - mobile detail entry click navigated from `/app/fans/list` to `/app/fans/f-007`.
+
+Verification:
+
+1. RED:
+   - `npm test -- src/pages/fans/FanListPage.rbac.static.test.mjs` failed before implementation on missing wide-table wrapper, `scroll.x`, and visible rules CTA.
+   - After QA refinement, the same focused test failed while expecting `scroll={{ x: 680 }}` before the implementation value was adjusted from `720`.
+2. GREEN:
+   - `npm test -- src/pages/fans/FanListPage.rbac.static.test.mjs` passed after implementation.
+3. Full verification:
+   - `npm test` passed: 102 files / 524 tests.
+   - `npm run build` passed.
+   - Vite warnings: existing `PLUGIN_TIMINGS` and large chunk warning only; no new warning category observed.
+
+Remaining / Next recommended checkpoint:
+
+1. Admin Fan Detail still has English shell copy and a poor mobile details layout:
+   - `Back to Fans`, `Fan Detail`, `Name`, `Points History`, `Earned`, `Redeemed`;
+   - at `390x844`, the details block is horizontally clipped and pushes the points history table far down.
+2. Suggested next small batch:
+   - `Task-130C: Admin Fan Detail Chinese Shell And Mobile Detail Layout Pass`.
+
+## Task-130A: Admin Store List Shell Copy And Table Affordance Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Store List route:
+   - `http://127.0.0.1:5173/#/app/stores/list`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Ran a read-only regression spot check on the real S Store route to confirm this Store List-scoped batch did not introduce page overflow:
+   - `http://127.0.0.1:5173/#/app/stores/s-stores`.
+3. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+4. Preserved Store List search, filters, import, add-store entry, review cards, exposure controls, status fields, responsible rep assignment, detail entry, edit entry, rating entry, pagination, and table data.
+
+What changed:
+
+1. `frontend/src/pages/stores/StoreListPage.jsx`
+   - Converted Store List visible admin shell labels from English to Chinese:
+     - `Country` -> `国家`;
+     - `City` -> `城市`;
+     - `Status` -> `状态`;
+     - `Latest Rating` -> `最新评级`;
+     - `Rate Now` -> `去评分`;
+     - `Responsible Rep` -> `负责地推`;
+     - `Assign Rep` -> `指定地推`;
+     - `Rate` -> `评分`;
+     - `My Responsible Stores` -> `我的负责门店`.
+   - Added display-only status labels for Store List:
+     - `active` -> `正常`;
+     - `pending_review` -> `待审核`;
+     - `inactive` -> `停用`.
+   - Kept raw status values, query filters, route parameters, rep assignment values, and rating navigation unchanged.
+   - Wrapped the main Store List table with `admin-trial-wide-table admin-store-list-wide-table` so mobile users get the same horizontal-scroll affordance used by other Admin wide tables.
+   - Converted the hidden CSV import panel shell to Chinese display labels while preserving the CSV template fields and import parser.
+2. `frontend/src/index.css`
+   - Added scoped Store List wide-table spacing.
+   - Raised only the Store List card header action buttons to a 44px mobile hit target under `@media (max-width: 560px)`.
+3. `frontend/src/pages/stores/StoreListPage.static.test.mjs`
+   - Updated regression coverage so Store List Chinese shell labels are required and the previous English UI labels are rejected.
+   - Added guards for the main Store List mobile wide-table wrapper and existing `scroll={{ x: 1170 }}` behavior.
+
+Impact:
+
+1. Admin Store List now reads as a Chinese-first operations page instead of mixing English shell copy into the backend.
+2. Mobile Admin users get a visible horizontal-scroll hint for the main Store List table.
+3. Mobile header actions are easier to tap while desktop sizing is unchanged.
+4. No Store List data, review workflow, exposure-control workflow, import structure, permissions, API, database, or business rules changed.
+
+Browser QA:
+
+1. QA used the real Admin routes on `http://127.0.0.1:5173`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-130a-admin-store-list-copy-affordance/store-list-1151x698.png`;
+   - `frontend/output/playwright/task-130a-admin-store-list-copy-affordance/store-list-390x844.png`;
+   - `frontend/output/playwright/task-130a-admin-store-list-copy-affordance/s-store-1151x698.png`;
+   - `frontend/output/playwright/task-130a-admin-store-list-copy-affordance/s-store-390x844.png`;
+   - `frontend/output/playwright/task-130a-admin-store-list-copy-affordance/store-list-import-panel-390x844.png`;
+   - `frontend/output/playwright/task-130a-admin-store-list-copy-affordance/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - Store List desktop document-level horizontal overflow: `false`;
+   - Store List mobile document-level horizontal overflow: `false`;
+   - Store List mobile main table internal scroll width/client width: `1270px / 322px`;
+   - Store List mobile wide-table hint pseudo-content: `横向滑动`;
+   - Store List audited English shell hits: `0`;
+   - Store List required Chinese shell hits: `国家`, `城市`, `状态`, `最新评级`, `去评分`, `负责地推`, `评分`;
+   - Store List mobile header action button heights: `44px`;
+   - Store List CSV import panel English shell hits: `0`;
+   - S Store desktop/mobile document-level horizontal overflow: `false`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-130A edits in `frontend/src/pages/stores/StoreListPage.jsx`, the scoped Task-130A CSS additions in `frontend/src/index.css`, the static test changes in `frontend/src/pages/stores/StoreListPage.static.test.mjs`, and this progress entry restores the previous Store List English display labels and removes the Store List main-table mobile horizontal-scroll affordance. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/stores/StoreListPage.static.test.mjs`;
+   - Failed as expected before implementation because Store List still had English shell labels and no `admin-store-list-wide-table` wrapper.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/stores/StoreListPage.static.test.mjs`;
+   - Passed: 1 file, 3 tests.
+3. Full frontend test suite:
+   - `npm test`;
+   - Passed: 102 files, 522 tests.
+4. Production build:
+   - `npm run build`;
+   - Passed.
+   - Vite emitted the existing plugin timing warning and existing large chunk warning. No new build failure was introduced.
+
+Remaining notes:
+
+1. Suggested next Admin batch: continue the requested Admin sequence with a focused Stores / S Store follow-up only if real-page QA confirms a higher-impact issue than the remaining Store List density.
+2. Candidate next small batch: `Task-130B Admin Store List Density And Primary Table Order QA`, limited to deciding whether review/exposure blocks should be compressed or deferred. Do not reorder or collapse them without a fresh impact analysis and confirmation.
+
+## Task-129B: Admin Dashboard Queue Table Hint And Copy Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin Dashboard first-screen queue table:
+   - `http://127.0.0.1:5173/#/app/dashboard`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Kept this as one rollback-friendly Dashboard batch.
+4. Preserved Dashboard data sources, raw queue `tag` values, queue table columns, internal table scrolling, action cards, charts, map, and downstream statistics.
+
+What changed:
+
+1. `frontend/src/pages/dashboard/DashboardPage.jsx`
+   - Added `adminQueueTagLabels` as a display-only map for the Dashboard pending queue type labels:
+     - `Campaign claim` -> `活动物料`;
+     - `Display review` -> `陈列审核`;
+     - `Fan verification` -> `老粉验证`;
+     - `Complaint` -> `客诉待回`.
+   - Kept the raw queue `tag` values unchanged so existing counting logic such as `['Campaign claim', 'Fan verification'].includes(item.tag)` remains stable.
+   - Added a compact `admin-dashboard-table-hint` line above the queue table: `横向滑动查看状态`.
+2. `frontend/src/index.css`
+   - Added scoped Dashboard queue table affordance styles:
+     - desktop hint hidden by default;
+     - mobile hint visible under `@media (max-width: 760px)`;
+     - subtle right-side table fade on the queue table wrapper.
+3. `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`
+   - Added RED/GREEN guards for Chinese display labels while protecting raw English task tags.
+   - Added guards for the mobile-only queue table horizontal-scroll affordance.
+
+Impact:
+
+1. Mobile Admin users get a clear hint that the queue table has internal horizontal scrolling.
+2. The first-screen queue type labels now read as Chinese operations labels instead of English workflow identifiers.
+3. No Dashboard data, routing, review flow, field values, permissions, exports, charts, map, or business calculations changed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/dashboard`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-129b-admin-dashboard-queue-table-copy/desktop-1151x698.png`;
+   - `frontend/output/playwright/task-129b-admin-dashboard-queue-table-copy/mobile-390x844.png`;
+   - `frontend/output/playwright/task-129b-admin-dashboard-queue-table-copy/metrics.json`.
+4. Results:
+   - page errors: `0`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile document-level horizontal overflow: `false`;
+   - mobile queue hint display: `block`;
+   - mobile queue hint text: `横向滑动查看状态`;
+   - mobile queue table internal scroll width/client width: `620px / 322px`;
+   - queue tags captured as Chinese labels: `活动物料`, `陈列审核`, `老粉验证`, `客诉待回`;
+   - audited English queue type tags visible in the queue table: `false`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-129B edits in `frontend/src/pages/dashboard/DashboardPage.jsx`, the scoped Task-129B CSS additions in `frontend/src/index.css`, the static test additions in `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`, and this progress entry restores the previous queue type display labels and removes the mobile horizontal-scroll hint. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - Failed as expected before implementation because `adminQueueTagLabels` and `admin-dashboard-table-hint` were missing.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - Passed: 1 file, 15 tests.
+3. Full frontend test suite:
+   - `npm test`;
+   - Passed: 102 files, 521 tests.
+4. Production build:
+   - `npm run build`;
+   - Passed.
+   - Vite emitted only the existing large chunk warning. No new build failure was introduced.
+
+Remaining notes:
+
+1. Suggested next Admin batch: continue Dashboard deep copy cleanup only if real-page QA confirms it is still user-visible enough to matter.
+2. Otherwise move to the next priority route in the requested Admin sequence: Stores / S Store.
+
+## Task-129A: Admin AppLayout Navigation Stability Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Worked only on the real logged-in Admin backend shell and Dashboard QA path:
+   - `http://127.0.0.1:5173/#/app/dashboard`;
+   - Admin account: `admin@uwell.com / UwellAdmin@2026`.
+2. Did not touch Fan Center, Store Owner workspace, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Kept this as one rollback-friendly Admin AppLayout batch.
+
+What changed:
+
+1. `frontend/src/components/layout/AppLayout.jsx`
+   - Changed the Store module rating menu key from `/app/evaluation` to `/app/evaluation?scope=stores`.
+   - Preserved navigation to the same real Evaluation route and kept the Field Visits rating review entry available.
+   - Removed the Ant Design runtime duplicate menu key warning for the Admin branch.
+2. `frontend/src/index.css`
+   - Added scoped Admin drawer close-button contrast styles under `body.admin-workspace-active`.
+   - The mobile drawer close button now has dark text, yellow-green background, border, hover, and focus-visible states.
+3. `frontend/src/components/layout/AppLayout.static.test.mjs`
+   - Added guards that the rendered Admin ops branch avoids duplicate `/app/evaluation` menu keys.
+   - Added guards for the scoped mobile Admin drawer close-button contrast styles.
+
+Impact:
+
+1. Admin sidebar menu state is more stable because Ant Design no longer receives duplicate `/app/evaluation` keys in the same rendered Admin menu branch.
+2. Mobile Admin navigation remains within the viewport and the drawer close button is visibly discoverable on the light drawer header.
+3. No route, role, permission, dashboard data, menu label, or backend workflow behavior was removed.
+
+Browser QA:
+
+1. QA used the real Admin route on `http://127.0.0.1:5173/#/app/dashboard`.
+2. Viewports:
+   - Desktop: `1151x698`;
+   - Mobile: `390x844`.
+3. Artifacts:
+   - `frontend/output/playwright/task-129a-admin-applayout-navigation-stability/desktop-1151x698.png`;
+   - `frontend/output/playwright/task-129a-admin-applayout-navigation-stability/mobile-390x844.png`;
+   - `frontend/output/playwright/task-129a-admin-applayout-navigation-stability/mobile-390x844-drawer-open.png`;
+   - `frontend/output/playwright/task-129a-admin-applayout-navigation-stability/metrics.json`.
+4. Results:
+   - duplicate menu key warning count: `0`;
+   - page errors: `0`;
+   - desktop document-level horizontal overflow: `false`;
+   - mobile document-level horizontal overflow: `false`;
+   - mobile drawer overflow: `false`;
+   - mobile drawer close color: `rgb(31, 26, 18)`;
+   - mobile drawer close background: `rgba(204, 255, 0, 0.18)`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-129A edits in `frontend/src/components/layout/AppLayout.jsx`, the scoped Task-129A CSS additions in `frontend/src/index.css`, the new static test guards in `frontend/src/components/layout/AppLayout.static.test.mjs`, and this progress entry restores the previous Admin menu key and mobile drawer close-button styling. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs`;
+   - Failed as expected before implementation because the Admin branch had duplicate `/app/evaluation` menu keys and the drawer close-button contrast styles were missing.
+2. Focused regression after implementation:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs`;
+   - Passed: 1 file, 12 tests.
+3. Full frontend test suite:
+   - `npm test`;
+   - Passed: 102 files, 519 tests.
+4. Production build:
+   - `npm run build`;
+   - Passed.
+   - Vite emitted only the existing large chunk warning. No new build failure was introduced.
+
+Remaining notes:
+
+1. Suggested next Admin batch: `Task-129B Admin Dashboard Queue Table Hint And Copy Pass`.
+2. Keep Task-129B scoped to the Dashboard queue table horizontal-scroll affordance and visible queue type labels only, unless a new real-page QA finding changes priority.
+
+## Task-128B: Login Entry Folded Notice And CTA Color Polish
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Follow-up polish for the real login / entry screens only:
+   - Admin login: `http://127.0.0.1:5173/#/admin`;
+   - Fan entry: `http://127.0.0.1:5173/fan-app.html#/fan-entry`.
+2. Did not touch logged-in Fan Center, Store Owner workspace, Admin workspace pages, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Kept the batch rollback-friendly by limiting changes to the Admin login component, Fan entry CSS, and related static tests.
+
+What changed:
+
+1. `frontend/src/pages/login/LoginPage.jsx`
+   - Replaced the full warning `Alert` for assigned staff accounts with a default-collapsed `details.staff-login-notice-fold`.
+   - Kept the same Chinese copy and staff-account allocation guidance.
+   - Moved the long notice body into an `assignedAccountNotice` string so existing Chinese copy checks and JSX parsing both remain valid.
+2. `frontend/src/index.css`
+   - Changed the centered Fan entry `Join / Sign in` CTA from a deep blue-green / near-black button to a yellow-green primary gradient:
+     - `#f9ff46`;
+     - `#ccff00`;
+     - `#7ee000`.
+   - Added styling for the folded Admin login notice so the default state is compact, readable, and aligned with the yellow-green theme.
+3. Static tests:
+   - `frontend/src/pages/login/LoginPage.static.test.mjs`;
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs`.
+   - Added guards for the default-collapsed Admin assigned-account notice and yellow-green Fan entry CTA.
+
+Impact:
+
+1. Admin login now preserves the staff-account guidance without occupying the form area as a large alert.
+2. Fan entry primary CTA now visually matches the yellow-green system instead of reading as an off-theme dark button.
+3. No login, registration, role, redirect, or auth behavior changed.
+
+Browser QA:
+
+1. QA used a temporary source dev server on `http://127.0.0.1:5174`.
+2. Artifacts:
+   - `frontend/output/playwright/task-128b-login-entry-polish/admin-folded-notice.png`;
+   - `frontend/output/playwright/task-128b-login-entry-polish/fan-green-cta.png`;
+   - `frontend/output/playwright/task-128b-login-entry-polish/metrics.json`.
+3. Results:
+   - Admin folded notice exists: `true`;
+   - Admin folded notice default open state: `false`;
+   - Admin folded notice height: about `44px`;
+   - Fan CTA background: yellow-green gradient;
+   - Fan CTA text color: `rgb(17, 22, 10)`;
+   - Admin and Fan document-level horizontal overflow: `false`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-128B edits in `LoginPage.jsx`, the Task-128B CSS additions/adjustments in `index.css`, the static test additions, and this progress entry restores the previous full Admin warning alert and dark Fan CTA color. No data, API, permissions, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/login/LoginPage.static.test.mjs src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - Failed as expected before implementation because the Admin reminder was not folded and the Fan CTA still used the dark button background.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/login/LoginPage.static.test.mjs src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - Passed: 2 files, 11 tests.
+3. Build check after fixing JSX `>` parsing:
+   - `npm run build`;
+   - Passed. Vite emitted only existing plugin timing / large chunk warnings.
+4. Full verification before progress write:
+   - `npm test`;
+   - Passed: 102 files, 516 tests.
+
+## Task-128A: Cross-Portal Login Theme Unification
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Unified only the real login / entry screens for the three portals:
+   - Fan entry: `http://127.0.0.1:5173/fan-app.html#/fan-entry`;
+   - Store entry: `http://127.0.0.1:5173/store-app.html#/store-login`;
+   - Admin login: `http://127.0.0.1:5173/index.html#/admin`.
+2. Did not change logged-in Fan Center, Store Owner workspace, Admin workspace pages, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+3. Kept the batch rollback-friendly by limiting production edits to the three entry components and scoped CSS.
+
+What changed:
+
+1. `frontend/src/pages/fan-entry/FanEntryPage.jsx`
+   - Moved `I Wish You Well` into the top-left brand corner under `UWELL`.
+   - Moved the primary `Join / Sign in` CTA into the centered hero title area.
+   - Moved the previous CTA helper copy and benefit chips into a lower secondary support block.
+   - Kept the existing product-orb canvas, auth modal, sign-in, registration, demo fan entry, referral handling, and legal confirmations.
+2. `frontend/src/pages/store-owner/StoreEntryPage.jsx`
+   - Added the `store-entry-green-theme` scoped login theme hook.
+   - Replaced inline black-gold legal link accents with green accents.
+   - Preserved store owner email/password login, local preview shortcut, store registration, review submission, photo expectation copy, and legal links.
+3. `frontend/src/pages/login/LoginPage.jsx`
+   - Added the `staff-login-green-theme` scoped Admin login theme hook.
+   - Replaced the decorative `BlurText` heading with a plain readable `staff-login-heading`.
+   - Fixed the staff-account allocation warning from mojibake to readable Chinese.
+   - Preserved assigned-staff-only login, role checks, local admin fallback, and dashboard redirect behavior.
+4. `frontend/src/index.css`
+   - Added a final scoped Task-128A login theme block using UWELL yellow-green tokens:
+     - `#ccff00`;
+     - `#f9ff46`;
+     - `#7ee000`.
+   - Overrode only the three login shells, cards, icons, buttons, inputs, segmented controls, and Admin alert readability.
+   - Kept the rules at the end of the file so historical black-gold overrides do not win on login pages.
+5. Static tests:
+   - `frontend/src/pages/fan-entry/FanEntryPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreEntryPage.static.test.mjs`;
+   - `frontend/src/pages/login/LoginPage.static.test.mjs`.
+   - Added guards for the centered Fan CTA, yellow-green Store/Admin login theme hooks, Admin readable warning copy, and removal of Admin decorative blur motion.
+
+Impact:
+
+1. Fan entry now matches the requested hierarchy:
+   - brand and wish line at top-left;
+   - login button centered under `Uwell Fans Club`;
+   - explanatory membership text pushed down into secondary support content.
+2. Store and Admin login screens no longer read as black-gold. They now use a light yellow-green visual system aligned with the current Fan/Admin theme direction.
+3. Admin login warning copy is readable Chinese and no longer appears as garbled text.
+4. Admin login title is no longer blurred by animation, improving operational readability.
+
+Browser QA:
+
+1. QA used a temporary source dev server on `http://127.0.0.1:5174`.
+2. Artifacts:
+   - `frontend/output/playwright/task-128a-login-theme/fan-desktop.png`;
+   - `frontend/output/playwright/task-128a-login-theme/fan-mobile.png`;
+   - `frontend/output/playwright/task-128a-login-theme/store-desktop.png`;
+   - `frontend/output/playwright/task-128a-login-theme/store-mobile.png`;
+   - `frontend/output/playwright/task-128a-login-theme/admin-desktop-final.png`;
+   - `frontend/output/playwright/task-128a-login-theme/admin-mobile.png`;
+   - `frontend/output/playwright/task-128a-login-theme/metrics.json`.
+3. Results:
+   - Fan desktop CTA center X: `720`, viewport center X: `720`;
+   - Fan, Store, and Admin desktop/mobile document-level horizontal overflow: `false`;
+   - Store and Admin roots both use yellow-green gradient backgrounds;
+   - Admin alert title color verified as `rgb(17, 22, 10)`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-128A edits in `FanEntryPage.jsx`, `StoreEntryPage.jsx`, `LoginPage.jsx`, the final Task-128A CSS block in `index.css`, the static test additions, and this progress entry restores the previous login page layouts and colors. No data, API, permissions, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/fan-entry/FanEntryPage.static.test.mjs src/pages/store-owner/StoreEntryPage.static.test.mjs src/pages/login/LoginPage.static.test.mjs`;
+   - Failed as expected before implementation because the centered Fan CTA and yellow-green Store/Admin login theme hooks were missing.
+2. Additional RED regression:
+   - `npm test -- src/pages/login/LoginPage.static.test.mjs`;
+   - Failed as expected before removing `BlurText` from the Admin login title.
+3. Focused regression after implementation:
+   - `npm test -- src/pages/login/LoginPage.static.test.mjs src/pages/fan-entry/FanEntryPage.static.test.mjs src/pages/store-owner/StoreEntryPage.static.test.mjs`;
+   - Passed: 3 files, 18 tests.
+4. Full verification before progress write:
+   - `npm test`;
+   - Passed: 102 files, 514 tests.
+   - `npm run build`;
+   - Passed. Vite emitted only the existing large chunk warning.
+
+## Task-127A: Admin Dashboard Data-First Reduction Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend UI reduction after the Task-127 QA matrix.
+2. Worked only on the real Admin Dashboard route:
+   - `http://127.0.0.1:5173/#/app/dashboard`;
+   - QA used a temporary source dev server on `http://127.0.0.1:5174/#/app/dashboard` to verify latest source before production build.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+5. Preserved Dashboard data sources, route links, review queue access, risk/material/visit/reward/store workstream entries, tables, charts, map, and export entries.
+
+What changed:
+
+1. `frontend/src/pages/dashboard/DashboardPage.jsx`
+   - Reordered the Admin Dashboard so the first working area is data-first:
+     - `核心指标总览`;
+     - `待办与审核队列`;
+     - command queue shortcuts;
+     - `运营动作中心`.
+   - Moved `试运营准备度` and `方案落地覆盖` into `admin-dashboard-secondary-programs` after the core operational data blocks.
+   - Converted the previous global todo list from a later list card into an early `admin-dashboard-queue-table`.
+   - Removed visible small explanatory copy from primary summary/action/readiness/spec cards and from repeated `dash-mini-note` areas.
+   - Kept the underlying item descriptions where still used in table status text or data arrays; no business statuses were changed.
+2. `frontend/src/index.css`
+   - Added scoped Task-127A Dashboard styles for:
+     - compact command zone spacing;
+     - smaller KPI cards;
+     - early queue table density;
+     - compact command cards;
+     - secondary program card sizing;
+     - mobile layout.
+3. `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`
+   - Added RED/GREEN guards that Dashboard opens with data, queue, and table zones before explanatory program cards.
+   - Added guards that the redundant visible micro-explanation render paths are not present in primary cards.
+
+Impact:
+
+1. Dashboard now behaves more like an operations cockpit and less like a product explainer page.
+2. Desktop first table moved earlier:
+   - before Task-127A QA: first table at about `6.53` viewport heights;
+   - after Task-127A QA: first table at about `0.49` viewport heights.
+3. Mobile first table moved earlier:
+   - after first implementation pass: about `1.69` viewport heights;
+   - after final order adjustment: about `0.72` viewport heights.
+4. Browser QA found no document-level horizontal overflow on desktop or mobile.
+5. Browser QA explanation candidate count for the audited Dashboard selectors dropped to `0`.
+6. Secondary readiness/spec coverage remains available, but no longer occupies the first working screen.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-127A edits in `frontend/src/pages/dashboard/DashboardPage.jsx`, the scoped Task-127A addition in `frontend/src/index.css`, the Dashboard static test additions, and this progress entry restores the previous Dashboard ordering and explanatory card behavior. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`
+   - Failed as expected before implementation because `admin-dashboard-command-zone`, `admin-dashboard-primary-kpis`, `admin-dashboard-queue-table`, `admin-dashboard-secondary-programs`, and the removal of visible micro-copy paths were missing.
+2. Focused Dashboard regression after implementation:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`
+   - Passed: 1 file, 13 tests.
+3. Browser QA on updated source:
+   - Temporary source server: `http://127.0.0.1:5174/#/app/dashboard`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Desktop viewport: `1440x900`;
+   - Mobile viewport: `390x844`.
+   - Results:
+     - desktop first table fold ratio: `0.49`;
+     - mobile first table fold ratio: `0.72`;
+     - desktop document-level horizontal overflow: `false`;
+     - mobile document-level horizontal overflow: `false`;
+     - audited explanation candidate count: `0`;
+     - secondary programs begin after the command/data area.
+   - Artifacts:
+     - `frontend/output/playwright/task-127a-dashboard-data-first/metrics.json`;
+     - `frontend/output/playwright/task-127a-dashboard-data-first/desktop-dashboard.png`;
+     - `frontend/output/playwright/task-127a-dashboard-data-first/mobile-dashboard.png`.
+4. Full frontend test suite before progress write:
+   - `npm test`
+   - Passed: 102 files, 510 tests.
+5. Production build before progress write:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Dashboard is now ordered correctly for daily operations, but the page is still long because it intentionally preserves charts, map, analytics, and historical sections. Further reductions should be separate batches.
+2. Recommended next Admin batch: Reviews or Visits, because both still place explanatory process modules before the primary queue/table.
+
+## Task-126J: Admin Evaluation List Copy And Review Table Pass
+
+Date: 2026-07-25
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126I.
+2. Worked only on the real Admin Evaluation list route:
+   - `http://127.0.0.1:5173/#/app/evaluation`;
+   - QA also used a temporary source dev server on `http://127.0.0.1:5174/#/app/evaluation` because the existing `5173` server was serving an older build.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+5. Preserved the 100-point SABC model, S/A/B/C thresholds, create/detail/edit navigation, reviewer final-level select, all three review actions, `audit_logs`, and store/evaluation update behavior.
+
+What changed:
+
+1. `frontend/src/pages/evaluation/EvalListPage.jsx`
+   - Replaced visible English-first Evaluation list copy with concise Chinese Admin operations copy.
+   - Kept internal review action strings unchanged where existing business logic depends on them:
+     - `Approve suggested level`;
+     - `Request more evidence`;
+     - `Change level`.
+   - Translated the rating dimensions while keeping the exact point values unchanged.
+   - Added `className="eval-review-table"` and `scroll={{ x: 760 }}` to the Rating Review table.
+   - Added `className="eval-review-action-grid"` so the three review buttons keep a compact, predictable layout.
+2. `frontend/src/index.css`
+   - Added scoped Task-126J styles under `.admin-liquid-shell` for Evaluation review table nowrap cells, internal horizontal table access, and compact review action buttons.
+3. `frontend/src/pages/evaluation/EvalListPage.static.test.mjs`
+   - Replaced the old English-first/garbled static guard with Chinese Admin copy guards.
+   - Added guards for the review table class, `scroll={{ x: 760 }}`, action grid class, and all three Chinese action labels.
+4. `frontend/src/pages/evaluation/EvalRatingRules.static.test.mjs`
+   - Updated rule guards to protect Chinese dimension labels with the same point values.
+   - Continued protecting the S/A/B/C thresholds, absence of D-level or `/110`, review action strings used by logic, `audit_logs`, `backend_final_level`, `reviewer_id`, and localDb updates.
+
+Impact:
+
+1. Evaluation list now reads as an Admin operations page instead of an English MVP/prototype page.
+2. Desktop and mobile document-level horizontal overflow remain `false`.
+3. Mobile review queue no longer relies on document overflow:
+   - review table scroll width: `760px`;
+   - review table client width: about `322px`;
+   - review table `overflowX`: `auto`.
+4. Review actions remain present and visible inside the table scroll area:
+   - `通过建议等级`;
+   - `要求补充材料`;
+   - `调整等级`.
+5. Desktop and mobile QA found no visible legacy English snippets from the audited Evaluation list copy set.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126J edits in `frontend/src/pages/evaluation/EvalListPage.jsx`, the scoped Task-126J addition in `frontend/src/index.css`, the two Evaluation static tests, and this progress entry restores the previous Evaluation list behavior. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/evaluation/EvalListPage.static.test.mjs src/pages/evaluation/EvalRatingRules.static.test.mjs`
+   - Failed as expected before implementation because Chinese Admin copy, the review table class, `scroll={{ x: 760 }}`, and compact review action grid were missing.
+2. Focused Evaluation regression after implementation:
+   - `npm test -- src/pages/evaluation/EvalListPage.static.test.mjs src/pages/evaluation/EvalRatingRules.static.test.mjs`
+   - Passed: 2 files, 4 tests.
+3. Browser QA on the real Admin Evaluation route using updated source:
+   - Temporary source server: `http://127.0.0.1:5174/#/app/evaluation`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Desktop viewport: `1440x900`;
+   - Mobile viewport: `390x844`.
+   - Results:
+     - desktop document-level horizontal overflow: `false`;
+     - mobile document-level horizontal overflow: `false`;
+     - audited English snippets: `[]`;
+     - card titles include `100分评级模型`, `评级审核`, and `评级记录`;
+     - mobile review table scroll width `760px`, client width about `322px`, `overflowX: auto`;
+     - review action layout display: `grid`;
+     - review action buttons captured as `通过建议等级`, `要求补充材料`, `调整等级`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126j-evaluation-readability/metrics.json`;
+     - `frontend/output/playwright/task-126j-evaluation-readability/desktop-evaluation.png`;
+     - `frontend/output/playwright/task-126j-evaluation-readability/mobile-evaluation.png`.
+4. Full frontend test suite before progress write:
+   - `npm test`
+   - Passed: 102 files, 508 tests.
+5. Production build before progress write:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. If mobile reviewers need one-tap access to approval buttons without horizontal table scrolling, run a separate small batch to convert only the Evaluation Review queue into mobile stacked rows/cards.
+2. Recommended next Admin batch: continue Dashboard or Stores/S Store real-page QA in the same one-small-batch workflow.
+
+## Task-126I: Admin Shell Navigation And Scroll Reset Fix
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Fixed the real Admin shell reported from screenshots after Task-126H.
+2. Worked only on the real Admin layout shell:
+   - desktop sidebar;
+   - mobile Admin drawer tone;
+   - route-change scroll reset.
+3. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+4. Did not change any Admin page data, filters, review actions, creation forms, exports, or approval flows.
+
+What changed:
+
+1. `frontend/src/components/layout/AppLayout.jsx`
+   - Added route-change scroll reset for both `contentRef.current` and `window` when `location.pathname` or `location.search` changes.
+   - Changed `PageTransition` key to include both pathname and search so query-based Admin route changes remount cleanly.
+   - Wrapped the Admin menu in `admin-ref-menu-scroll` so the navigation list can scroll independently from the page.
+   - Added `admin-ref-main` to the main layout so desktop fixed sidebar space is reserved explicitly.
+   - Replaced mobile Drawer hard-coded `#071a2a` shell colors with the softer Admin green-gray tone.
+2. `frontend/src/index.css`
+   - Added final Task-126I scoped overrides after the older Admin light-theme rules that were reintroducing the black/blue sidebar.
+   - Desktop sidebar is now fixed at `100vh`, with the brand pinned and only the menu area scrolling.
+   - Main Admin layout receives `margin-left: 260px` on desktop to account for the fixed sidebar.
+   - Sidebar tone changed from the old black-blue shell to UWELL green-gray with yellow-green accent scrollbar and selected states.
+3. `frontend/src/components/layout/AppLayout.static.test.mjs`
+   - Added RED/GREEN guards for route scroll reset, pathname+search transition key, menu scroll wrapper, fixed sidebar, and main layout offset.
+
+Impact:
+
+1. Left sidebar no longer renders as the old black-blue block:
+   - QA before final override: computed sidebar background was `rgb(7, 26, 42)`;
+   - QA after final override: computed sidebar background is `rgba(37, 49, 35, 0.96)`.
+2. Sidebar remains visible while the long Admin dashboard scrolls:
+   - QA before fixed sidebar: after scrolling the page, sidebar top became about `-743px`;
+   - QA after fixed sidebar: after scrolling the page, sidebar top remains `0`.
+3. Sidebar navigation now has its own scroll area:
+   - viewport height: `900px`;
+   - sidebar height: `900px`;
+   - menu scroll area height: about `820px`;
+   - menu scroll height: about `1808px`;
+   - menu `overflowY: auto`.
+4. Clicking another Admin route from a scrolled page now returns to the top:
+   - before route click QA: `windowScrollY` about `736`;
+   - after route click to `/app/evaluation`: `windowScrollY` is `0`, content scroll top is `0`.
+5. Desktop document-level horizontal overflow remains `false`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126I edits in `frontend/src/components/layout/AppLayout.jsx`, the scoped Task-126I additions in `frontend/src/index.css`, `frontend/src/components/layout/AppLayout.static.test.mjs`, and this progress entry restores the previous Admin shell behavior. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs`
+   - Failed as expected before implementation because route scroll reset, `admin-ref-menu-scroll`, fixed sidebar, and main layout offset were missing.
+2. Focused layout regression after implementation:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs`
+   - Passed: 1 file, 10 tests.
+3. Browser QA on the real Admin shell:
+   - Start route: `http://127.0.0.1:5173/#/app/dashboard`;
+   - Route click target: `http://127.0.0.1:5173/#/app/evaluation`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewport: `1440x900`.
+   - Results:
+     - sidebar background: `rgba(37, 49, 35, 0.96)`;
+     - initial sidebar rect: top `0`, height `900px`;
+     - after page scroll: sidebar top remains `0`;
+     - menu scroll area: client height about `820px`, scroll height about `1808px`, `overflowY: auto`;
+     - after clicking Store Rating route: `windowScrollY` is `0`, content scroll top is `0`;
+     - document-level horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126i-admin-shell-scroll/metrics.json`;
+     - `frontend/output/playwright/task-126i-admin-shell-scroll/desktop-dashboard-top.png`;
+     - `frontend/output/playwright/task-126i-admin-shell-scroll/desktop-dashboard-scrolled.png`;
+     - `frontend/output/playwright/task-126i-admin-shell-scroll/desktop-after-route-click.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 507 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Continue the Admin backend QA matrix in small rollback-friendly batches.
+2. Recommended next Admin batch remains Evaluation shell copy cleanup or a separate Settings Users form density pass.
+
+## Task-126H: Admin Settings Users Table Semantics Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126G.
+2. Worked only on the real Admin Settings Users route:
+   - `http://127.0.0.1:5173/#/app/settings/users`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+5. Preserved the staff-account creation form, email validation, role options, status field, audit-log insert, and role update mutation.
+
+What changed:
+
+1. `frontend/src/pages/settings/UserManagementPage.jsx`
+   - Changed the user table headers from store-oriented labels to account-oriented labels:
+     - `员工`;
+     - `联系方式`;
+     - `角色`;
+     - `角色调整`.
+   - Added fixed column widths and `scroll={{ x: 560 }}` so mobile keeps the role-adjustment Select accessible through the table's own horizontal scroll.
+   - Added `className="admin-settings-users-table"` for scoped table styling.
+   - Kept the same source fields: `name`, `phone`, `role`, and the existing `updateMutation.mutate({ id: record.id, profile: { role: v } })` behavior.
+2. `frontend/src/index.css`
+   - Added scoped `.admin-liquid-shell .admin-settings-users-table` styles for nowrap cells, Select width, and mobile table density.
+3. `frontend/src/pages/settings/UserManagementPage.static.test.mjs`
+   - Added RED/GREEN coverage for account-oriented table labels.
+   - Added guards that the old store labels are not reused and that mobile horizontal table access remains configured.
+
+Impact:
+
+1. The Settings Users table now reads as an account-management table instead of a store table.
+2. Mobile document-level horizontal overflow remains `false`.
+3. Mobile table access changed from clipped cells to an internal horizontal scroll:
+   - before QA: table internal right edge reached about `442px` in a `390px` viewport, with the action Select partially clipped;
+   - after QA: table content width is `560px`, scroll container width is about `274px`, and `overflowX` is `auto`.
+4. Desktop table headers now render as `员工`, `联系方式`, `角色`, and `角色调整`.
+5. Desktop table top remains about `679px`; mobile table top remains about `1195px` because this batch intentionally did not compress the staff creation form.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126H edits in `frontend/src/pages/settings/UserManagementPage.jsx`, the scoped `.admin-liquid-shell .admin-settings-users-table` additions in `frontend/src/index.css`, `frontend/src/pages/settings/UserManagementPage.static.test.mjs`, and this progress entry restores the previous Settings Users table. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/settings/UserManagementPage.static.test.mjs`
+   - Failed as expected before implementation because the table still used `t('store_name')`, `t('store_phone')`, and had no `admin-settings-users-table` or `scroll={{ x: 560 }}`.
+2. Focused Settings regression after implementation:
+   - `npm test -- src/pages/settings/UserManagementPage.static.test.mjs`
+   - Passed: 1 file, 2 tests.
+3. Related Settings regressions after implementation:
+   - `npm test -- src/pages/settings/UserManagementPage.static.test.mjs src/pages/settings/AuditLogPage.local.test.mjs src/pages/settings/DataManagement.jsx src/pages/settings/UserManagementPage.jsx`
+   - Passed: 2 files, 5 tests.
+4. Browser QA on the real Admin Settings Users route:
+   - Route: `http://127.0.0.1:5173/#/app/settings/users`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1440x1100` and `390x1100`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - desktop table headers: `员工`, `联系方式`, `角色`, `角色调整`;
+     - mobile table headers: `员工`, `联系方式`, `角色`, `角色调整`;
+     - desktop table top: about `679px`;
+     - mobile table top: about `1195px`;
+     - mobile table scroll container: `274px` client width, `560px` scroll width, `overflowX: auto`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126h-settings-users-qa/metrics.json`;
+     - `frontend/output/playwright/task-126h-settings-users-qa/desktop-settings-users.png`;
+     - `frontend/output/playwright/task-126h-settings-users-qa/mobile-settings-users.png`;
+     - `frontend/output/playwright/task-126h-settings-users-readability/metrics.json`;
+     - `frontend/output/playwright/task-126h-settings-users-readability/desktop-settings-users.png`;
+     - `frontend/output/playwright/task-126h-settings-users-readability/mobile-settings-users.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 505 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Continue the Admin backend QA matrix in small rollback-friendly batches.
+2. Recommended next Admin batch is Evaluation shell copy cleanup or a separate Settings Users form density pass.
+
+## Task-126G: Admin Reviews Queue Density Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126F.
+2. Worked only on the real Admin Reviews route:
+   - `http://127.0.0.1:5173/#/app/reviews`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+5. Preserved all review filters, source navigation, approval, rejection, supplement request, escalation, and note actions.
+
+What changed:
+
+1. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+   - Rebuilt the Reviews page source as readable UTF-8 JSX while preserving the existing review queue data flow and action logic.
+   - Added compact Admin Reviews classes for the workbench shell, decision grid, source map, action ladder, handoff strip, counters, filters, actions, and table.
+   - Kept `applyReviewAction`, `buildReviewRows`, `getReviewCounters`, `canApproveReview`, `runAction`, all 10 review filters, and all 6 queue actions.
+   - Kept the review queue wide-table behavior with `scroll={{ x: 980 }}`.
+2. `frontend/src/index.css`
+   - Added scoped `.admin-liquid-shell .admin-review-*` styles to reduce non-table height, tighten status/counter/filter regions, and keep the queue data-first on desktop and mobile.
+3. `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+   - Added RED/GREEN coverage for compact Admin Reviews classes.
+   - Added guards that all review filters, search, wide table scroll, and all 6 review actions remain present.
+
+Impact:
+
+1. Reviews Queue now surfaces the table much earlier while preserving the review/audit surface.
+2. Mobile first table position improved from about `2396px` in QA to about `1313px`.
+3. Desktop first table position improved from about `1266px` to about `1080px`.
+4. Mobile source map height improved from about `527px` to about `173px`.
+5. Mobile handoff height improved from about `413px` to about `173px`.
+6. Desktop and mobile document-level horizontal overflow remain `false`.
+7. Filter buttons remain `10`, search inputs remain `1`, table headers remain `9`, and all 6 unique row actions remain available:
+   - `查看来源`;
+   - `通过`;
+   - `拒绝`;
+   - `要求补充`;
+   - `升级处理`;
+   - `添加备注`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126G edits in `frontend/src/pages/admin-ops/ReviewsPage.jsx`, the scoped `.admin-liquid-shell .admin-review-*` additions in `frontend/src/index.css`, `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`, and this progress entry restores the previous Reviews Queue layout. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+   - Failed as expected before implementation because `admin-review-workbench-compact` and related compact classes did not exist.
+2. Focused Admin Ops regressions after implementation:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+   - Passed: 1 file, 11 tests.
+3. Related Admin Ops regressions after implementation:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs src/pages/admin-ops/BackendTrialPolish.static.test.mjs src/pages/admin-ops/admin-ops-workflows.behavior.test.mjs`
+   - Passed: 4 files, 16 tests.
+4. Browser QA on the real Admin Reviews route:
+   - Route: `http://127.0.0.1:5173/#/app/reviews`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1440x1100` and `390x1100`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - filters rendered: `10`;
+     - search inputs rendered: `1`;
+     - table rows rendered: `21`;
+     - table headers rendered: `9`;
+     - action buttons rendered: `120`;
+     - desktop first table top: about `1080px`;
+     - mobile command strip height: about `78px`;
+     - mobile source map height: about `173px`;
+     - mobile handoff height: about `173px`;
+     - mobile first table top: about `1313px`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126g-reviews-readability/metrics.json`;
+     - `frontend/output/playwright/task-126g-reviews-readability/desktop-reviews.png`;
+     - `frontend/output/playwright/task-126g-reviews-readability/mobile-reviews.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 504 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Continue the Admin backend QA matrix in small rollback-friendly batches.
+2. Recommended next Admin batch is Settings Users table semantics or Evaluation shell copy cleanup.
+
+## Task-126F: Admin Visits List Density Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126E.
+2. Worked only on the real Admin Visits List route:
+   - `http://127.0.0.1:5173/#/app/visits/list`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+5. Did not edit Visit Create or Visit Detail behavior.
+
+What changed:
+
+1. `frontend/src/pages/visits/VisitListPage.jsx`
+   - Added compact Admin Visits classes for the page shell, command strips, workbench card, management card, summary cards, filter strip, and table.
+   - Kept new-store visit, repeat visit, visit records, display data, S Store follow-up, replenishment visibility, review status, and all existing table columns.
+   - Kept the 10 operational filters and existing `scroll={{ x: 1550 }}` wide-table behavior.
+2. `frontend/src/index.css`
+   - Added scoped `.admin-liquid-shell .admin-visits-*` styles to reduce command-card height, summary-card height, workbench spacing, filter height, and mobile explanatory text.
+   - On mobile, long explanatory card copy is hidden while titles, status tags, metrics, filters, and table access remain visible.
+3. `frontend/src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Added RED/GREEN coverage for compact Admin Visits classes.
+   - Added guards that the filters and wide table scroll remain present.
+
+Impact:
+
+1. Visits List now surfaces the table much earlier while preserving the operational audit surface.
+2. Mobile first table position improved from about `3170px` in QA to about `1664px`.
+3. Mobile command strip height improved from about `694px` to about `223px`.
+4. Mobile S Store execution lane height improved from about `680px` to about `213px`.
+5. Mobile workbench height improved from about `494px` to about `244px`.
+6. Desktop first table position improved from about `1484px` to about `1152px`.
+7. Desktop and mobile document-level horizontal overflow remain `false`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126F edits in `frontend/src/pages/visits/VisitListPage.jsx`, the scoped `.admin-liquid-shell .admin-visits-*` additions in `frontend/src/index.css`, `frontend/src/pages/visits/VisitFieldOps.static.test.mjs`, and this progress entry restores the previous Visits List density. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Failed as expected before implementation because `admin-visits-page` and related compact classes did not exist.
+2. Focused and related Visits regressions after implementation:
+   - `npm test -- src/pages/visits/VisitFieldOps.static.test.mjs src/pages/visits/VisitCreatePage.workflow.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs`
+   - Passed: 4 files, 20 tests.
+3. Browser QA on the real Admin Visits List route:
+   - Route: `http://127.0.0.1:5173/#/app/visits/list`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1440x1100` and `390x1100`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - command cards rendered: `8`;
+     - summary cards rendered: `7`;
+     - filters rendered: `10`;
+     - table rows rendered: `16`;
+     - table headers rendered: `13`;
+     - desktop first table top: about `1152px`;
+     - mobile command strip height: about `223px`;
+     - mobile S Store execution lane height: about `213px`;
+     - mobile workbench height: about `244px`;
+     - mobile first table top: about `1664px`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126f-visits-readability/metrics.json`;
+     - `frontend/output/playwright/task-126f-visits-readability/desktop-visits-list.png`;
+     - `frontend/output/playwright/task-126f-visits-readability/mobile-visits-list.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 503 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Other Admin QA matrix findings remain open, including Evaluation English shell copy, Reviews Queue action density, and Settings Users table semantics.
+2. Recommended next Admin batch is Reviews Queue action density cleanup or Evaluation shell copy cleanup.
+
+## Task-126E: Admin Material Stocks Readability Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126D.
+2. Worked only on the real Admin Material Stocks route:
+   - `http://127.0.0.1:5173/#/app/materials/stocks`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/materials/MaterialStocksPage.jsx`
+   - Rebuilt the Material Stocks page source as UTF-8 readable JSX while preserving the existing warehouse visibility, low-stock, request-risk, and role-region logic.
+   - Localized the table labels to `图片`, `物料`, `编码`, `单位`, `可见库存`, `低库存仓库`, and `状态`.
+   - Replaced the AntD row/column command metrics with a compact `material-warehouse-summary-grid`.
+   - Added stable classes for the page, summary cards, table card, stock tags, and low-stock risk tags.
+   - Added table horizontal scroll to preserve all warehouse columns on narrow screens without document-level overflow.
+2. `frontend/src/index.css`
+   - Added scoped `.admin-liquid-shell .material-warehouse-*` styles for the command strip, summary grid, warehouse cards, table card, stock tags, and mobile density.
+   - Added final Task-126E overrides after global Admin readable-card rules so the real page keeps dark command contrast and readable note text.
+3. `frontend/src/pages/materials/MaterialStocksPage.region-access.static.test.mjs`
+   - Added RED/GREEN coverage for compact Material Stocks classes and readable table labels.
+   - Kept static guards for `WAREHOUSE_LABELS`, `REGIONAL_WAREHOUSES`, `materialLowStockThreshold`, `canViewWarehouse`, and `visibleWarehouses`.
+
+Impact:
+
+1. Material Stocks now surfaces the stock table much earlier on mobile.
+2. Mobile command strip height improved from about `725px` in QA to about `260px`.
+3. Mobile first table position improved from about `1311px` in QA to about `754px`.
+4. Desktop first table position is about `494px`.
+5. Desktop and mobile document-level horizontal overflow remain `false`.
+6. Warehouse columns, low-stock highlighting, visible-stock totals, role-region visibility, and material request risk counts remain intact.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126E edits in `frontend/src/pages/materials/MaterialStocksPage.jsx`, the scoped `.admin-liquid-shell .material-warehouse-*` additions in `frontend/src/index.css`, `frontend/src/pages/materials/MaterialStocksPage.region-access.static.test.mjs`, and this progress entry restores the previous Material Stocks layout. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/materials/MaterialStocksPage.region-access.static.test.mjs`
+   - Failed as expected before implementation because `material-warehouse-page` and related compact classes did not exist.
+2. Focused and related Material/Admin Ops regressions after implementation:
+   - `npm test -- src/pages/admin-ops/AdminOperationalRules.static.test.mjs src/pages/materials/MaterialListPage.action-rbac.static.test.mjs src/pages/materials/MaterialStocksPage.region-access.static.test.mjs`
+   - Passed: 3 files, 7 tests.
+3. Browser QA on the real Admin Material Stocks route:
+   - Route: `http://127.0.0.1:5173/#/app/materials/stocks`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1440x1100` and `390x1100`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - summary cards rendered: `4`;
+     - warehouse cards rendered: `3`;
+     - table rendered: `1`;
+     - table rows rendered: `9`;
+     - labels rendered: `图片`, `物料`, `编码`, `单位`, `Riyadh Warehouse`, `Dammam Warehouse`, `Jeddah Warehouse`, `可见库存`, `低库存仓库`, `状态`;
+     - desktop first table top: about `494px`;
+     - mobile command strip height: about `260px`;
+     - mobile warehouse card grid height: about `250px`;
+     - mobile first table top: about `754px`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126e-material-stocks-readability/metrics.json`;
+     - `frontend/output/playwright/task-126e-material-stocks-readability/desktop-material-stocks.png`;
+     - `frontend/output/playwright/task-126e-material-stocks-readability/mobile-material-stocks.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 502 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Other Admin QA matrix findings remain open, including Visits wide-table density, Evaluation English shell copy, Reviews Queue action density, and Settings Users table semantics.
+2. Recommended next Admin batch is Visits wide-table density cleanup or Reviews Queue action density cleanup.
+
+## Task-126D: Admin Rewards Ops Density Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126C.
+2. Worked only on the real Admin Rewards Ops route:
+   - `http://127.0.0.1:5173/#/app/rewards`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+   - Added compact Admin Rewards classes for the summary metrics, rule dock, governance section, handoff section, table stack, pickup select, and review actions.
+   - Kept reward catalog, review queue, approval/reject actions, pickup-store assignment, role checks, audit writes, and table scroll widths intact.
+   - Preserved the exact `admin-trial-wide-table` table card class required by the existing mobile-safe wide-table guard.
+2. `frontend/src/index.css`
+   - Added scoped `.admin-liquid-shell .admin-reward-*` styles to reduce top spacing, compress the governance/fulfillment/rule/handoff sections, and keep mobile content readable.
+   - On mobile, long explanatory copy is hidden in compact governance and handoff cards, while all summary metrics and handoff titles remain visible.
+   - Review action buttons are arranged into a compact grid without changing the underlying handlers.
+3. `frontend/src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`
+   - Added RED/GREEN coverage for the compact Rewards Ops density pass and preserved review table/action requirements.
+
+Impact:
+
+1. Rewards Ops now surfaces the two core tables much earlier.
+2. Mobile first table position improved from about `2670px` in QA to about `1504px`.
+3. Mobile handoff height improved from about `413px` in QA to about `223px`, with all three handoff titles still visible.
+4. Desktop first table position improved from about `1382px` in QA to about `976px`.
+5. Approval, rejection, pickup assignment, role guards, audit logs, reward catalog fields, and horizontal table scroll remain intact.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126D edits in `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`, the scoped `.admin-liquid-shell .admin-reward-*` additions in `frontend/src/index.css`, `frontend/src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`, and this progress entry restores the previous Rewards Ops density and layout. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`
+   - Failed as expected before implementation because `admin-reward-compact-summary` and related compact classes did not exist.
+2. Focused and related Admin Ops regressions after implementation:
+   - `npm test -- src/pages/admin-ops/RewardsOpsPage.operations.test.mjs src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs src/pages/admin-ops/BackendTrialPolish.static.test.mjs`
+   - Passed: 4 files, 18 tests.
+3. Browser QA on the real Admin Rewards Ops route:
+   - Route: `http://127.0.0.1:5173/#/app/rewards`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1365x768` and `390x844`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - command strip rendered: `true`;
+     - governance section rendered: `true`;
+     - summary cards rendered: `4`;
+     - handoff section rendered: `true`;
+     - table stack rendered: `true`;
+     - tables rendered: `2`;
+     - review action buttons rendered: `18`;
+     - pickup selects rendered: `6`;
+     - desktop first table top: about `976px`;
+     - mobile first table top: about `1504px`;
+     - mobile handoff height: about `223px`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126d-rewards-ops-readability/metrics.json`;
+     - `frontend/output/playwright/task-126d-rewards-ops-readability/desktop-rewards-ops.png`;
+     - `frontend/output/playwright/task-126d-rewards-ops-readability/mobile-rewards-ops.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 501 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Other Admin QA matrix findings remain open, including Materials English table labels, Visits wide-table density, Evaluation English shell copy, Reviews Queue action density, and Settings Users table semantics.
+2. Recommended next Admin batch is Materials table label/readability cleanup or Visits wide-table density cleanup.
+
+## Task-126C: Admin Campaigns List Density Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126B.
+2. Worked only on the real Admin Campaigns List route:
+   - `http://127.0.0.1:5173/#/app/campaigns`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/campaigns/CampaignListPage.jsx`
+   - Replaced the tall campaign filter area with a compact Admin campaign toolbar.
+   - Kept status tabs, type filter, and the new-campaign action visible.
+   - Converted the campaign handoff block from AntD `Row/Col` cards into a compact handoff grid.
+   - Preserved the four operator cues: fan freshness, review need, store execution, and completed/history handling.
+   - Converted the campaign card list from AntD `Row/Col` into a scoped CSS grid for steadier density.
+   - Added scan-first card classes for campaign type, freshness, date range, description, store count, budget, task progress, and the detail action.
+   - Improved the `View` button contrast with a yellow-green secondary action style.
+2. `frontend/src/index.css`
+   - Added scoped `.admin-liquid-shell .admin-campaign-*` styles for the toolbar, filter row, handoff strip, card grid, campaign cards, metrics, progress row, and action button.
+   - Added mobile density rules so the handoff area becomes a two-column title grid and does not push campaign cards too far down.
+3. `frontend/src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Added RED/GREEN coverage for compact Admin Campaigns classes.
+   - Updated static guards to assert real Chinese operator labels and preserved core actions/fields.
+
+Impact:
+
+1. Campaigns List reads more like an operations page and less like stacked explanation cards.
+2. Mobile handoff height dropped from roughly `574px` in QA to `150px`.
+3. The first campaign card is visible earlier, and the detail action no longer looks disabled.
+4. Campaign creation, filters, status tabs, detail navigation, date range, store count, budget, and task progress remain intact.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126C edits in `frontend/src/pages/campaigns/CampaignListPage.jsx`, the scoped `.admin-liquid-shell .admin-campaign-*` additions in `frontend/src/index.css`, `frontend/src/pages/campaigns/CampaignListPage.static.test.mjs`, and this progress entry restores the previous Campaigns List filter card, handoff card, and campaign card layout. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Failed as expected before implementation because `admin-campaigns-page` and related compact classes did not exist.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Browser QA on the real Admin Campaigns List route:
+   - Route: `http://127.0.0.1:5173/#/app/campaigns`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1365x768` and `390x844`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - toolbar rendered: `true`;
+     - handoff strip rendered: `true`;
+     - handoff chips: `4`;
+     - campaign card grid rendered: `true`;
+     - campaign cards rendered: `5`;
+     - campaign detail actions rendered: `5`;
+     - desktop handoff height: about `138px`;
+     - mobile handoff height: about `150px`;
+     - desktop first campaign card top: about `431px`;
+     - mobile first campaign card top: about `460px`;
+     - action button color/background: `rgb(38, 57, 0)` on `rgb(246, 255, 213)`.
+   - Artifacts:
+     - `frontend/output/playwright/task-126c-campaigns-readability/metrics.json`;
+     - `frontend/output/playwright/task-126c-campaigns-readability/desktop-campaigns.png`;
+     - `frontend/output/playwright/task-126c-campaigns-readability/mobile-campaigns.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 500 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Other Admin QA matrix findings remain open, including Rewards Ops explanation density, Materials English table labels, Visits wide-table density, Evaluation English shell copy, Reviews Queue action density, and Settings Users table semantics.
+2. Recommended next Admin batch is either Evaluation Chinese shell cleanup or Materials table label/readability cleanup.
+
+## Task-126B: Admin Stores List / Exposure Readability Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real Admin backend QA matrix after Task-126A.
+2. Worked only on the real Admin Stores List route:
+   - `http://127.0.0.1:5173/#/app/stores/list`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/stores/StoreListPage.jsx`
+   - Replaced the two-column AntD review row with a compact review grid for store-photo and old-fan review work.
+   - Shortened review card copy and kept the approval and rejection actions visible.
+   - Changed the approval button from English `Approve` to Chinese `通过`, while preserving `拒绝`.
+   - Added compact Chinese exposure-control labels for fan-home, map, reward pickup, events, risk downrank, and fan-app hidden states.
+   - Shortened the exposure-control explanation and table labels so the page reads more like an operations tool.
+   - Preserved import, add-store, filters, review actions, exposure toggles, audit-log writes, table fields, pagination, and detail/rating navigation.
+2. `frontend/src/index.css`
+   - Added scoped Admin Stores styles for the review grid, review cards, review media, exposure card, exposure note, and exposure button wrapping.
+   - Added mobile density rules so review and exposure controls remain readable without page-level horizontal overflow.
+3. `frontend/src/pages/stores/StoreListPage.static.test.mjs`
+   - Added coverage for the compact Chinese review and exposure controls.
+4. `frontend/src/pages/stores/StoreExposureControl.static.test.mjs`
+   - Updated the exposure-control guard from old English labels to stable exposure keys plus the new Chinese short labels.
+
+Impact:
+
+1. Stores List now enters review and exposure work faster, with less repeated explanatory copy.
+2. Exposure actions are easier to scan on desktop and remain accessible on mobile.
+3. The wide Stores table remains intact because the required operational fields were preserved.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126B edits in `frontend/src/pages/stores/StoreListPage.jsx`, the scoped `.admin-liquid-shell .admin-store-*` additions in `frontend/src/index.css`, `frontend/src/pages/stores/StoreListPage.static.test.mjs`, `frontend/src/pages/stores/StoreExposureControl.static.test.mjs`, and this progress entry restores the previous review layout and exposure copy. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/stores/StoreListPage.static.test.mjs`
+   - Failed as expected before implementation because the compact Admin Stores review/exposure classes and Chinese labels did not exist.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/stores/StoreListPage.static.test.mjs`
+   - Passed: 1 file, 2 tests.
+3. Related Stores guard after syncing the exposure-control assertions:
+   - `npm test -- src/pages/stores/StoreListPage.static.test.mjs src/pages/stores/StoreExposureControl.static.test.mjs`
+   - Passed: 2 files, 5 tests.
+4. Browser QA on the real Admin Stores List route:
+   - Route: `http://127.0.0.1:5173/#/app/stores/list`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1365x768` and `390x844`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - review grid rendered: `true`;
+     - review cards rendered: `5`;
+     - exposure card rendered: `true`;
+     - exposure buttons rendered: `36`;
+     - old English exposure labels: `0`;
+     - old English approve labels: `0`;
+     - table rows rendered: `27`;
+     - the main Stores table remains a required wide data table and keeps its internal scan behavior.
+   - Artifacts:
+     - `frontend/output/playwright/task-126b-store-list-exposure/metrics.json`;
+     - `frontend/output/playwright/task-126b-store-list-exposure/desktop-stores-list.png`;
+     - `frontend/output/playwright/task-126b-store-list-exposure/mobile-stores-list.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 499 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Other Admin QA matrix findings remain open, including Campaigns card density, Rewards Ops explanation density, Materials English table labels, Visits wide-table density, Evaluation English shell copy, Reviews Queue action density, and Settings Users table semantics.
+2. Recommended next Admin batch is Campaigns list/card density or Evaluation Chinese shell cleanup, depending on whether the next priority is visual density or language consistency.
+
+## Task-126A: Admin S Store Management Readability Pass
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued from the real Admin backend QA matrix after Task-125.
+2. Worked only on the real Admin S Store Management route:
+   - `http://127.0.0.1:5173/#/app/stores/s-stores`.
+3. Kept this as one rollback-friendly Admin batch.
+4. Did not touch Fan Center, Store Owner, preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+   - Replaced the large hero plus 12 equal-weight metric cards with a compact S Store command band.
+   - Kept the four operational risk metrics prominent: active S stores, low-stock S stores, replenishment tasks, and downgraded S stores.
+   - Moved sell-through, reward pickup, activity verification, scan, and visible-brand-store totals into a compact secondary metric strip.
+   - Kept the S Store field/replenishment handoff queue, but made it part of the command band instead of a separate large card.
+   - Added scan-first status wrappers for S status, replenishment, follow-up, product inventory, and material inventory cells.
+   - Preserved all filters, table columns, data calculations, detail navigation, and S Store query/read-model behavior.
+2. `frontend/src/index.css`
+   - Added scoped Admin S Store styles for the command band, critical metric tiles, compact handoff strip, secondary metrics, status cells, and stock cells.
+   - Added mobile-specific density rules so the command band does not block the table entry.
+3. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Added RED/GREEN coverage for the compact command band and scan-first status cells.
+   - Updated the existing backend operator console polish guard from the old hero/metric-grid structure to the new S Store command band structure.
+
+Impact:
+
+1. S Store Management now reads more like an operations console and less like a dashboard marketing surface.
+2. Risk and follow-up status are easier to scan in the table without removing any operational fields.
+3. Mobile keeps the same data and table scroll behavior, while reducing explanatory text in the handoff cards.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-126A edits in `frontend/src/pages/stores/SStoreManagementPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`, and this progress entry restores the previous S Store hero, metric cards, handoff card, and table cell styling. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Failed as expected before implementation because `s-store-command-band` and scan-first status classes did not exist.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Passed: 1 file, 11 tests.
+3. Browser QA on the real Admin S Store route:
+   - Route: `http://127.0.0.1:5173/#/app/stores/s-stores`;
+   - Account: `admin@uwell.com / UwellAdmin@2026`;
+   - Viewports: `1365x768` and `390x844`.
+   - Results:
+     - document-level horizontal overflow: `false` on desktop and mobile;
+     - command band rendered: `true`;
+     - critical metric tiles: `4`;
+     - handoff cards: `3`;
+     - secondary metrics: `8`;
+     - status cells rendered: `6`;
+     - stock cells rendered: `4`;
+     - table rows rendered: `3`;
+     - table remains an internal horizontal scroll region for the required wide S Store columns.
+   - Artifacts:
+     - `frontend/output/playwright/task-126a-s-store-readability/metrics.json`;
+     - `frontend/output/playwright/task-126a-s-store-readability/desktop-s-stores.png`;
+     - `frontend/output/playwright/task-126a-s-store-readability/mobile-s-stores.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 498 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Other Admin QA matrix findings remain open, including Stores English copy/exposure density, Campaigns card density, Rewards Ops explanation density, Materials English table labels, Visits wide-table density, Evaluation English shell copy, Reviews Queue action density, and Settings Users table semantics.
+2. Recommended next Admin batch is either Stores list/exposure readability or Evaluation Chinese shell cleanup, depending on whether the next priority is trial visual density or language consistency.
+
+## Task-125: Fan UI Normalization And Cross-Portal Readability QA
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Implemented the approved follow-up UI optimization plan without changing the current yellow-green design language.
+2. Focused on real pages only:
+   - Fan Rewards;
+   - Fan Community;
+   - Fan Stores / Map;
+   - Fan Me;
+   - Admin Rewards Ops visible placeholder copy.
+3. Kept Store Task-124 closed and did not start another broad Store redesign. Store was included only in QA to ensure this pass did not regress the real store-owner route.
+4. Did not touch preview pages, database, API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/fans/tabs/MallTab.jsx`
+   - Added visible-category filtering so empty reward categories can be hidden instead of showing misleading empty VIP-like tabs.
+   - Added a VIP reward category label path while preserving existing reward and redemption logic.
+2. `frontend/src/pages/fans/tabs/CommunityTab.jsx`
+   - Removed the inactive photo-posting affordance so the composer presents only working actions.
+   - Kept post, like, comment, and feed logic unchanged.
+3. `frontend/src/pages/fans/tabs/MapTab.jsx`
+   - Moved marker and popup level styling from inline colors into tokenized CSS classes.
+   - Kept S Store trust copy as `UWELL Brand Store` and did not change store exposure logic.
+4. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Made the Fan Me invite card more data-led by showing invited-friend count and invite points earned from existing point-log data.
+   - Did not create new invite rules or mutate point records.
+5. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+   - Replaced the visible `图片位 / 占位` catalog column wording with `图片风格 / 目录素材`.
+   - Did not add image data fields or change reward operations behavior.
+6. `frontend/src/utils/translations.js`
+   - Added the Fan VIP reward category translation key for English and Arabic.
+7. `frontend/src/index.css`
+   - Added a small yellow-green token bridge and scoped Fan readability styles for form controls, tags, community composer, Me invite card, map markers, and map popups.
+   - Did not split the large CSS file or perform a broad token migration.
+8. Static tests were updated for the new non-regression boundaries in Mall, Community, Map, FanCenter, and RewardsOps.
+
+Impact:
+
+1. Fan Rewards is safer on narrow screens because reward category chips no longer have to expose empty categories.
+2. Fan Community now avoids a dead photo action and reads more like a working feed/composer surface.
+3. Fan Stores map marker and popup styling now follows the yellow-green token bridge instead of hard-coded inline colors.
+4. Fan Me gives the invite feature a clearer data reason without changing the invite economy.
+5. Admin Rewards Ops no longer displays a placeholder-like image column label during trial review.
+6. Store-owner behavior and Task-124 UI changes were not modified by this task.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-125 edits in `frontend/src/pages/fans/tabs/MallTab.jsx`, `frontend/src/pages/fans/tabs/CommunityTab.jsx`, `frontend/src/pages/fans/tabs/MapTab.jsx`, `frontend/src/pages/fans/FanCenterPage.jsx`, `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`, `frontend/src/utils/translations.js`, `frontend/src/index.css`, the related static tests, and this progress entry restores the previous Fan/Admin UI wording and styling. No data, API, permission, dependency, `.env`, or business-rule state was changed.
+
+Verification:
+
+1. Focused regression:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MapTab.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`
+   - Passed: 5 files, 63 tests.
+2. Broader related regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanArabicFullSweep.static.test.mjs src/pages/fans/FanArabicRtl.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MapTab.static.test.mjs src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/admin-ops/BackendTrialPolish.static.test.mjs src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`
+   - Passed: 9 files, 82 tests.
+3. Browser QA on the real local route set:
+   - Fan: `http://127.0.0.1:5173/fan-app.html#/fan-center`;
+   - Store: `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - Admin: `http://127.0.0.1:5173/#/app/dashboard`.
+   - Viewports: `390x844` and `1151x698`.
+   - Checked Fan Rewards / Community / Stores / Me, Store Home / Verify / Activities / S Report / Me, and Admin Dashboard.
+   - Results: 20 route-state records; document-level horizontal overflow `false` for all; broken image count `0` for all.
+   - Artifacts:
+     - `frontend/output/playwright/task-125-ui-normalization/metrics.json`;
+     - screenshots for each checked route-state in the same folder.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 497 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Some inline style counts remain in Fan Community, Store, and Admin because existing runtime components and third-party widgets still emit inline styles. This task only removed the targeted Fan Map inline marker/popup color path.
+2. The QA small-button counter includes non-primary controls such as language toggles, Leaflet zoom controls, category chips, compact AntD buttons, and top settings buttons. No horizontal overflow or broken image regression was found.
+3. A separate future task can address deep token architecture and broader Admin visual cleanup after the real Fan trial pages settle.
+
+## Archive: Store Owner Task-124 Density And Readability Pass
+
+Date: 2026-07-24
+
+Archive status:
+
+Stored.
+
+Summary:
+
+1. The real store-owner portal density/readability pass is archived through Task-124K.
+2. Work stayed on the real route:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - login: `store.owner@uwell.com / UwellStore@2026`.
+3. Main areas completed:
+   - Home: action-led store status and task queue;
+   - Verify: simplified verification actions and removed non-action result-state clutter;
+   - Activities: reduced repeated explanation and compacted campaign cards;
+   - S Report: merged top explanation, improved form ergonomics, fixed DatePicker calendar contrast;
+   - Me: fixed dead-photo action, removed duplicate photo header, compacted material section and empty photo states.
+4. Final verified state:
+   - real-route sweep covered Home / Verify / Activities / S Report / Me at mobile and desktop sizes;
+   - no document-level horizontal overflow in checked tabs;
+   - bottom-nav red dots had visible in-page action context on the relevant pages;
+   - `npm test` passed: 102 files, 495 tests;
+   - `npm run build` passed with only existing Vite chunk/plugin timing warnings.
+5. Boundaries preserved:
+   - no preview-page work;
+   - no database, API, permissions, `.env`, dependency, approval-rule, red-dot-source-rule, upload-handler, or business-rule changes.
+
+Archive note:
+
+This store-owner pass should be treated as closed. Future work should start from the real page plus this archive entry and only address concrete issues found during user visual review or real workflow QA.
+
+## Task-124K: Store Owner Final Route Sweep And Me Empty-State Density
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Ran a real-route sweep across the store-owner tabs after Tasks 124A-J:
+   - Home;
+   - Verify;
+   - Activities;
+   - S Report;
+   - Me.
+2. Used the real store-owner route and account:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - `store.owner@uwell.com / UwellStore@2026`.
+3. Fixed only the concrete density issue found during the sweep:
+   - Me page photo empty states were still too tall;
+   - Me page level material pack became too long on mobile because it collapsed to one column.
+4. Did not touch preview pages, database, API, permissions, `.env`, dependencies, upload handlers, approval rules, red-dot source rules, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `className="store-photo-empty-state"` to the existing AntD Empty state for display-photo categories.
+   - Kept `DISPLAY_CATEGORIES`, upload handlers, review status rendering, and uploaded photo rendering unchanged.
+2. `frontend/src/index.css`
+   - Added compact styles for `.store-photo-empty-state`.
+   - Reduced empty image height and description spacing for no-photo display categories.
+   - Kept `store-material-pack-grid` as two columns on mobile.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage for compact Me empty photo states and mobile two-column material pack layout.
+
+Sweep findings:
+
+1. All checked tabs had document-level horizontal overflow `false` at both mobile and desktop sweep sizes.
+2. Verify, Activities, and Me bottom-nav red dots each had visible in-page action context:
+   - Verify: `Action needed / Verify fan visit / 2 active`;
+   - Activities: `Action needed / Submit campaign result / 1 pending`;
+   - Me: `Action needed / Upload store photos / 2 missing`.
+3. S Report date input contrast remained readable after Task-124H.
+4. Me remained the longest page because it contains required photo upload cards plus material data. The only low-risk fix in this pass was compacting empty states and the material pack grid.
+
+Impact:
+
+1. Me page is shorter on mobile while preserving all upload and material request actions.
+2. Empty photo category cards no longer spend excessive height on the AntD default empty placeholder.
+3. The S-level material pack shows two columns on mobile, improving scan density.
+4. No data flow or business behavior changed.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124K edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous Me empty-state height and one-column mobile material pack. No data or business behavior was changed.
+
+Verification:
+
+1. Real-route sweep before the compact fix:
+   - Captured Home / Verify / Activities / S Report / Me at mobile `390x844` and desktop `1151x698`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/metrics.json`;
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-home.png`;
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-verify.png`;
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-activities.png`;
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-s-report.png`;
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-me.png`;
+     - desktop screenshots in the same folder.
+2. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-photo-empty-state` and the mobile two-column material pack assertion were not satisfied.
+3. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 37 tests.
+4. Browser QA after implementation on Me mobile:
+   - Viewport: `390x844`;
+   - horizontal overflow: `false`;
+   - empty states: `4`;
+   - first empty-state height: `68px`;
+   - empty image height: `38px`;
+   - material pack grid columns: `163px 163px`;
+   - material pack items: `8`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-me-after-compact.png`;
+     - `frontend/output/playwright/task-124k-store-owner-route-sweep/mobile-me-after-compact-metrics.json`.
+5. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 61 tests.
+6. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 495 tests.
+7. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Store-owner density pass is ready for user visual review.
+2. If the user finds another concrete issue in the browser, handle it as a narrow follow-up task with the same boundaries.
+
+## Task-124J: Store Owner Me Material Density
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124I.
+2. Focused the Me page material section density and readability.
+3. Reframed materials as a compact workbench:
+   - level material pack;
+   - recent material requests;
+   - available materials for request.
+4. Kept material request behavior unchanged:
+   - same `handleRequestMaterial(m)`;
+   - same request quantity;
+   - same warehouse/region source;
+   - same audit log write;
+   - same pending approval flow.
+5. Did not touch preview pages, database, API, permissions, `.env`, dependencies, upload handlers, red-dot rules, approval rules, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `store-material-workbench` structure inside `MaterialsTab`.
+   - Changed the material pack list from a generic vertical stack to `store-material-pack-grid`.
+   - Changed material requests from the generic dashboard row card to compact `store-material-request-row` rows.
+   - Removed the visible request reason sentence from request rows to reduce repeated explanatory copy.
+   - Replaced stacked per-material AntD cards with compact `store-material-catalog-item` rows while preserving the existing Request button handler.
+2. `frontend/src/index.css`
+   - Added scoped Me material workbench styles.
+   - Added readable light-card contrast, compact request rows, mobile single-column material grids, and stable request button sizing.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage that the Me material section uses the compact workbench classes and no longer renders stacked repeated material cards.
+
+Impact:
+
+1. Me page material section is shorter and easier to scan on mobile.
+2. Store owners can still request the same materials from the same list.
+3. Request status remains visible, but long reason text is removed from the list row.
+4. No backend data, localDb schema, API, permission, or rule behavior changed.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124J edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous stacked Me material cards. No data or business behavior was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because the compact material workbench classes did not exist and old stacked material cards were still rendered.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 36 tests.
+3. Browser QA on the real store-owner Me tab:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Account: `store.owner@uwell.com / UwellStore@2026`
+   - Viewport: `390x844`.
+   - Results:
+     - horizontal overflow: `false`;
+     - material workbench rendered: `true`;
+     - material catalog items: `8`;
+     - request buttons: `8`;
+     - request rows: `1`;
+     - old material card count inside material workbench: `0`;
+     - mobile catalog grid column: `358px`;
+     - first request button width: `68px`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124j-me-material-density/metrics.json`;
+     - `frontend/output/playwright/task-124j-me-material-density/me-material-mobile.png`.
+4. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 60 tests.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 494 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk warnings.
+
+Remaining notes:
+
+1. Me page material density is now closed for this pass.
+2. Recommended next step is a final real-route store-owner sweep across Home / Verify / Activities / S Report / Me to catch any remaining contrast or copy-density issues after Tasks 124A-J.
+
+## Task-124I: Store Owner Me Photo Header Density
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124H.
+2. Focused the Me page final density sweep on the photo/material workbench.
+3. Removed the duplicate standalone `Store Front Photo & Display Photos` header card inside `ShowcaseTab`.
+4. Kept the action rail reminder, photo upload cards, upload handlers, review status rendering, material section, database, API, permissions, `.env`, dependencies, and business rules unchanged.
+5. Did not touch preview pages.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - `ShowcaseTab` now starts directly with the required photo upload cards.
+   - Removed only the redundant subtle header card that repeated the Me action rail label.
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added static coverage that `ShowcaseTab` keeps the photo upload card map and no longer renders a duplicate subtle header card.
+
+Impact:
+
+1. Me page has one fewer repeated explanation block before the actual photo tasks.
+2. Store owners see actionable missing-photo cards sooner.
+3. No data mutation path, upload path, material request path, approval status, red-dot source rule, or navigation rule changed.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124I edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous duplicate ShowcaseTab header card. No data or business behavior was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `ShowcaseTab` still rendered the duplicate `so-card-subtle` header card.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 35 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Account: `store.owner@uwell.com / UwellStore@2026`
+   - Checked Me tab at 1151x698.
+   - Results:
+     - duplicate ShowcaseTab header cards: `0`;
+     - action rail photo chip retained: `1`;
+     - horizontal overflow: `false`;
+     - bottom navigation visible: `true`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124i-me-density/metrics.json`;
+     - `frontend/output/playwright/task-124i-me-density/me.png`.
+4. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 59 tests.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 493 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Me page still has a long material/request list below the first viewport. Recommended next task is a separate, planned material-section density pass only if user confirms.
+2. Current store-owner route remains available at `http://127.0.0.1:5173/store-app.html#/store-owner`.
+
+## Task-124H: Store Owner S Report Calendar Contrast Fix
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Fixed the concrete S Report DatePicker issue reported from the real store-owner page:
+   - calendar dropdown text was too low contrast on the light panel.
+2. Kept the fix scoped to the real S Report date fields and their popup styling.
+3. Did not change date values, DatePicker format, form fields, submit handlers, APIs, database, permissions, `.env`, dependencies, red-dot rules, or business rules.
+
+Root cause:
+
+1. The S Report input controls were already scoped under `.store-s-report-workbench`.
+2. The AntD DatePicker dropdown is rendered as a global popup outside the S Report workbench.
+3. Because the popup did not inherit the S Report input contrast rules, global picker/dropdown styles left the calendar panel with very low contrast.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `popupClassName="store-s-report-calendar-dropdown"` to the two S Report period DatePicker fields:
+     - `period_start`;
+     - `period_end`.
+2. `frontend/src/index.css`
+   - Added scoped `.store-s-report-calendar-dropdown` styles for:
+     - white panel background;
+     - dark calendar text;
+     - visible header controls;
+     - muted disabled dates;
+     - clear today and selected-date states.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Added RED/GREEN coverage that S Report DatePicker popups use the dedicated dropdown class and readable calendar-panel CSS.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124H edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`, and this progress entry restores the previous DatePicker popup styling. No data or business behavior was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Failed as expected before implementation because the S Report DatePicker popup class and calendar dropdown CSS were missing.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 1 file, 10 tests.
+3. Browser QA on the real S Report DatePicker:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - account: `store.owner@uwell.com / UwellStore@2026`;
+   - viewport: `1151x698`;
+   - results:
+     - dropdown exists: `true`;
+     - panel background: `rgb(255, 255, 255)`;
+     - panel text color: `rgb(31, 26, 18)`;
+     - date cell text color: `rgb(31, 26, 18)`;
+     - horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124h-s-report-calendar-contrast/metrics.json`;
+     - `frontend/output/playwright/task-124h-s-report-calendar-contrast/s-report-calendar-open.png`.
+4. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 58 tests.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 492 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. This pass only fixes S Report calendar popup contrast.
+2. Recommended next task remains the Me page final visual/logic sweep.
+
+## Task-124G: Store Owner S Report Form Ergonomics
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124F.
+2. Focused S Report form filling ergonomics on mobile:
+   - numeric entry;
+   - note field height;
+   - paired field spacing;
+   - readable controls.
+3. Kept all S Report business behavior unchanged:
+   - same fields;
+   - same required rules;
+   - same submit handlers;
+   - same S Store APIs;
+   - same history rendering.
+4. Did not touch preview pages, database, API, permissions, `.env`, dependencies, upload handlers, approval logic, red-dot source rules, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added shared `sReportNumberInputProps` for S Report numeric fields:
+     - `min: 0`;
+     - `precision: 0`;
+     - `inputMode: "numeric"`;
+     - `controls: false`;
+     - existing `so-input-dark` styling and full width.
+   - Applied the shared props only to the S Report numeric fields.
+   - Added `store-s-report-pair-row` to paired date/stock rows.
+   - Reduced the three S Report `Note` fields from `rows={2}` to `rows={1}`.
+2. `frontend/src/index.css`
+   - Added scoped `.store-s-report-pair-row` spacing.
+   - Added mobile row-gap behavior so paired S Report fields stay compact at `390px`.
+   - Tightened S Report numeric input padding after removing stepper controls.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Added RED/GREEN coverage for compact S Report numeric controls, short Note fields, and mobile pair-row spacing.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124G edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`, and this progress entry restores the previous S Report form control behavior. No data, API, permission, dependency, `.env`, handler, or business-rule change was introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Failed as expected before implementation because `sReportNumberInputProps`, compact note fields, and pair-row spacing did not exist.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 1 file, 9 tests.
+3. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 57 tests.
+4. Browser QA on the real S Report tab:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - account: `store.owner@uwell.com / UwellStore@2026`;
+   - viewport: `390x844`;
+   - results:
+     - S Report numeric inputs: `8`;
+     - numeric stepper handler wraps: `0`;
+     - Note textarea rows: `1, 1, 1`;
+     - paired S Report rows: `3`;
+     - mobile pair-row gap: `6px`;
+     - horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124g-s-report-form-ergonomics/metrics.json`;
+     - `frontend/output/playwright/task-124g-s-report-form-ergonomics/s-report-mobile.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 491 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+
+Remaining notes:
+
+1. This pass improves S Report filling speed and density but does not change the report data model or lifecycle.
+2. Recommended next task: Me page final visual/logic sweep, especially whether the Store setup visibility and photo/material sections can be made more obviously action-led without more explanatory copy.
+
+## Task-124F: Store Owner Activities Campaign Card Density
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124E.
+2. Focused the Activities tab campaign list density based on real mobile QA screenshots.
+3. Removed long official-campaign description text from the campaign cards so Activities reads as an operations list instead of an explanation feed.
+4. Kept behavior unchanged:
+   - `handleClaim` unchanged;
+   - `handleOpenReview` unchanged;
+   - campaign status / claim status logic unchanged;
+   - no database, API, permission, `.env`, dependency, approval, upload, red-dot, or business-rule changes.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Replaced the old campaign-card body layout with compact classes:
+     - `store-campaign-card-body`;
+     - `store-campaign-card-main`;
+     - `store-campaign-card-title-row`;
+     - `store-campaign-card-meta`;
+     - `store-campaign-card-urgent`.
+   - Removed `getCampaignDisplayCopy(camp).description?.substring(0, 80)` from the visible card list.
+   - Kept campaign title localization via `getCampaignDisplayCopy(camp).name`.
+   - Kept claim/review/view buttons and status tags.
+   - Kept remaining-days signal for ongoing campaigns without repeating the status label.
+2. `frontend/src/index.css`
+   - Added scoped compact card styles for the new campaign-card classes.
+   - Ensured long campaign titles truncate instead of expanding the card width.
+3. Tests
+   - Added static coverage that Activities campaign cards use the compact structure and do not render long descriptions.
+   - Updated Arabic static coverage to reflect the new compact card contract: localized titles remain, but visible campaign descriptions are no longer required on the list card.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124F edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, and this progress entry restores the previous longer campaign-card list. No data or business behavior was changed.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-campaign-card-body` did not exist and campaign descriptions were still rendered.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 34 tests.
+3. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 56 tests.
+4. Browser QA on the real Activities tab:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - account: `store.owner@uwell.com / UwellStore@2026`;
+   - viewport: `390x844`;
+   - results:
+     - compact campaign cards found: `4`;
+     - old long description snippets visible: `false`;
+     - horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124f-activities-card-density/metrics-final.json`;
+     - `frontend/output/playwright/task-124f-activities-card-density/activities-mobile-final.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 490 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. Activities is now more operational, but the top guidance block still exists. If the user wants another reduction pass, the next logical step is to decide whether the two function cards should become a segmented control or remain as a compact explanation block.
+2. Recommended next task: S Report form ergonomics polish, mainly reducing repeated form-card height and making date/numeric entry feel faster on mobile.
+
+## Task-124E: Store Owner Route Sweep And Stable Bottom Nav QA Hook
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124D.
+2. Followed the original store-owner upgrade line and verified the current route-level sweep for:
+   - duplicate top navigation removal;
+   - bottom-nav red-dot target clarity;
+   - Verify / Activities / S Report / Me density and operation clarity already present in the current worktree;
+   - mobile horizontal overflow.
+3. Added one non-visual QA hook to the real store-owner bottom navigation so browser QA can reliably switch tabs:
+   - `data-tab-key={key}` on each bottom-nav button.
+4. Did not touch preview pages, database, API, permissions, `.env`, dependencies, upload handlers, approval logic, red-dot source rules, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `data-tab-key={key}` to the real store-owner bottom navigation buttons.
+   - This does not change UI, styling, routing behavior, tab keys, alert-dot rules, or business actions.
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added static coverage that the bottom nav exposes the stable `data-tab-key` QA hook.
+
+Route sweep findings:
+
+1. Existing current-worktree UI state confirmed:
+   - top store-owner AntD tabs are hidden with `.store-owner-content-tabs > .ant-tabs-nav`;
+   - bottom navigation remains the only visible page navigation;
+   - Verify now frames the page as three actions: fan participation, manual fallback, reward redemption;
+   - Verify no longer shows the old non-action result-state card;
+   - Activities now uses compact official/store-created activity function cards;
+   - S Report hero is merged with the execution rhythm actions;
+   - Me has action-needed photo handling and no dead `setActiveTab("me")` purpose buttons.
+2. Real mobile browser QA at `390x844` on `http://127.0.0.1:5173/store-app.html#/store-owner` found:
+   - Home: top nav hidden, 5 bottom nav buttons, no horizontal overflow;
+   - Verify: top nav hidden, 1 visible `Action needed` strip, no horizontal overflow;
+   - Activities: top nav hidden, 1 visible `Action needed` strip, no horizontal overflow;
+   - S Report: top nav hidden, no current action strip because report history already exists for this data state, no horizontal overflow;
+   - Me: top nav hidden, 1 visible `Action needed` strip, no horizontal overflow.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124E edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry removes only the QA hook and its test. No user-facing UI, database, API, permission, dependency, `.env`, handler, persisted state, or business-rule change was introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `data-tab-key={key}` was missing.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 33 tests.
+3. Store-owner related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 55 tests.
+4. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - account: `store.owner@uwell.com / UwellStore@2026`;
+   - viewport: `390x844`;
+   - results:
+     - bottom nav buttons: `5`;
+     - top nav display: `none` on all checked tabs;
+     - red dots for current unresolved work: `3`;
+     - action-needed strips: Verify `1`, Activities `1`, S Report `0`, Me `1`;
+     - horizontal overflow: `false` on Home, Verify, Activities, S Report, and Me.
+   - Artifacts:
+     - `frontend/output/playwright/task-124e-store-owner-route-sweep/metrics.json`;
+     - `frontend/output/playwright/task-124e-store-owner-route-sweep/home.png`;
+     - `frontend/output/playwright/task-124e-store-owner-route-sweep/verify.png`;
+     - `frontend/output/playwright/task-124e-store-owner-route-sweep/activities.png`;
+     - `frontend/output/playwright/task-124e-store-owner-route-sweep/s-report.png`;
+     - `frontend/output/playwright/task-124e-store-owner-route-sweep/me.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 489 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. This pass was mostly verification and QA hardening because the current worktree already contains the planned Verify / Activities / S Report / Me density changes.
+2. Recommended next step: visual review from the user on the real page, then do only concrete polish items found from screenshots or in-app comments.
+
+## Task-124D: Store Owner Non-Blocking Photo Reminder
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124C.
+2. Followed the original store-owner upgrade plan by removing the blocking first-login photo reminder modal from Home.
+3. Replaced the modal with a compact inline Home nudge that keeps the same missing-photo action visible without covering store status or today's tasks.
+4. Kept production changes scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+5. Updated directly affected store-owner coverage:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+6. Did not touch preview pages, database, API, permissions, `.env`, dependencies, upload handlers, approval logic, red-dot rules, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Removed the old `STORE_PHOTO_REMINDER_LIMIT` / `store_photo_reminder_count` / `photoReminderModalOpen` flow.
+   - Removed the `store-photo-reminder-modal` JSX so Home no longer opens an automatic modal on login.
+   - Added `store-home-photo-nudge` under the Home value strip when required photos are missing.
+   - The nudge shows:
+     - `Photo tasks`;
+     - the missing-photo count;
+     - an `Upload photos` button that navigates to the existing Me tab.
+   - Kept `missingRequiredStorePhotos`, Me page `ActionNeededStrip`, `ShowcaseTab`, and `handleDisplayUpload` unchanged.
+2. `frontend/src/index.css`
+   - Added scoped `.store-home-photo-nudge` styles.
+   - Added mobile behavior so the nudge stacks cleanly and the button is full width.
+3. Tests
+   - Added RED/GREEN coverage that Home uses an inline photo nudge and no longer has the blocking photo modal.
+   - Updated operations coverage from the old first-three-login modal contract to the new non-blocking reminder contract.
+   - Updated Arabic sweep coverage from removed modal titles to the new `Photo tasks` copy.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124D edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, the three touched store-owner tests, and this progress entry restores the previous modal reminder behavior. No database, API, permission, dependency, `.env`, handler, state persistence, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-home-photo-nudge` did not exist and the old modal still existed.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 33 tests.
+3. Related store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 55 tests.
+4. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Results:
+     - visible photo reminder modals: `0`;
+     - modal mask/dimming: `false`;
+     - `store-photo-reminder-modal` present: `false`;
+     - Home nudge text: `Photo tasks2 missingUpload photos`;
+     - bottom-nav red dots still visible for current unresolved work;
+     - nudge `Upload photos` action switches to Me;
+     - Me target action strip remains visible: `Action neededUpload store photos2 MissingUpload photos`;
+     - mobile horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-124d-photo-nudge/mobile-home-photo-nudge.png`;
+     - `frontend/output/playwright/task-124d-photo-nudge/mobile-me-after-nudge-click.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 489 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+
+Remaining notes:
+
+1. This pass changes only the reminder surface. Missing-photo state still appears in Home, bottom navigation, and Me.
+2. Recommended next Task-124 step: continue the planned Store Owner final sweep across Activities, Verify, S Report, and Me for remaining contrast, density, and wording issues before asking for another visual review.
+
+## Task-124C: Store Owner Home First-Screen Refactor
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124B2.
+2. Focused Home first-screen density and clarity:
+   - store value;
+   - current operating status;
+   - today's action.
+3. Kept production changes scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+4. Updated directly affected store-owner static coverage:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+5. Did not touch preview pages, database, API, permissions, `.env`, dependencies, handlers, persisted state, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `storeHomeValueItems` and a compact `store-home-value-strip` on Home:
+     - `Fan traffic`;
+     - `Free campaign materials`;
+     - `Official authorized store`;
+     - `More exposure`.
+   - Reduced `storeHomeCommandItems` to the four core daily work areas:
+     - Setup readiness;
+     - Fan verification;
+     - Campaign execution;
+     - Materials.
+   - Removed S Report and Reward Pickup from the Home command center only. Their real tabs, bottom navigation entries, alerts, forms, and handlers remain unchanged.
+   - Removed repeated long Home explanation copy from:
+     - level exposure compact panel;
+     - weekly exposure card.
+   - Simplified `levelExposureBenefits` to compact action data only: `title`, `value`, and `tab`.
+2. `frontend/src/index.css`
+   - Added scoped Home value-strip/chip styles:
+     - `.store-home-value-strip`;
+     - `.store-home-value-grid`;
+     - `.store-home-benefit-chip`.
+   - Changed the desktop Home command grid to four columns for the four daily actions.
+   - Added mobile value grid two-column behavior.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage for the Home value strip, four-action command center, and removal of repeated long explanations.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124C edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous Home command center and copy density. No database, API, permission, dependency, `.env`, handler, state persistence, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because the value strip did not exist, S Report/Reward Pickup were still in `storeHomeCommandItems`, and long Home explanations still existed.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 32 tests.
+3. Related store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 54 tests.
+4. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Results:
+     - value chips visible: `Fan traffic`, `Free campaign materials`, `Official authorized store`, `More exposure`;
+     - Home command cards visible: Setup readiness, Fan verification, Campaign execution, Materials;
+     - duplicate top tabs display: `none`;
+     - bottom nav red dots still present for current unresolved work;
+     - desktop horizontal overflow: `false`;
+     - mobile horizontal overflow: `false`;
+     - mobile value grid columns: two columns;
+     - mobile command grid columns: two columns.
+   - Note:
+     - the existing first-login photo reminder modal still opens on top of Home for this store state. This is existing reminder behavior and now points clearly to the photo action.
+   - Artifacts:
+     - `frontend/output/playwright/task-124c-home-first-screen/home-desktop.png`;
+     - `frontend/output/playwright/task-124c-home-first-screen/home-mobile.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 488 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. This pass only tightens Home first-screen hierarchy. It does not change Verify, Activities, S Report, Me, alert-dot rules, data mutation logic, or reward/report eligibility rules.
+2. Recommended next Task-124 step: review whether the existing first-login photo modal should become less blocking after the Home value strip is now clearer.
+
+## Task-124B2: Store Owner Alert Dot Action Closure
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124B.
+2. Fixed the UX logic issue where bottom-nav red dots showed unresolved work but the target tab did not clearly show why the dot existed or what action clears it.
+3. Kept the red-dot rules unchanged and added matching lightweight `Action needed` strips on the target tabs.
+4. Kept production changes scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+5. Updated directly affected store-owner static coverage:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `ActionNeededStrip`, a compact page-level action entry for active red-dot work.
+   - Added scroll refs for existing target sections:
+     - `activityActionSectionRef`;
+     - `sReportFormSectionRef`;
+     - `materialSectionRef`.
+   - Added target-tab action strips:
+     - Verify: `Verify fan visit`, with `Scan` and `Manual fallback` actions.
+     - Activities: `Submit campaign result` or `Check activity review`, opening the existing review modal or scrolling to the event section.
+     - S Report: `Submit first S Report`, scrolling to the existing report forms when no S Report history exists.
+     - Me: `Upload store photos` or `Request low materials`, scrolling to existing photo or material sections.
+   - Added Arabic copy for the new compact action labels.
+2. `frontend/src/index.css`
+   - Added scoped `.store-action-needed-strip`, `.store-action-needed-copy`, and `.store-action-needed-actions` styles.
+   - Kept the strip compact, light, and button-led so it does not reintroduce large explanatory text.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage that every red-dot target has a matching action-needed strip and existing action target.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124B2 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry removes the target-tab action strips while preserving the previous Task-124B red dots. No database, API, permission, dependency, `.env`, handler persistence, or business-rule changes were introduced.
+
+Verification:
+
+1. RED related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `ActionNeededStrip` and target-tab action strips did not exist.
+2. Related store-owner regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 53 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Viewport: `390x844`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Visible results:
+     - Home: red dots visible in bottom nav, no action strip on overview.
+     - Verify: 1 visible strip, `Verify fan visit`, primary action opens the existing scanner modal.
+     - Activities: 1 visible strip, `Submit campaign result`, primary action opens the existing campaign result flow.
+     - S Report: 0 visible strips because current data has locked S Report history and no S Report red dot.
+     - Me: 1 visible strip, `Upload store photos`, primary action scrolls to existing photo upload section.
+     - horizontal overflow: `false` on all checked tabs.
+   - Console note:
+     - repeated resource `400` messages and Supabase local fallback warnings appeared for trial store id `s-real-012`; this matches previous local QA behavior and did not break rendering.
+   - Artifacts:
+     - `frontend/output/playwright/task-124b2-alert-action-closures/visible-metrics.json`;
+     - `frontend/output/playwright/task-124b2-alert-action-closures/mobile-verify-action-needed.png`;
+     - `frontend/output/playwright/task-124b2-alert-action-closures/mobile-activities-action-needed.png`;
+     - `frontend/output/playwright/task-124b2-alert-action-closures/mobile-me-action-needed.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 487 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+
+Remaining notes:
+
+1. This pass only closes the UX loop between bottom-nav red dots and target-tab actions. It does not change the red-dot source rules or any data mutation logic.
+2. Next recommended Task-124 step: continue Home first-screen value/todo refactor, now that alert reminders have visible target actions.
+
+## Task-124B: Store Owner Bottom Navigation Alert Dots
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-124A.
+2. Added compact red-dot reminders to the fixed bottom navigation so store owners can see unresolved work areas at a glance.
+3. Used only existing store-owner page state and existing Home workbench signals:
+   - fan verification needed;
+   - campaign claims / store-created event review work;
+   - empty S Report history for active S Stores;
+   - missing store photos or low material stock.
+4. Kept production changes scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+5. Updated directly affected store-owner static coverage:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `storeBottomNavAlerts`, derived from existing local component state.
+   - Added `hasAlert` to bottom nav rendering without changing tab keys, tab routing, handlers, APIs, or persisted data.
+   - Rendered a small `store-bottom-nav-dot` only when a bottom-nav target has unresolved work.
+   - Kept Home without a red dot because Home remains the overview screen.
+2. `frontend/src/index.css`
+   - Added scoped bottom-nav dot styling:
+     - 8px red dot;
+     - icon-right positioning;
+     - active-tab border color;
+     - overrides for existing store bottom-nav span rules so the dot does not inherit label backgrounds or padding.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage for the alert map, existing-state sources, dot rendering, and CSS positioning.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124B edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry removes the red-dot reminders and restores the previous bottom navigation. No database, API, permission, dependency, `.env`, handler, state persistence, or business-rule changes were introduced.
+
+Verification:
+
+1. RED related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `storeBottomNavAlerts` and `store-bottom-nav-dot` did not exist.
+2. Related store-owner regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 4 files, 52 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Viewport: `390x844`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Results:
+     - bottom nav display: `grid`;
+     - nav button count: `5`;
+     - red dot count: `3`;
+     - active tab red dot count: `0`;
+     - visible red-dot targets for current data: `Verify`, `Activities`, `Me`;
+     - `S Report` has no red dot because current S Store report history already has locked records;
+     - horizontal overflow: `false`.
+   - Console note:
+     - repeated resource `400` messages and Supabase local fallback warnings appeared for trial store id `s-real-012`; this matches previous local QA behavior and did not break rendering.
+   - Artifacts:
+     - `frontend/output/playwright/task-124b-bottom-nav-alert-dots/metrics.json`;
+     - `frontend/output/playwright/task-124b-bottom-nav-alert-dots/mobile-home-bottom-nav-dots.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 486 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only plugin timing and existing large chunk warnings.
+
+Remaining notes:
+
+1. This pass only adds visual reminders on bottom navigation. It does not clear, create, or modify any task state.
+2. Next recommended Task-124 step: continue Home first-screen value/todo refactor, focusing on store benefits, clear data, and fewer explanatory blocks.
+
+## Task-124A: Store Owner S Report Form Contrast Fix
+
+Date: 2026-07-24
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after the Task-124 UI audit.
+2. Fixed the S Report form readability issue reported during mobile QA, especially date fields, numeric inputs, textareas, and Select controls that could appear too dark or low contrast.
+3. Kept production changes scoped to:
+   - `frontend/src/index.css`.
+4. Updated only directly affected S Report static coverage:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/index.css`
+   - Added scoped `.store-s-report-workbench` form-control overrides for AntD DatePicker, Select, InputNumber, textarea, and existing `.so-input-dark` fields.
+   - Forced S Report controls to readable white surfaces with dark text, visible borders, readable placeholders, visible suffix icons, and visible InputNumber handlers.
+   - Covered the real Select DOM used by the current AntD build:
+     - `.ant-select`;
+     - `.ant-select-content`;
+     - `.ant-select-input`;
+     - `.ant-select-suffix`;
+     - `.ant-select-selector` fallback.
+2. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Added regression coverage to prevent S Report form controls from returning to low-contrast dark styling.
+   - Extended coverage after browser QA showed the real Select structure uses `.ant-select-content` instead of only `.ant-select-selector`.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-124A edits in `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`, and this progress entry restores the previous S Report form-control styling and test coverage. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Failed as expected before implementation because the scoped S Report light input rules did not exist.
+2. Related store-owner regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+   - Passed: 4 files, 51 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Viewport: `390x844`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Results:
+     - S Report form-related control count: `30`;
+     - low-contrast controls: `0`;
+     - minimum measured contrast: `17.29`;
+     - horizontal overflow: `false`;
+     - Select controls now render as readable white controls instead of black surfaces.
+   - Console note:
+     - 3 repeated resource `400` messages and Supabase local fallback warnings appeared for trial store id `s-real-012`; this matches previous local QA behavior and did not break rendering.
+   - Artifacts:
+     - `frontend/output/playwright/task-124a-s-report-form-contrast/metrics.json`;
+     - `frontend/output/playwright/task-124a-s-report-form-contrast/mobile-s-report.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 485 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+
+Remaining notes:
+
+1. This pass only fixed S Report form readability and did not change reporting fields, submit handlers, history rendering, S Store eligibility, or any business rules.
+2. Next recommended Task-124 step: add bottom-nav red dot reminders for unresolved items, using existing local state only and without creating new business rules.
+
+## Task-123F: Store Owner Me Tab Reduction
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Me tab after Task-123E.
+2. Addressed the remaining Me density and contrast issues without changing store photo or material request behavior.
+3. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+4. Updated only directly affected store-owner tests:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Removed the Me top explanatory paragraph about first 3 login reminders.
+   - Removed the three non-action photo/material purpose cards.
+   - Removed the separate regional warehouse explanation strip.
+   - Replaced them with a compact two-chip Me action rail:
+     - store photos status;
+     - material management region.
+   - Kept `Manage photos` as the existing real scroll action into the photo upload section.
+   - Removed explanatory text from the photo reminder modal while keeping `Keep in Me` and `Upload photos`.
+   - Converted the material pack header from an inline black gradient card to a scoped light `store-material-pack-card`.
+   - Kept `handleDisplayUpload`, `handleRequestMaterial`, photo status logic, regional warehouse fields, and material request audit fields unchanged.
+2. `frontend/src/index.css`
+   - Added scoped styles for `.store-me-action-rail`, `.store-me-action-chip`, `.store-material-pack-card`, `.store-material-pack-head`, and `.store-material-pack-divider`.
+   - Added mobile and light-surface coverage for the new Me elements.
+3. Tests:
+   - Added/updated regression coverage that the deleted Me explanatory blocks and black material gradient do not return.
+   - Preserved coverage for photo upload, material request, warehouse fields, and Arabic/RTL copy coverage for remaining rendered text.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-123F edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, and this progress entry restores the previous Me explanatory cards and material pack surface. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-me-action-rail` and `store-material-pack-card` did not exist, while old Me explanatory copy and black material gradient still existed.
+2. Related store-owner regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+   - Passed: 4 files, 50 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Viewport: `390x844`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Results:
+     - top Ant tabs nav display: `none`;
+     - bottom nav display: `grid`;
+     - Me action rail count: `1`;
+     - Me action chip count: `2`;
+     - old photo purpose grid count: `0`;
+     - old material region strip count: `0`;
+     - material pack card count: `1`;
+     - material pack background: `rgb(255, 253, 244)`;
+     - old first-login explanatory copy present: `false`;
+     - old photo/material purpose copy present: `false`;
+     - old modal explanatory copy present: `false`;
+     - old material gradient inline present: `false`;
+     - horizontal overflow: `false`.
+   - Console note:
+     - 3 non-blocking resource `400` messages and local fallback warnings appeared for trial store id `s-real-012`; this matches previous local QA behavior and did not break rendering.
+   - Artifacts:
+     - `frontend/output/playwright/task-123f-me-reduction/metrics.json`;
+     - `frontend/output/playwright/task-123f-me-reduction/mobile-me-reduction.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 484 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+
+Remaining notes:
+
+1. This pass only reduced the Me tab surface and material pack contrast.
+2. Next store-owner pass should re-check the full real store-owner mobile flow after the Home / Verify / Activities / S Report / Me reductions together.
+
+## Task-123E: Store Owner S Report Small-Copy Reduction
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal S Report tab after Task-123D.
+2. Addressed the user feedback that S Report still had too much small explanatory text.
+3. Reduced S Report to direct report functions and data entry:
+   - weekly sell-through;
+   - monthly sell-through;
+   - product stock check;
+   - material stock check;
+   - sell-through form;
+   - product inventory form;
+   - material inventory form;
+   - three latest history cards.
+4. Kept all S Store reporting behavior intact:
+   - `isActiveSStoreAccount`;
+   - `handleSubmitSStoreSellThrough`;
+   - `handleSubmitSStoreProductInventory`;
+   - `handleSubmitSStoreMaterialInventory`;
+   - `refreshSStoreReportHistory`;
+   - all form fields;
+   - all history rendering.
+5. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+6. Updated only directly affected store-owner tests:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Changed `sStoreReportExecutionItems` from `[title, desc]` tuples to title-only items.
+   - Removed the S Report hero paragraph.
+   - Removed paragraph rendering inside the four hero action cards.
+   - Removed the three form meta explanation strips.
+   - Removed the three history meta explanation strips.
+   - Removed unused store-owner Arabic dictionary entries for deleted S Report meta copy.
+2. `frontend/src/index.css`
+   - Made S Report hero action cards shorter and centered.
+   - Removed unused `.store-s-report-form-meta` and `.store-s-report-history-meta` styles.
+3. Tests:
+   - Added/updated regression coverage that S Report no longer renders the deleted small explanatory copy.
+   - Preserved regression coverage for S Store visibility, submission handlers, V1 fields, history cards, and date picker behavior.
+   - Updated Arabic sweep so deleted S Report description copy is no longer required as rendered shell text.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-123E edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, and this progress entry restores the previous S Report explanatory text. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because S Report still rendered `store_owner_s_report_desc`, `t(desc)`, form meta strips, and history meta strips.
+2. Related S Report regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 2 files, 36 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Viewport: `390x844`.
+   - Used installed Chrome; no browser/dependency install was performed.
+   - Results:
+     - S Report hero present: `true`;
+     - hero paragraph count: `0`;
+     - hero action card count: `4`;
+     - action card paragraph count: `0`;
+     - form meta count: `0`;
+     - history meta count: `0`;
+     - form panel count: `3`;
+     - history card count: `3`;
+     - old S Report explanatory descriptions present: `false`;
+     - top Ant tabs nav display: `none`;
+     - bottom nav display: `grid`;
+     - horizontal overflow: `false`.
+   - Console note:
+     - 3 non-blocking resource `400` messages appeared during local trial remote fallback requests; no page render exception was present.
+   - Artifacts:
+     - `frontend/output/playwright/task-123e-s-report-reduction/metrics.json`;
+     - `frontend/output/playwright/task-123e-s-report-reduction/mobile-s-report-reduction.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 484 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing plugin timing and large chunk warnings.
+
+Remaining notes:
+
+1. This pass only reduced S Report small explanatory copy.
+2. Next store-owner pass should review the Me tab issues the user mentioned and any remaining density/contrast problems on the real page.
+
+## Task-123D: Store Owner Activities Two-Function Reframe
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Activities tab after Task-123C.
+2. Addressed the user feedback that Activities should be two direct functions, not a long explanation area.
+3. Reframed the top Activities guidance into two compact function cards:
+   - `Official campaigns`: view details, apply, wait for materials, run activity;
+   - `Store-created events`: edit content, time, and result, then send to UWELL review.
+4. Removed the old top three-cell explanatory guidance from the Activities tab:
+   - `Official campaigns first`;
+   - `Store-created events require approval`;
+   - `Appears in Fan Activities > Store Events after approval`;
+   - the long ready-made campaign / review-risk / internal-only descriptions.
+5. Kept existing Activities behavior intact:
+   - official campaign filtering;
+   - store-created event filtering;
+   - `handleClaim`;
+   - `handleOpenReview`;
+   - `handleSubmitStoreActivity`;
+   - review status labels/colors;
+   - campaign display copy;
+   - activity application modal.
+6. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+7. Updated only directly affected store-owner tests:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Removed the long paragraph under `store_owner_activity_application`.
+   - Replaced the old three guidance cells with two `store-activity-function-card` entries.
+   - Added Arabic dictionary entries for the new Activities copy.
+   - Removed the unused `Appears in Fan Activities > Store Events after approval` dictionary entry.
+   - Shortened the store event confirmation modal body to the existing cost responsibility sentence.
+2. `frontend/src/index.css`
+   - Changed `.store-activity-guidance-grid` from three columns to two columns.
+   - Added `.store-activity-function-card` as the scoped visual target.
+   - Kept the readable light surface overrides from Task-123A.
+   - Updated mobile rules so the two short function descriptions remain visible and readable.
+3. Tests:
+   - Added/updated regression coverage for the two-function Activities frame.
+   - Kept coverage that official campaigns and store-created review work remain separated.
+   - Kept Arabic dictionary coverage for the new shell copy.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-123D edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, and this progress entry restores the previous Activities guidance strip. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED related regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Failed as expected before implementation because `store-activity-function-card` and the two new Activities function texts did not exist, and old guidance was still present.
+2. Related store-owner regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Passed: 3 files, 43 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Store account context: `store.owner@uwell.com / UwellStore@2026`, local trial store id `s-real-012`.
+   - Viewport: `390x844`.
+   - Used installed Chrome because Playwright's bundled browser executable was unavailable and no browser/dependency install was performed.
+   - Results:
+     - top Ant tabs nav display: `none`;
+     - bottom nav display: `grid`;
+     - Activities guidance strip present: `true`;
+     - function card count: `2`;
+     - function texts present: `Official campaigns`, `Store-created events`;
+     - old Activities guidance texts present: `false`;
+     - long guidance present: `false`;
+     - apply button present: `true`;
+     - campaign card count: `4`;
+     - horizontal overflow: `false`.
+   - Console note:
+     - 3 non-blocking resource `400` messages appeared during local trial remote fallback requests; no page render exception was present after using the correct `s-real-012` store id.
+   - Artifacts:
+     - `frontend/output/playwright/task-123d-activities-reframe/metrics.json`;
+     - `frontend/output/playwright/task-123d-activities-reframe/mobile-activities-reframe.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 484 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing plugin timing and large chunk warnings.
+
+Remaining notes:
+
+1. This pass only reframed the Activities top area.
+2. The next store-owner density pass should continue with remaining user feedback, especially S Report copy reduction and any Me tab issues the user points out.
+
+## Task-123C: Store Owner Verify Functional Reframe
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Verify tab after Task-123B.
+2. Addressed the user feedback that Verify should present direct functions rather than complex rule text.
+3. Removed the non-action `Result states` card that showed status labels without clear purpose or click behavior.
+4. Kept all verification and pickup logic intact:
+   - `handleVerifyFanParticipation`;
+   - `handleScannerVerify`;
+   - `handleLookupPickupCode`;
+   - `handleConfirmRewardPickup`;
+   - `resolveStoreActivityVerification`;
+   - fan point award status fields and duplicate handling.
+5. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+6. Updated only directly affected store-owner tests:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Replaced the old Verify top rule strip with `store-verify-action-strip`.
+   - Changed top copy to three functional entries:
+     - `Fan participation`: scan fan identity QR to verify participation;
+     - `Manual fallback`: enter Fan ID or email when QR is unavailable;
+     - `Reward redemption`: check redemption code before handing over reward.
+   - Removed `verificationStateTags` because it only served the deleted non-action status card.
+   - Removed the `store-verify-result-states` card from rendering.
+   - Kept the existing scanner card, manual input card, reward pickup input, pickup validation result, S/A pickup guard, and policy modal.
+2. `frontend/src/index.css`
+   - Replaced the old `store-verify-rule-strip` styling with `store-verify-action-strip` and `store-verify-action-grid`.
+   - Added mobile single-column treatment so the three Verify functions read in order on phone viewports.
+   - Removed styling dependence on `store-verify-result-states`.
+3. Tests:
+   - Updated static Verify coverage from old rule/status wording to functional-action wording.
+   - Updated Arabic sweep to require Arabic dictionary coverage for the new Verify action copy.
+   - Updated the operations test so it still checks that stores do not issue points and the system decision flow remains in code, without requiring the removed UI rule sentence.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-123C edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`, and this progress entry restores the previous Verify rule strip and Result states card. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-verify-action-strip` did not exist and `verificationStateTags` / `store-verify-result-states` still existed.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 29 tests.
+3. Related store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+   - Passed: 3 files, 43 tests.
+4. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Login: `store.owner@uwell.com / UwellStore@2026`
+   - Viewport: `390x844`
+   - Used installed Chrome because Playwright's bundled browser executable was unavailable and no browser/dependency install was performed.
+   - Results:
+     - top Ant tabs nav display: `none`;
+     - Verify action grid columns: `332px` single column on mobile;
+     - action texts present: `Fan participation`, `Manual fallback`, `Reward redemption`;
+     - method card count: `2`;
+     - `Result states` present: `false`;
+     - scanner button present: `true`;
+     - manual Fan ID/email input present: `true`;
+     - redemption code input present: `true`;
+     - horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-123c-verify-reframe/metrics.json`;
+     - `frontend/output/playwright/task-123c-verify-reframe/mobile-verify-reframe.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 484 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. This pass only reframed Verify and removed the non-action status card.
+2. Activities two-function reframing, S Report reduction, and Me reduction remain as separate follow-up passes.
+
+## Task-123B: Store Owner Home Lower Dashboard Text Reduction
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Home tab after Task-123A.
+2. Reduced the lower Home dashboard panels so Home reads as store data, current status, and pending work rather than a rule/explanation page.
+3. Kept business behavior and navigation intact:
+   - status rows still jump to their target tabs;
+   - campaign status still uses the existing campaign/claim/review logic;
+   - material inventory still shows quantity, safety stock, progress, and low-stock tag.
+4. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+5. Updated only the store-owner static test coverage for this pass:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `store-home-status-card`, `store-home-campaign-status-card`, and `store-home-data-row` classes for the compact Home lower panels.
+   - Removed the `Store operations status` explanatory intro sentence from Home rendering.
+   - Replaced operation row `<p>{item.type} · {item.desc}</p>` with a terse meta label: `{item.type}`.
+   - Replaced the empty operations explanatory sentence with a terse `Clear` meta label.
+   - Removed campaign description snippets from Home `Campaign status`.
+   - Replaced campaign descriptions with one compact meta label: `My event` or `UWELL campaign`.
+2. `frontend/src/index.css`
+   - Added `.store-home-data-row` and `.store-home-row-meta` styles to keep Home lower rows compact, single-line, and overflow-safe.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added regression coverage ensuring Home lower panels do not render explanatory paragraphs or campaign description snippets.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-123B edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous lower Home explanatory text. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-home-status-card`, `store-home-campaign-status-card`, and `store-home-data-row` did not exist and Home still rendered explanatory paragraphs.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 28 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Login: `store.owner@uwell.com / UwellStore@2026`
+   - Viewport: `390x844`
+   - Used installed Chrome because Playwright's bundled browser executable was unavailable and no browser/dependency install was performed.
+   - Results:
+     - top Ant tabs nav display: `none`;
+     - bottom nav display: `grid`;
+     - lower Home status/campaign paragraphs: `0`;
+     - long paragraph count in the targeted Home lower panels: `0`;
+     - row meta examples: `Material`, `UWELL campaign`;
+     - horizontal overflow: `false`.
+   - Artifacts:
+     - `frontend/output/playwright/task-123b-home-reduction/metrics.json`;
+     - `frontend/output/playwright/task-123b-home-reduction/mobile-home-lower-density.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 483 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. This pass only reduced the lower Home dashboard text density.
+2. Verify functional reframing, Activities two-function reframing, S Report reduction, and Me reduction remain as separate follow-up passes.
+
+## Task-123A: Store Owner Navigation And Contrast Quick Fix
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after user browser comments on the real route.
+2. Removed the duplicate visible top Ant Tabs navigation from the store-owner workbench while keeping the existing `Tabs` content rendering, `activeTab`, `tabItems`, and fixed bottom navigation.
+3. Fixed the low-contrast Home `Next best action` command head that was rendering as a dark block with hard-to-read text.
+4. Fixed the Activities campaign cards that were using deep dark backgrounds and making content hard to read.
+5. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+6. Updated only the store-owner static test coverage for this pass:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `store-owner-content-tabs` to the existing Ant `<Tabs />`.
+   - The tab component still owns panel rendering and `onChange={setActiveTab}`; only its visible top navigation is hidden by scoped CSS.
+2. `frontend/src/index.css`
+   - Added scoped hiding for `.store-liquid-shell .store-owner-content-tabs > .ant-tabs-nav`.
+   - Narrowed the older mobile top-tab layout rules so they do not apply to the store-owner content tabs.
+   - Changed `.store-home-command-head` final contrast overrides from the old dark solid surface to a light premium surface with dark readable text.
+   - Changed `.store-campaign-card-ongoing` and `.store-campaign-card-default` from dark surfaces to light readable surfaces.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Replaced the old “top mobile tabs remain visible” expectation with the new single-visible-nav expectation.
+   - Added coverage for readable Home command and Activities campaign card surfaces.
+
+Rollback:
+
+This task is rollback-friendly. Reverting the Task-123A edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous visible top tabs and darker Home/Activities surfaces. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because the store-owner tabs did not have `store-owner-content-tabs`, the top Ant nav was still protected by old CSS expectations, and the Home/Activities surfaces still used dark contrast rules.
+2. Focused regression after implementation:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 27 tests.
+3. Browser QA on the real store-owner route:
+   - URL: `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Login: `store.owner@uwell.com / UwellStore@2026`
+   - Viewport: `390x844`
+   - Used installed Chrome because Playwright's bundled browser executable was unavailable and no browser/dependency install was performed.
+   - Results:
+     - top Ant tabs nav display: `none`;
+     - top Ant tabs nav height: `0`;
+     - bottom nav display: `grid`;
+     - Home command label/action text color: `rgb(23, 32, 12)`;
+     - Activities campaign cards render as light surfaces with dark text;
+     - horizontal overflow: `false` on Home and Activities.
+   - Artifacts:
+     - `frontend/output/playwright/task-123a-nav-contrast/metrics.json`;
+     - `frontend/output/playwright/task-123a-nav-contrast/mobile-home-nav-contrast.png`;
+     - `frontend/output/playwright/task-123a-nav-contrast/mobile-activities-card-contrast.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 482 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. This pass only handled the duplicate top navigation and the two low-contrast surface issues from the browser comments.
+2. Home text-density reduction, Verify functional reframing, Activities two-function reframing, S Report reduction, and Me reduction remain as separate Task-123 follow-up passes so each stays easy to review and roll back.
+
+## Task-122: Store Owner Home Today Queue Compact Actions
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Home tab after Task-121.
+2. Reduced the Home `Today operating queue` block from stacked explanation cards into compact operational rows.
+3. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+4. Updated only the store-owner static test that covers the Home today queue structure:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+5. Did not change preview pages, database, API, permissions, `.env`, dependencies, handlers, state flow, queue business conditions, `todayQueueProgress`, campaign logic, material logic, verification logic, reward pickup logic, or S Report logic.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added compact classes:
+     - `store-queue-compact-panel`;
+     - `store-queue-compact-progress`;
+     - `store-queue-compact-task`;
+     - `store-queue-task-main`.
+   - Removed the long Home-rendered progress explanation paragraph:
+     - `Keep photos, verification, campaign results, and material stock clear for fan-facing exposure.`
+   - Stopped rendering `<p>{task.desc}</p>` inside Home queue tasks.
+   - Kept every queue row clickable through the existing `setActiveTab(task.tab)` behavior.
+   - Kept `todayOperatingQueue` data and each task `desc` value intact; only the Home presentation changed.
+2. `frontend/src/index.css`
+   - Added compact queue progress and task row styles.
+   - Changed mobile queue tasks from single-column cards to compact rows with `auto minmax(0, 1fr) auto`.
+   - Added truncation and tag sizing so long task titles/statuses do not create horizontal overflow.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage that the queue renders compact classes, keeps `setActiveTab(task.tab)`, and no longer renders long task descriptions on Home.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-122 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous larger today queue cards. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-queue-compact-progress` did not exist.
+2. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 26 tests.
+3. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - logged in with `store.owner@uwell.com`;
+   - viewport: `375x812`;
+   - checked tab: Home.
+   - Final metrics:
+     - compact panel exists: true;
+     - panel height: `431px`;
+     - progress height: `76px`;
+     - compact task count: 4;
+     - compact task height: `64px` each;
+     - task grid columns: `67.6094px 128.188px 85.2031px`;
+     - task description paragraph count: 0;
+     - progress paragraph count: 0;
+     - horizontal overflow: false;
+     - clipped buttons: 0;
+     - browser page errors: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-122-store-queue-compact/metrics.json`;
+     - `frontend/output/playwright/task-122-store-queue-compact/mobile-home-queue-compact.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 481 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. Browser QA still observed three existing Supabase `400` responses for S Store report history endpoints; this task did not change API/data behavior.
+2. The Home queue remains functional and routes to the same tabs. This pass only reduces Home display density.
+
+## Task-121: Store Owner Home Level Exposure Compact Actions
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Home tab after Task-120.
+2. Reduced the Home `Level exposure and pickup rules` block from explanatory cards into compact actions.
+3. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+4. Updated only the store-owner static test that covers the Home level exposure structure:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+5. Did not change preview pages, database, API, permissions, `.env`, dependencies, handlers, state flow, level rules, reward pickup rules, exposure rules, campaign logic, material logic, or S Report logic.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added `store-level-compact-panel`, `store-level-compact-grid`, and `store-level-compact-action` to the existing Home level exposure block.
+   - Kept the four existing action targets:
+     - `Fan map exposure`;
+     - `Home recommendation eligibility`;
+     - `Reward pickup permission`;
+     - `Upgrade focus`.
+   - Kept each action clickable through the existing `setActiveTab(item.tab)` routing.
+   - Stopped rendering `<p>{item.desc}</p>` on Home so the block no longer repeats long explanatory copy.
+   - Kept `levelExposureBenefits` and `rewardPickupPermission` data intact so underlying business copy and rules remain available to code/tests.
+2. `frontend/src/index.css`
+   - Added scoped compact-grid and compact-action styling.
+   - Kept mobile layout at two columns for this compact block, overriding the older generic mobile single-column rule.
+   - Set compact action height around one dashboard-control row instead of tall explanation cards.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added RED/GREEN coverage that the Home level exposure block uses compact classes and no longer renders repeated description paragraphs.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-121 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the previous larger level exposure cards. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-level-compact-grid` did not exist.
+2. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 25 tests.
+3. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - logged in with `store.owner@uwell.com`;
+   - viewport: `375x812`;
+   - checked tab: Home.
+   - Final metrics:
+     - compact grid exists: true;
+     - compact action count: 4;
+     - panel height: `255.56px`;
+     - grid columns: `155px 155px`;
+     - action card height: `69.5px`;
+     - old description paragraph count inside the panel: 0;
+     - horizontal overflow: false;
+     - browser page errors: none;
+     - `400+` resource responses: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-121-store-level-compact/metrics.json`;
+     - `frontend/output/playwright/task-121-store-level-compact/mobile-home-level-compact.png`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 480 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning and plugin timing notice.
+
+Remaining notes:
+
+1. This pass only reduced the Home level exposure block. `Today operating queue` remains the largest functional Home section and should be handled separately if we continue Home density work.
+2. The four level exposure actions still route to the same real tabs and do not introduce new rules.
+
+## Task-120: Store Owner Home Command Center Density Merge
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Home tab after Task-119.
+2. Reduced Home first-screen density by merging the duplicated execution command and readiness blocks.
+3. Kept production edits scoped to:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/index.css`.
+4. Updated only static tests that referenced the old Home command/readiness structure:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`;
+   - `frontend/src/index.static.test.mjs`.
+5. Did not change preview pages, database, API, permissions, `.env`, dependencies, handlers, state flow, campaign logic, material request logic, verification logic, reward pickup logic, S Report submit logic, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Replaced separate Home blocks:
+     - `store-execution-command-strip`;
+     - `store-home-readiness-command`;
+     - `store-readiness-card-grid`;
+     - `store-empty-next-step`.
+   - Added one compact Home block:
+     - `store-home-command-center`;
+     - `store-home-command-head`;
+     - `store-home-command-grid`;
+     - `store-home-command-card`.
+   - Replaced duplicated `storeExecutionCommandItems` / `storeHomeReadiness` rendering with one `storeHomeCommandItems` list.
+   - Added `storeHomePrimaryAction` so the command center still shows the next best action.
+   - Kept the same tab routing pattern: command cards only call `setActiveTab(item.tab)`.
+2. `frontend/src/index.css`
+   - Added scoped `store-home-command-*` styles.
+   - Mobile command center uses a two-column grid.
+   - Mobile command cards hide action tags and use compact fixed card height so the Home page reads as a dashboard, not stacked instructions.
+   - Removed old readiness / empty-next-step CSS selectors.
+3. Static tests:
+   - Added RED/GREEN coverage that Home now uses the compact command center and no longer renders duplicated command/readiness/empty-next-step blocks.
+   - Updated Arabic and global CSS static tests from the removed readiness head selector/key to the new command-center structure.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-120 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, `frontend/src/index.static.test.mjs`, and this progress entry restores the previous Home execution/readiness split. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-home-command-center` did not exist and the old split command/readiness blocks still existed.
+2. RED mobile compact regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before adding mobile command-card compaction because `min-height: 74px` and hidden mobile action tags were missing.
+3. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 24 tests.
+4. Focused stale-structure regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/index.static.test.mjs`
+   - Passed: 3 files, 35 tests.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 479 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+7. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - viewport: `390x844`;
+   - checked tab: Home;
+   - before audit:
+     - Home card count: `9`;
+     - `Today execution command` height: `557.98px`;
+     - `New store readiness` height: `1048.8px`;
+   - final QA:
+     - compact command center exists: `true`;
+     - old execution strip exists: `false`;
+     - old readiness command exists: `false`;
+     - old readiness grid exists: `false`;
+     - old empty next step exists: `false`;
+     - command center height: `428.09px`;
+     - command grid columns: `162.5px 162.5px`;
+     - command cards: `6`;
+     - command card height: `85.94px`;
+     - mobile action tag display: `none`;
+     - Home card count: `8`;
+     - horizontal overflow: `false`;
+     - clipped buttons: none;
+     - browser page errors: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-120-store-owner-audit/metrics.json`;
+     - `frontend/output/playwright/task-120-store-owner-audit/mobile-home.png`;
+     - `frontend/output/playwright/task-120-store-home-command-center/metrics.json`;
+     - `frontend/output/playwright/task-120-store-home-command-center/mobile-home-command-center.png`.
+
+Remaining notes:
+
+1. Browser QA still observed three existing local `400` resource responses seen in earlier store-owner tasks; this task did not address remote resource/API availability.
+2. This pass only reduced Home command/readiness duplication. The existing `Today operating queue`, `Level exposure and pickup rules`, campaign status, operations status, and material inventory sections remain available below.
+3. A future Home pass can further reduce `Level exposure and pickup rules` or `Today operating queue`, but that should be a separate confirmed task because it changes which operational explanations stay visible on Home.
+
+## Task-119: Store Owner Operational Copy Reduction
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-118.
+2. Reduced long operational copy in Verify and Me so the store-owner workbench reads lighter and faster on mobile.
+3. Kept production edits scoped to `frontend/src/pages/store-owner/StoreOwnerPage.jsx`.
+4. Updated store-owner static tests only where Task-119 changed visible copy expectations.
+5. Did not change preview pages, database, API, permissions, `.env`, dependencies, handlers, state flow, material request logic, photo upload logic, activity verification logic, or reward pickup business rules.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Shortened Verify rule copy to:
+     - `Store verifies only. System checks duplicate, activity, store, time, and risk before awarding points.`
+   - Shortened Verify manual fallback copy to:
+     - `Use when camera, QR, or assisted check-in needs fallback.`
+   - Shortened store photo purpose copy:
+     - storefront photo now emphasizes fan map recognition;
+     - display photos now emphasize level review and display follow-up.
+   - Shortened Me photo reminder copy to:
+     - `First 3 logins show reminders; missing status stays in Me.`
+   - Shortened photo purpose cards and showcase modal copy around storefront/display usage.
+   - Shortened warehouse/material copy to:
+     - `Assigned-region inventory only.`
+     - `Material requests use this warehouse.`
+   - Updated Arabic copy mappings for the new compact English strings so the existing RTL foundation keeps coverage.
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added static coverage that the compact Task-119 copy exists and the older long explanatory copy is gone.
+   - Kept coverage for `handleVerifyFanParticipation`, `handleDisplayUpload`, and `handleRequestMaterial`.
+3. `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Updated the Arabic coverage source string from the old long photo-reminder copy to the new compact copy.
+4. `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+   - Updated operation-boundary copy assertions to the new compact Verify and warehouse strings.
+   - Preserved business logic assertions including `handleVerifyFanParticipation`, `resolveStoreActivityVerification`, `fan_points_log`, `material_request_submitted`, and `Request materials`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-119 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`, and this progress entry restores the prior longer copy. No database, API, permission, dependency, `.env`, handler, state, or business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because compact Task-119 copy was not present and old long copy still existed.
+2. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 23 tests.
+3. Focused stale-copy regression after full-suite failure:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 3 files, 37 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 478 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk warning.
+6. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+   - viewport: `390x844`;
+   - checked tabs: Verify and Me;
+   - Verify:
+     - card count: `5`;
+     - old long Verify copy present: `false`;
+     - old long photo copy present: `false`;
+     - old warehouse copy present: `false`;
+     - compact Verify copy present: `true`;
+     - horizontal overflow: `false`;
+     - clipped buttons: none.
+   - Me:
+     - old long Verify copy present: `false`;
+     - old long photo copy present: `false`;
+     - old warehouse copy present: `false`;
+     - compact photo copy present: `true`;
+     - compact warehouse copy present: `true`;
+     - long text nodes: none;
+     - horizontal overflow: `false`;
+     - clipped buttons: none.
+   - Browser page errors: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-119-store-copy-trim/metrics.json`;
+     - `frontend/output/playwright/task-119-store-copy-trim/mobile-verify.png`;
+     - `frontend/output/playwright/task-119-store-copy-trim/mobile-me.png`.
+
+Remaining notes:
+
+1. Browser QA still observed three existing local `400` resource responses seen in earlier store-owner tasks; this task did not address remote resource/API availability.
+2. This pass is copy-only UI reduction for Verify and Me. It does not add new business rules or change any store-owner operation loop.
+
+## Task-118: Store Owner Activities Mobile Guidance Compact
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal after Task-114/115/116/117.
+2. Ran a real browser sweep across Home, Verify, Activities, S Report, and Me on mobile `390x844` and desktop `863x698`.
+3. Fixed the concrete mobile Activities density issue found in that sweep:
+   - the Activities guidance card was `447.36px` tall on mobile;
+   - the first campaign card started at `751.05px`, partly under the fixed bottom navigation that starts at `774px`.
+4. Did not change preview pages, database, API, permissions, `.env`, dependencies, campaign claim logic, review modal logic, approval status logic, or business rules.
+
+What changed:
+
+1. `frontend/src/index.css`
+   - Added mobile-only `@media (max-width: 640px)` compaction for Activities guidance:
+     - guidance body gap reduced to `8px`;
+     - guidance grid gap reduced to `6px`;
+     - each guidance item reduced to `min-height: 44px` and `padding: 9px 10px`;
+     - mobile guidance detail sentences hidden so the block reads as three short action principles;
+     - guidance titles reduced slightly for tighter mobile rhythm.
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added a static regression that locks the mobile Activities guidance compaction rules.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-118 edits in `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the prior mobile Activities guidance height. No database, API, permission, dependency, `.env`, JSX, or campaign business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because the mobile compact guidance CSS rules did not exist.
+2. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 22 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 477 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing plugin timing and large chunk warnings.
+5. Browser QA:
+   - Sweep artifacts:
+     - `frontend/output/playwright/task-118-store-owner-sweep/metrics.json`;
+     - `frontend/output/playwright/task-118-store-owner-sweep/mobile-home.png`;
+     - `frontend/output/playwright/task-118-store-owner-sweep/mobile-verify.png`;
+     - `frontend/output/playwright/task-118-store-owner-sweep/mobile-activities.png`;
+     - `frontend/output/playwright/task-118-store-owner-sweep/mobile-s-report.png`;
+     - `frontend/output/playwright/task-118-store-owner-sweep/mobile-me.png`;
+     - desktop screenshots for the same five tabs.
+   - Final Activities mobile QA:
+     - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+     - viewport: `390x844`;
+     - guidance height: `220px`;
+     - guidance grid items: `3`;
+     - guidance detail spans display: `none`;
+     - first campaign card top: `523.69px`;
+     - bottom nav top: `774px`;
+     - first campaign starts above bottom nav: `true`;
+     - campaign cards: `4`;
+     - horizontal overflow: `false`;
+     - clipped buttons: none;
+     - browser page errors: none.
+   - Final QA artifacts:
+     - `frontend/output/playwright/task-118-store-activities-mobile-compact/metrics.json`;
+     - `frontend/output/playwright/task-118-store-activities-mobile-compact/mobile-activities-compact.png`.
+
+Remaining notes:
+
+1. Browser QA still observed the existing local `400` resource responses seen in earlier tasks; this task did not address remote resource/API availability.
+2. This pass only compacted mobile Activities guidance after the full store-owner sweep.
+3. Home, Verify, S Report, and Me had no horizontal overflow, no page errors, and no reintroduced duplicate explanation blocks in the sweep.
+
+## Task-115: Store Owner Activities Guidance Trim And CSS Cleanup
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Activities tab on `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Removed duplicated Activities explanation and moved official campaign card visual colors from JSX inline styles into scoped CSS.
+3. Did not change preview pages, database, API, permissions, `.env`, dependencies, campaign claim logic, review modal logic, approval status logic, or business rules.
+4. Updated focused static regressions in `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs` and `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Removed the duplicated `store-activity-execution-board` explanation card.
+   - Removed no-longer-used Arabic copy keys for that deleted execution board.
+   - Kept the existing `store-activity-guidance-strip` as the single Activities guidance source.
+   - Replaced official campaign card inline `background` / `border` styles with:
+     - `store-campaign-card-ongoing`;
+     - `store-campaign-card-default`.
+   - Preserved `handleClaim`, `handleOpenReview`, `reviewStatusColor`, `reviewStatusLabel`, `campaignStatusLabel`, `getCampaignDisplayCopy`, and the official-vs-store-created campaign separation.
+2. `frontend/src/index.css`
+   - Removed selectors for the deleted `store-activity-execution-board`.
+   - Added scoped `.store-liquid-shell .store-campaign-card-ongoing.ant-card` and `.store-liquid-shell .store-campaign-card-default.ant-card` rules.
+   - Used scoped priority so the moved campaign-card colors are not overwritten by the broader store-liquid card theme.
+3. Static tests:
+   - Added coverage that Activities no longer contains the duplicated execution board or old duplicate execution copy.
+   - Added coverage that the campaign card color treatment now lives in CSS classes.
+   - Updated the older operations regression to keep official/store-created activity separation while expecting the duplicate guidance to be gone.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-115 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`, and this progress entry restores the prior Activities two-explanation layout and inline campaign card styles. No database, API, permission, dependency, `.env`, or campaign business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-activity-execution-board` still existed and campaign card colors were still inline in JSX.
+2. Focused store-owner regressions:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 21 tests.
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+   - Passed: 2 files, 26 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 476 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk warning.
+5. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Real entry flow:
+     - `store-app.html#/store-login`;
+     - `store.owner@uwell.com / UwellStore@2026`;
+     - Activities tab.
+   - Viewport:
+     - `863x698`.
+   - Final metrics:
+     - guidance strip exists: `true`;
+     - guidance grid items: `3`;
+     - execution board exists: `false`;
+     - duplicate execution copy present: `false`;
+     - UWELL campaigns heading present: `true`;
+     - ongoing campaign cards: `2`;
+     - default campaign cards: `2`;
+     - first ongoing campaign style:
+       - background: `linear-gradient(135deg, rgb(26, 26, 46) 0%, rgb(42, 26, 14) 100%)`;
+       - border: `rgba(255, 215, 0, 0.2)`;
+       - radius: `10px`;
+     - first default campaign style:
+       - background: `rgb(26, 26, 37)`;
+       - border: `rgb(42, 42, 53)`;
+       - radius: `10px`;
+     - horizontal overflow: `false`;
+     - browser page errors: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-115-store-activities/metrics.json`;
+     - `frontend/output/playwright/task-115-store-activities/activities-density-trim.png`.
+
+Remaining notes:
+
+1. Browser QA still observed three existing local `400` resource responses; this task did not address remote resource/API availability.
+2. This pass only reduced Activities explanation duplication and moved card visuals to CSS.
+3. It did not change official campaign claiming, store-created campaign submission, review status, approval modal, cost responsibility, or fan-facing activity publication rules.
+
+## Task-114: Store Owner Verify Density Trim
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Verify tab on `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Reduced repeated pickup/points explanation without changing database, API, permissions, `.env`, dependencies, or reward pickup / activity verification business logic.
+3. Kept production source edits scoped to `frontend/src/pages/store-owner/StoreOwnerPage.jsx` and `frontend/src/index.css`.
+4. Updated focused static regressions in `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs` and `frontend/src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Removed the duplicated `rewardPickupExecutionItems` constant.
+   - Removed the Verify tab `store-pickup-execution-lane` / `Pickup execution queue` card.
+   - Shortened the scan method copy to `Scan fan QR to confirm participation.`
+   - Removed the redundant reward pickup intro paragraph that repeated the store-only-verifies rule.
+   - Shortened the reward tier note to `Normal: A/S stores. Premium: S stores. Diamond: backend-approved pickup only.`
+   - Added Arabic copy for the two new shortened strings so the existing RTL foundation does not regress.
+2. `frontend/src/index.css`
+   - Removed selectors that only targeted the deleted pickup execution lane.
+3. Static tests:
+   - Added/updated coverage that the duplicated Verify execution queue and old long pickup explanation are gone.
+   - Preserved coverage for `handleVerifyFanParticipation`, `handleLookupPickupCode`, `handleConfirmRewardPickup`, `handleScannerVerify`, pickup result rendering, and the S-level policy entry.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-114 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, `frontend/src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs`, and this progress entry restores the prior Verify density state. No database, API, permission, dependency, `.env`, or store reward business-rule changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `rewardPickupExecutionItems` and `store-pickup-execution-lane` still existed.
+2. Focused store-owner regressions:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 20 tests.
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs`
+   - Passed: 2 files, 23 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 475 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing plugin timing and large chunk warnings.
+5. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Real entry flow:
+     - `store-app.html#/store-login`;
+     - `store.owner@uwell.com / UwellStore@2026`;
+     - Verify tab.
+   - Viewport:
+     - `863x698`.
+   - Before metrics from real QA:
+     - Verify card count: `6`;
+     - pickup execution lane top/bottom: `625.91` / `764.91`;
+     - reward pickup card top: `776.91`;
+     - bottom nav top: `628`;
+     - horizontal overflow: `false`.
+   - Final metrics:
+     - Verify workbench rendered: `true`;
+     - Verify card count: `5`;
+     - pickup execution lane exists: `false`;
+     - new scan copy present: `true`;
+     - old pickup intro present: `false`;
+     - new tier copy present: `true`;
+     - reward pickup card top: `625.91`;
+     - bottom nav top: `628`;
+     - horizontal overflow: `false`;
+     - browser page errors: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-114-store-verify/metrics.json`;
+     - `frontend/output/playwright/task-114-store-verify/verify-density-trim.png`.
+
+Remaining notes:
+
+1. This pass only reduced duplicated Verify explanation density.
+2. It did not change scanner behavior, manual verification, reward lookup, reward confirmation, pickup result rendering, S-level policy modal, database, API, permissions, `.env`, dependencies, or reward rules.
+3. The next recommended store-owner pass remains Task-115 Activities duplication and CSS cleanup.
+
+## Task-117: Store Owner S Report Hero Merge
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal S Report density work on `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Merged the S Report top explanation area from two cards into one hero card without changing S Store report rules, form fields, submit handlers, API, database, permissions, `.env`, or dependencies.
+3. Kept production source edits scoped to `frontend/src/pages/store-owner/StoreOwnerPage.jsx` and `frontend/src/index.css`.
+4. Updated focused static regressions in `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs` and `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Removed the standalone `store-s-report-execution-lane` card.
+   - Moved the existing four `sStoreReportExecutionItems` command cards into the S Report hero through `store-s-report-hero-actions`.
+   - Removed the duplicated top `store_owner_s_execution_rhythm` title and `store_owner_s_execution_desc` paragraph from the visible S Report page.
+   - Kept the sell-through, product inventory, material inventory, and history sections unchanged.
+2. `frontend/src/index.css`
+   - Added compact S Report hero action styling.
+   - Removed S Report-specific `store-s-report-execution-lane` selectors.
+   - Kept mobile S Report command cards in a single-column layout.
+3. Static tests:
+   - Added/updated coverage that S Report uses merged hero actions and no standalone execution lane.
+   - Preserved coverage for the existing S Store submit handlers, refresh history, V1 fields, and locked-history copy.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-117 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, the two store-owner S Report static test files, and this progress entry restores the prior two-card S Report header. No database, API, permission, dependency, `.env`, or S Store business logic changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `store-s-report-hero-actions` did not exist and the standalone `store-s-report-execution-lane` still existed.
+2. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 19 tests.
+3. Related S Report regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 2 files, 26 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 474 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk warning.
+6. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Real entry flow:
+     - `store-app.html#/store-login`;
+     - `store.owner@uwell.com / UwellStore@2026`;
+     - S Report tab.
+   - Viewport:
+     - `863x698`.
+   - Before metrics from real QA:
+     - hero bottom: `291.83`;
+     - execution lane bottom: `539.83`;
+     - form grid top: `551.78`;
+     - S Report cards: `8`;
+     - horizontal overflow: `false`.
+   - Final metrics:
+     - active tab: `s-report`;
+     - merged hero bottom: `367.78`;
+     - standalone execution lane exists: `false`;
+     - form grid top: `379.78`;
+     - hero command cards: `4`;
+     - S Report cards: `7`;
+     - first form above bottom nav: `true`;
+     - horizontal overflow: `false`;
+     - browser page errors: none.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-117-store-s-report/metrics.json`;
+     - `frontend/output/playwright/task-117-store-s-report/s-report-merged-hero.png`.
+
+Remaining notes:
+
+1. This pass only merged the S Report top explanation area.
+2. It did not change sell-through, product inventory, material inventory, history, active S Store visibility, or locked-history rules.
+3. The next recommended store-owner pass remains Task-114 Verify density trim, then Task-115 Activities duplication and CSS cleanup.
+
+## Task-116: Store Owner Me Dead Button Fix
+
+Date: 2026-07-23
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal Me tab work on `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Fixed the Me tab photo/material workbench dead-button behavior without changing store business rules, data flow, API, database, permissions, `.env`, or dependencies.
+3. Kept production source edits scoped to `frontend/src/pages/store-owner/StoreOwnerPage.jsx` and `frontend/src/index.css`.
+4. Added a focused static regression in `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added a `showcaseSectionRef` scroll target for the photo upload area.
+   - Changed the Me tab `Manage photos` button from a no-op current-tab setter to a smooth scroll into the photo upload section.
+   - Converted the three photo-purpose controls from clickable `<button>` elements into non-clickable information cards.
+   - Wrapped `ShowcaseTab` with the new scroll target without changing `ShowcaseTab`, `MaterialsTab`, upload handlers, material request handlers, or photo completeness logic.
+2. `frontend/src/index.css`
+   - Moved photo-purpose card styling from `.store-photo-purpose-grid button` to `.store-photo-purpose-card`.
+   - Removed button-only affordances from the photo-purpose cards so they no longer present as tappable controls.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Added regression coverage for the real scroll target, non-clickable purpose cards, and removal of the old no-op Me button pattern.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-116 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`, and this progress entry restores the prior Task-113 Me tab behavior. No database, API, permission, dependency, `.env`, or store/S Store business logic changes were introduced.
+
+Verification:
+
+1. RED focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed as expected before implementation because `useRef`, `scrollToShowcaseSection`, `.store-photo-purpose-card`, and the non-clickable purpose-card structure did not exist.
+2. Focused store-owner regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 18 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 473 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk warning.
+5. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Real entry flow:
+     - `store-app.html#/store-login`;
+     - `store.owner@uwell.com / UwellStore@2026`;
+     - photo reminder modal `Upload photos` into Me;
+     - Me tab `Manage photos`.
+   - Viewport:
+     - `863x698`.
+   - Final metrics:
+     - active tab: `me`;
+     - photo-purpose cards: `3`;
+     - photo-purpose buttons: `0`;
+     - Manage photos buttons: `1`;
+     - scrollY after click: `641`;
+     - first upload button top: `125.56`;
+     - bottom nav top: `628`;
+     - bottom nav covers upload: `false`;
+     - horizontal overflow: `false`.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-116-store-me/metrics.json`;
+     - `frontend/output/playwright/task-116-store-me/me-manage-photos-scroll.png`.
+
+Remaining notes:
+
+1. Browser QA still observed the existing local trial `400` resource responses seen in earlier tasks; this task did not address remote resource/API availability.
+2. This pass only fixed the Me tab dead-button behavior and did not continue into Verify, Activities, or S Report.
+3. The next recommended store-owner pass remains Task-117 S Report, then Task-114 Verify, then Task-115 Activities.
+
+## Task-113: Store Owner Home Density Trim
+
+Date: 2026-07-22
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real store-owner portal UI compaction work on `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Reduced the visual density of the store-owner Home first screen without changing store rules, data flow, or permissions.
+3. Kept the work inside the real store-owner module under `frontend/src/pages/store-owner` and shared layout CSS in `frontend/src/index.css`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, or any store/S Store business logic.
+
+What changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Reduced the photo reminder modal width from `380` to `360`.
+2. `frontend/src/index.css`
+   - Tightened overall Home spacing.
+   - Reduced the dashboard hero gap and stat card sizing.
+   - Reduced readiness card, empty-next-step, execution card, and photo-purpose card sizes.
+   - Shortened reminder strip and execution card text sizing.
+   - Hid execution card body copy below `980px` so the first screen reads as actions, not paragraphs.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-113 edits in `frontend/src/pages/store-owner/StoreOwnerPage.jsx`, `frontend/src/index.css`, and this progress entry restores the prior Task-112 store-owner layout. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 472 tests.
+2. Production build:
+   - `npm run build`
+   - Passed.
+3. Browser QA on the real store-owner URL:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+   - Viewport:
+     - `863x698`.
+   - Final metrics:
+     - home hero bottom: `403.69`;
+     - execution strip bottom: `572.48`;
+     - readiness card top: `582.48`;
+     - bottom nav top: `628`;
+     - the first-screen execution block now stays above the fixed bottom nav.
+   - Browser QA artifact:
+     - `C:\temp\store-owner-home-final.png`.
+
+Remaining notes:
+
+1. This pass only trimmed the store-owner Home density.
+2. If the next store-owner pass is requested, it should continue from the real page and any concrete browser comments only.
+
+## Task-112: Fan Bottom Nav Reveal Speed Tuning
+
+Date: 2026-07-22
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real fan shell navigation rhythm work on `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+2. Reduced the delayed bottom-nav soft-reveal timing so the fixed nav returns faster after downward scrolling.
+3. Kept the work inside the real fan module under `frontend/src/pages/fans`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, point rules, scan/check-in/reward redemption logic, store S Store logic, admin portal behavior, or store portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Shortened the bottom-nav idle timer that transitions hidden nav back toward visible soft state from 2600ms to 700ms.
+2. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+   - Updated the static regression to assert the faster 700ms timer.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-112 edits in `frontend/src/pages/fans/FanCenterPage.jsx`, `frontend/src/pages/fans/FanCenterPage.static.test.mjs`, and this progress entry restores the prior Task-111 bottom-nav timing. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Focused fan shell regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 36 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 472 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+
+Remaining notes:
+
+1. This task only tuned the fan bottom-nav reveal rhythm.
+2. The next fan UI pass should continue page-by-page from the remaining concrete browser comments or page-level QA findings.
+
+## Task-111: Fan Home Journey Row Clearance
+
+Date: 2026-07-22
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real fan portal Home top-spacing correction work on `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+2. Adjusted the `UWELL Club member journey` strip so it no longer pressed into the hero card above or into the fixed bottom nav below at the user's 863x698 browser size.
+3. Kept the work inside the real fan module under `frontend/src/pages/fans`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, point rules, scan/check-in/reward redemption logic, store/S Store logic, admin portal behavior, or store portal behavior.
+
+What changed:
+
+1. `frontend/src/index.css`
+   - Added a middle-width fan Home compacting rule for `761px` to `980px`.
+   - Reduced the Home top hero media height for that width band.
+   - Tightened the `fan-home-club-path` strip padding, spacing, and button height so the row fits fully above the fixed bottom nav.
+   - Kept the mobile `<= 760px` and wider desktop behavior intact.
+2. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+   - Added regression coverage for the new middle-width Home compacting rule.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-111 edits in `frontend/src/index.css`, `frontend/src/pages/fans/FanCenterPage.static.test.mjs`, and this progress entry returns the Home top spacing to the prior Task-110 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Focused regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 36 tests.
+2. Focused help regression:
+   - `npm test -- src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+   - Passed: 2 files, 4 tests.
+3. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Real entry flow:
+     - `fan-entry.html`;
+     - `JOIN / SIGN IN`;
+     - `Continue as demo fan`.
+   - Viewport:
+     - `863x698`.
+   - Final metrics:
+     - hero bottom: `578.53`;
+     - journey strip top: `584.53`;
+     - journey strip bottom: `626.53`;
+     - bottom nav top: `630`;
+     - horizontal overflow: `false`;
+     - journey strip now stays fully above the fixed bottom nav.
+   - Browser QA artifact:
+     - `frontend/output/playwright/task-111-home-journey-gap/home-journey-gap.png`.
+
+Remaining notes:
+
+1. This task only adjusted the Home first-screen rhythm at the reported browser size.
+2. The next fan UI pass should continue only from concrete browser comments or explicit page requests.
+
+## Task-110: Fan Help Guide Split And Bottom Nav Clearance
+
+Date: 2026-07-22
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real fan portal help-page reduction work on `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+2. Split the Help page into:
+   - four primary earning channels;
+   - a compact support row for invite, levels, and existing-fan verification;
+   - a short help note moved above the grid so it would not sit under the fixed bottom nav.
+3. Kept the work inside the real fan module under `frontend/src/pages/fans`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, point rules, scan/check-in/reward redemption logic, store/S Store logic, admin portal behavior, or store portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`
+   - Split the old single FAQ grid into `earningChannels` and `supportChannels`.
+   - Rendered the support row as `fan-guide-support-row`.
+   - Moved the small `Need more help?` card above the main grid so it would not overlap the fixed bottom nav.
+2. `frontend/src/index.css`
+   - Added scoped `fan-guide-support-row` styles.
+   - Tightened fan guide spacing and card sizing so the Help page fits the real 863x698 browser state without the support row slipping under the bottom nav.
+3. Static tests updated:
+   - `frontend/src/pages/fans/tabs/HowItWorksTab.static.test.mjs`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-110 edits in `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`, `frontend/src/index.css`, `frontend/src/pages/fans/tabs/HowItWorksTab.static.test.mjs`, and this progress entry returns Help to the Task-109 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Focused regression:
+   - `npm test -- src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+   - Passed: 2 files, 4 tests.
+2. Fan center regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 36 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 102 files, 472 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+5. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Real entry flow:
+     - `fan-entry.html`;
+     - `JOIN / SIGN IN`;
+     - `Continue as demo fan`.
+   - Checked state:
+     - `Me` -> `New user guide`.
+   - Viewport:
+     - `863x698`.
+   - Final metrics:
+     - help card bottom: `348.7`;
+     - support row bottom: `625.3`;
+     - bottom nav top: `630`;
+     - horizontal overflow: `false`;
+     - support cards rendered: `3`;
+     - channel cards rendered: `4`;
+     - help card and support row no longer overlap the fixed bottom nav.
+   - Browser QA artifact:
+     - `frontend/output/playwright/task-110-help-qa/help-page.png`.
+
+Remaining notes:
+
+1. The Help page is still intentionally compact and keeps invite, levels, and existing-fan verification as secondary support, not main navigation.
+2. This task did not touch Activities, Community, Rewards, Stores, or Me content beyond the shared fan shell and Help entry path.
+3. The next fan UI pass can continue with the remaining visible fan-page refinements only if the user points to a concrete page or browser comment.
+
+## Task-109: Fan Browser Comment Correction Pass
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real fan portal correction work after the user's browser comments on `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+2. Fixed the concrete commented issues on:
+   - Home;
+   - Activities;
+   - Community;
+   - Rewards;
+   - Stores;
+   - Me;
+   - fan shell header avatar.
+3. Did not use `/preview/fan`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, point rules, scan/check-in/reward redemption logic, store/S Store logic, admin portal behavior, or store portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Removed the Task-108 Home quick actions row that visually collided with the Home journey area.
+   - Made the header avatar a real button that opens the `Me` page.
+   - Replaced the plain header/profile level tag with a generated CSS `fan-level-badge` component.
+   - Added the compact level badge to the Me current-level card.
+   - Removed the Me language card; language remains available in the fan shell header.
+   - Removed small explanatory store preview copy from Home/Stores hero areas.
+   - Added compact Stores hero class for the corrected visual layout.
+2. `frontend/src/pages/fans/tabs/CampaignTab.jsx`
+   - Replaced the Activities hero visual with a distinct local UWELL product hero asset:
+     - `/uwell-assets/fan-refresh-v2/official-g5-hero.webp`.
+   - Added a filled media state so the `Quick tasks +5 / +10` card no longer looks like an empty black block.
+3. `frontend/src/pages/fans/tabs/MallTab.jsx`
+   - Moved the `Choose / Redeem / Get code / Pick up` flow strip directly below the Rewards hero and above the product catalog.
+4. `frontend/src/index.css`
+   - Added scoped Task-109 overrides for:
+     - clickable header avatar;
+     - generated level badges;
+     - compact Stores hero;
+     - smaller Community hero visual;
+     - smaller Me hero visual;
+     - filled Activities visual;
+     - top-visible Rewards flow strip.
+5. `frontend/src/utils/translations.js`
+   - Added `fan_real_open_me` for the avatar button accessible label in English and Arabic.
+6. Static tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/CampaignTab.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-109 edits in the files above and this progress entry returns the fan portal to the Task-108 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. RED focused tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Failed as expected before implementation because the Task-109 structures and CSS did not exist.
+2. Focused regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Passed: 4 files, 69 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 470 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+5. Browser QA on the real fan URL:
+   - Real entry flow:
+     - `fan-entry`;
+     - `JOIN / SIGN IN`;
+     - `Continue as demo fan`.
+   - Viewport:
+     - `863x698`, matching the user's review context.
+   - Checked states:
+     - Home;
+     - Activities;
+     - Community;
+     - Rewards;
+     - Stores;
+     - Me;
+     - header avatar click to Me.
+   - Final metrics:
+     - Activities filled media: `433x242`;
+     - Activities poster: `405x48`, overlaid inside the media card;
+     - Community hero visual: `190x130`;
+     - Rewards flow strip y-position: `354`, directly under the hero;
+     - Stores hero explanatory paragraph: absent;
+     - Me hero visual: `190x132`;
+     - Me language card: absent;
+     - header avatar click active tab: `Me`;
+     - header avatar click shows Me shell: true.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-109-browser-comment-pass/metrics-final.json`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/01-home-final.png`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/02-activities-final.png`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/03-community-final.png`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/04-rewards-final.png`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/05-stores-final.png`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/06-me-final.png`;
+     - `frontend/output/playwright/task-109-browser-comment-pass/07-avatar-to-me-final.png`.
+
+Remaining notes:
+
+1. This task intentionally corrected only the concrete browser comments and did not continue into store/admin UI upgrades.
+2. The next fan UI pass should continue page-by-page from the remaining real fan surfaces, using browser QA before edits and concrete page-level adjustments from the user.
+3. Asset choice for Activities now uses a distinct local UWELL official product hero; Community, Stores, Rewards, and Me keep separate visual assets.
+
+## Task-108: Fan Home And Rewards First-Screen Reduction
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal page-by-page reduction work after Task-107.
+2. Focused only on the real fan `Home` and `Rewards` surfaces under `frontend/src/pages/fans`.
+3. Fixed real QA findings from `http://127.0.0.1:5173/fan-app.html#/fan-center`:
+   - Home daily actions were still below the first viewport after the cinematic hero and member journey;
+   - Rewards product catalog started too low on mobile because rules/flow/summary occupied the top of the page;
+   - fixed bottom navigation could visually cover reward catalog content when dense reward cards reached the nav band.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, backend API, permissions, `.env`, dependencies, reward business rules, point rules, stock checks, high-value review rules, pickup policies, S Store logic, or store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Added `fan-home-first-screen-lock` to the real Home shell.
+   - Added a compact `fan-home-quick-actions-row` immediately after the UWELL Club hero and before the 01/02/03/04 journey path.
+   - Added two real action buttons:
+     - `Daily check-in`, wired to the existing check-in handler;
+     - `Product scan`, wired to the existing Scan secondary view.
+   - Kept the existing deeper Today section, check-in detail entry, scan secondary view, points update flow, and Home journey links intact.
+2. `frontend/src/pages/fans/tabs/MallTab.jsx`
+   - Added `fan-reward-first-screen-lock` to the real Rewards shell.
+   - Moved the reward catalog directly under the Rewards hero so products appear before the dense rule summary.
+   - Moved the single rules action into a compact `fan-reward-utility-row` below the catalog.
+   - Kept all redemption actions, disabled states, local fallback redemption, session-stored pickup code, pickup policy, stock checks, point checks, review-required handling, and reward result modal intact.
+3. `frontend/src/index.css`
+   - Added scoped Task-108 Home/Rewards reduction rules.
+   - Compressed mobile Home hero rhythm enough for two quick actions to appear in the first viewport.
+   - Converted mobile Rewards catalog into a horizontal reward shelf so products are visible without the fixed nav covering images or buttons.
+   - Reduced desktop Rewards cards and added a desktop row gap so the floating nav lands in empty space instead of over product cards.
+4. Static tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-108 edits in `frontend/src/pages/fans/FanCenterPage.jsx`, `frontend/src/pages/fans/tabs/MallTab.jsx`, `frontend/src/index.css`, the two static test files, and this progress entry returns Home/Rewards to the Task-107 baseline. No database, API, permission, dependency, asset, or `.env` changes were introduced.
+
+Verification:
+
+1. RED focused test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Failed as expected before implementation because Task-108 Home/Rewards first-screen lock classes and CSS did not exist.
+2. Focused Home/Rewards regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 2 files, 48 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 466 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+5. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Real entry flow:
+     - `fan-entry`;
+     - `JOIN / SIGN IN`;
+     - `Continue as demo fan`.
+   - Viewports:
+     - mobile `390x844`;
+     - desktop `1440x980`.
+   - Final metrics:
+     - mobile Home quick actions in first viewport: 2;
+     - desktop Home quick actions in first viewport: 2;
+     - mobile Rewards product cards in first viewport: 3;
+     - desktop Rewards product cards in first viewport: 6;
+     - Rewards images rendered: 9;
+     - Rewards unique image sources: 8;
+     - broken images: 0;
+     - horizontal overflow: false on Home and Rewards;
+     - bottom nav overlaps visible Home/Rewards action/product cards: false.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-108-home-rewards-final/metrics.json`;
+     - `frontend/output/playwright/task-108-home-rewards-final/mobile-home.png`;
+     - `frontend/output/playwright/task-108-home-rewards-final/mobile-rewards.png`;
+     - `frontend/output/playwright/task-108-home-rewards-final/desktop-home.png`;
+     - `frontend/output/playwright/task-108-home-rewards-final/desktop-rewards.png`.
+
+Remaining notes:
+
+1. This task intentionally fixed first-screen IA and nav/media safety only for `Home` and `Rewards`.
+2. Reward business rules remain present through the compact rules action, summary strip, flow strip, and modal; only their first-screen priority changed.
+3. The next fan UI pass can continue page-specific reduction on `Check-in`, `Scan`, `Invite`, `Old fan verification`, or `Help`, based on the user's next concrete review.
+
+## Task-107: Fan Secondary Shell Title And Bottom Nav Safety
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal UI safety work after Task-106 governance.
+2. Focused only on the real fan secondary shell used by:
+   - `Scan`;
+   - `Check-in`;
+   - `Invite`;
+   - `Old fan verification`;
+   - `Help`.
+3. Fixed real QA findings:
+   - mobile `Help` back button/title overlap;
+   - mobile `Invite` and `Old fan verification` bottom navigation safe-area risk.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, backend API, permissions, `.env`, dependencies, images, videos, or business rules.
+6. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Added stable `fan-subpage-back` class to the secondary-page back button.
+   - Added stable `fan-subpage-spacer` class to the right-side title-bar spacer.
+   - Kept the secondary shell structure as left back / centered title / right spacer.
+   - Did not change secondary page content or actions.
+2. `frontend/src/index.css`
+   - Added scoped `Task-107` secondary shell safety rules:
+     - fixed three-column title bar: `88px minmax(0, 1fr) 88px`;
+     - protected centered title with `min-width: 0`, ellipsis, nowrap, and centered text;
+     - stronger secondary content bottom safe-area;
+     - RTL back/spacer alignment safeguards.
+3. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+   - Added a RED/GREEN static regression requiring:
+     - `fan-subpage-back`;
+     - `fan-subpage-spacer`;
+     - centered title overflow protection;
+     - bottom nav safe-area CSS;
+     - RTL back/spacer alignment rules.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-107 edits in `frontend/src/pages/fans/FanCenterPage.jsx`, `frontend/src/index.css`, `frontend/src/pages/fans/FanCenterPage.static.test.mjs`, and this progress entry returns the fan secondary shell to the Task-106 baseline. No database, API, permission, dependency, asset, or `.env` changes were introduced.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because `fan-subpage-back` and Task-107 shell CSS did not exist.
+2. Focused FanCenterPage test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 34 tests.
+3. Focused secondary fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Passed: 5 files, 51 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 464 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk size warning.
+6. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Real entry flow:
+     - `fan-entry`;
+     - `JOIN / SIGN IN`;
+     - `Continue as demo fan`.
+   - Checked states:
+     - `Scan`;
+     - `Check-in`;
+     - `Invite`;
+     - `Old fan verification`;
+     - `Help`.
+   - Viewports:
+     - desktop `1440x980`;
+     - mobile `390x844`.
+   - Final metrics:
+     - title/back overlap: false on all checked states;
+     - bottom-scroll last-content/nav overlap: false on all checked states;
+     - horizontal overflow: false on all checked states;
+     - title centered delta: 0 on all checked states.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-107-shell-qa-final/metrics-with-bottom.json`;
+     - `frontend/output/playwright/task-107-shell-qa-final/mobile-scan.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/mobile-checkin.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/mobile-invite.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/mobile-oldfan.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/mobile-help.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/desktop-scan.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/desktop-checkin.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/desktop-invite.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/desktop-oldfan.png`;
+     - `frontend/output/playwright/task-107-shell-qa-final/desktop-help.png`.
+
+Remaining notes:
+
+1. This task intentionally fixed only the shared secondary shell and bottom navigation safety.
+2. It did not reduce or redesign the contents of `Scan`, `Check-in`, `Invite`, `Old fan verification`, or `Help`; those remain for a later page-specific reduction task.
+3. The next recommended UI task remains a page-specific first-screen reduction pass, starting with `Home + Rewards` or with whichever fan page the user chooses.
+
+## Task-106: Fan UI QA And Visual Slot Governance Baseline
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Converted the post-Task-105 fan audit findings into permanent project rules before starting the next UI pass.
+2. Updated only project documentation and progress memory.
+3. Did not modify fan page implementation, store portal implementation, backend/admin implementation, database schema, backend API, permissions, `.env`, dependencies, or business rules.
+4. Did not use `/preview/fan`.
+
+What changed:
+
+1. `docs/08_DESIGN_SYSTEM.md`
+   - Added `Fan Visual Slot Discipline`.
+   - Required each fan visual change to name the page slot, purpose, source type, final path, fallback, desktop/mobile sizing, and placement rule.
+   - Locked the rule that repeated images cannot count as visual diversity unless reuse is explicitly approved.
+   - Added store-specific guidance: use store, shelf, storefront, display, or vape retail imagery before local mockups.
+   - Required final visual QA for media count, unique media count, broken media, navigation overlap, text overlap, horizontal overflow, and mobile/desktop fit.
+2. `docs/10_AI_RULES.md`
+   - Added `Fan UI Task Gate`.
+   - Required real fan route QA before fan UI work.
+   - Required page-specific impact analysis, exact file list, database/API/permission impact, other page impact, risk, rollback, and user confirmation before implementation.
+   - Added a required visual slot table for fan media work.
+   - Reconfirmed that `/preview/fan`, duplicate preview logic, unconfirmed business rules, repeated image reuse, oversized media, and unfinished primary CTA labels are forbidden.
+
+Audit baseline carried forward:
+
+1. Latest completed implementation before this governance task: `Task-105: Fan Me Community Stores Layout Discipline Fix`.
+2. Real fan path remains `frontend/src/pages/fans`.
+3. Real fan URL remains `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+4. Current UI priority remains page-by-page reduction and QA:
+   - `Home`;
+   - `Activities`;
+   - `Community`;
+   - `Rewards`;
+   - `Stores`;
+   - `Me`;
+   - `Check-in`;
+   - `Scan`;
+   - `Invite`;
+   - `Old fan verification`;
+   - `Help`.
+5. Current P0 data-loop risks remain separate from UI cleanup and require explicit confirmation before any API/RPC/database work:
+   - points writes are not fully transactional;
+   - scan flow can diverge between UI/local/RPC paths;
+   - reward redemption is not fully transactional;
+   - production failures can be masked by local/demo fallback.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-106 edits in `docs/08_DESIGN_SYSTEM.md`, `docs/10_AI_RULES.md`, and this `PROGRESS.md` entry returns the project documentation to the Task-105 baseline. No runtime code, database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Documentation verification:
+   - Confirmed the new fan visual slot and fan UI task gate rules are present in `docs/08_DESIGN_SYSTEM.md` and `docs/10_AI_RULES.md`.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed.
+3. Production build:
+   - `npm run build`
+   - Passed.
+
+Remaining notes:
+
+1. This task intentionally did not fix any UI screen yet.
+2. The next implementation task should start with a real-page QA and impact analysis for the selected fan UI surface before code edits.
+
+## Task-105: Fan Me Community Stores Layout Discipline Fix
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued only the real fan portal work on `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+2. Focused only on the real fan `Me`, `Community`, and `Stores` surfaces under `frontend/src/pages/fans`.
+3. Fixed the post-Task-104 image placement problems reported during visual review:
+   - oversized or awkwardly placed images;
+   - media competing with or visually sitting under the fixed bottom navigation;
+   - mobile store cards turning into large stacked button blocks;
+   - `Me` hero being stretched by unnecessary mini image tiles.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+6. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/index.css`
+   - Reduced `Community` feed media to disciplined banner proportions on desktop and mobile.
+   - Made the fan bottom navigation more opaque in soft mode so page media no longer visually bleeds through it.
+   - Reworked mobile `Stores` preview cards into a fixed thumbnail, concise copy, and compact right-side `Navigate` action.
+   - Compressed mobile `Stores` hero imagery into a short storefront banner.
+   - Compressed mobile `Community` hero imagery into a full-width short brand banner.
+   - Removed the extra `Me` hero mini image grid and chips from the hero height calculation.
+   - Kept `Me` mobile as account-first: profile actions and points appear before the page becomes a gallery.
+2. Static regression tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`.
+
+Verification:
+
+1. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 3 files, 43 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 463 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk size warning.
+4. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Visited states:
+     - `Me`;
+     - `Community`;
+     - `Stores`.
+   - Viewports:
+     - desktop `1440x980`;
+     - mobile `390x844`.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-105-fan-me-community-stores-layout-discipline/desktop-me.png`;
+     - `frontend/output/playwright/task-105-fan-me-community-stores-layout-discipline/desktop-community.png`;
+     - `frontend/output/playwright/task-105-fan-me-community-stores-layout-discipline/desktop-stores.png`;
+     - `frontend/output/playwright/task-105-fan-me-community-stores-layout-discipline/mobile-me.png`;
+     - `frontend/output/playwright/task-105-fan-me-community-stores-layout-discipline/mobile-community.png`;
+     - `frontend/output/playwright/task-105-fan-me-community-stores-layout-discipline/mobile-stores.png`.
+
+Remaining notes:
+
+1. This task intentionally fixed layout discipline only. It did not add new fan business behavior.
+2. `Stores` still uses the real map and approved store exposure logic.
+3. `Community` still keeps posting, liking, commenting, and community point limits intact.
+4. `Me` remains the fan account center, now with visual support that does not dominate the account content.
+
+## Task-104: Fan Me Community Stores V2 Image Source Refresh
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal visual reduction work on the real fan URL only.
+2. Focused only on the real fan `Me`, `Community`, and `Stores` surfaces under `frontend/src/pages/fans`.
+3. Replaced the Task-103 `fan-refresh` visual pool with a v2 asset set that uses distinct image sources per slot.
+4. Used official UWELL product-page visuals for fan `Me` and `Community` product-led cards.
+5. Used real store/interior reference photos to build new local store visuals for the fan `Stores` discovery flow.
+6. Kept the store and community page behavior intact, including the real map, trust cues, and store exposure logic.
+7. Did not use `/preview/fan`.
+8. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+9. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/public/uwell-assets/fan-refresh-v2/`
+   - Added a new v2 asset pool with distinct local image sources:
+     - official UWELL product visuals for `Me` and `Community`;
+     - real store/interior reference photos for `Stores`;
+     - a new `contact-sheet-v2.jpg` QA sheet.
+2. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Switched `Me` profile visuals to the v2 asset pool.
+   - Switched fan store preview visuals to the v2 store image pool.
+3. `frontend/src/pages/fans/tabs/CommunityTab.jsx`
+   - Switched the community hero and four feed visuals to the v2 asset pool.
+4. `frontend/src/pages/fans/tabs/MapTab.jsx`
+   - Switched the map hero, detail visual, and fallback gallery visuals to the v2 store image pool.
+5. Static regression tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`.
+
+Verification:
+
+1. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 3 files, 43 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 463 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk size warning.
+4. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Visited states:
+     - `home`;
+     - `me`;
+     - `community`;
+     - `stores`.
+   - Viewports:
+     - desktop `1440x980`;
+     - mobile `390x844`.
+   - Final metrics:
+     - `Me` image sources: 3 unique sources on desktop and mobile;
+     - `Community` image sources: 5 unique sources on desktop and mobile;
+     - `Stores` image sources: 2 unique fallback sources plus store preview visuals;
+     - old `fan-refresh/` sources: 0;
+     - broken v2 images after scroll-triggered load pass: 0;
+     - horizontal overflow: false on all checked states.
+   - Browser QA artifacts:
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/metrics.json`;
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/desktop-me.png`;
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/desktop-community.png`;
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/desktop-stores.png`;
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/mobile-me.png`;
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/mobile-community.png`;
+     - `frontend/output/playwright/task-104-fan-v2-image-qa-final/mobile-stores.png`.
+
+Remaining notes:
+
+1. The fan `Me` page remains the account center, but it now uses a cleaner official-product visual set instead of the older repeated collage pool.
+2. The fan `Stores` page still uses the real map and approved store exposure logic.
+3. Community feed images are lazy-loaded when scrolled, and the final QA pass confirmed they load cleanly after a scroll trigger.
+
+## Task-103: Fan Me Community Stores Reduction Pass
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal reduction work on the real fan URL only.
+2. Focused only on the real fan `Me`, `Community`, and `Stores` surfaces under `frontend/src/pages/fans`.
+3. Reduced the `Me` account center into a lighter profile-led layout with fewer stacked panels and a small visual gallery.
+4. Replaced the `Community` placeholder-heavy feed feel with distinct visual assets and shorter hero copy.
+5. Reworked the fan-facing `Stores` entry and map detail card into a cleaner discovery flow with distinct fallback visuals.
+6. Did not use `/preview/fan`.
+7. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+8. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Reduced the `Me` page into a smaller hero plus a single recent-activity panel, a compact three-card quick grid, and a small visual gallery.
+   - Reduced the fan `Stores` preview into a lighter hero with an image-led store discovery block and compact trust chips.
+   - Added distinct visual fallbacks for fan profile and store preview cards so unrelated slots do not reuse the same image blanket.
+2. `frontend/src/pages/fans/tabs/CommunityTab.jsx`
+   - Replaced the text-heavy hero poster with a visual-led community hero.
+   - Swapped the first visible post media placeholders for distinct image-backed cards.
+3. `frontend/src/pages/fans/tabs/MapTab.jsx`
+   - Added a fan store discovery hero visual.
+   - Reworked the selected store card into a shorter image-led layout with trust chips and a compact gallery.
+   - Kept the real Leaflet map and fan-safe store exposure logic intact.
+4. `frontend/src/index.css`
+   - Added scoped classes for the new fan `Me`, `Community`, and `Stores` visual layouts.
+   - Added mobile fallback rules so the new image-led sections collapse cleanly on narrow viewports.
+5. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+6. `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`
+7. `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+8. `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Added and updated static coverage for the Task-103 reduction and image-diversity boundaries.
+
+Verification:
+
+1. Focused static regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 4 files, 50 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 463 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted the existing large chunk size warning.
+4. Browser QA on the real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Visited states:
+     - `Me`;
+     - `Community`;
+     - `Stores`.
+   - Viewports:
+     - desktop `1440x980`;
+     - mobile `390x844`.
+   - Results:
+     - horizontal overflow: false on all checked states;
+     - broken images: 0 on all checked states after ignoring Leaflet tile infrastructure;
+     - `Me` image count: 3 unique sources;
+     - `Community` image count: 4 with 3 unique sources;
+     - `Stores` image count: 5 with 2 unique sources;
+     - bottom navigation remained visible at the viewport bottom on all checked states.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-103-fan-me-community-stores-final/metrics.json`
+2. `frontend/output/playwright/task-103-fan-me-community-stores-final/desktop-me.png`
+3. `frontend/output/playwright/task-103-fan-me-community-stores-final/desktop-community.png`
+4. `frontend/output/playwright/task-103-fan-me-community-stores-final/desktop-stores.png`
+5. `frontend/output/playwright/task-103-fan-me-community-stores-final/mobile-me.png`
+6. `frontend/output/playwright/task-103-fan-me-community-stores-final/mobile-community.png`
+7. `frontend/output/playwright/task-103-fan-me-community-stores-final/mobile-stores.png`
+
+Remaining notes:
+
+1. The fan `Me` page is still the account center, but it is now intentionally lighter and more visual.
+2. The fan `Stores` page still uses the real map and approved store exposure logic.
+3. OSM map tiles were excluded from broken-image counting during QA because they are map infrastructure, not fan UI assets.
+
+## Task-102: Fan Rewards Visual Asset And Reduction Pass
+
+Date: 2026-07-21
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal page-by-page reduction work after Task-101.
+2. Focused only on the real fan Rewards page under `frontend/src/pages/fans`.
+3. Fixed the concrete Rewards visual gap where all `MALL_ITEMS` reward images were empty strings and the page fell back to generic placeholders.
+4. Reduced repeated per-card rule actions and moved redemption rules to a single page-level entry.
+5. Did not use `/preview/fan`.
+6. Did not change database schema, backend API, permissions, `.env`, dependencies, reward business rules, point deduction rules, stock rules, high-value review rules, or S Store operational data exposure.
+7. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/utils/constants.js`
+   - Bound all eight `MALL_ITEMS` to unique concrete reward visuals:
+     - `mall-001`: `/uwell-assets/rewards/task102-caliburn-g4-device.webp`;
+     - `mall-002`: `/uwell-assets/rewards/task102-koko-device.webp`;
+     - `mall-003`: `/uwell-assets/rewards/task102-gpp-pod-pack.png`;
+     - `mall-004`: `/uwell-assets/rewards/task102-uwell-shirt.jpg`;
+     - `mall-005`: `/uwell-assets/rewards/task102-uwell-cap.jpg`;
+     - `mall-006`: `/uwell-assets/rewards/task102-brand-store-voucher.jpg`;
+     - `mall-007`: `/uwell-assets/rewards/task102-vip-badge.jpg`;
+     - `mall-008`: `/uwell-assets/rewards/task102-uwell-lighter.jpg`.
+2. `frontend/public/uwell-assets/rewards/`
+   - Added eight reward visual assets.
+   - Product/brand visuals use UWELL official or existing UWELL project assets where available:
+     - CALIBURN G4 official product page asset;
+     - CALIBURN G3 PRO KOKO official campaign collage asset;
+     - existing UWELL pod product asset.
+   - Merch, voucher, VIP badge, and lighter rewards use project-local reward mockup visuals when no reliable official merch photo was available.
+3. `frontend/src/pages/fans/tabs/MallTab.jsx`
+   - Added `fan-reward-hero-visual` to the Rewards hero so the first viewport has a concrete UWELL product visual instead of text-only summary.
+   - Added a page-level `fan-reward-page-rules-action` for redemption rules.
+   - Removed repeated per-card Rules buttons.
+   - Kept redemption actions, disabled states, local fallback redemption, session-stored pickup code, pickup policy, stock checks, point checks, review-required handling, and reward result modal intact.
+   - Added visual-fit handling so product assets use contained rendering while lifestyle/mockup assets use cover rendering.
+4. `frontend/src/index.css`
+   - Added scoped Task-102 Rewards styles for:
+     - hero visual;
+     - page-level rules action;
+     - product/lifestyle reward image slots;
+     - reduced card metadata;
+     - one-action reward card buttons;
+     - responsive 2-column mobile and 3-column desktop reward grid.
+   - Kept styling scoped to fan Rewards selectors.
+5. `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Added regression coverage requiring:
+     - all eight reward images to be unique;
+     - no empty `image: ''` values in `MALL_ITEMS`;
+     - every referenced Task-102 reward asset to exist on disk;
+     - one page-level rules action;
+     - no repeated per-card Rules action;
+     - hero visual and image-fit CSS hooks.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-102 edits in `constants.js`, `MallTab.jsx`, `index.css`, `MallTab.static.test.mjs`, deleting `frontend/public/uwell-assets/rewards/`, and this progress entry returns Rewards to the Task-101 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. RED focused test:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Failed as expected before implementation because `MALL_ITEMS` had zero Task-102 image paths and the Rewards page had no page-level rules action / hero visual.
+2. Focused Rewards test:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 1 file, 12 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 86 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 462 tests.
+5. Production build:
+   - `npm run build`
+   - Passed. Vite emitted only the existing large chunk size warning.
+6. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Browser automation used installed Microsoft Edge because Playwright's bundled Chromium executable was unavailable and installing browsers is forbidden by project rules; system Chrome launch failed with `spawn UNKNOWN`.
+   - Desktop final metrics:
+     - reward cards: 8;
+     - reward images rendered: 8;
+     - unique reward image sources: 8;
+     - broken reward images: 0;
+     - page-level rules actions: 1;
+     - per-card Rules buttons: 0;
+     - hero visual present: true;
+     - horizontal overflow: false;
+     - fixed nav overlaps last reward card: false.
+   - Mobile final metrics:
+     - reward cards: 8;
+     - reward images rendered: 8;
+     - unique reward image sources: 8;
+     - broken reward images: 0;
+     - page-level rules actions: 1;
+     - hero visual present: true;
+     - horizontal overflow: false.
+   - Artifacts:
+     - `frontend/output/playwright/task-102-rewards-qa/desktop-rewards-1216x674.png`;
+     - `frontend/output/playwright/task-102-rewards-qa/mobile-rewards-390x844.png`;
+     - `frontend/output/playwright/task-102-rewards-qa/metrics.json`.
+
+Remaining notes:
+
+1. The fixed bottom navigation appears at stitched positions in full-page screenshots because it is intentionally fixed; the measured final-card overlap check is false.
+2. The next recommended fan UI step is a similarly concrete QA-first pass on Stores or Community, with explicit image/map/feed slots listed before coding.
+
+## Task-101: Fan Activities Smart Nav And Visual Asset Diversity
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal premium UI work on the real fan URL only.
+2. Focused on:
+   - intelligent bottom navigation visibility while scrolling;
+   - Activities page brand campaign story layout;
+   - fixing repeated Activities product imagery with richer official UWELL visual assets.
+3. Did not use `/preview/fan`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+5. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Added bottom navigation visibility state and scroll direction handling.
+   - Bottom navigation now hides softly while scrolling down and returns on upward scroll, idle state, pointer entry, focus, and view changes.
+   - Kept stable bottom navigation behavior on task-heavy secondary views such as Scan, Check-in, Invite, Old fan verification, and Help.
+2. `frontend/src/pages/fans/tabs/CampaignTab.jsx`
+   - Reworked Activities from dense task/list presentation into a premium UWELL campaign story layout.
+   - Added official live activity, quick task, reward, and store summary strips.
+   - Moved longer rules into a collapsed drawer so the first view is less text-heavy.
+   - Replaced the limited repeated image set with campaign-specific official UWELL assets:
+     - G5 launch;
+     - G5 KOKO;
+     - G5 Lite and Lite SE;
+     - G5 Lite KOKO;
+     - product lineup;
+     - AIR hero visual.
+   - Added ID-based campaign visual mapping so the five official activities do not collapse back to the same few images.
+3. `frontend/src/utils/translations.js`
+   - Added English and Arabic copy for the new Activities brand story shell.
+4. `frontend/src/index.css`
+   - Added Task-101 bottom navigation motion classes.
+   - Added Task-101 Activities brand stage, feature strip, campaign image, card, and collapsed rules styling.
+5. Static tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/CampaignTab.static.test.mjs`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-101 edits in `FanCenterPage.jsx`, `CampaignTab.jsx`, `translations.js`, `index.css`, the two static test files, and this progress entry returns the fan portal to the Task-100 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Focused Activities visual test:
+   - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs`
+   - Passed: 1 file, 11 tests.
+2. Focused fan center and Activities regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs`
+   - Passed: 2 files, 43 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 84 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 460 tests.
+5. Production build:
+   - `npm run build`
+   - Passed. Vite emitted only the existing large chunk size warning.
+6. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Browser automation used installed Chrome because Playwright's bundled browser executable was unavailable and no dependency/browser install was performed.
+   - Activities final metrics:
+     - campaign images rendered: 5;
+     - unique campaign image sources: 5;
+     - broken campaign images: 0;
+     - horizontal overflow: false;
+     - Activities title visible: true.
+   - Artifact:
+     - `frontend/output/playwright/task-101-fan-activities-assets/activities-assets-1216x674.png`.
+
+## Task-100: Fan Home & Scan Layout Discipline Fix
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal polish after Task-099 based on the user's 11 concrete Home/Scan review comments.
+2. Focused only on the real fan portal files under `frontend/src/pages/fans`, shared fan CSS, translations, and focused static tests.
+3. Did not use `/preview/fan`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+5. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Standardized fan-facing naming away from unclear `drops` copy:
+     - hero line now says `Earn points. Unlock rewards. Visit Brand Stores.`;
+     - hero media label uses `Member rewards`.
+   - Locked the hero member snapshot so the avatar/name/next-level block no longer collides with the CTA.
+   - Added a subtle hero-line pulse for a small premium motion cue.
+   - Added 01/02/03/04 numbering to the UWELL Club journey path so fans understand the order.
+   - Reworked the Today section into two clear actions: daily check-in and product scan.
+   - Added view-change scroll reset so entering Scan/Rewards/Stores/Me from a scrolled Home section starts at the top instead of inheriting the previous scroll position.
+2. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+   - Added `fan-scan-layout-discipline` to the real Scan secondary page.
+   - Kept camera scan, manual code entry, daily limit display, scan result handling, supported-code rules, and recent scan records intact.
+   - Confirmed the recent scan separator remains the English middle dot instead of the previous Chinese residual character.
+3. `frontend/src/utils/translations.js`
+   - Updated English and Arabic fan copy for:
+     - `fan_real_activity_story_title`;
+     - `fan_real_official_drops`.
+4. `frontend/src/index.css`
+   - Added Task-100 Home layout locks:
+     - member snapshot no-overlap;
+     - hero line motion;
+     - numbered journey path;
+     - two-action Today grid;
+     - product image as atmosphere instead of a third task card;
+     - reward product image contained instead of cropped;
+     - stronger secondary-page Back button contrast;
+     - short desktop viewport hero sizing so fixed bottom navigation no longer covers the first hero.
+   - Added Task-100 Scan alignment locks:
+     - one 920px secondary-page shell;
+     - two-column Scan hero on desktop;
+     - full-width status, rules, and recent panels;
+     - four status columns on desktop and one column on mobile;
+     - extra desktop spacing so the fixed bottom navigation sits on blank space instead of covering status cards.
+5. Static tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-100 edits in `FanCenterPage.jsx`, `ScanTab.jsx`, `translations.js`, `index.css`, the two static test files, and this progress entry returns the fan portal to the Task-099 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. RED focused test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Failed as expected before implementation because the Task-100 Home/Scan layout discipline hooks and assertions did not exist.
+2. Focused Task-100 tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 43 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 82 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 458 tests.
+5. Production build:
+   - `npm run build`
+   - Passed. Vite emitted only the existing large chunk size warning.
+6. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Browser automation used installed Chrome and `domcontentloaded` plus explicit selectors because `networkidle` can time out on this animated/local app shell.
+   - Final metrics:
+     - Home horizontal overflow: false;
+     - Scan horizontal overflow: false;
+     - `drops` copy found on Home: false;
+     - `Member rewards` copy found on Home: true;
+     - numbered path 01/02/03/04 found: true;
+     - Home fixed nav overlaps hero: false;
+     - Home member snapshot overlaps primary CTA: false;
+     - Scan view scrollY after entry: 0;
+     - Scan fixed nav overlaps status cards: false;
+     - Scan status child count: 4;
+     - Scan Back button background: `rgba(16, 22, 11, 0.88)`.
+   - Artifacts:
+     - `frontend/output/playwright/task-100-fan-layout-discipline-final/desktop-1216x674-home.png`;
+     - `frontend/output/playwright/task-100-fan-layout-discipline-final/desktop-1216x674-scan.png`;
+     - `frontend/output/playwright/task-100-fan-layout-discipline-final/metrics.json`.
+
+## Task-099: Fan Home Brand Editor Lock And Scan Alignment Closeout
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal polish after Task-098 and the user-confirmed direction that the Home page should feel more like a premium young brand membership site.
+2. Focused only on real fan files under `frontend/src/pages/fans` plus shared fan CSS/tests.
+3. Addressed the latest Home/Scan review points:
+   - stronger first-screen and section media presence;
+   - cleaner activity/reward/store image panels without decorative corner labels/icons;
+   - smoother transition rhythm between Home modules;
+   - consistent `UWELL Club` / `Member` fan-facing naming;
+   - darker, clearer CTA contrast where yellow-green was too visually loud;
+   - centered Scan secondary-page action shell;
+   - no Chinese residual separator in Scan recent records.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+6. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Added rollback-friendly Task-099 visual hooks:
+     - `fan-home-brand-editor-lock`;
+     - `fan-home-cinematic-hero`;
+     - `fan-home-premium-transition`;
+     - `fan-home-clean-media`;
+     - `fan-home-subtle-cta`;
+     - `fan-home-brand-progress-immersive`;
+     - `fan-home-section-media-copy`.
+   - Kept Home actions and routing intact: check-in, scan, activities, rewards, stores, and points detail.
+2. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+   - Added `fan-scan-centered-action-lock` to the real Scan detail page.
+   - Replaced the Chinese residual separator in recent scan records with an English middle dot.
+   - Kept camera scan, manual entry, daily limit handling, scan result recording, and recent records intact.
+3. `frontend/src/index.css`
+   - Added `/* Task-099 Fan Home brand editor lock. */`.
+   - Enlarged the Home hero media rhythm.
+   - Removed visual noise from media panels by hiding decorative overlay icons/labels on Task-099 clean media.
+   - Added a stronger image-backed progress section layout and softer transition bands.
+   - Added `/* Task-099 Fan Scan action alignment lock. */` for centered Scan action layout.
+4. Static tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-099 edits in `FanCenterPage.jsx`, `ScanTab.jsx`, `index.css`, the two static test files, and this progress entry returns the fan portal to the Task-098 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Failed as expected before implementation because Task-099 Home/Scan lock classes did not exist.
+2. Focused Task-099 tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 41 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 80 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 456 tests.
+5. Production build:
+   - `npm run build`
+   - Passed. Only the existing Vite large chunk warning remains.
+6. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Artifacts:
+     - `frontend/output/playwright/task-099-fan-home-scan-editor-lock/desktop-1365x900-home.png`;
+     - `frontend/output/playwright/task-099-fan-home-scan-editor-lock/desktop-1365x900-scan.png`;
+     - `frontend/output/playwright/task-099-fan-home-scan-editor-lock/mobile-390x844-home.png`;
+     - `frontend/output/playwright/task-099-fan-home-scan-editor-lock/mobile-390x844-scan.png`;
+     - `frontend/output/playwright/task-099-fan-home-scan-editor-lock/metrics.json`.
+   - Results:
+     - no horizontal overflow on desktop or mobile;
+     - desktop bottom navigation centered at `720px`;
+     - mobile bottom navigation fixed full-width;
+     - Home visible brand text is `UWELL Club`;
+     - old `Fans Club` / `Member Club` / `Clubhouse` wording was not found in browser text;
+     - Scan action page shell is centered;
+     - Chinese residual separator was not found in Scan browser text.
+
+Remaining notes:
+
+1. Full-page screenshots still show the fixed bottom navigation at viewport stitch positions because it is intentionally fixed.
+2. This task closes the latest Home/Scan detail feedback loop. The recommended next fan UI step is applying the same reduction/media/brand rhythm page-by-page to Activities, Rewards, Stores, and Me instead of continuing to over-polish Home.
+
+## Task-098: Fan Home Premium Brand System Lock
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal Home refinement after Task-097 and the user feedback that the page still felt visually awkward.
+2. Treated Home as the visual mother template for the next fan page-by-page reduction pass.
+3. Focused on:
+   - Home brand journey rhythm;
+   - Home copy reduction;
+   - desktop bottom navigation weight;
+   - Scan secondary-page hierarchy;
+   - Arabic key coverage for the updated fan Home labels.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+6. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Added Task-098 Home mother-template classes:
+     - `fan-home-story-path`;
+     - `fan-home-today-strip`;
+     - `fan-home-drop-poster`;
+     - `fan-home-reward-shelf`;
+     - `fan-home-store-atmosphere`;
+     - `fan-home-growth-status`.
+   - Removed the repeated activity-title pattern on Home by changing the left Activity section headline from the live campaign name to a brand story headline.
+   - Kept the real campaign name inside the activity card where the concrete action lives.
+   - Changed the visible Home journey to read more like:
+     - Build today's streak;
+     - Join this month's UWELL challenge;
+     - Rewards;
+     - UWELL Brand Store picks;
+     - Grow your status.
+   - Preserved all existing Home actions: check-in, scan, activities, rewards, stores, and points details.
+2. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+   - Added hierarchy hooks:
+     - `fan-scan-primary-task-page`;
+     - `fan-scan-main-action-panel`;
+     - `fan-scan-rules-drawer is-secondary-detail`;
+     - `fan-scan-recent-panel is-secondary-history`.
+   - Kept the scan camera, manual entry, scan rules, limit handling, and recent scan history features intact.
+3. `frontend/src/utils/translations.js`
+   - Shortened Home-facing English copy:
+     - `Build your UWELL streak.`;
+     - `Join this month's UWELL challenge`;
+     - `Find trusted UWELL stores near you.`;
+     - shorter scan rule summary copy.
+   - Added Arabic equivalents for the new fan Home story keys.
+4. `frontend/src/index.css`
+   - Added Task-098 Home brand system overrides for:
+     - lighter story-path navigation;
+     - Today task strip;
+     - Activity poster card;
+     - Reward shelf;
+     - Store atmosphere card;
+     - Growth status card.
+   - Reduced desktop bottom navigation weight:
+     - centered pill;
+     - narrower `720px` max width;
+     - lower height;
+     - softer shadow;
+     - less aggressive yellow-green selected state.
+   - Fixed mobile Activity layout so the activity poster card returns to a full-width centered single-column layout.
+   - Added focused Scan secondary-page styling for the main action, folded rules, and history area.
+5. Static tests updated:
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`;
+   - `frontend/src/pages/fans/FanArabicRtl.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`.
+   - Tests now lock the Task-098 brand system, compact copy, mobile Activity layout, Scan hierarchy, and updated Arabic translation-key usage.
+
+Assets:
+
+1. No new AI-generated image or video asset was added in this task.
+2. The current pass used existing official/local UWELL assets and focused on layout, copy, hierarchy, and navigation weight.
+3. If later Home sections still need stronger campaign/reward/store visuals, new assets can be added under `frontend/public/uwell-assets/fan-home-task098/` with versioned filenames and no overwrite.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-098 edits in `FanCenterPage.jsx`, `ScanTab.jsx`, `translations.js`, `index.css`, the four static test files, and this progress entry returns the fan portal to the Task-097 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Failed as expected before implementation because Task-098 Home mother-template classes and Scan hierarchy classes did not exist.
+2. Focused Task-098 tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 39 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 78 tests.
+4. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Artifacts:
+     - `frontend/output/playwright/task-098-fan-home-brand-system/desktop-1365x900-home.png`;
+     - `frontend/output/playwright/task-098-fan-home-brand-system/desktop-1365x900-scan.png`;
+     - `frontend/output/playwright/task-098-fan-home-brand-system/mobile-390x844-home.png`;
+     - `frontend/output/playwright/task-098-fan-home-brand-system/mobile-390x844-scan.png`;
+     - `frontend/output/playwright/task-098-fan-home-brand-system/mobile-390x844-home-final.png`;
+     - `frontend/output/playwright/task-098-fan-home-brand-system/metrics.json`.
+   - Results:
+     - no horizontal overflow on desktop or mobile;
+     - desktop bottom navigation centered at `720px` and visually lighter;
+     - Home story headings render in the intended sequence;
+     - Activity no longer repeats the live campaign title in the left section headline;
+     - mobile Activity card is centered after the final fix;
+     - Scan main page, folded rules, and history areas remain centered.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 454 tests.
+6. Production build:
+   - `npm run build`
+   - Passed. Only the existing Vite large chunk warning remains.
+
+Remaining notes:
+
+1. The fixed bottom navigation still appears at viewport stitch positions in full-page screenshots because it is intentionally fixed.
+2. Home now has a stronger mother-template direction, but some future visual polish can still improve media quality by adding dedicated activity/reward/store assets.
+3. Recommended next step is to apply this Home mother-template reduction style to Activities, Rewards, Stores, Me, and secondary detail pages one by one.
+
+## Task-097: Fan Home Detail QA And Secondary Scan Alignment Polish
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal Home polish after the user review of Task-096 screenshots.
+2. Focused only on real fan pages under `frontend/src/pages/fans`.
+3. Did not use `/preview/fan`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+5. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Added section backdrop hooks to Home journey sections so the page feels like a connected brand story rather than isolated text blocks.
+   - Added soft transition bands between key Home modules.
+   - Reworked the recommended activity media block so it no longer uses the old decorative `XP` / icon overlay.
+2. `frontend/src/index.css`
+   - Added image-backed Home section treatments for Activities, Rewards, Stores, and Member growth.
+   - Enlarged the desktop recommended activity visual card from a small thumbnail-style treatment into a stronger brand content card.
+   - Centered Ant Design avatar text inside fan shell avatars, including the Member growth card.
+   - Centered the Scan secondary page by giving the scan page a `960px` centered shell and aligning both visual/copy stages.
+   - Kept bottom navigation fixed and preserved existing safe spacing.
+3. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+   - Added Task-097 static coverage for section backdrops, transition bands, larger activity media, no old activity overlay, and centered avatars.
+4. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+   - Added a scan copy stage class for centered secondary-page layout control.
+5. `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Added Task-097 scan centering coverage.
+   - Updated the older Task-093 max-width assertion from `880px` to `960px` to match the new centered scan shell.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-097 edits in `FanCenterPage.jsx`, `ScanTab.jsx`, `index.css`, `FanCenterPage.static.test.mjs`, `ScanTab.static.test.mjs`, and this progress entry returns the fan portal to the Task-096 state. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. Focused Task-097 tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 37 tests.
+2. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 76 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 452 tests.
+4. Production build:
+   - `npm run build`
+   - Passed. Only the existing Vite large chunk warning remains.
+5. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Artifacts:
+     - `frontend/output/playwright/desktop-1365x900-home-task097-final.png`;
+     - `frontend/output/playwright/desktop-1365x900-home.png`;
+     - `frontend/output/playwright/desktop-1365x900-scan.png`;
+     - `frontend/output/playwright/mobile-390x844-home.png`;
+     - `frontend/output/playwright/mobile-390x844-scan.png`.
+   - Results:
+     - recommended activity image enlarged on desktop from about `218x192` to about `305x268`;
+     - old activity media `XP` / decorative icon overlay absent;
+     - Member growth section uses the brand lifestyle background;
+     - Member growth avatar text center matches avatar center;
+     - Scan secondary shell and hero center align to the viewport on desktop and mobile;
+     - no horizontal overflow detected.
+
+Remaining notes:
+
+1. Full-page screenshots still show the fixed bottom navigation at the viewport stitch position because the bottom nav is intentionally fixed.
+2. Home is now a better visual baseline for the next fan page-by-page polish pass, but Activities, Rewards, Stores, Me, and secondary detail pages still need the same brand-led reduction pass if the user approves.
+
+## Task-096: Fan Home Premium Brand Rhythm Polish
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal Home upgrade after Task-095 and the user review that Home still felt crowded/text-heavy.
+2. Focused only on the real fan Home at `frontend/src/pages/fans/FanCenterPage.jsx`.
+3. Did not use `/preview/fan`.
+4. Did not change database schema, backend API, permissions, `.env`, dependencies, or business rules.
+5. Did not touch store/admin portal behavior.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Shifted Home from a data-heavy first screen to a premium `UWELL Club` brand rhythm.
+   - Removed the visible hero stats cards and secondary hero action pair.
+   - Added a lightweight `Join / Earn / Redeem / Visit` Club path between Hero and the rest of Home.
+   - Reordered Home journey to:
+     - Hero;
+     - Club path;
+     - Today's power moves;
+     - Recommended activity;
+     - Rewards;
+     - Brand Store picks;
+     - Member growth.
+   - Removed the Home `Recent Activity` inline block so account records stay in Me / detail contexts.
+   - Swapped weak/blank lower-page visuals to stable existing UWELL assets:
+     - `/uwell-assets/fan-lifestyle.jpg` for Member growth;
+     - `/uwell-assets/g5-ugc-display.jpg` for Store picks.
+   - Kept all existing check-in, scan, rewards, activities, stores, and points-detail actions.
+2. `frontend/src/index.css`
+   - Rebalanced the Hero into a stronger media-led brand entry.
+   - Added `fan-home-member-snapshot` and `fan-home-club-path` styles.
+   - Reduced yellow-green overuse by keeping it mainly on the primary CTA, selected nav, progress, and small state marks.
+   - Added stronger bottom safe spacing for fixed mobile navigation.
+   - Added image crop rules for Growth and Store visuals.
+3. `frontend/src/utils/translations.js`
+   - Added short English and Arabic labels for the Club path:
+     - Join;
+     - Earn;
+     - Redeem;
+     - Visit.
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+   - Added Task-096 RED/GREEN static coverage for:
+     - one-CTA hero rhythm;
+     - no hero stats cards;
+     - no secondary hero actions;
+     - no Home inline Recent Activity;
+     - journey order;
+     - bottom navigation safe spacing;
+     - stable local UWELL visuals.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-096 edits in `FanCenterPage.jsx`, `index.css`, `translations.js`, `FanCenterPage.static.test.mjs`, and this progress entry returns Home to the Task-095 UWELL Club hero version. No database, API, permission, dependency, or `.env` changes were introduced.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because the Task-096 Club path, member snapshot, Home order, removed hero stats/actions, removed Recent Activity, and mobile bottom safe spacing did not exist.
+2. Focused Home test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 27 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 74 tests.
+4. Browser QA on real fan URL:
+   - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Artifacts:
+     - `frontend/output/playwright/task-096-fan-home-premium-rhythm/desktop-final-home.png`;
+     - `frontend/output/playwright/task-096-fan-home-premium-rhythm/mobile-final-home.png`;
+     - `frontend/output/playwright/task-096-fan-home-premium-rhythm/metrics-final.json`.
+   - Results:
+     - `UWELL Club` title present;
+     - Club path present;
+     - member snapshot present;
+     - hero stats cards absent;
+     - secondary hero actions absent;
+     - Home inline Recent Activity absent;
+     - journey order correct;
+     - no horizontal overflow;
+     - bottom nav remains fixed;
+     - reward card not obscured by bottom nav at the measured viewport;
+     - old visible naming leaks absent;
+     - Growth and Store images loaded successfully.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 450 tests.
+6. Production build:
+   - `npm run build`
+   - Passed. Only the existing Vite large chunk warning remains.
+
+Remaining notes:
+
+1. Fixed bottom navigation appears in full-page screenshots at the viewport stitch position because it is intentionally fixed. The measured content-bottom overlap check passed.
+2. Fan entry still has its own legacy marketing copy and is outside this Task-096 Home scope.
+3. Next fan UI work should continue page-by-page from real fan pages, using this Home rhythm as the visual standard.
+
+## Task-095: Fan Home UWELL Club Naming And Hero Clarity Polish
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal Home polish after user review of Task-094.
+2. Treated Home as the visual mother template for the next page-by-page fan UI pass.
+3. Focused only on:
+   - outward-facing brand naming;
+   - hero video/media hierarchy;
+   - button and action-card contrast;
+   - Home module logic and recent activity placement.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, backend API, permissions, `.env`, dependencies, store portal, or backend/admin portal.
+
+What changed:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+   - Unified visible fan Home branding to `UWELL Club`.
+   - Kept the user identity language as `Member` where a person/account identity is needed.
+   - Removed the extra hero product image layer so the official UWELL video is the single hero media layer, with the poster only used as video fallback.
+   - Moved Recent Activity from an isolated final Home module into the Member growth card as a lightweight account recap.
+   - Kept all existing Home actions and real fan routes: check-in, scan, activities, rewards, stores, and points details.
+2. `frontend/src/index.css`
+   - Rebalanced the hero layout with more desktop breathing room and a cleaner mobile stack.
+   - Strengthened the hero video scrim and status pill contrast.
+   - Adjusted the primary CTA to a clearer yellow-green action style with readable dark text.
+   - Converted the Mission action cards to readable white cards so product media no longer competes with clickable text.
+   - Added scoped `.fan-home-recent-inline` styling for the integrated recent activity recap.
+3. `frontend/src/utils/translations.js`
+   - Updated English `fan_real_uwell_clubhouse` from `UWELL Clubhouse` to `UWELL Club`.
+   - Updated Arabic equivalent to `نادي UWELL`.
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+   - Added Task-095 static coverage for:
+     - `UWELL Club` naming;
+     - no `UWELL FAN CENTER`, `UWELL Member Club`, or `UWELL Clubhouse` leaks;
+     - no extra `.fan-home-official-product` hero layer;
+     - integrated recent activity recap;
+     - updated Home scroll-journey expectations.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-095 edits in `FanCenterPage.jsx`, `index.css`, `translations.js`, `FanCenterPage.static.test.mjs`, and this progress entry returns Home to the Task-094 official media version. No local media files, dependencies, database changes, API changes, or permission changes were introduced.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because the old visible naming, extra hero product layer, and standalone recent activity module still existed.
+2. Focused Home test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 26 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 73 tests.
+4. Browser QA:
+   - Used local dev server:
+     - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Used installed Chrome because Playwright's bundled browser executable was unavailable and no browser/dependency install was performed.
+   - Checked desktop `1366x900` and mobile `390x844`.
+   - Results:
+     - visible title/header/kicker: `UWELL Club`;
+     - old naming leaks: false;
+     - extra hero product layer: false;
+     - integrated recent activity: true;
+     - standalone recent activity section: false;
+     - official hero video readyState: 4;
+     - horizontal overflow: false;
+     - bottom nav fixed: true;
+     - action-card contrast improved to dark text on white surface.
+   - Artifacts:
+     - `frontend/output/playwright/task-095-fan-home-club-polish/desktop-final-home.png`;
+     - `frontend/output/playwright/task-095-fan-home-club-polish/mobile-final-home.png`;
+     - `frontend/output/playwright/task-095-fan-home-club-polish/metrics-final.json`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 449 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. Internal code/table naming can still use `fan` because that is the existing data/domain model. User-facing Home copy should use `UWELL Club` for the brand space and `Member` for the person/account identity.
+2. Full-page screenshots show the fixed bottom navigation at the viewport position, which is expected for the real app. Browser metrics confirmed no horizontal overflow and fixed nav behavior.
+3. Next fan UI work should continue page by page from this Home standard, starting with Activities and Rewards, unless user review requests another Home taste adjustment first.
+
+## Task-094: Fan Home Official Media Visual Rhythm Polish
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Professionally polished the real fan Home after Task-093 based on user feedback:
+   - first screen still felt crowded;
+   - lower sections felt empty rather than intentionally spacious;
+   - Home needed real UWELL pictures/video, not blank white space.
+2. Worked only on the real fan portal Home:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+3. Updated this progress file.
+4. Did not use `/preview/fan`.
+5. Did not change database schema, seed data, backend API, permissions, `.env`, store portal, backend portal, dependencies, or business rules.
+
+What changed:
+
+1. Official UWELL media:
+   - Added official Hero video:
+     - `https://files.myuwell.com/uwell/product/caliburn-g4/theme.mp4`.
+   - Added official Home visual assets:
+     - growth: `https://files.myuwell.com/uwell/product/caliburn-g5-lite/theme-poster.webp`;
+     - today tasks: `https://files.myuwell.com/uwell/product/caliburn-g5-lite/pc/spe3-lite.webp`;
+     - campaign: `https://files.myuwell.com/uwell/product/caliburn-g4-pro-koko/pc/p1.webp`;
+     - reward: `https://files.myuwell.com/uwell/product/caliburn-g4/pc/1.webp`;
+     - store/display: `https://files.myuwell.com/uwell/product/caliburn-g4/pc/oiling.webp`.
+2. Hero:
+   - Replaced the previous static image-only visual with official video plus image fallback poster.
+   - Removed the old visible media placeholder note.
+   - Added a small level/points quickline so the first screen feels like a brand membership surface rather than a dashboard.
+   - On mobile, secondary Home actions and large stat cards are hidden in the Hero so the fixed bottom navigation does not cover the primary CTA.
+3. Scroll journey:
+   - Added image-led visual panels to growth, today task, campaign, reward, and store modules.
+   - Replaced the unsuitable narrow green product image with a wider official G5 Lite feature image after screenshot QA showed it created an oversized green block.
+   - Kept check-in, scan, activity, rewards, store, and recent activity entry points.
+4. CSS:
+   - Added Task-094 scoped video, overlay, status pill, quickline, and visual-panel styling.
+   - Preserved lazy loading for below-fold module images, with browser QA scrolling through the page before asserting loaded images.
+
+Rollback note:
+
+This task is rollback-friendly. Reverting the Task-094 edits in `FanCenterPage.jsx`, `index.css`, and `FanCenterPage.static.test.mjs` returns Home to the Task-093 scroll-journey version. All media is referenced from official UWELL remote URLs; no local media files were added.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because Task-094 official video/assets and visual rhythm classes did not exist.
+2. Focused Home test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 25 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 72 tests.
+4. Browser QA on the real fan portal:
+   - URL: `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Session:
+     - `fan_logged_in=true`;
+     - `store_manager_current_user=f-001`;
+     - `uwell_lang_fan=en`;
+     - `uwell_active_portal=fan`.
+   - Desktop Home:
+     - Hero video present: true;
+     - Hero video readyState: 4;
+     - official module images: 5;
+     - completed module images: 5;
+     - journey sections: 6;
+     - horizontal overflow: false;
+     - bottom navigation position: fixed;
+     - primary CTA overlaps bottom nav: false.
+   - Mobile Home:
+     - Hero video present: true;
+     - Hero video readyState: 4;
+     - official module images: 5;
+     - completed module images: 5;
+     - journey sections: 6;
+     - horizontal overflow: false;
+     - bottom navigation position: fixed;
+     - primary CTA overlaps bottom nav: false.
+   - Console/page errors: 0.
+   - Artifacts:
+     - `frontend/output/playwright/task-094-fan-home-visual-rhythm/desktop-home.png`;
+     - `frontend/output/playwright/task-094-fan-home-visual-rhythm/mobile-home.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 448 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. This Home is now the visual standard candidate for the rest of the fan portal:
+   - official media first;
+   - fewer visible explanations;
+   - one primary action per section;
+   - more brand/product/story rhythm;
+   - details moved into deeper pages or guides.
+2. The next design implementation should apply this standard to Activities and Rewards first, because those two pages most directly affect fan motivation and repeat participation.
+
+## Task-093: Fan Portal Scroll Journey & White Space System
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Continued the real fan portal brand-upgrade phase after the Task-092 Home sample.
+2. Focused on making the fan Home feel less crowded and more like a premium scroll journey:
+   - more white space on desktop and mobile;
+   - official UWELL product media from the UWELL site;
+   - yellow-green reserved for brand/action emphasis instead of coloring every element.
+3. Reduced Scan secondary-page text density by moving detailed rules into a folded drawer.
+4. Worked only on:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/pages/fans/tabs/ScanTab.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`.
+5. Did not use `/preview/fan`.
+6. Did not change database schema, seed data, backend API, permissions, `.env`, store portal, backend portal, dependencies, or business rules.
+
+What changed:
+
+1. Fan Home:
+   - Added official UWELL CALIBURN G5 product media from `https://files.myuwell.com/uwell/product/caliburn-g5/pc/pic1.webp`.
+   - Replaced the packed first-screen Home layout with a scroll journey:
+     - member progress;
+     - daily actions;
+     - featured activity;
+     - reward goal;
+     - recommended store;
+     - recent activity.
+   - Kept existing check-in, scan, activity, rewards, store, and recent-record entry points.
+2. Scan secondary page:
+   - Replaced the dense cockpit with a lighter focus hero, QR visual stage, action buttons, and compact status strip.
+   - Folded long scan rules, code-class details, and warning copy into a `details` drawer.
+   - Kept camera scan, manual code entry, daily scan limit behavior, scan result panel, and recent scan records.
+3. CSS:
+   - Added Task-093 scoped fan Home journey styles.
+   - Constrained the fan shell content width to create desktop breathing room.
+   - Added responsive rules to preserve mobile readability and fixed bottom navigation behavior.
+
+Rollback note:
+
+This task is intentionally rollback-friendly. Reverting the Task-093 changes in the five files listed above restores the previous Task-092 Home sample and previous Scan secondary-page layout. The official image is referenced remotely and no asset was downloaded into the repo.
+
+Verification:
+
+1. RED tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Failed as expected before implementation because the Task-093 scroll journey, official media, and folded Scan rules did not exist.
+2. Focused Home + Scan tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 32 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 71 tests.
+4. Browser QA on the real fan portal:
+   - URL: `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Session:
+     - `fan_logged_in=true`;
+     - `store_manager_current_user=f-001`;
+     - `uwell_lang_fan=en`;
+     - `uwell_active_portal=fan`.
+   - Desktop Home:
+     - journey sections: 6;
+     - official product image rendered: true, natural width 3840;
+     - horizontal overflow: false;
+     - bottom navigation position: fixed.
+     - hero-to-next-section navigation-safe whitespace: `153.6px` at 1280px width.
+   - Mobile Home:
+     - journey sections: 6;
+     - horizontal overflow: false;
+     - bottom navigation position: fixed.
+     - brand hero navigation-safe bottom padding: `88px`.
+   - Mobile Scan:
+     - focus hero present: true;
+     - status strip present: true;
+     - folded rules drawer present: true;
+     - rules drawer open by default: false;
+     - horizontal overflow: false.
+   - Console/page errors: 0.
+   - Artifacts:
+     - `frontend/output/playwright/task-093-fan-scroll-journey/desktop-home.png`;
+     - `frontend/output/playwright/task-093-fan-scroll-journey/mobile-home.png`;
+     - `frontend/output/playwright/task-093-fan-scroll-journey/mobile-scan.png`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 447 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. This is still a first real-code pass for the new premium fan scroll direction. The next review should be visual: inspect the Home/Scan screenshots and real URL before applying the same reduction system to every fan secondary page.
+2. The current official media is a remote UWELL product image. A later content pass can replace or supplement it with locally managed approved brand videos/images if the company provides final assets.
+
+## Task-092: Fan Home Brand Club Redesign Sample
+
+Date: 2026-07-20
+
+Current status:
+
+Completed.
+
+Scope:
+
+1. Started the fan-side UI reduction and brand-upgrade phase with a narrow Home sample.
+2. Worked only on the real fan portal:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+3. Did not use `/preview/fan`.
+4. Did not change database schema, seed data, backend API, permissions, `.env`, store portal, backend portal, or dependencies.
+
+What changed:
+
+1. Added a new `renderHomeBrandClubHero` Home sample in the real fan center.
+   - Replaced the Home first screen member card with a brand-club Hero.
+   - Reserved a large product video / campaign image space.
+   - Presented `UWELL Member Club` with short brand copy.
+   - Kept current level and available points visible.
+   - Kept one primary action:
+     - `Claim today` before check-in;
+     - `Scan now` after check-in.
+   - Kept secondary reward and store-map actions.
+2. Reduced Home record density.
+   - Recent activity on Home now shows one row instead of two.
+   - More detailed records remain available from existing Me / detail flows.
+3. Added scoped Task-092 CSS.
+   - Added large media space, stronger whitespace, neutral surfaces, and one yellow-green primary CTA.
+   - Kept yellow-green as the action/brand accent rather than applying it to every text or button.
+   - Added mobile layout rules so the Hero collapses cleanly.
+4. Added static regression coverage.
+   - Ensures the real fan Home contains the brand-club Hero, media placeholder, primary action, secondary actions, stats, and condensed records.
+
+Why:
+
+The previous fan UI work improved consistency, but the Home page still felt too system-like and text-heavy. This task establishes a first visual sample for the next phase: keep existing features, reduce explanation, reserve brand media space, and make UWELL feel more like a premium member club.
+
+Existing behavior preserved:
+
+1. Daily check-in still uses the existing check-in flow.
+2. Product scan still opens the existing Scan secondary page.
+3. Reward entry still opens the existing Rewards tab.
+4. Store entry still opens the existing Stores tab.
+5. Activity, reward, store, point, scan, and member data still come from the existing sources.
+6. No new business rule was added.
+
+Rollback note:
+
+This task is intentionally scoped for easy rollback. Reverting the Task-092 changes in the three files listed above restores the previous Home structure and styles without touching database, API, permissions, or other portals. The generated QA screenshots are under `frontend/output/playwright/task-092-fan-home-brand-club/` and are not required for runtime.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because the Task-092 Home brand-club structure did not exist.
+2. Focused fan Home test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 23 tests.
+3. Focused fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs`
+   - Passed: 8 files, 69 tests.
+4. Browser QA:
+   - URL checked:
+     - `http://127.0.0.1:5173/fan-app.html#/fan-center`
+   - Demo fan state:
+     - `fan_logged_in=true`;
+     - `store_manager_current_user=f-001`.
+   - Results:
+     - `.fan-home-brand-club-hero` rendered;
+     - media space rendered;
+     - primary action rendered;
+     - secondary actions count: 2;
+     - recent Home rows: 1;
+     - bottom nav computed position: `fixed`;
+     - mobile horizontal overflow: false;
+     - desktop horizontal overflow: false;
+     - console errors: 0.
+   - Artifacts:
+     - `frontend/output/playwright/task-092-fan-home-brand-club/mobile-home.png`;
+     - `frontend/output/playwright/task-092-fan-home-brand-club/desktop-home.png`;
+     - `frontend/output/playwright/task-092-fan-home-brand-club/metrics.json`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 101 files, 445 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite large chunk warning remains.
+
+Follow-up recommendation:
+
+1. User should review the Home sample visually first.
+2. If the direction is approved, continue with Task-093:
+   - Fan Activities Brand Campaign Redesign;
+   - keep business rules unchanged;
+   - move detailed rules into detail / Guide surfaces;
+   - add image/video slots for campaign presentation.
+
+## 2026-07-17 Task-026b Fan Home Theme Unification Polish
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/index.css`.
+   - Added scoped fan theme tokens:
+     - `--fan-brand-gradient`;
+     - `--fan-brand-soft-gradient`;
+     - `--fan-brand-surface`;
+     - `--fan-brand-border`.
+   - Unified the fan shell top bar from white/yellow to a light yellow-green surface.
+   - Unified the fan avatar from pure yellow to the shared UWELL yellow-green gradient.
+   - Unified header action buttons:
+     - Language;
+     - Settings.
+   - Unified member card small UI:
+     - `Gold` level tag;
+     - `Points Details` button.
+   - Unified bottom nav active state with the same yellow-green soft gradient.
+   - Unified Home action icons, visual card badges, reward points pill, and store level mark with the same gradient system.
+2. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added regression coverage that Fan Home uses one yellow-green gradient system across:
+     - header;
+     - avatar;
+     - header buttons;
+     - level tag;
+     - outline pill;
+     - bottom nav active state;
+     - Home action icons;
+     - Home activity/reward/store visual marks.
+3. Updated browser QA artifacts under:
+   - `frontend/output/playwright/task-026-home-polish-closeout/`
+
+Why:
+
+User review found that the Fan Home UI still mixed pure yellow, green, white buttons, and old gold styling. The visual result did not yet feel like one unified UWELL yellow-green fan theme. This task tightens the theme without changing structure, data, or business behavior.
+
+Pages affected:
+
+1. Fan Center Home:
+   - `fan-app.html#/fan-center`
+
+Database impact:
+
+None.
+
+No schema, seed data, Supabase, RLS, localDb structure, backend API, `.env`, point rule, scan rule, reward rule, or store exposure rule was changed.
+
+Business logic impact:
+
+None.
+
+Other page impact:
+
+No intended impact on:
+
+1. Activities
+2. Community
+3. Rewards
+4. Stores
+5. Me
+6. Store portal
+7. Admin portal
+8. `/preview/fan`
+
+Verification:
+
+1. Red test first:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected because the unified yellow-green fan gradient tokens and selectors were missing.
+2. Focused test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 18 tests.
+3. Fan Home regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 2 files, 21 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warning remains:
+     - large chunk warning.
+5. Browser QA:
+   - Script:
+     - `node output/playwright/task-026-home-polish-closeout/qa-home.mjs`
+   - Checked:
+     - 390px mobile;
+     - 768px tablet;
+     - 1440px desktop.
+   - Confirmed:
+     - `.fan-home-shell` rendered;
+     - `.fan-home-mission-control` rendered;
+     - 2 Home action cards rendered;
+     - 3 spotlight cards rendered;
+     - 3 visual cards rendered;
+     - `.fan-bottom-nav` computed position is `fixed`;
+     - no horizontal overflow;
+     - no console errors in the checked flow.
+   - Screenshot reviewed:
+     - Top bar, avatar, Language button, Settings button, Points Details button, level tag, Home badges, and active bottom nav now share one yellow-green theme.
+6. Full test suite:
+   - `npm test`
+   - Failed with 3 existing/non-Task-026b static test failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English via `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects legal content to mention `30 days`, while current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, while current invite copy says the fan earns `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. Playwright full-page screenshots still show the fixed bottom nav over stitched page content. This is a screenshot artifact, not a layout failure.
+2. The QA script now waits for `domcontentloaded` plus `.fan-home-shell` instead of `networkidle`, because the fan page can keep remote media/API requests open.
+3. The full test failures listed above were not changed in this task and should be handled only through separate confirmed tasks.
+
+Next recommendation:
+
+Task-027:
+Fan Activities Visual & IA Polish.
+
+Recommended scope:
+
+1. Apply the same yellow-green fan theme system to the Activities page.
+2. Separate official actions from store activities.
+3. Reduce rule text density.
+4. Preserve all activity point and store-verification rules.
+5. Do not modify database, permissions, backend API, `.env`, store portal, admin portal, or `/preview/fan`.
+
+## 2026-07-17 Task-026 Fan Home Follow-up Visual QA / Polish Closeout
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Updated `frontend/src/pages/fans/FanCenterPage.jsx`.
+   - Kept the real fan Home structure from Task-025.
+   - Shortened Home mission copy:
+     - `Mission boost`;
+     - `Claim today`;
+     - `Scan now`;
+     - `Join challenge`;
+     - `Shop reward`;
+     - `Open map`.
+   - Added unified yellow-green visual marks to the Home spotlight cards:
+     - activity `XP`;
+     - reward `DROP`;
+     - store `NEAR`.
+   - Kept all existing Home routes:
+     - Check-in;
+     - Scan;
+     - Activities;
+     - Rewards;
+     - Stores;
+     - Check-in detail.
+2. Updated `frontend/src/index.css`.
+   - Added scoped `.fan-shell .fan-home-*` hover/active feedback.
+   - Added reduced-motion fallback for Home card motion.
+   - Added unified visual-card styling for activity, reward, and store cards.
+   - Made mobile Home action cards more compact so the mission area fits better above the fixed bottom nav.
+3. Updated `frontend/src/pages/fans/FanCenterPage.static.test.mjs`.
+   - Added Task-026 regression coverage for:
+     - short Home copy;
+     - unified visual card classes;
+     - scoped Home motion;
+     - reduced-motion support;
+     - mobile compact action-card styling.
+4. Added browser QA artifacts under:
+   - `frontend/output/playwright/task-026-home-polish-closeout/`
+
+Why:
+
+Task-025 established the correct Fan Home information architecture. Task-026 closes the visual QA loop by tightening mobile rhythm, reducing explanatory copy, unifying the activity/reward/store card language, and adding restrained game-like interaction feedback without changing product behavior.
+
+Pages affected:
+
+1. Fan Center Home:
+   - `fan-app.html#/fan-center`
+
+Database impact:
+
+None.
+
+No schema, seed data, Supabase, RLS, localDb structure, backend API, `.env`, point rule, scan rule, reward rule, or store exposure rule was changed.
+
+Business logic impact:
+
+None.
+
+Existing behavior preserved:
+
+1. Daily check-in still uses existing `handleTaskAction('checkin')` and `handleTaskCheckIn`.
+2. Scan still opens the existing Scan secondary page.
+3. Activity, reward, store, and recent point records still use existing data.
+4. No new task, reward, store, point, scan, invite, or language rule was added.
+
+Other page impact:
+
+No intended impact on:
+
+1. Activities
+2. Community
+3. Rewards
+4. Stores
+5. Me
+6. Check-in detail
+7. Scan detail
+8. Store portal
+9. Admin portal
+10. `/preview/fan`
+
+Verification:
+
+1. Red test first:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected because Task-026 copy, visual classes, and scoped motion were missing.
+2. Focused tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 17 tests.
+3. Fan Home regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 2 files, 20 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing Vite warning remains:
+     - large chunk warning.
+5. Browser QA:
+   - Script:
+     - `node output/playwright/task-026-home-polish-closeout/qa-home.mjs`
+   - Checked:
+     - 390px mobile;
+     - 768px tablet;
+     - 1440px desktop.
+   - Confirmed:
+     - `.fan-home-shell` rendered;
+     - `.fan-home-mission-control` rendered;
+     - 2 Home action cards rendered;
+     - 3 spotlight cards rendered;
+     - 3 visual cards rendered;
+     - short CTA copy rendered;
+     - `.fan-bottom-nav` computed position is `fixed`;
+     - no horizontal overflow;
+     - no console errors in the checked flow.
+   - Screenshots:
+     - `frontend/output/playwright/task-026-home-polish-closeout/mobile-home.png`
+     - `frontend/output/playwright/task-026-home-polish-closeout/tablet-home.png`
+     - `frontend/output/playwright/task-026-home-polish-closeout/desktop-home.png`
+   - Report:
+     - `frontend/output/playwright/task-026-home-polish-closeout/report.json`
+6. Full test suite:
+   - `npm test`
+   - Failed with 3 existing/non-Task-026 static test failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English via `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects legal content to mention `30 days`, while current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, while current invite copy says the fan earns `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. Playwright's full-page screenshots show the fixed bottom nav over stitched page content. This is the same full-page screenshot artifact noted in Task-025, not a layout failure.
+2. Playwright's bundled browser was unavailable in this environment, so the QA script used the installed Chrome executable. No dependency was installed.
+3. The full test failures listed above were not changed in Task-026 scope and should be handled only through separate confirmed tasks.
+
+Follow-up notes:
+
+1. Next fan UI pass should move to the next highest-impact real fan tab rather than continuing to over-polish Home.
+2. Recommended next candidate: Activities visual/IA polish, because Home now routes users into Activities and that page should match the same UWELL yellow-green game-growth style.
+3. Keep Arabic/RTL as a separate confirmed language task.
+
+Next recommendation:
+
+Task-027:
+Fan Activities Visual & IA Polish.
+
+Recommended scope:
+
+1. Keep official tasks and store activities.
+2. Separate official actions from store activities.
+3. Reduce rule text density.
+4. Preserve all activity point and store-verification rules.
+5. Do not modify database, permissions, backend API, `.env`, store portal, admin portal, or `/preview/fan`.
 
 ## 2026-07-16 Task-025 Fan Home Visual & IA Polish
 
@@ -3612,3 +13342,8759 @@ Recommended scope:
    - image/empty-state needs;
    - CTA priority.
 3. Decide which visual issues should become the next implementation task.
+
+## 2026-07-17 Task-027 Fan Community Visual & IA Polish
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Polished the real fan Community page under `frontend/src/pages/fans/tabs/CommunityTab.jsx`.
+2. Kept the existing community functions:
+   - publish post;
+   - like;
+   - comment;
+   - point limits;
+   - duplicate/self-like protection;
+   - seeded and local community records.
+3. Replaced default Ant Design tag colors in Community with scoped fan chips:
+   - `fan-community-xp-chip`;
+   - `fan-community-post-chip`;
+   - `fan-community-comment-count`.
+4. Changed the Community desktop layout into a centered feed lane instead of a full-width form/feed surface.
+5. Unified Community controls with the current fan yellow-green theme:
+   - composer avatar;
+   - add photo placeholder;
+   - post button;
+   - XP rule chips;
+   - comment submit button;
+   - post labels.
+6. Added static regression coverage in `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`.
+7. Generated QA screenshots and reports:
+   - `frontend/output/playwright/task-027-fan-ui-audit/`
+   - `frontend/output/playwright/task-027-community-polish/`
+
+Why:
+
+The Task-027 visual audit found that Community was the least unified fan page after Home polish. It still used pure yellow comment buttons, default Ant Design blue/gold/green tags, and a desktop layout that felt like a full-width backend form instead of a fan feed.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb table contract, Supabase API, permissions, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+The existing point rules and records remain:
+
+1. community like points and daily limit;
+2. community comment points and daily limit;
+3. first valid post points and daily limit;
+4. 5+ character validation;
+5. duplicate like and self-like no-point handling;
+6. `community_posts`, `community_comments`, and `community_point_actions` usage.
+
+Other page impact:
+
+Intended impact is limited to the real fan Community tab and scoped `.fan-community-*` styles.
+
+No intended impact on:
+
+1. Home;
+2. Activities;
+3. Rewards;
+4. Stores;
+5. Me;
+6. Store portal;
+7. Admin portal;
+8. `/preview/fan`.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Failed as expected before implementation because `fan-community-xp-chip` and the themed comment button coverage were missing.
+2. Focused Community test:
+   - `npm test -- src/pages/fans/tabs/CommunityTab.static.test.mjs`
+   - Passed: 1 file, 6 tests.
+3. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 5 files, 42 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Browser QA:
+   - Captured mobile and desktop Community screenshots after build.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px or 1440px.
+   - Verified desktop Community feed lane width is 760px.
+   - Verified Community comment button uses yellow-green gradient.
+   - Verified pure `rgb(255, 215, 0)` button sampling returned no buttons.
+   - Verified no browser console errors in the checked Community flow.
+6. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-027 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects fan shell not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. The full-page Playwright screenshots show the fixed bottom nav over stitched page content. This is a screenshot artifact of full-page capture, not a detected horizontal overflow or positioning failure.
+2. The post button is visually muted while disabled because the composer is empty by default. It becomes the fan yellow-green primary action after text entry.
+3. The Community page still uses placeholder image slots only. No upload storage or new media business rule was added.
+
+Follow-up notes:
+
+1. Next fan UI polish should target Activities, because it still has older gold/date/tag styling and denser campaign cards.
+2. Stores should be handled after Activities because `MapTab.jsx` contains inline marker and popup styles that need a careful scoped pass.
+3. The existing full-suite failures should be handled as separate confirmed tasks because they affect language behavior, legal rule copy, and invite copy.
+
+Next recommendation:
+
+Task-028:
+Fan Activities Visual & IA Polish.
+
+Recommended scope:
+
+1. Apply the same yellow-green fan theme system to Activities.
+2. Keep official quick tasks and store activities separate.
+3. Reduce campaign card density and old gold/date-tag styling.
+4. Preserve all activity point and store-verification rules.
+5. Do not modify database, permissions, backend API, `.env`, store portal, admin portal, or `/preview/fan`.
+
+## 2026-07-17 Task-028 Fan Activities Visual & IA Polish
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Polished the real fan Activities page under `frontend/src/pages/fans/tabs/CampaignTab.jsx`.
+2. Kept the existing Activities functions:
+   - official quick tasks;
+   - official campaigns;
+   - store activities;
+   - store activity empty state;
+   - activity detail modal;
+   - timed task claim flow;
+   - store staff verification copy.
+3. Unified Activities visual styling with the current fan yellow-green theme:
+   - challenge-style hero;
+   - XP chips;
+   - quick task primary buttons;
+   - campaign type/status tags;
+   - campaign facts;
+   - store activity chips;
+   - store verification proof chip;
+   - timed task progress accent.
+4. Removed old default Ant Design tag color usage from Activities:
+   - no `gold`;
+   - no `blue`;
+   - no `green`;
+   - no `volcano`.
+5. Added static regression coverage in `frontend/src/pages/fans/tabs/CampaignTab.static.test.mjs`.
+6. Generated QA screenshots and report:
+   - `frontend/output/playwright/task-028-activities-polish/mobile-390-activities.png`
+   - `frontend/output/playwright/task-028-activities-polish/desktop-1440-activities.png`
+   - `frontend/output/playwright/task-028-activities-polish/qa-report.json`
+
+Why:
+
+The Activities page still carried older gold/blue/green tag styling and felt less consistent than the recently polished Home and Community pages. This task brings Activities into the same UWELL yellow-green, young, game-growth visual direction without adding new business rules.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb table contract, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+The existing point and activity rules remain:
+
+1. timed official quick task claim rules;
+2. one claim per task per day;
+3. `fan_engagement_tasks` usage;
+4. `addFanPoints` claim flow;
+5. official campaign display;
+6. store activity visibility filtering;
+7. store activity verification before points are added.
+
+Other page impact:
+
+Intended impact is limited to the real fan Activities tab and scoped `.fan-activity-*`, `.fan-campaign-*`, and `.fan-store-activity-*` styles.
+
+No intended impact on:
+
+1. Home;
+2. Community;
+3. Rewards;
+4. Stores;
+5. Me;
+6. Store portal;
+7. Admin portal;
+8. `/preview/fan`.
+
+Verification:
+
+1. Focused Activities test:
+   - `npm test -- src/pages/fans/tabs/CampaignTab.static.test.mjs`
+   - Passed: 1 file, 10 tests.
+2. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 5 files, 43 tests.
+3. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+4. Browser QA:
+   - Captured mobile and desktop Activities screenshots with local Chrome.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px or 1440px.
+   - Verified Activities hero uses the yellow-green challenge background.
+   - Verified quick action buttons use the yellow-green gradient.
+   - Verified no old inline Ant Design tag colors in Activities.
+   - Verified no browser console errors in the checked Activities flow.
+5. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-028 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects fan shell not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. Full-page Playwright screenshots show the fixed bottom nav over stitched page content. This is a full-page screenshot artifact of fixed positioning, not a detected horizontal overflow.
+2. The Activities page still uses text-based campaign cards and simple icon placeholders. No new images, upload storage, campaign media rule, or reward exchange rule was added.
+3. The completed campaign tag remains visually neutral so past activities do not look active.
+
+Follow-up notes:
+
+1. The next fan UI polish pass should target Stores, because the store/map experience still has more mixed inline styling and map-specific controls.
+2. After Stores, review Rewards and Me for remaining yellow-only buttons, dense text, and inconsistent empty states.
+3. The existing full-suite failures should remain separate confirmed tasks because they affect language behavior, legal rule copy, and invite copy.
+
+Next recommendation:
+
+Task-029:
+Fan Stores Visual & IA Polish.
+
+Recommended scope:
+
+1. Audit `MapTab.jsx` and the real fan Stores view in `FanCenterPage.jsx`.
+2. Unify store cards, store capability chips, empty states, map/popup controls, and CTAs with the yellow-green fan theme.
+3. Preserve store exposure, city filtering, reward pickup, and store activity visibility rules.
+4. Do not modify database, permissions, backend API, `.env`, store portal, admin portal, or `/preview/fan`.
+
+## 2026-07-17 Task-029 Fan Stores Visual & IA Polish
+
+Current status:
+
+Completed.
+
+Changed:
+
+1. Polished the real fan Stores experience under:
+   - `frontend/src/pages/fans/FanCenterPage.jsx`;
+   - `frontend/src/pages/fans/tabs/MapTab.jsx`.
+2. Kept the existing Stores functions:
+   - fan city store filtering;
+   - backend exposure ordering;
+   - S/A/B/C store level display;
+   - featured/recommended store cards;
+   - Leaflet/OpenStreetMap map;
+   - store level filters;
+   - map markers;
+   - popup navigation;
+   - selected store detail panel;
+   - storefront/display photo support;
+   - reward pickup and store event exposure cues.
+3. Unified Stores visual styling with the current fan yellow-green theme:
+   - Stores map hero;
+   - store filter buttons;
+   - map markers;
+   - map popup navigation buttons;
+   - selected store level chip;
+   - selected store trust chips;
+   - photo grid and pending-photo empty states;
+   - recommended store capability chips.
+4. Replaced old default Ant Design tag colors in the real Stores surfaces:
+   - no `lime` capability tags in recommended store cards;
+   - no `green` map highlighted tag;
+   - no `gold` reward pickup tag;
+   - no `blue` store events tag;
+   - no `green/gold/volcano` tags in MapTab selected-store detail.
+5. Added static regression coverage in:
+   - `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`;
+   - `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`.
+6. Generated QA screenshots and report:
+   - `frontend/output/playwright/task-029-stores-polish/mobile-390-stores.png`;
+   - `frontend/output/playwright/task-029-stores-polish/desktop-1440-stores.png`;
+   - `frontend/output/playwright/task-029-stores-polish/qa-report.json`.
+
+Why:
+
+After Home, Community, and Activities polish, Stores still mixed old tag colors, blue popup navigation, and mixed marker/filter colors. This task brings the real fan Stores page and map module into the same UWELL yellow-green, young, game-growth visual language while preserving store discovery behavior.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb table contract, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+The existing store rules remain:
+
+1. `filterStoresForFanCity` still controls fan city store filtering;
+2. `sortStoresForFanExposure` still controls fan-facing store ordering;
+3. `getStoreExposureScore` is still used for map marker exposure context;
+4. `hidden_from_fan_app`, `risk_downrank`, `fan_map_highlighted`, `reward_pickup_recommended`, and store event exposure controls are still respected by the existing utility flow;
+5. store photos are still read from approved `store_display_uploads`.
+
+Other page impact:
+
+Intended impact is limited to the real fan Stores tab, real fan store recommendation cards, and scoped `.fan-map-*` / `.fan-visible-store-*` styles.
+
+No intended impact on:
+
+1. Home;
+2. Activities;
+3. Community;
+4. Rewards;
+5. Me;
+6. Store portal;
+7. Admin portal;
+8. `/preview/fan`.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Failed as expected before implementation because `fan-map-page`, `fan-map-hero`, unified chips, and old-color removal were missing.
+   - `npm test -- src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Failed as expected before implementation because `fan-visible-store-chip` and old tag color removal were missing.
+2. Focused Stores tests:
+   - `npm test -- src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+   - `npm test -- src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+3. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 6 files, 47 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Browser QA:
+   - Captured mobile and desktop Stores screenshots with local Chrome.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px or 1440px.
+   - Verified 3 recommended store cards rendered.
+   - Verified 9 unified recommended-store chips rendered.
+   - Verified 5 map filter buttons rendered.
+   - Verified Stores map hero uses yellow-green background.
+   - Verified map canvas height is 400px.
+   - Verified no old store Ant Design tag colors in checked Stores surfaces.
+   - Verified no browser console errors in the checked Stores flow.
+6. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-029 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects fan shell not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. Full-page Playwright screenshots show the fixed bottom nav over stitched page content. This is a full-page screenshot artifact of fixed positioning, not a detected horizontal overflow.
+2. The Stores page still uses Leaflet/OpenStreetMap tiles. No new map provider, geolocation rule, navigation API, or store ranking rule was added.
+3. Some recommended stores currently show muted capability chips because their underlying exposure controls are inactive. This reflects existing data and rules, not a new UI rule.
+
+Follow-up notes:
+
+1. Next fan UI polish pass should target Rewards or Me, depending whether the priority is shopping conversion or account/history clarity.
+2. Rewards likely has the higher visual impact because it is a core fan action and may still need image slots, lock states, and point CTA consistency.
+3. The existing full-suite failures should remain separate confirmed tasks because they affect language behavior, legal rule copy, and invite copy.
+
+Next recommendation:
+
+Task-030:
+Fan Rewards Visual & IA Polish.
+
+Recommended scope:
+
+1. Audit `MallTab.jsx` real fan Rewards page.
+2. Unify reward cards, category filters, point affordances, lock/stock/review states, redemption CTA, and modal styling with the yellow-green fan theme.
+3. Preserve reward redemption, point deduction, pickup eligibility, inventory, high-value review, and redemption-code rules.
+4. Do not modify database, permissions, backend API, `.env`, store portal, admin portal, or `/preview/fan`.
+
+## Task-030 - Fan Rewards Visual & IA Polish
+
+Status:
+
+Completed.
+
+Scope:
+
+Real fan Rewards only.
+
+Changed files:
+
+1. `frontend/src/pages/fans/tabs/MallTab.jsx`
+2. `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+3. `frontend/src/index.css`
+4. `PROGRESS.md`
+
+What changed:
+
+1. Rebuilt the real fan Rewards page information hierarchy around a lighter point mall flow:
+   - top Rewards hero with available points;
+   - reward type summary: Normal, Premium, Diamond, Growth;
+   - concise redemption flow: Choose, Redeem, Get code, Pick up;
+   - category filters with item counts;
+   - reward catalog grid with visual image slots.
+2. Replaced old mixed/default Ant Design reward card styling with scoped fan reward classes:
+   - `fan-reward-theme-hero`;
+   - `fan-reward-chip`;
+   - `fan-reward-status-chip`;
+   - `fan-reward-category-chip`;
+   - `fan-reward-redeem-button`;
+   - `fan-reward-secondary-button`;
+   - `fan-reward-confirm-button`.
+3. Unified reward card colors, chips, buttons, hero, and modal CTA with the UWELL yellow-green fan theme.
+4. Preserved existing reward behavior:
+   - points are deducted through the existing redemption flow;
+   - redemption code is still generated and stored;
+   - remote redemption with local fallback remains;
+   - inventory and insufficient-point disabled states remain;
+   - Diamond/high-value review copy remains;
+   - pickup code modal and inline fallback remain.
+5. Generated QA screenshots and report:
+   - `frontend/output/playwright/task-030-rewards-polish/mobile-390-rewards.png`;
+   - `frontend/output/playwright/task-030-rewards-polish/desktop-1440-rewards.png`;
+   - `frontend/output/playwright/task-030-rewards-polish/qa-report.json`.
+
+Why:
+
+After Stores polish, Rewards was the next core fan action with visible UI inconsistency. The old page mixed dense rule copy, default card/table spacing, yellow-only accents, and default tag colors. This task brings the real Rewards page into the same UWELL yellow-green, young, game-growth visual language used by Home, Community, Activities, and Stores.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb table contract, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+The existing reward rules remain:
+
+1. reward redemption still creates a redemption code;
+2. available points are still deducted through `addFanPoints`;
+3. local fallback redemption is still used when remote redemption is unavailable;
+4. stock and insufficient-point states still block redeem actions;
+5. Diamond/high-value rewards still surface review-before-pickup messaging;
+6. store users still verify pickup through the store portal.
+
+Other page impact:
+
+Intended impact is limited to the real fan Rewards tab and scoped `.fan-reward-*` styles.
+
+No intended impact on:
+
+1. Home;
+2. Activities;
+3. Community;
+4. Stores;
+5. Me;
+6. Store portal;
+7. Admin portal;
+8. `/preview/fan`.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Failed as expected before implementation because the unified reward hero, chip classes, button classes, and old tag removal were missing.
+2. Focused Rewards tests:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 1 file, 7 tests.
+3. Reward behavior regression tests:
+   - `npm test -- src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+   - Passed: 2 files, 4 tests.
+4. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 6 files, 48 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+6. Browser QA:
+   - Captured mobile and desktop Rewards screenshots with local Chrome.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px or 1440px.
+   - Verified Rewards hero exists and uses yellow-green background.
+   - Verified 8 product cards rendered.
+   - Verified 16 reward chips rendered.
+   - Verified 6 filter buttons rendered.
+   - Verified old reward Ant Design tag colors are no longer present in the checked Rewards surface.
+   - Verified no browser console errors in the checked Rewards flow.
+7. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-030 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects fan shell not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. Full-page browser screenshots show the fixed bottom nav over stitched page content. This is a full-page screenshot artifact of fixed positioning, not a detected horizontal overflow.
+2. Some primary reward buttons are disabled when points or stock rules block redemption. Disabled buttons intentionally do not use the active yellow-green gradient.
+3. Reward image slots currently use existing placeholder treatment when no product image URL exists. No new image assets or dependencies were added.
+
+Follow-up notes:
+
+1. Next fan UI polish pass should target Me because it is the remaining major fan bottom-nav page with account, history, verification, and settings clarity needs.
+2. Keep the same UWELL yellow-green theme, English default copy, fixed bottom nav, and real fan source path.
+3. Leave store portal, admin portal, database, permissions, backend API, `.env`, and `/preview/fan` unchanged unless a later task explicitly approves it.
+
+Next recommendation:
+
+Task-031:
+Fan Me Visual & IA Polish.
+
+## Task-031 - Fan Me Visual & IA Polish
+
+Status:
+
+Completed.
+
+Scope:
+
+Real fan Me page only.
+
+Changed files:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+2. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+3. `frontend/src/index.css`
+4. `PROGRESS.md`
+
+What changed:
+
+1. Reframed Me as a fan growth-center page instead of a plain account/profile page:
+   - top growth hero;
+   - yellow-green avatar ring;
+   - quick hero actions for Rewards and fan verification;
+   - available points and current level cards;
+   - account overview strip;
+   - recent activity panel;
+   - history shortcuts;
+   - secondary utility cards;
+   - language and sign-out area.
+2. Added scoped Me classes for the unified fan visual language:
+   - `fan-me-growth-hero`;
+   - `fan-me-avatar-ring`;
+   - `fan-me-hero-actions`;
+   - `fan-me-stat-card is-points`;
+   - `fan-me-stat-card is-level`;
+   - `fan-me-history-panel is-featured`;
+   - `fan-me-quick-card`;
+   - `fan-me-tool-card`.
+3. Updated Me styling from the older dark/charcoal hero and mixed card radii into the current UWELL yellow-green system:
+   - `--fan-brand-gradient`;
+   - `--fan-brand-soft-gradient`;
+   - `--fan-brand-surface`;
+   - `--fan-brand-border`.
+4. Preserved existing Me functions and routes:
+   - points history still opens Check-in/points detail;
+   - reward history still opens Rewards;
+   - scan history still opens Scan;
+   - activity history still opens Activities;
+   - Invite friends still opens Invite;
+   - Existing fan verification still opens Old fan verification;
+   - New user guide still opens Help;
+   - Community still opens Community;
+   - LanguageSwitcher remains in Me;
+   - Sign out behavior remains unchanged.
+5. Generated QA screenshots and report:
+   - `frontend/output/playwright/task-031-me-polish/mobile-390-me.png`;
+   - `frontend/output/playwright/task-031-me-polish/desktop-1440-me.png`;
+   - `frontend/output/playwright/task-031-me-polish/qa-report.json`.
+
+Why:
+
+After Home, Community, Activities, Stores, and Rewards polish, Me was the remaining main fan tab that still needed visual and information hierarchy alignment. This task makes Me feel like the same product family while keeping it focused on account, progress, history, and secondary utilities.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb table contract, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+The existing account and fan utility behavior remains:
+
+1. Me still reads existing fan profile, points, level, point logs, redemptions, scan records, activity records, and old fan verification records;
+2. Me actions still use existing active-view and secondary-view navigation;
+3. no new fan points rule was added;
+4. no new reward, scan, invite, language, or verification rule was added.
+
+Other page impact:
+
+Intended impact is limited to the real fan Me tab and scoped `.fan-me-*` styles.
+
+No intended impact on:
+
+1. Home;
+2. Activities;
+3. Community;
+4. Rewards;
+5. Stores;
+6. Store portal;
+7. Admin portal;
+8. `/preview/fan`.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed as expected before implementation because `fan-me-growth-hero`, `fan-me-avatar-ring`, hero actions, stat-card variants, quick/tool card classes, and updated yellow-green CSS were missing.
+2. Focused fan shell test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 19 tests.
+3. Fan regression set:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 6 files, 49 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Browser QA:
+   - Captured mobile and desktop Me screenshots with local Chrome after demo fan login.
+   - Verified active bottom nav is `Me`.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified no horizontal overflow at 390px or 1440px.
+   - Verified Me growth hero exists and uses yellow-green background.
+   - Verified 2 hero actions rendered.
+   - Verified 4 quick history cards rendered.
+   - Verified 4 utility cards rendered.
+   - Verified 4 history panels rendered.
+   - Verified Sign out remains visible.
+   - Verified no browser console errors in the checked Me flow.
+6. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-031 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects fan shell not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. Full-page browser screenshots show the fixed bottom nav over stitched page content. This is a full-page screenshot artifact of fixed positioning, not a detected horizontal overflow.
+2. Me page currently shows recent rows based on existing local data. Empty states remain for sections without records.
+3. Language text remains English-first. Arabic is still planned for a later dedicated task.
+
+Follow-up notes:
+
+1. The six main fan tabs have now all received a visual/IA polish pass.
+2. A next pass should be a cross-page fan UI QA sweep to catch remaining inconsistent corner radius, old yellow-only accents, text contrast issues, full-page screenshot artifacts, and secondary page style gaps.
+3. Keep store portal, admin portal, database, permissions, backend API, `.env`, and `/preview/fan` unchanged unless a later task explicitly approves it.
+
+Next recommendation:
+
+Task-032:
+Fan Cross-Page Visual QA & Secondary Page Polish.
+
+## Task-032 - Fan Cross-Page Visual QA & Secondary Page Polish
+
+Status:
+
+Completed.
+
+Scope:
+
+Real fan portal only.
+
+Changed files:
+
+1. `frontend/src/components/common/LanguageSwitcher.jsx`
+2. `frontend/src/components/common/LanguageSwitcher.static.test.mjs`
+3. `frontend/src/pages/fans/FanCenterPage.jsx`
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+5. `frontend/src/pages/fans/tabs/MapTab.jsx`
+6. `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+7. `frontend/src/index.css`
+8. `PROGRESS.md`
+
+What changed:
+
+1. Unified the fan top brand lockup:
+   - header now shows `UWELL FAN CENTER` as one consistent text treatment;
+   - secondary label is now `Member growth`;
+   - typography uses the same inherited fan shell font, weight, and yellow-green contrast system.
+2. Fixed sticky menu behavior:
+   - Language menu now closes on outside click;
+   - Language menu now closes on `Escape`;
+   - fan Settings panel now closes on outside click;
+   - fan Settings panel now closes on `Escape`;
+   - Settings trigger now exposes `aria-haspopup` and `aria-expanded`.
+3. Polished secondary page shell:
+   - added `.fan-subpage-title`;
+   - applied iOS-like screen/card/control radius tokens:
+     - `--fan-radius-screen: 28px`;
+     - `--fan-radius-card: 20px`;
+     - `--fan-radius-control: 14px`;
+   - secondary pages now read as one premium mobile page container instead of a loose stack.
+4. Fixed Stores map filter visual glitch:
+   - removed Ant Design `primary/default` filter button state from S/A/B/C filters;
+   - added `aria-pressed`;
+   - active filter uses the unified UWELL yellow-green gradient;
+   - inner text spans use transparent background so no white patch appears next to filter text.
+5. Added consistent fan interaction feedback:
+   - fan buttons and clickable links now use a scoped 0.98 pressed scale;
+   - transitions are scoped to fan shell;
+   - reduced-motion users get transitions disabled.
+6. Generated QA screenshots and report:
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-home.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-activities.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-community.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-rewards.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-stores.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-me.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/mobile-secondary-checkin.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/desktop-home.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/desktop-stores.png`;
+   - `frontend/output/playwright/task-032-fan-cross-page-polish/qa-report.json`.
+
+Why:
+
+After the six main fan tabs were polished, remaining quality issues were mostly cross-page consistency issues: top header typography, dropdown dismissal, secondary page roundness, button feedback, map filter active-state artifacts, and text/contrast refinement. This task addresses those issues without changing fan business behavior.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb table contract, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+Existing fan behavior remains:
+
+1. check-in points and history remain unchanged;
+2. scan behavior remains unchanged;
+3. activities, community, rewards, stores, invite, help, and old fan verification remain available;
+4. no new point rule, reward rule, scan rule, language rule, or verification rule was added.
+
+Other page impact:
+
+Intended impact is limited to:
+
+1. real fan shell;
+2. fan secondary pages;
+3. fan Stores map filters;
+4. shared LanguageSwitcher behavior.
+
+No intended impact on:
+
+1. store portal;
+2. admin portal;
+3. backend/API;
+4. `/preview/fan`.
+
+Risk notes:
+
+1. `LanguageSwitcher` is a shared component, so the outside-click and Escape dismissal behavior also improves other usages. Visual fan-specific styling remains scoped under `.fan-shell`.
+2. The new fan pressed-state CSS is scoped to `.fan-shell` and should not affect store/admin portals.
+3. Full-page Playwright screenshots show the fixed bottom nav over stitched content. Browser metrics confirm the nav is fixed and no horizontal overflow exists.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/components/common/LanguageSwitcher.static.test.mjs`
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - `npm test -- src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Each failed first for the expected missing Task-032 behavior.
+2. Focused tests after implementation:
+   - `npm test -- src/components/common/LanguageSwitcher.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 20 tests.
+   - `npm test -- src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Fan regression set:
+   - `npm test -- src/components/common/LanguageSwitcher.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs`
+   - Passed: 11 files, 64 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Browser QA:
+   - Used local Chrome channel because Playwright bundled browser was not installed and dependency/browser installation is forbidden.
+   - Verified no horizontal overflow at 390px and 1440px.
+   - Verified `.fan-bottom-nav` computed position is `fixed`.
+   - Verified header brand text is `UWELL FAN CENTER`.
+   - Verified header secondary text is `Member growth`.
+   - Verified Language menu opens then closes after outside click.
+   - Verified Settings panel opens then closes after `Escape`.
+   - Verified map tier filter active state uses yellow-green gradient.
+   - Verified map tier filter inner span background is transparent.
+   - Verified map tier filter `aria-pressed` is `true` when selected.
+   - Verified Check-in secondary page title is visible, Back is visible, and shell radius is `28px`.
+   - Verified Old fan verification, New user guide, and Invite friends secondary pages have no horizontal overflow.
+6. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-032 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Known verification notes:
+
+1. A first QA run reported a transient 400 resource console message. A follow-up response-level check reproduced no failing network responses.
+2. Playwright full-page screenshots can visually repeat/overlay fixed nav due to stitching. The actual computed nav state is fixed.
+
+Follow-up notes:
+
+1. Fan main and secondary surfaces now share a more consistent UI foundation.
+2. A next pass can focus on page-specific copy compression and final visual screenshots for any remaining dense sections.
+3. Store portal, admin portal, database, permissions, backend API, `.env`, and `/preview/fan` should remain untouched unless explicitly approved.
+
+Next recommendation:
+
+Task-033:
+Fan Copy Density & Final Screenshot QA.
+
+## Task-033 - Fan Copy Density & Final Screenshot QA
+
+Status:
+
+Completed.
+
+Changed files:
+
+1. `frontend/src/pages/fans/tabs/MallTab.jsx`
+2. `frontend/src/pages/fans/FanCenterPage.jsx`
+3. `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`
+4. `frontend/src/index.css`
+5. `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+6. `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`
+7. `frontend/src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+
+What changed:
+
+1. Rewards page policy copy was compressed from one dense paragraph into four short pickup-rule bullets:
+   - available points are spent, lifetime growth stays;
+   - A/S stores handle standard pickup;
+   - S stores handle premium pickup;
+   - Diamond rewards need UWELL review.
+2. Rewards business keywords remain preserved in a non-visual audit attribute so static checks and rule meaning stay intact.
+3. Stores hero copy was shortened and made positive:
+   - `Reviewed UWELL partners with stronger service and pickup readiness appear first.`
+4. Stores preview section now reserves bottom space above the fixed fan bottom nav.
+5. Fan CTA touch targets were hardened to at least 44px in the real fan shell:
+   - reward action buttons;
+   - reward rules button;
+   - map filter buttons;
+   - section heading action buttons;
+   - Me quick/action buttons;
+   - store navigation links.
+6. Help guide dense level paragraph was shortened while preserving the rule:
+   - levels grow from lifetime points;
+   - rewards spend available points only.
+7. Generated final main-tab screenshots and QA report:
+   - `frontend/output/playwright/task-033-final-fan-qa/mobile-home.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/mobile-activities.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/mobile-community.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/mobile-rewards.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/mobile-stores.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/mobile-me.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/desktop-home.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/desktop-activities.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/desktop-community.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/desktop-rewards.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/desktop-stores.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/desktop-me.png`
+   - `frontend/output/playwright/task-033-final-fan-qa/qa-report.json`
+
+Why:
+
+After Task-032 fixed cross-page shell consistency, the remaining fan UI issues were final polish items: dense explanatory copy, short tap targets, Stores bottom-nav overlap risk, and a few map filter controls still feeling cramped. Task-033 closes those issues without changing rules or data behavior.
+
+Database impact:
+
+None.
+
+No database schema, seed data, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+Existing fan behavior remains:
+
+1. check-in points and history remain unchanged;
+2. scan rules remain unchanged;
+3. activities, community, rewards, stores, invite, help, and old fan verification remain available;
+4. reward pickup meaning remains unchanged;
+5. no new point rule, reward rule, scan rule, language rule, or verification rule was added.
+
+Other page impact:
+
+Intended impact is limited to real fan portal UI.
+
+No intended impact on:
+
+1. store portal;
+2. admin portal;
+3. backend/API;
+4. `/preview/fan`.
+
+Risk notes:
+
+1. CSS changes are scoped under `.fan-shell`, with no intended store/admin visual impact.
+2. The Rewards compact copy removes visible technical statuses from the page, but the full business rule text remains available in the existing rules modal and audit text.
+3. Browser QA used the installed Microsoft Edge channel because local Chrome failed to launch with `spawn UNKNOWN`; no dependency or browser installation was performed.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Failed first for the expected missing Task-033 compact copy, touch-target, and Stores spacing behavior.
+2. Focused tests after implementation:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Passed: 3 files, 16 tests.
+3. Final focused tests after map filter height correction:
+   - `npm test -- src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+   - Passed: 4 files, 20 tests.
+4. Fan regression set:
+   - `npm test -- src/components/common/LanguageSwitcher.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs`
+   - Passed: 11 files, 68 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+6. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-033 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - No Task-033-specific failures remain after preserving MallTab redemption rule audit text.
+7. Final build after full-test audit-text correction:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+8. Browser QA:
+   - Used Microsoft Edge channel via Playwright.
+   - Verified mobile and desktop screenshots for Home, Activities, Community, Rewards, Stores, and Me.
+   - Verified no horizontal overflow on all six main fan tabs at 390px and 1440px.
+   - Verified detected fan controls are all at least 44px high.
+   - Verified Rewards policy copy is the compact bullet copy.
+   - Verified Stores hero copy is the new positive short copy.
+   - Verified no captured browser console errors or failing network responses.
+
+Follow-up notes:
+
+1. Fan main-tab UI is now in a stronger final-review state for today's UI pass.
+2. If continuing, the next useful pass is a human visual review of secondary pages using the same Task-033 standards, then only fixing screenshot-confirmed issues.
+
+## Task-034 - Fan Secondary Page Human-View UI Polish
+
+Status:
+
+Completed.
+
+Time:
+
+2026-07-17 16:07:44 +08:00.
+
+Changed files:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+2. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+3. `frontend/src/index.css`
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+5. `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`
+6. `frontend/output/playwright/task-034-secondary-qa/qa-task-034.mjs`
+
+Generated QA artifacts:
+
+1. `frontend/output/playwright/task-034-secondary-qa/mobile-home.png`
+2. `frontend/output/playwright/task-034-secondary-qa/mobile-me.png`
+3. `frontend/output/playwright/task-034-secondary-qa/mobile-scan-secondary.png`
+4. `frontend/output/playwright/task-034-secondary-qa/mobile-scan-modal.png`
+5. `frontend/output/playwright/task-034-secondary-qa/mobile-invite-secondary.png`
+6. `frontend/output/playwright/task-034-secondary-qa/mobile-verification-secondary.png`
+7. `frontend/output/playwright/task-034-secondary-qa/mobile-guide-secondary.png`
+8. `frontend/output/playwright/task-034-secondary-qa/desktop-me.png`
+9. `frontend/output/playwright/task-034-secondary-qa/qa-report.json`
+
+What changed:
+
+1. Added a unified `fan-secondary-content` wrapper inside the real fan secondary page shell so Check-in, Scan, Invite, Old fan verification, and Help details share consistent inner spacing.
+2. Removed pure-yellow inline scan modal styling from `ScanTab.jsx` and replaced it with semantic class names:
+   - camera viewport;
+   - video;
+   - scanner frame;
+   - scanner corners;
+   - detecting spinner;
+   - manual entry link.
+3. Added Task-034 fan-scoped CSS for secondary-page polish:
+   - shared iOS-like card radius;
+   - yellow-green gradients for secondary heroes and primary buttons;
+   - improved body-copy contrast;
+   - stable pressed-state feedback;
+   - Scan modal styling that targets the actual Ant Design modal container.
+4. Kept all changes scoped to the real fan portal and the Scan modal. No store/admin UI was intentionally changed.
+5. Added static tests to lock:
+   - unified secondary content shell;
+   - secondary-page radius and pressed feedback;
+   - Scan modal yellow-green visual system;
+   - absence of old pure-yellow inline Scan styling.
+
+Why:
+
+The user review after Task-033 called out remaining cross-page UI inconsistency: secondary page treatment, tap effects, text visibility, Apple-like rounded corners, and lingering yellow-only elements. Task-034 closes those visual consistency issues without changing fan business logic or removing old functions.
+
+Database impact:
+
+None.
+
+No database schema, seed data, localDb behavior, Supabase API, permissions, dependency, or `.env` value was changed.
+
+Business logic impact:
+
+No intended business logic change.
+
+Existing fan behavior remains:
+
+1. check-in rule and points behavior remain unchanged;
+2. scan recognition and point rules remain unchanged;
+3. invite, old fan verification, help, rewards, stores, community, and activities remain available;
+4. no new point rule, reward rule, scan rule, language rule, or verification rule was added.
+
+Other page impact:
+
+Intended impact is limited to:
+
+1. real fan portal secondary shell;
+2. real fan Scan modal;
+3. fan-scoped CSS under `.fan-shell`;
+4. Scan modal root classes rendered from the fan Scan module.
+
+No intended impact on:
+
+1. store portal;
+2. admin portal;
+3. backend/API;
+4. `/preview/fan`.
+
+Risk notes:
+
+1. `frontend/src/index.css` is global, but Task-034 visual rules are scoped to `.fan-shell`, `.fan-scan-modal-root`, and `.fan-scan-modal`.
+2. Ant Design modal DOM uses `.ant-modal-container` in the current build, so the Scan modal styling now targets both the legacy `.ant-modal-content` selector and the actual container.
+3. Browser QA confirms the secondary pages do not horizontally overflow and bottom navigation remains fixed.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Failed first for missing `fan-secondary-content` and missing Scan modal yellow-green class/style behavior.
+2. Focused tests after implementation:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 2 files, 28 tests.
+3. Scan selector correction:
+   - `npm test -- src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 1 file, 7 tests.
+4. Fan regression set:
+   - `npm test -- src/components/common/LanguageSwitcher.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs`
+   - Passed: 11 files, 70 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+6. Browser QA:
+   - Used Microsoft Edge channel via Playwright.
+   - Verified mobile screenshots for Home, Me, Scan secondary page, Scan modal, Invite secondary page, Old fan verification secondary page, and New user guide secondary page.
+   - Verified desktop screenshot for Me.
+   - Verified no horizontal overflow in captured pages.
+   - Verified secondary pages use 28px radius and include the unified secondary content shell.
+   - Verified bottom navigation remains `fixed`.
+   - Verified detected fan controls are not below 44px high.
+   - Verified Scan modal uses yellow-green border/background styling.
+   - Verified no browser console errors or failing network responses were captured.
+7. Full test suite:
+   - `npm test`
+   - Still fails with 3 existing/non-Task-034 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Follow-up notes:
+
+1. The fan secondary-page visual system is now more unified with the yellow-green Home/Me direction.
+2. The remaining useful UI work is a final all-tab human visual pass on screenshots, then a narrow copy/contrast polish if any screenshot still feels dense or uneven.
+
+---
+
+## Task-035: Backend Governance Task-001A - RBAC Foundation Scope Tightening
+
+Status: Completed
+
+Scope:
+
+This task starts the Backend Governance foundation work after the S Store / closed-loop strategy discussion. It does not add S Store tables or UI yet. It tightens the first RBAC boundary layer so later S Store, fan growth, review, risk, and dashboard work can rely on clearer role and data-scope contracts.
+
+What changed:
+
+1. Added `store_owner` to the shared role constants and separated the fan/store-owner display labels.
+2. Extended the RBAC helper layer with explicit store/fan access contracts:
+   - admin has company scope;
+   - manager has operations scope by assigned region;
+   - rep is scoped to assigned stores;
+   - store owner is scoped to owned stores;
+   - fan is scoped to their own fan/store identity.
+3. Added fan-scope filtering helper so local/demo fan records can be filtered through the same RBAC helper contract.
+4. Protected `/app/fans/complaints` with manager-level route protection, matching other fan-operations routes.
+5. Updated the backend Fan List page to pass the current operator profile into `getFans({ scopeProfile })` so local trial fan lists are not always global.
+6. Added focused tests for role boundaries, direct fan-ops route protection, local fan API scope filtering, and Fan List profile scoping.
+
+Files changed:
+
+1. `frontend/src/utils/constants.js`
+2. `frontend/src/utils/uwellRoleAccess.js`
+3. `frontend/src/utils/uwellRoleAccess.test.mjs`
+4. `frontend/src/App.jsx`
+5. `frontend/src/components/layout/AppLayout.static.test.mjs`
+6. `frontend/src/services/api/fans.js`
+7. `frontend/src/services/api/fans.static.test.mjs`
+8. `frontend/src/pages/fans/FanListPage.jsx`
+9. `frontend/src/pages/fans/FanListPage.rbac.static.test.mjs`
+
+Database impact:
+
+None.
+
+No database schema, seed data, Supabase migration, backend API contract, dependency, permission table, or `.env` value was changed.
+
+Business logic impact:
+
+Limited RBAC/data-scope impact only.
+
+1. Store owner is no longer treated like a field rep through assignment fallback.
+2. Fan records can be filtered by profile scope in local/demo mode.
+3. Fan complaint operations now require manager-level route access.
+4. No point rule, reward rule, scan rule, S Store rule, activity rule, or store-level rule was changed.
+
+Other page impact:
+
+Intended impact is limited to:
+
+1. backend fan operations route protection;
+2. backend fan list data scope in local/demo mode;
+3. shared RBAC helper behavior used by existing store/dashboard scope logic.
+
+No intended impact on:
+
+1. real fan portal UI;
+2. store portal UI;
+3. `/preview/fan`;
+4. Supabase RLS policies;
+5. database data.
+
+Risk notes:
+
+1. This is the first RBAC tightening step, not the final permission system. Detail pages and additional service APIs still need later scope hardening.
+2. Local/demo mode now follows stricter fan-list scoping when a profile is passed; pages that do not pass a profile keep existing behavior for demo compatibility.
+3. Supabase mode still relies primarily on the existing RLS migration for real data boundaries; this task does not add a new migration.
+4. The repository already had many modified files before this task. This task intentionally avoided reverting unrelated changes.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs`
+     - Failed first for missing store-owner/fan ownership scope and missing `canAccessFan`.
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs`
+     - Failed first because `fans/complaints` was not protected by `ROLES.MANAGER`.
+   - `npm test -- src/services/api/fans.static.test.mjs`
+     - Failed first because `getFans` did not use `filterFansByScope` / `scopeProfile`.
+   - `npm test -- src/pages/fans/FanListPage.rbac.static.test.mjs`
+     - Failed first because Fan List did not pass the current profile into `getFans`.
+2. Focused RBAC test set:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs src/components/layout/AppLayout.static.test.mjs src/services/api/fans.static.test.mjs src/pages/fans/FanListPage.rbac.static.test.mjs`
+   - Passed: 4 files, 14 tests.
+3. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+4. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-035 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Follow-up notes:
+
+1. Next RBAC step should harden detail routes and service APIs that fetch by id, especially stores, visits, fans, materials, and reward operations.
+2. After RBAC Task-001 is stable, S Store V1 can safely add store sell-through, inventory, material inventory, field visit, replenishment, and downgrade records.
+
+---
+
+## Task-036: Backend Governance Task-001B - Detail Scope Hardening
+
+Status: Completed
+
+Scope:
+
+This task continues Backend Governance Task-001 after the RBAC foundation work. It hardens direct detail/id access for backend store, fan, and visit records so list filtering is not the only access boundary in local/demo mode.
+
+What changed:
+
+1. Added a visit-level RBAC helper, `canAccessVisit`, based on company scope, rep ownership, and store scope.
+2. Updated local/demo `getStoreById`, `getFanById`, and `getVisitById` service calls to accept `options.scopeProfile`.
+3. Restricted by-id service responses to return `null` when the current operator is outside scope.
+4. Updated Store Detail, Fan Detail, and Visit Detail pages to pass the current auth profile into by-id fetches.
+5. Added restricted-state UI for detail pages when a record is missing or outside the operator access scope.
+6. Guarded dependent detail-page queries so visits, evaluations, logs, sales, and photos only load after the main scoped record is accessible.
+7. Added static and helper tests covering by-id service scope and detail-page scope wiring.
+
+Files changed:
+
+1. `frontend/src/utils/uwellRoleAccess.js`
+2. `frontend/src/utils/uwellRoleAccess.test.mjs`
+3. `frontend/src/services/api/stores.js`
+4. `frontend/src/services/api/fans.js`
+5. `frontend/src/services/api/visits.js`
+6. `frontend/src/services/api/detail-scope.static.test.mjs`
+7. `frontend/src/pages/stores/StoreDetailPage.jsx`
+8. `frontend/src/pages/stores/StoreDetailPage.rbac.static.test.mjs`
+9. `frontend/src/pages/fans/FanDetailPage.jsx`
+10. `frontend/src/pages/fans/FanDetailPage.rbac.static.test.mjs`
+11. `frontend/src/pages/visits/VisitDetailPage.jsx`
+12. `frontend/src/pages/visits/VisitDetailPage.rbac.static.test.mjs`
+
+Database impact:
+
+None.
+
+No database schema, seed data, Supabase migration, backend API contract, dependency, permission table, or `.env` value was changed.
+
+Business logic impact:
+
+Limited RBAC/data-scope impact only.
+
+1. Direct URL access to store, fan, and visit detail records now respects the current operator profile in local/demo mode.
+2. Out-of-scope detail records show a restricted/not-found state instead of exposing record content.
+3. No point rule, reward rule, scan rule, S Store rule, activity rule, store evaluation rule, or fan growth rule was changed.
+
+Other page impact:
+
+Intended impact is limited to:
+
+1. backend Store Detail;
+2. backend Fan Detail;
+3. backend Visit Detail;
+4. shared local/demo by-id service access for stores, fans, and visits.
+
+No intended impact on:
+
+1. real fan portal UI;
+2. store portal UI;
+3. `/preview/fan`;
+4. Supabase RLS policies;
+5. database data;
+6. S Store V1 data model.
+
+Risk notes:
+
+1. This hardens the most obvious direct detail access paths, but it is not the final permission system.
+2. Materials, rewards, reviews, replenishment, and future S Store operation flows still need action-level permission rules.
+3. Supabase mode still relies primarily on existing RLS and API-layer contracts; this task does not add a new migration.
+4. The repository already had many modified files before this task. This task intentionally avoided reverting unrelated changes.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs`
+     - Failed first before `canAccessVisit` existed.
+   - `npm test -- src/services/api/detail-scope.static.test.mjs`
+     - Failed first before by-id services accepted `scopeProfile` and called scope helpers.
+   - `npm test -- src/pages/stores/StoreDetailPage.rbac.static.test.mjs src/pages/fans/FanDetailPage.rbac.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs`
+     - Failed first before detail pages passed the current profile and exposed restricted states.
+2. Focused helper/service/page tests:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 1 file, 6 tests.
+   - `npm test -- src/services/api/detail-scope.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+   - `npm test -- src/pages/stores/StoreDetailPage.rbac.static.test.mjs src/pages/fans/FanDetailPage.rbac.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs`
+   - Passed: 3 files, 3 tests.
+3. Focused RBAC regression:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs src/components/layout/AppLayout.static.test.mjs src/services/api/fans.static.test.mjs src/services/api/detail-scope.static.test.mjs src/pages/fans/FanListPage.rbac.static.test.mjs src/pages/stores/StoreDetailPage.static.test.mjs src/pages/stores/StoreDetailPage.rbac.static.test.mjs src/pages/fans/FanDetailPage.rbac.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs`
+   - Passed: 9 files, 23 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-036 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+
+Follow-up notes:
+
+1. The next backend governance step should define action-level permissions for materials, rewards, reviews, replenishment, and future S Store workflows.
+2. Before S Store V1 implementation, the team should decide which operations are admin-only, manager-editable, rep-submitted, store-owner-submitted, or fan-visible.
+
+---
+
+## Task-037: Backend Governance Task-001C - Action Permission Matrix
+
+Status: Completed
+
+Scope:
+
+This task continues Backend Governance Task-001 after list/detail RBAC hardening. It adds a shared action-level permission matrix so key backend actions are not controlled by scattered page-level role checks.
+
+What changed:
+
+1. Added shared governance action permission helpers:
+   - `canManageGlobalRules`
+   - `canManageRewardOps`
+   - `canAssignRewardPickup`
+   - `canApproveReview`
+   - `canManageRiskDecision`
+   - `canApproveMaterialRequest`
+   - `canSubmitMaterialRequest`
+   - `canUpdateMaterialStock`
+   - `canSubmitVisit`
+   - `canSubmitStoreReport`
+   - `canConfirmRewardPickup`
+   - `canEditLockedHistory`
+2. Added tests for role/action boundaries across admin, manager, rep, store owner, and fan.
+3. Updated Materials page action entry points:
+   - direct warehouse stock changes are admin-only;
+   - material request approval/logistics uses the shared approval helper;
+   - material request submission uses the shared submission helper.
+4. Updated Rewards Ops page:
+   - high-value reward review actions use shared reward ops permission;
+   - pickup store assignment uses shared pickup assignment permission.
+5. Updated Reviews page:
+   - approve/reject/request-info/escalate/note actions use shared review permission.
+6. Updated Risk Center page:
+   - send-to-review, reject related points, add note, and mark resolved use shared risk decision permission.
+7. Updated Operational Rules page:
+   - global trial rule editing and saving are admin-only through `canManageGlobalRules`.
+8. Added static tests requiring the critical pages to call shared RBAC helpers instead of local role checks.
+
+Files changed:
+
+1. `frontend/src/utils/uwellRoleAccess.js`
+2. `frontend/src/utils/uwellRoleAccess.test.mjs`
+3. `frontend/src/pages/materials/MaterialListPage.jsx`
+4. `frontend/src/pages/materials/MaterialListPage.action-rbac.static.test.mjs`
+5. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+6. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+7. `frontend/src/pages/admin-ops/RiskCenterPage.jsx`
+8. `frontend/src/pages/admin-ops/OperationalRulesPage.jsx`
+9. `frontend/src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs`
+
+Database impact:
+
+None.
+
+No database schema, seed data, Supabase migration, backend API contract, dependency, permission table, or `.env` value was changed.
+
+Business logic impact:
+
+Limited action-permission impact only.
+
+1. Admin remains the only role that can directly change global operational rules and direct warehouse stock values.
+2. Manager can handle operations-level reward, review, risk, and material approval actions.
+3. Rep and store owner are kept on submission-oriented actions, not approval/global-rule actions.
+4. Store-owner reward pickup confirmation remains limited to qualified A/S-level store context through the shared helper.
+5. No point rule, reward cost rule, scan rule, S Store rule, fan growth rule, or database-backed workflow rule was changed.
+
+Other page impact:
+
+Intended impact is limited to:
+
+1. backend Materials;
+2. backend Rewards Ops;
+3. backend Reviews;
+4. backend Risk Center;
+5. backend Operational Rules;
+6. shared RBAC helper behavior.
+
+No intended impact on:
+
+1. real fan portal UI;
+2. store portal UI;
+3. `/preview/fan`;
+4. Supabase RLS policies;
+5. database data;
+6. S Store V1 data model.
+
+Risk notes:
+
+1. This is a frontend/action-entry governance layer, not a final backend enforcement layer.
+2. Supabase/RLS and mutation-level API enforcement still need later hardening before production.
+3. Some backend pages already had historical UI and workflow changes before this task; this task avoided reverting unrelated changes.
+4. Future S Store V1 actions should use these helpers or extend this same helper layer instead of adding page-local role checks.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs src/pages/materials/MaterialListPage.action-rbac.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs`
+   - Failed first for missing action helper functions and missing page integration.
+2. Focused action RBAC tests:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs src/pages/materials/MaterialListPage.action-rbac.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs`
+   - Passed: 3 files, 9 tests.
+3. Focused backend governance regression:
+   - `npm test -- src/utils/uwellRoleAccess.test.mjs src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs src/pages/admin-ops/RewardsOpsPage.operations.test.mjs src/pages/admin-ops/admin-ops-workflows.behavior.test.mjs src/pages/materials/MaterialListPage.action-rbac.static.test.mjs src/pages/materials/MaterialStocksPage.region-access.static.test.mjs`
+   - Passed: 7 files, 23 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-037 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 74 files passed, 3 files failed; 289 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next governance step should move from frontend action-entry checks toward Audit Log service consistency for critical operations.
+2. S Store V1 implementation should reuse this action matrix for S Store promotion, downgrade, sell-through submission, inventory submission, replenishment, and locked-history correction.
+
+---
+
+## Task-038: Documentation Sync - Governance Status And S Store Next Phase
+
+Status: Completed
+
+Scope:
+
+This is a documentation-only sync after the fan UI work, closed-loop/S Store discussions, and Backend Governance Task-001A/B/C implementation.
+
+What changed:
+
+1. Updated `docs/07_RBAC.md` with:
+   - Task-035 data/list scope status;
+   - Task-036 detail/id scope status;
+   - Task-037 action permission matrix status;
+   - current shared action helper matrix.
+2. Updated `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md` with:
+   - current implementation snapshot through Task-037;
+   - remaining governance gaps: unified Audit Log service, API/RLS enforcement, Reviews V1, and Risk Center V1;
+   - note that S Store V1 can proceed into planning/data foundation while reusing the Task-037 action matrix.
+3. Updated `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md` with:
+   - readiness snapshot after Task-037;
+   - recommended next S Store step: final plan and data foundation impact analysis;
+   - required S Store data objects before runtime work begins.
+4. Updated `docs/ROADMAP.md` with:
+   - completed governance foundation progress through Task-037;
+   - current roadmap status that Backend Governance is partially implemented in frontend/local mode;
+   - recommended next major implementation direction: S Store V1 data foundation, not S Store UI first.
+
+Files changed:
+
+1. `docs/07_RBAC.md`
+2. `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`
+3. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+4. `docs/ROADMAP.md`
+5. `PROGRESS.md`
+
+Database impact:
+
+None.
+
+API impact:
+
+None.
+
+Code impact:
+
+None.
+
+No source code, tests, dependencies, `.env`, database schema, seed data, backend API, real fan UI, store portal, or admin runtime page behavior was changed.
+
+Verification:
+
+1. Manual document consistency check:
+   - confirmed `07_RBAC.md` now includes the Task-035 to Task-037 RBAC/action matrix status;
+   - confirmed `21_BACKEND_GOVERNANCE_V1_PLAN.md` now distinguishes implemented RBAC foundation from remaining governance gaps;
+   - confirmed `20_S_STORE_V1_IMPLEMENTATION_PLAN.md` now points to S Store V1 final plan/data foundation impact analysis as the next S Store step;
+   - confirmed `ROADMAP.md` no longer lists Backend Governance Task-001 as the recommended next implementation task.
+2. Tests/build:
+   - Not run for this documentation-only sync.
+   - Latest code verification remains from Task-037:
+     - focused action RBAC tests passed;
+     - focused backend governance regression passed;
+     - `npm run build` passed;
+     - full `npm test` still had the same 3 historical failures.
+
+Follow-up notes:
+
+1. Next major implementation discussion should start S Store V1 Task 1 with a fresh impact analysis.
+2. The first S Store implementation should define data objects and service/rule boundaries before UI work.
+
+---
+
+## Task-039: S Store V1 Task 1 - Local Data Foundation And Service Boundary
+
+Status: Completed
+
+Scope:
+
+This task starts S Store V1 implementation from data foundation and service/rule boundaries. It does not build S Store UI yet and does not modify Supabase migrations, backend APIs, permissions, `.env`, dependencies, fan UI, store UI, or admin runtime pages.
+
+What changed:
+
+1. Added local/demo S Store foundation tables to `localDb`:
+   - `s_store_status_history`;
+   - `s_store_sell_through`;
+   - `s_store_product_inventory_snapshots`;
+   - `s_store_material_inventory_snapshots`;
+   - `s_store_visit_details`;
+   - `s_store_replenishment_tasks`.
+2. Updated local DB version from `5.9` to `6.0` so local trial data can reinitialize with the S Store foundation.
+3. Extended trial seed enhancement so existing S-level stores carry current S Store fields:
+   - `is_s_store`;
+   - `s_store_status`;
+   - `became_s_at`;
+   - `s_store_source`;
+   - `cooperation_note`;
+   - store-owner ownership link for the trial S Store account.
+4. Added intentional local/demo S Store records:
+   - status history;
+   - weekly and monthly sell-through;
+   - product inventory snapshots;
+   - material inventory snapshots;
+   - S Store visit details;
+   - replenishment tasks.
+5. Added pure S Store rule helpers:
+   - low-stock detection with `current stock <= target stock / 3`;
+   - active S Store check;
+   - store-owner report submission check;
+   - locked-history check;
+   - downgrade/restore permission checks;
+   - fan-facing store label helper.
+6. Added S Store service boundary:
+   - list/detail reads;
+   - history reads;
+   - sell-through, inventory, material inventory submissions;
+   - S Store visit detail submission;
+   - replenishment task create/complete;
+   - downgrade/restore local history writes.
+7. Added focused tests for local DB schema, seed coverage, pure rules, and service boundary.
+8. Updated docs:
+   - `docs/05_DATABASE.md`;
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`.
+
+Files changed:
+
+1. `frontend/src/services/db/localDb.js`
+2. `frontend/src/services/db/seedData.js`
+3. `frontend/src/services/db/localDb.schema.static.test.mjs`
+4. `frontend/src/utils/s-store-rules.js`
+5. `frontend/src/utils/s-store-rules.test.mjs`
+6. `frontend/src/services/api/s-stores.js`
+7. `frontend/src/services/api/s-stores.static.test.mjs`
+8. `docs/05_DATABASE.md`
+9. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+10. `docs/ROADMAP.md`
+11. `PROGRESS.md`
+
+Database impact:
+
+Local/demo database only.
+
+1. Local DB version changed from `5.9` to `6.0`.
+2. Local/demo table list and seed data changed.
+3. No Supabase migration was added.
+4. No Supabase RLS policy was changed.
+5. No production database schema was changed.
+
+API impact:
+
+No backend API was changed.
+
+A new frontend local/demo service file was added for future S Store pages and workflows.
+
+Permission impact:
+
+No role was added and no existing RBAC helper behavior was changed.
+
+S Store rules reuse existing roles:
+
+1. Store owner can submit reports only for own active S Store.
+2. Manager/Admin can manage S Store status according to existing role/region logic.
+3. Admin remains the only role that can edit locked history through the existing `canEditLockedHistory` boundary.
+
+Business logic impact:
+
+Introduces S Store V1 local/demo business boundaries only.
+
+No fan point rule, scan rule, reward rule, store evaluation rule, material rule, backend approval rule, or production data rule was changed.
+
+Other page impact:
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. store portal;
+4. backend pages;
+5. Supabase mode pages.
+
+Risk notes:
+
+1. S Store service is still local/demo first; production Supabase migrations and RLS remain a separate confirmed database task.
+2. Audit-log writes for S Store status changes and corrections are not fully unified yet.
+3. Backend S Store Management pages are not implemented yet.
+4. Store App S Store Report and Field Rep S Store Visit UI are not implemented yet.
+5. Because local DB version changed, local trial data can reset on next local initialization.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs`
+   - Failed first for missing S Store tables, missing seed fields, missing `s-store-rules`, and missing `s-stores.js`.
+2. Focused S Store foundation tests:
+   - `npm test -- src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs`
+   - Passed: 3 files, 12 tests.
+3. Focused S Store/RBAC regression:
+   - `npm test -- src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 4 files, 19 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-039 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 76 files passed, 3 files failed; 299 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next S Store step should harden service behavior and connect critical S Store actions to Audit Log.
+2. After that, Backend > Stores > S Store Management can be built on top of this foundation.
+3. Supabase migration/RLS work should remain a separate confirmed database task.
+
+---
+
+## Task-040: S Store V1 Task 3 - Service Behavior And Local Audit Log
+
+Status: Completed
+
+Scope:
+
+This task hardens the S Store V1 local/demo service layer from Task-039 and connects key S Store actions to local Audit Log records. It does not build S Store UI yet and does not modify Supabase migrations, production RLS, `.env`, dependencies, fan UI, store UI, or backend runtime pages.
+
+What changed:
+
+1. Added a local/demo Audit Log service helper:
+   - `recordAuditLog`.
+2. Updated S Store service actions to write audit records for:
+   - S Store sell-through submission;
+   - S Store product inventory submission;
+   - S Store material inventory submission;
+   - S Store visit detail submission;
+   - replenishment task creation;
+   - replenishment task completion;
+   - S Store downgrade to A;
+   - S Store restore to active S Store.
+3. Exported S Store service functions and `recordAuditLog` from the shared frontend API barrel.
+4. Added behavior tests proving S Store actions create local audit records.
+5. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`;
+   - `docs/ROADMAP.md`.
+
+Files changed:
+
+1. `frontend/src/services/api/audit-logs.js`
+2. `frontend/src/services/api/s-stores.js`
+3. `frontend/src/services/api/s-stores.static.test.mjs`
+4. `frontend/src/services/api/s-stores.behavior.test.mjs`
+5. `frontend/src/services/api.js`
+6. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+7. `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`
+8. `docs/ROADMAP.md`
+9. `PROGRESS.md`
+
+Database impact:
+
+Local/demo data writes only.
+
+1. No new local table was added in this task.
+2. Existing local `audit_logs` is now written by S Store service actions.
+3. No Supabase migration was added.
+4. No Supabase RLS policy was changed.
+5. No production database schema was changed.
+
+API impact:
+
+Frontend local/demo service boundary only.
+
+1. Added `recordAuditLog`.
+2. Exported S Store service functions from `frontend/src/services/api.js`.
+3. No backend API endpoint was changed.
+
+Permission impact:
+
+No role was added and no existing RBAC helper behavior was changed.
+
+S Store action permissions remain:
+
+1. Store owner submits only own active S Store reports.
+2. Admin/Manager manage S Store downgrade/restore by existing role and region checks.
+3. Admin remains the only role allowed to edit locked history through existing helper boundaries.
+
+Business logic impact:
+
+Adds traceability for S Store service operations in local/demo mode.
+
+No fan points, scan, reward, store evaluation, campaign, material approval, or production data rule was changed.
+
+Other page impact:
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. store portal;
+4. backend UI pages;
+5. Supabase mode pages.
+
+Risk notes:
+
+1. This is local/demo audit writing, not the final production Audit Log service.
+2. Audit records now exist for S Store service actions, but S Store UI pages are not built yet.
+3. Production Supabase persistence, RLS, mutation enforcement, and cross-module audit consistency still require separate tasks.
+4. Correcting locked S Store history is still not implemented as a complete workflow.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs`
+   - Failed first because S Store service did not call `recordAuditLog` and did not create `audit_logs` records.
+2. Focused S Store audit tests:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs`
+   - Passed: 2 files, 5 tests.
+3. Focused S Store/RBAC/localDb regression:
+   - `npm test -- src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 5 files, 21 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-040 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 77 files passed, 3 files failed; 301 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next S Store task can move to Backend > Stores > S Store Management read model and pages.
+2. Keep Supabase migration/RLS as a separate confirmed database task.
+3. Full unified Audit Log service across all modules remains a separate Backend Governance task.
+
+---
+
+## Task-041: Backend S Store Management Read-only Page
+
+Status: Completed
+
+Scope:
+
+This task starts S Store V1 Task 4 in local/demo mode by adding a read-only Backend > Stores > S Store Management entry and list page. It uses the existing S Store service foundation from Task-039/Task-040 and does not add S Store status operation UI, correction workflows, store app reports, field rep UI, Supabase migrations, backend APIs, dependencies, `.env` changes, fan UI changes, or store portal changes.
+
+What changed:
+
+1. Added a read-only backend S Store Management page:
+   - overview stat cards;
+   - search/status/city/replenishment/low-stock filters;
+   - S Store list table;
+   - detail navigation to existing store detail route.
+2. Added the route:
+   - `/app/stores/s-stores`.
+3. Added the Stores sidebar menu item:
+   - `S Store Management`.
+4. Added focused static tests for:
+   - route/menu presence;
+   - S Store Management page structure, filters, columns, and read-only boundary.
+5. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/App.jsx`
+2. `frontend/src/components/layout/AppLayout.jsx`
+3. `frontend/src/components/layout/AppLayout.static.test.mjs`
+4. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+5. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+6. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+7. `docs/ROADMAP.md`
+8. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+1. No Supabase migration was added.
+2. No Supabase RLS policy was changed.
+3. No local DB table/version/seed data was changed in this task.
+4. The page reads existing local/demo S Store service data only.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The page reads from the existing frontend S Store service boundary.
+
+Permission impact:
+
+No role was added and no existing RBAC helper behavior was changed.
+
+The route is protected with the existing Manager-level backend route boundary.
+
+Business logic impact:
+
+Read-only visibility only.
+
+No fan point rule, scan rule, reward rule, store evaluation rule, material rule, review rule, S Store status rule, downgrade/restore rule, replenishment rule, or production data rule was changed.
+
+Other page impact:
+
+Intended impact:
+
+1. Backend Stores sidebar now includes `S Store Management`.
+2. Backend route `/app/stores/s-stores` is available.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. store portal;
+4. field visit pages;
+5. Supabase mode persistence.
+
+Risk notes:
+
+1. This is the first read-only management entry, not the full S Store management console.
+2. Dedicated S Store Detail page is still not implemented.
+3. Status operation UI, correction flows, store app S Store reports, field rep S Store visit UI, and replenishment completion UI remain later tasks.
+4. Supabase migration/RLS and production API alignment remain separate confirmed database/backend tasks.
+5. Full `npm test` still has 3 historical failures unrelated to Task-041.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Failed first because `/app/stores/s-stores`, the sidebar menu item, and `SStoreManagementPage.jsx` did not exist.
+2. Focused Task-041 tests:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Passed: 2 files, 10 tests.
+3. Focused S Store regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 7 files, 31 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-041 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 78 files passed, 3 files failed; 305 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-042 / S Store V1 Task 4B - Backend S Store Detail read page.
+2. Task-042 should show one S Store's status history, sell-through, product inventory, material inventory, visit detail, and replenishment records.
+3. Keep status operation UI, correction flows, Store App S Store Report, Field Rep S Store Visit, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-042: Backend S Store Detail Read-only Page
+
+Status: Completed
+
+Scope:
+
+This task continues S Store V1 Task 4 in local/demo mode by adding a dedicated read-only Backend > Stores > S Store Detail page. It uses the existing S Store service foundation from Task-039/Task-040 and the S Store Management list page from Task-041. It does not add downgrade/restore UI, correction workflows, store app reports, field rep UI, Supabase migrations, backend APIs, dependencies, `.env` changes, fan UI changes, or store portal changes.
+
+What changed:
+
+1. Added a dedicated read-only S Store Detail page:
+   - store identity and S status summary;
+   - weekly/monthly open-system and disposable sell-through stats;
+   - product/material low-stock stats;
+   - open replenishment count;
+   - latest visit status;
+   - read-only tabs for status history, sell-through, product inventory, material inventory, field visit notes, and replenishment.
+2. Added the route:
+   - `/app/stores/s-stores/:id`.
+3. Updated S Store Management list action:
+   - `View details` now opens the dedicated S Store Detail route instead of the normal store profile route.
+4. Added direct URL scope handling:
+   - Manager-region visibility is checked on the detail read model using existing role/data-scope helpers.
+5. Added focused static tests for:
+   - route presence;
+   - dedicated read-only detail surface;
+   - required S Store operating sections;
+   - list-to-detail navigation.
+6. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/App.jsx`
+2. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+3. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+4. `frontend/src/pages/stores/SStoreDetailPage.jsx`
+5. `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`
+6. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+7. `docs/ROADMAP.md`
+8. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+1. No Supabase migration was added.
+2. No Supabase RLS policy was changed.
+3. No local DB table/version/seed data was changed in this task.
+4. The page reads existing local/demo S Store service data only.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The page reads from existing frontend S Store service functions:
+
+1. `getSStoreDetail`;
+2. `getSStoreStatusHistory`;
+3. `getSStoreSellThroughHistory`;
+4. `getSStoreInventoryHistory`;
+5. `getSStoreMaterialInventoryHistory`;
+6. `getSStoreVisitDetails`;
+7. `getReplenishmentTasks`.
+
+Permission impact:
+
+No role was added and no existing RBAC helper behavior was changed.
+
+The route is protected with the existing Manager-level backend route boundary. Direct URL detail access also applies existing company/assigned-region scope helpers.
+
+Business logic impact:
+
+Read-only visibility only.
+
+No fan point rule, scan rule, reward rule, store evaluation rule, material rule, review rule, S Store status rule, downgrade/restore rule, replenishment rule, or production data rule was changed.
+
+Other page impact:
+
+Intended impact:
+
+1. Backend S Store Management list now opens `/app/stores/s-stores/:id`.
+2. Backend route `/app/stores/s-stores/:id` is available.
+3. S Store Detail includes a button back to S Store Management and a button to the normal Store Profile.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. store portal;
+4. field visit pages;
+5. ordinary store list/detail behavior;
+6. Supabase mode persistence.
+
+Risk notes:
+
+1. This is a read-only S Store Detail page, not the full S Store management console.
+2. Status operation UI, correction flows, store app S Store reports, field rep S Store visit UI, and replenishment completion UI remain later tasks.
+3. Supabase migration/RLS and production API alignment remain separate confirmed database/backend tasks.
+4. Full `npm test` still has 3 historical failures unrelated to Task-042.
+
+Verification:
+
+1. TDD red tests:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Failed first because `SStoreDetailPage.jsx`, the route, and dedicated list navigation did not exist.
+2. Focused Task-042 tests:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Passed: 2 files, 7 tests.
+3. Focused S Store regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 8 files, 35 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-042 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 79 files passed, 3 files failed; 309 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-043 / S Store V1 Task 4C - Backend S Store status operation UI.
+2. Task-043 should use existing `downgradeSStoreToA` and `restoreSStore` service actions, require reasons, and preserve status history/audit behavior.
+3. Keep correction flows, Store App S Store Report, Field Rep S Store Visit, replenishment completion UI, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-043: Backend S Store Status Operation UI
+
+Status: Completed
+
+Scope:
+
+This task adds the first S Store status operation UI to the Backend > Stores > S Store Detail page. It uses the existing local/demo S Store service actions from Task-039/Task-040 and the detail page from Task-042. It does not add new status rules, correction workflows, store app reports, field rep UI, Supabase migrations, backend APIs, dependencies, `.env` changes, fan UI changes, or store portal changes.
+
+What changed:
+
+1. Added a `Status Operations` card on S Store Detail.
+2. Added guarded buttons:
+   - `Downgrade to A`;
+   - `Restore to S`.
+3. Added a status operation modal:
+   - `Reason` is required;
+   - `Note` is optional;
+   - confirm is disabled until a reason is entered.
+4. Wired the UI to existing services:
+   - `downgradeSStoreToA`;
+   - `restoreSStore`.
+5. Reused existing permission helpers:
+   - `canDowngradeSStore`;
+   - `canRestoreSStore`.
+6. On success:
+   - invalidates S Store detail/list queries;
+   - after downgrade, returns to S Store Management because downgraded stores no longer satisfy the current S Store detail read boundary.
+7. Updated tests:
+   - Task-043 static coverage for status operations;
+   - adjusted the Task-042 read-only assertion to keep report/write forms forbidden while allowing status operations.
+8. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/pages/stores/SStoreDetailPage.jsx`
+2. `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`
+3. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+4. `docs/ROADMAP.md`
+5. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+Runtime local/demo writes can occur only when a Manager/Admin confirms a status operation through existing services:
+
+1. `stores`;
+2. `s_store_status_history`;
+3. `audit_logs`.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The page calls existing frontend S Store service functions only.
+
+Permission impact:
+
+No role was added and no existing RBAC/helper rule was changed.
+
+The UI follows existing rules:
+
+1. Admin can downgrade/restore where the service permits.
+2. Manager can downgrade/restore only within assigned-region scope.
+3. Rep, store owner, and fan do not receive this backend operation route.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task exposes existing S Store status actions in the backend UI and keeps existing requirements:
+
+1. downgrade requires reason;
+2. restore requires reason;
+3. service writes status history;
+4. service writes audit log;
+5. service enforces permission.
+
+No fan point rule, scan rule, reward rule, store evaluation rule, material rule, review rule, replenishment rule, or production data rule was changed.
+
+Other page impact:
+
+Intended impact:
+
+1. Backend S Store Detail now includes `Status Operations`.
+2. Successful downgrade returns to S Store Management because the current detail read model no longer exposes downgraded stores.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. store portal;
+4. field visit pages;
+5. ordinary store list/detail behavior;
+6. Supabase mode persistence.
+
+Risk notes:
+
+1. Restore UI can only appear when the current detail read model can still read a downgraded S Store; the current service normally hides downgraded stores from S Store detail after downgrade.
+2. A dedicated downgraded S Store recovery entry/list is still needed to make restore operationally complete.
+3. Correction flows, Store App S Store Report, Field Rep S Store Visit, replenishment completion UI, and Supabase migration/RLS work remain later tasks.
+4. Full `npm test` still has 3 historical failures unrelated to Task-043.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Failed first because `Status Operations`, reason modal, and status service calls did not exist.
+2. Focused Task-043 test:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Focused S Store regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 8 files, 36 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-043 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 79 files passed, 3 files failed; 310 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-044 / S Store V1 Task 4D - Downgraded S Store recovery visibility.
+2. Task-044 should make downgraded S Store records visible to Manager/Admin recovery workflows and provide a practical restore entry.
+3. Keep correction flows, Store App S Store Report, Field Rep S Store Visit, replenishment completion UI, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-044: Downgraded S Store Recovery Visibility
+
+Status: Completed
+
+Scope:
+
+This task makes downgraded S Stores recoverable in local/demo mode without changing the default S Store management list behavior. It keeps downgraded S Stores hidden from normal S Store reads, but lets Manager/Admin recovery workflows explicitly include downgraded records and restore them through the existing status operation UI.
+
+What changed:
+
+1. Added explicit downgraded recovery read support to the S Store service:
+   - `getSStores({ includeDowngraded: true })`;
+   - `getSStoreDetail(id, { includeDowngraded: true })`.
+2. Kept default S Store reads unchanged:
+   - `getSStores()` still hides downgraded S Stores;
+   - `getSStoreDetail(id)` still returns `null` for downgraded S Stores.
+3. Updated Backend S Store Management:
+   - service query includes downgraded stores for recovery data;
+   - default table still excludes downgraded stores;
+   - added `Include downgraded` switch;
+   - added `Downgraded S Stores` overview metric.
+4. Updated Backend S Store Detail:
+   - detail query can read downgraded S Stores for recovery;
+   - downgraded records show a `Downgraded S Store recovery` tag;
+   - existing `Restore to S` operation remains the recovery action.
+5. Updated tests:
+   - service behavior coverage for default-hidden and explicit-recovery reads;
+   - service static coverage for `includeDowngraded`;
+   - management page static coverage for the recovery switch and downgraded metric;
+   - detail page static coverage for downgraded recovery visibility.
+6. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/services/api/s-stores.js`
+2. `frontend/src/services/api/s-stores.static.test.mjs`
+3. `frontend/src/services/api/s-stores.behavior.test.mjs`
+4. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+5. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+6. `frontend/src/pages/stores/SStoreDetailPage.jsx`
+7. `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`
+8. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+9. `docs/ROADMAP.md`
+10. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+Runtime local/demo reads can now explicitly include downgraded S Stores only when the caller passes the recovery option.
+
+API impact:
+
+No backend API endpoint was changed.
+
+Only the frontend local/demo S Store service read options were extended.
+
+Permission impact:
+
+No role was added and no existing RBAC/helper rule was changed.
+
+The recovery visibility is only wired into Backend S Store pages that already sit behind Admin/Manager backend navigation and existing S Store permission boundaries.
+
+Business logic impact:
+
+No new downgrade/restore business rule was added.
+
+This task preserves the existing rule that downgraded S Stores are not part of the default active S Store list, while adding an explicit recovery read path so they can be restored later.
+
+Other page impact:
+
+Intended impact:
+
+1. Backend S Store Management can optionally show downgraded S Stores.
+2. Backend S Store Detail can display a downgraded S Store when opened through the recovery path.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. store portal;
+4. field visit pages;
+5. ordinary store list/detail behavior;
+6. Supabase mode persistence.
+
+Risk notes:
+
+1. Recovery visibility is local/demo frontend-service behavior only until Supabase migration/RLS/API alignment is separately confirmed.
+2. Correction flows for locked S Store history are still not implemented.
+3. Store App S Store Report, Field Rep S Store Visit, replenishment completion UI, and fan-facing S Store presentation remain later tasks.
+4. Full `npm test` still has 3 historical failures unrelated to Task-044.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Failed first before implementation because downgraded recovery reads and UI visibility did not exist.
+2. Focused Task-044 test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Passed: 4 files, 17 tests.
+3. Focused S Store regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 8 files, 40 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-044 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 79 files passed, 3 files failed; 314 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-045 / S Store V1 Task 5 - Store App S Store Report.
+2. Task-045 should add an S-only Store App report entry for weekly/monthly sell-through, product inventory, and material inventory submission.
+3. Keep correction flows, Field Rep S Store Visit, replenishment completion UI, fan-facing S Store presentation, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-045: Store App S Store Report
+
+Status: Completed
+
+Scope:
+
+This task adds the first Store App S Store Report entry in local/demo mode. Active S Stores can submit terminal sell-through, product inventory, and material inventory snapshots. Non-S stores keep the existing four Store App operating tabs and do not receive the S Report entry.
+
+What changed:
+
+1. Added an S-only Store App tab and bottom-nav item:
+   - `S Report`;
+   - visible only when the current store is an active S Store.
+2. Added a Store App S Report workbench with three submission sections:
+   - Sell-through;
+   - Product inventory;
+   - Material inventory.
+3. Sell-through submission supports:
+   - Weekly;
+   - Monthly;
+   - period start;
+   - period end;
+   - open-system sold quantity;
+   - disposable sold quantity;
+   - optional note.
+4. Product inventory submission supports:
+   - open-system current stock;
+   - open-system target stock;
+   - disposable current stock;
+   - disposable target stock;
+   - optional note.
+5. Material inventory submission supports:
+   - material type;
+   - current quantity;
+   - target quantity;
+   - optional note.
+6. Wired submissions to existing S Store services:
+   - `submitSStoreSellThrough`;
+   - `submitSStoreInventory`;
+   - `submitSStoreMaterialInventory`.
+7. Wired read-only history to existing S Store services:
+   - `getSStoreSellThroughHistory`;
+   - `getSStoreInventoryHistory`;
+   - `getSStoreMaterialInventoryHistory`.
+8. Preserved existing service behavior:
+   - store users can submit only for their own active S Store;
+   - submitted records are locked;
+   - low-stock flags are calculated by existing S Store rules;
+   - S Store service audit-log behavior is reused.
+9. Added S Report styling:
+   - operating workbench layout;
+   - three-column desktop report forms;
+   - single-column mobile layout;
+   - five-item bottom nav only for S Stores.
+10. Updated tests:
+   - added Task-045 static coverage for S-only visibility, service usage, V1 fields, locked-history copy, and styling;
+   - reran Store App and S Store regression tests.
+11. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+2. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+3. `frontend/src/index.css`
+4. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+5. `docs/ROADMAP.md`
+6. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+Runtime local/demo writes can occur only when an active S Store owner submits the S Report. Existing local/demo service tables are used:
+
+1. `s_store_sell_through`;
+2. `s_store_product_inventory_snapshots`;
+3. `s_store_material_inventory_snapshots`;
+4. `audit_logs`.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The Store App calls existing frontend S Store local/demo service functions only.
+
+Permission impact:
+
+No role was added and no existing RBAC/helper rule was changed.
+
+The S Report follows the existing service rule:
+
+1. role must be `store_owner`;
+2. store must be an active S Store;
+3. store owner profile must own the store.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task exposes existing S Store service capabilities in the Store App and keeps the existing V1 rules:
+
+1. only active S Stores submit;
+2. submitted history is locked;
+3. low stock uses the existing one-third target-stock rule;
+4. stores cannot correct locked history from the Store App.
+
+Other page impact:
+
+Intended impact:
+
+1. Active S Stores see a fifth Store App destination: `S Report`.
+2. Non-S stores keep the existing four Store App destinations:
+   - Home;
+   - Verify;
+   - Activities;
+   - Me.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. backend ordinary store list/detail;
+4. backend S Store status operations;
+5. field visit pages;
+6. Supabase mode persistence.
+
+Risk notes:
+
+1. S Report is local/demo frontend-service behavior only until Supabase migration/RLS/API alignment is separately confirmed.
+2. Store App S Report currently uses broad product families, not SKU-level reporting.
+3. Store users cannot correct locked historical submissions; backend correction flow remains a later task.
+4. Field Rep S Store Visit and replenishment completion UI are still not implemented.
+5. Full `npm test` still has 3 historical failures unrelated to Task-045.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Failed first with 4 failing tests because S-only entry, service usage, V1 fields, locked-history copy, and S Report styling did not exist.
+2. Focused Task-045 test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Store App + S Store focused regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreEntryPage.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/s-store-rules.test.mjs`
+   - Passed: 6 files, 38 tests.
+4. Wider Store/S Store regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreEntryPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 12 files, 70 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+6. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-045 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 80 files passed, 3 files failed; 318 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-046 / S Store V1 Task 6 - Field Rep S Store Visit.
+2. Task-046 should add an S Store-specific field visit template for inventory, display, sell-through observation, competitors, hot brands/flavors, consumer feedback, support needed, replenishment need, and photos.
+3. Keep correction flows, replenishment completion UI, fan-facing S Store presentation, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-046: Field Rep S Store Visit
+
+Status: Completed
+
+Scope:
+
+This task adds the first Field Rep S Store Visit detail flow in local/demo mode. It extends the existing repeat-visit workflow instead of adding a separate field-rep module. When a repeat visit selects an active S Store, the page shows an S Store-specific terminal intelligence form and writes the submitted detail through the existing S Store service after the normal visit record exists.
+
+What changed:
+
+1. Updated Field Visit Create/Edit:
+   - added active S Store detection for the selected repeat-visit store;
+   - added an `S Store Visit Detail` card only for selected active S Stores;
+   - kept ordinary repeat visits unchanged.
+2. Added S Store visit detail fields:
+   - inventory status;
+   - display status;
+   - sell-through observation;
+   - competitor situation;
+   - hot brands;
+   - hot flavors;
+   - consumer feedback;
+   - market notes;
+   - support needed;
+   - replenishment needed;
+   - visit photo references through existing Operational Evidence Photos.
+3. Wired submit flow:
+   - saves or updates the normal visit first;
+   - then calls `submitSStoreVisitDetail` with the created/updated `visitId`;
+   - uses the existing profile role/id where available, with the existing local/demo rep fallback.
+4. Updated Visit Detail:
+   - reads S Store visit details through `getSStoreVisitDetails`;
+   - displays the matching S Store visit detail for the current visit;
+   - keeps the detail page read-only.
+5. Explicitly did not create replenishment tasks automatically in this task.
+6. Updated tests:
+   - added Task-046 static coverage for S Store visibility, terminal intelligence fields, service submission boundary, detail display, and no automatic replenishment task creation.
+7. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/pages/visits/VisitCreatePage.jsx`
+2. `frontend/src/pages/visits/VisitDetailPage.jsx`
+3. `frontend/src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`
+4. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+5. `docs/ROADMAP.md`
+6. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+Runtime local/demo writes can occur only when a backend field visit is submitted for an active S Store. Existing local/demo tables are used:
+
+1. `visits`;
+2. `visit_sales`;
+3. `visit_photos`;
+4. `s_store_visit_details`;
+5. `audit_logs`.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The visit flow calls existing frontend local/demo S Store service functions only:
+
+1. `submitSStoreVisitDetail`;
+2. `getSStoreVisitDetails`.
+
+Permission impact:
+
+No role was added and no existing RBAC/helper rule was changed.
+
+This task follows the existing S Store service rule that S Store visit detail submission is allowed for:
+
+1. admin;
+2. manager;
+3. rep.
+
+Store owners and fans do not receive this field visit submission capability.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task exposes existing S Store visit detail service capability in the current Field Visit flow and keeps the existing separation:
+
+1. S Store report quantities are submitted by Store App;
+2. S Store field observations are submitted by field reps;
+3. replenishment task creation remains a later task;
+4. backend correction flows remain a later task.
+
+Other page impact:
+
+Intended impact:
+
+1. Field Visit Create/Edit now shows `S Store Visit Detail` only for active S Stores during repeat visits.
+2. Visit Detail now includes a read-only `S Store Visit Detail` tab.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Report;
+4. backend ordinary store list/detail;
+5. backend S Store status operations;
+6. Supabase mode persistence.
+
+Risk notes:
+
+1. S Store visit detail is local/demo frontend-service behavior only until Supabase migration/RLS/API alignment is separately confirmed.
+2. Replenishment needed is currently a recorded signal only; automatic replenishment task creation remains Task-047.
+3. Existing visit form complexity continues to grow and may need future extraction after the S Store V1 loop is stable.
+4. Full `npm test` still has 3 historical failures unrelated to Task-046.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`
+   - Failed first with 4 failing tests because S Store visit selection, terminal intelligence fields, service submission, detail display, and no-replenishment boundary did not exist.
+2. Focused Task-046 test:
+   - `npm test -- src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Visit + S Store focused regression:
+   - `npm test -- src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitCreatePage.workflow.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/s-store-rules.test.mjs`
+   - Passed: 8 files, 32 tests.
+4. Wider Store/S Store/Visit regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitCreatePage.workflow.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 13 files, 59 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+6. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-046 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 81 files passed, 3 files failed; 322 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-047 / S Store V1 Task 7 - Replenishment Loop.
+2. Task-047 should connect low-stock and field-visit replenishment signals to replenishment follow-up tasks, then let field reps complete replenishment with proof photos.
+3. Keep correction flows, fan-facing S Store presentation, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-047: S Store Replenishment Loop
+
+Status: Completed
+
+Scope:
+
+This task adds the first Backend S Store replenishment loop in local/demo mode. It connects the existing replenishment service functions to Backend > Stores > S Store Detail so backend operators can create replenishment tasks and complete non-completed replenishment tasks with required completion photo references.
+
+What changed:
+
+1. Updated S Store Detail:
+   - added `Create replenishment task` action in the Replenishment tab;
+   - added creation fields for trigger source, item type, requested quantity, assigned rep, and note;
+   - added a `Complete replenishment` action for non-completed replenishment rows;
+   - added required completion photo references for completion;
+   - refreshes S Store Detail and S Store Management read models after replenishment operations.
+2. Used existing S Store service functions:
+   - `createReplenishmentTask`;
+   - `completeReplenishmentTask`;
+   - `getReplenishmentTasks`.
+3. Kept replenishment creation manual in this task:
+   - no automatic replenishment task is created from Store App inventory submission;
+   - no automatic replenishment task is created from Field Visit S Store detail submission.
+4. Updated tests:
+   - added Task-047 static coverage for creation/completion service usage, required completion photos, expected fields, cache invalidation, and no automatic task creation boundary.
+5. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/pages/stores/SStoreDetailPage.jsx`
+2. `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`
+3. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+4. `docs/ROADMAP.md`
+5. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+Runtime local/demo writes can occur only when a backend operator creates or completes an S Store replenishment task. Existing local/demo tables are used:
+
+1. `s_store_replenishment_tasks`;
+2. `audit_logs`.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The backend S Store Detail page calls existing frontend local/demo S Store service functions only:
+
+1. `createReplenishmentTask`;
+2. `completeReplenishmentTask`;
+3. `getReplenishmentTasks`.
+
+Permission impact:
+
+No role was added and no existing RBAC/helper rule was changed.
+
+This task follows the existing S Store service rule that replenishment task creation and completion are allowed for:
+
+1. admin;
+2. manager;
+3. rep.
+
+Store owners and fans do not receive backend replenishment operation capability.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task exposes existing replenishment service capability in Backend S Store Detail and keeps the existing separation:
+
+1. Store App inventory submissions record low-stock signals only;
+2. Field Visit S Store details record replenishment-needed signals only;
+3. backend operators manually create replenishment tasks in Task-047;
+4. completed replenishment tasks require completion photo references.
+
+Other page impact:
+
+Intended impact:
+
+1. Backend S Store Detail Replenishment tab now supports manual replenishment creation and completion.
+2. Backend S Store Management read model is invalidated after replenishment changes so list/overview data can refresh.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Report;
+4. Field Visit creation;
+5. backend ordinary store list/detail;
+6. Supabase mode persistence.
+
+Risk notes:
+
+1. S Store replenishment remains local/demo frontend-service behavior only until Supabase migration/RLS/API alignment is separately confirmed.
+2. Completion photo references are text/URL-like references in V1, not file uploads.
+3. Replenishment task creation is manual in Task-047; automatic suggestions or creation from low-stock/field-visit signals should be a separate confirmed task if needed.
+4. Full `npm test` still has 3 historical failures unrelated to Task-047.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Failed first with 1 failing test because `createReplenishmentTask`, `completeReplenishmentTask`, replenishment operation fields, completion photo requirement, and expected invalidation were not yet exposed in S Store Detail.
+2. Focused Task-047 test:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Passed: 1 file, 6 tests.
+3. S Store focused regression:
+   - `npm test -- src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/s-store-rules.test.mjs`
+   - Passed: 5 files, 23 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-047 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 81 files passed, 3 files failed; 323 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-048 / S Store V1 Task 8 - Contribution Aggregation.
+2. Task-048 should aggregate existing Brand Store event verifications, reward pickups, store-linked scans where available, and campaign contribution into S Store overview/detail.
+3. Keep correction flows, fan-facing S Store presentation, automatic replenishment creation, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-048: S Store Contribution Aggregation
+
+Status: Completed
+
+Scope:
+
+This task adds the first S Store contribution aggregation in local/demo mode. It connects existing fan/activity/reward/scan source records to Backend > Stores > S Store Management and Backend > Stores > S Store Detail, so the backend can see whether each S Store is contributing to the UWELL terminal growth loop beyond sell-through, inventory, and replenishment.
+
+What changed:
+
+1. Added S Store contribution service aggregation:
+   - `getSStoreContributionMetrics(storeId)`;
+   - aggregates existing records only;
+   - returns zeros when no source data exists.
+2. Aggregated existing source tables:
+   - `campaign_claims`;
+   - `mall_redemptions`;
+   - `scan_records`;
+   - `fan_engagement_tasks`.
+3. Added Backend S Store Management contribution visibility:
+   - overview cards for Brand Store Verifications, Reward Pickups, and Store-linked Scans;
+   - per-store Contribution column.
+4. Added Backend S Store Detail contribution visibility:
+   - top summary cards for Brand Store Verifications, Reward Pickups, Store-linked Scans, and Campaign Contribution;
+   - `Contribution` tab with source count table.
+5. Kept contribution aggregation read-only:
+   - no manual contribution record creation;
+   - no duplicate contribution table;
+   - no changes to fan, store, scan, reward, or campaign business rules.
+6. Updated tests:
+   - service static coverage;
+   - service behavior coverage;
+   - S Store Management static coverage;
+   - S Store Detail static coverage.
+7. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed:
+
+1. `frontend/src/services/api/s-stores.js`
+2. `frontend/src/services/api.js`
+3. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+4. `frontend/src/pages/stores/SStoreDetailPage.jsx`
+5. `frontend/src/services/api/s-stores.static.test.mjs`
+6. `frontend/src/services/api/s-stores.behavior.test.mjs`
+7. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+8. `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`
+9. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+10. `docs/ROADMAP.md`
+11. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+No runtime writes are added by this task. Contribution metrics are read-only aggregations over existing local/demo records:
+
+1. `campaign_claims`;
+2. `mall_redemptions`;
+3. `scan_records`;
+4. `fan_engagement_tasks`.
+
+API impact:
+
+No backend API endpoint was changed.
+
+The frontend local/demo API barrel now re-exports:
+
+1. `getSStoreContributionMetrics`.
+
+Permission impact:
+
+No role was added and no existing RBAC/helper rule was changed.
+
+Contribution metrics are visible only through the existing backend S Store Management and S Store Detail pages. Existing Admin/Manager route and region scope behavior remains unchanged.
+
+Store owners and fans do not receive backend contribution metric visibility in this task.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task only reads existing source records and counts records that are clearly linked to the S Store. Missing source data remains zero/empty, and the system does not invent contribution numbers.
+
+Other page impact:
+
+Intended impact:
+
+1. Backend S Store Management now includes S Store contribution overview and per-store contribution summary.
+2. Backend S Store Detail now includes S Store contribution cards and a read-only contribution source tab.
+
+No intended runtime impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Report;
+4. Field Visit creation;
+5. backend ordinary store list/detail;
+6. reward pickup operation behavior;
+7. scan operation behavior;
+8. campaign operation behavior;
+9. Supabase mode persistence.
+
+Risk notes:
+
+1. Contribution attribution depends on existing records having a clear store reference such as `store_id`, `pickup_store_id`, `redeemed_store_id`, or `verification_store_id`.
+2. Some real production contribution sources may need later Supabase/API alignment before the metrics are production-complete.
+3. This task intentionally does not calculate ROI or cost efficiency. It only exposes first-pass contribution counts.
+4. Full `npm test` still has 3 historical failures unrelated to Task-048.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Failed first with 8 failing tests because `getSStoreContributionMetrics`, source-table aggregation, S Store Management contribution metrics, and S Store Detail contribution tab/cards did not exist.
+2. Focused Task-048 test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Passed: 4 files, 22 tests.
+3. Wider Store/S Store/Visit regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitCreatePage.workflow.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/db/localDb.schema.static.test.mjs src/utils/s-store-rules.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/uwellRoleAccess.test.mjs`
+   - Passed: 13 files, 64 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-048 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 81 files passed, 3 files failed; 327 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. Next recommended task: Task-049 / S Store V1 Task 9 - Fan-facing S Store Presentation.
+2. Task-049 should use active S Store data in fan-facing store discovery, show fan-safe `UWELL Brand Store` labels, and avoid exposing backend-only operational details.
+3. Keep correction flows, automatic replenishment creation, richer ROI analysis, and Supabase migration/RLS work as separate confirmed tasks.
+
+---
+
+## Task-049: Fan-facing S Store Presentation
+
+Status: Completed
+
+Scope:
+
+This task completes S Store V1 Task 9 in the real fan portal. It uses the existing S Store/store exposure data to present active S Stores to fans as `UWELL Brand Store`, while keeping backend-only operational details out of fan-facing pages.
+
+What changed:
+
+1. Added fan-safe S Store presentation rules:
+   - `isActiveSStoreForFans(store)`;
+   - `getFanFacingStorePresentation(store)`.
+2. Updated fan store presentation copy:
+   - active S Stores show as `UWELL Brand Store`;
+   - A stores show as `Recommended UWELL partner`;
+   - other visible stores show as positive partner-store copy.
+3. Updated real fan portal store discovery:
+   - Home store cards use fan-safe presentation labels/copy;
+   - Stores preview uses fan-safe label, trust copy, and pickup label;
+   - Map popup and selected store detail use the shared fan-facing presentation helper.
+4. Kept backend operations hidden from fans:
+   - no sell-through wording;
+   - no inventory/replenishment workflow exposure;
+   - no audit/downgrade/status-history wording;
+   - no raw `s_store_status` or S Store contribution details in fan-facing sources.
+5. Kept the work on the real fan portal:
+   - no `/preview/fan` change;
+   - no fan visual overhaul;
+   - no new fan business rule.
+6. Updated tests:
+   - fan-facing S Store rule behavior;
+   - fan store exposure static coverage;
+   - map exposure static coverage adjusted so backend risk fields stay in rules, not fan page copy.
+7. Updated docs:
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `frontend/src/utils/uwellLaunchRules.js`
+2. `frontend/src/utils/uwellLaunchRules.test.mjs`
+3. `frontend/src/pages/fans/FanCenterPage.jsx`
+4. `frontend/src/pages/fans/tabs/MapTab.jsx`
+5. `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`
+6. `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+7. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+8. `docs/ROADMAP.md`
+9. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+API impact:
+
+No backend API endpoint was changed.
+
+Permission impact:
+
+No role, route permission, or RBAC helper was changed.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task only centralizes fan-facing presentation for existing store/S Store/exposure data. Backend operating metrics and S Store management rules remain unchanged.
+
+Other page impact:
+
+Intended impact:
+
+1. Real fan portal Home and Stores sections now present active S Stores as `UWELL Brand Store`.
+2. Real fan portal Map popups and selected detail cards now use the same fan-safe S Store presentation helper.
+
+No intended runtime impact on:
+
+1. `/preview/fan`;
+2. Store App S Report;
+3. Backend S Store Management;
+4. Backend S Store Detail;
+5. Field Visit creation/detail;
+6. reward pickup operation behavior;
+7. scan operation behavior;
+8. campaign operation behavior;
+9. Supabase mode persistence.
+
+Risk notes:
+
+1. Fan-facing S Store labels depend on existing store records carrying `is_s_store`, `level`, and `s_store_status` consistently.
+2. S Store status remains local/demo frontend data until Supabase migration/RLS/API alignment is separately confirmed.
+3. The fan view intentionally does not show operational reasons for store priority, so backend users still need the S Store management pages for sell-through, inventory, replenishment, and contribution details.
+4. Full `npm test` still has 3 historical failures unrelated to Task-049.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/uwellLaunchRules.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Failed first because `isActiveSStoreForFans`, `getFanFacingStorePresentation`, and fan page wiring did not exist.
+2. Focused Task-049 test:
+   - `npm test -- src/utils/uwellLaunchRules.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs`
+   - Passed: 2 files, 20 tests.
+3. Wider fan regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/utils/uwellLaunchRules.test.mjs`
+   - Passed: 6 files, 64 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Still fails with the same 3 existing/non-Task-049 failures:
+     - `src/stores/languagePersistence.static.test.mjs`
+       - expects FanCenterPage not to force English with `setLang('en')` / `ensureEnglishFirst`;
+     - `src/utils/legal-content.static.test.mjs`
+       - expects `30 days`, current source says `7 days`;
+     - `src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+       - expects `Earn 50 Points`, current invite copy uses `{INVITE_REWARD_POINTS} points`.
+   - Current full suite result: 81 files passed, 3 files failed; 330 tests passed, 3 tests failed.
+
+Follow-up notes:
+
+1. S Store V1 local/demo loop is now broadly complete through fan-facing presentation.
+2. Next recommended implementation should not be another fan UI polish pass by default.
+3. Recommended next direction: consolidate the backend governance and production boundary before adding more business features:
+   - resolve the 3 historical static test mismatches;
+   - plan Supabase migration/RLS/API alignment for S Store V1;
+   - then add backend correction flows for locked S Store sell-through/inventory records if confirmed.
+
+---
+
+## Task-050: Resolve Known Static Test Mismatches
+
+Status: Completed
+
+Scope:
+
+This task resolves the 3 known historical full-suite failures that remained after Task-049. It does not add new business features. It aligns static tests, public terms, and fan copy with the already-confirmed project rules so the implementation baseline is trustworthy before S Store production-boundary work.
+
+What changed:
+
+1. Fixed fan language persistence:
+   - removed FanCenter's mount-time `setLang('en')` / `ensureEnglishFirst` behavior;
+   - FanCenter now relies on the language store default instead of overwriting a saved language choice;
+   - default English remains the project direction, while Arabic/RTL remains a separate later task.
+2. Unified reward code validity to the confirmed 7-day rule:
+   - `legal-content.static.test.mjs` now expects `7 days`;
+   - public `terms.html` now says the default validity period is `7 days`;
+   - tests also guard against the old `30 days` public/source wording.
+3. Fixed invite/new-user guide copy mismatch:
+   - Invite page now clearly shows `Earn 50 Points`;
+   - existing `INVITE_REWARD_POINTS = 50` logic remains unchanged;
+   - New User Guide now states `Diamond: 5000 lifetime points`, matching `FAN_LEVELS`.
+4. Removed stale static expectations:
+   - legal static test now checks English `Operations note` and `S-level stores`, matching the current English-first source;
+   - FanCenter static test now confirms FanCenter does not force English after mount.
+
+Files changed in this task:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+2. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+3. `frontend/src/stores/languagePersistence.static.test.mjs`
+   - test file was not changed, but its existing expectation is now satisfied.
+4. `frontend/src/utils/legal-content.static.test.mjs`
+5. `frontend/public/terms.html`
+6. `frontend/src/pages/fans/tabs/InviteTab.jsx`
+7. `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`
+8. `frontend/src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+   - test file was not changed, but its existing expectation is now satisfied.
+9. `docs/ROADMAP.md`
+10. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+API impact:
+
+No backend API endpoint was changed.
+
+Permission impact:
+
+No role, route permission, or RBAC helper was changed.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task only aligns code/tests/public terms with existing confirmed rules:
+
+1. FanCenter should not overwrite saved language preference after mount.
+2. Reward redemption default validity is 7 days.
+3. Invite reward is 50 points when the invite campaign is active.
+4. Diamond level starts at 5000 lifetime growth points.
+
+Other page impact:
+
+Intended impact:
+
+1. Real FanCenter no longer resets saved Arabic choice back to English on mount.
+2. Public member terms now match the 7-day reward validity rule.
+3. Invite and New User Guide copy are clearer for fans.
+
+No intended runtime impact on:
+
+1. `/preview/fan`;
+2. Store App S Report;
+3. Backend S Store Management;
+4. Backend S Store Detail;
+5. Field Visit creation/detail;
+6. reward pickup operation behavior;
+7. scan operation behavior;
+8. campaign operation behavior;
+9. Supabase mode persistence.
+
+Risk notes:
+
+1. Removing FanCenter's forced English behavior means any saved Arabic choice will persist into FanCenter, but full Arabic/RTL polishing is still a separate future task.
+2. The 7-day rule is now consistent with the reward redemption test and project specs; if the business later decides to use 30 days, that should be a separate confirmed rule change across source, public terms, docs, and tests.
+3. Public terms remain a static HTML page and should be kept synchronized with future reward policy changes.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/stores/languagePersistence.static.test.mjs src/utils/legal-content.static.test.mjs src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+   - Failed first with 3 historical failures:
+     - FanCenter forced `setLang('en')` / `ensureEnglishFirst`;
+     - legal content expected `30 days` while source used `7 days`;
+     - invite copy expected `Earn 50 Points` while source only rendered `{INVITE_REWARD_POINTS} points`.
+2. Focused Task-050 test:
+   - `npm test -- src/stores/languagePersistence.static.test.mjs src/utils/legal-content.static.test.mjs src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+   - Passed: 3 files, 5 tests.
+3. Related regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/stores/languagePersistence.static.test.mjs src/utils/legal-content.static.test.mjs src/pages/fans/tabs/InviteAndGuide.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs`
+   - Passed: 6 files, 30 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+5. Full test suite:
+   - `npm test`
+   - Passed: 84 files, 333 tests.
+
+Follow-up notes:
+
+1. The full frontend test baseline is now clean.
+2. Next recommended direction: Task-051 / S Store production-boundary planning.
+3. Task-051 should produce an impact plan for Supabase migrations, RLS, production API alignment, and audit boundaries before any database/API implementation begins.
+
+---
+
+## Task-051: S Store Supabase/RLS/API Alignment Plan
+
+Status: Completed
+
+Scope:
+
+This task documents the production-boundary alignment plan for S Store V1. It does not implement database migrations, RLS policies, API behavior, RPCs, permission changes, or UI behavior. It turns the already completed local/demo S Store loop into a concrete production hardening plan.
+
+What changed:
+
+1. Added a dedicated production alignment document:
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`.
+2. Mapped every current S Store local/demo data object to the intended Supabase production boundary:
+   - S Store current-state fields on `stores`;
+   - `s_store_status_history`;
+   - `s_store_sell_through`;
+   - `s_store_product_inventory_snapshots`;
+   - `s_store_material_inventory_snapshots`;
+   - `s_store_visit_details`;
+   - `s_store_replenishment_tasks`;
+   - contribution reads from existing operational source tables;
+   - production audit coverage.
+3. Documented production RLS direction for:
+   - Admin;
+   - Manager;
+   - Field Rep;
+   - Store Owner;
+   - Fan.
+4. Documented API/RPC boundary direction for S Store reads and high-risk mutations.
+5. Documented a safe next implementation sequence:
+   - Task-052: S Store Supabase Schema Draft;
+   - Task-053: S Store RLS Policy Draft;
+   - Task-054: S Store Service Supabase Reads;
+   - Task-055: S Store Controlled Mutations / RPCs;
+   - Task-056: Production Audit Log Alignment;
+   - Task-057: S Store Production Acceptance;
+   - Task-058: Backend Correction Flows.
+6. Updated related docs with references to the new production alignment document:
+   - `docs/ROADMAP.md`;
+   - `docs/05_DATABASE.md`;
+   - `docs/06_API.md`;
+   - `docs/07_RBAC.md`;
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`.
+
+Files changed in this task:
+
+1. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+2. `docs/ROADMAP.md`
+3. `docs/05_DATABASE.md`
+4. `docs/06_API.md`
+5. `docs/07_RBAC.md`
+6. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+7. `PROGRESS.md`
+
+Database impact:
+
+No database schema change.
+
+No Supabase migration, Supabase RLS policy, local DB schema/version, seed data, or production database structure was changed.
+
+API impact:
+
+No backend API endpoint, Supabase RPC, service function behavior, or frontend API implementation was changed.
+
+Permission impact:
+
+No role, route permission, RBAC helper, RLS policy, or auth behavior was changed.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task documents the production implementation boundary for already-confirmed S Store rules only:
+
+1. S Stores are UWELL Brand Stores selected from A-level stores.
+2. Store-submitted sell-through remains weekly/monthly open-system and disposable quantities.
+3. Store-submitted history is locked after submission.
+4. Low stock remains `current stock <= target stock / 3`.
+5. Downgrade/restore requires records and reasons.
+6. Fans only see fan-safe S Store presentation.
+
+Other page impact:
+
+No runtime page impact.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Report;
+4. Backend S Store Management;
+5. Backend S Store Detail;
+6. Field Visit creation/detail;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. Supabase mode persistence.
+
+Risk notes:
+
+1. Task-051 is documentation only; it does not make S Store production-ready by itself.
+2. Future Task-052 and later tasks will affect database/RLS/API surfaces and must go through a separate impact analysis and confirmation gate.
+3. Existing local/demo S Store behavior remains the active implementation until Supabase/RLS/API work is confirmed and completed.
+4. Local fallback can still hide production Supabase/RLS problems unless disabled during future acceptance.
+
+Verification:
+
+1. Documentation consistency check:
+   - confirmed `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md` contains the required S Store production tables, RLS direction, API/RPC boundary, audit coverage, and implementation sequence.
+2. Full test suite:
+   - `npm test`
+   - Passed: 84 files, 333 tests.
+3. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-052 / S Store Supabase Schema Draft.
+2. Task-052 should be a database-planning implementation task with a fresh impact analysis before any migration file is added.
+3. Task-052 should not change frontend page behavior, RLS policies, Supabase RPCs, `.env`, or dependencies unless separately confirmed.
+
+---
+
+## Task-052: S Store Supabase Schema Draft
+
+Status: Completed
+
+Scope:
+
+This task adds the first additive Supabase schema draft for S Store V1 production data. It does not execute the migration, add RLS policies, add Supabase RPCs, change API behavior, change permissions, change pages, or change `.env`.
+
+What changed:
+
+1. Added an additive Supabase migration draft:
+   - `supabase/migrations/20260718000100_s_store_schema.sql`.
+2. Added S Store current-state fields to the `stores` migration draft:
+   - `is_s_store`;
+   - `s_store_status`;
+   - `became_s_at`;
+   - `s_store_source`;
+   - `cooperation_note`.
+3. Added dedicated S Store production tables in the migration draft:
+   - `s_store_status_history`;
+   - `s_store_sell_through`;
+   - `s_store_product_inventory_snapshots`;
+   - `s_store_material_inventory_snapshots`;
+   - `s_store_visit_details`;
+   - `s_store_replenishment_tasks`.
+4. Added basic constraints and indexes:
+   - S Store status check on `stores`;
+   - status/action/period/task status checks;
+   - non-negative quantity checks;
+   - unique sell-through period per store;
+   - store, status, period, low-stock, rep, and submitted-time indexes where relevant.
+5. Enabled RLS on the new S Store tables without adding policies.
+   - Policies are intentionally reserved for Task-053.
+6. Added static migration coverage:
+   - `frontend/src/utils/s-store-supabase-schema.static.test.mjs`.
+7. Updated related docs:
+   - `docs/ROADMAP.md`;
+   - `docs/05_DATABASE.md`;
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `supabase/migrations/20260718000100_s_store_schema.sql`
+2. `frontend/src/utils/s-store-supabase-schema.static.test.mjs`
+3. `docs/ROADMAP.md`
+4. `docs/05_DATABASE.md`
+5. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+6. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+7. `PROGRESS.md`
+
+Database impact:
+
+Task-052 adds a migration file, but it does not execute it.
+
+If executed in a future confirmed task, the migration would:
+
+1. Add S Store current-state columns to `public.stores`.
+2. Create six dedicated S Store history/operation tables.
+3. Add constraints and indexes for S Store status, history, sell-through periods, low-stock reads, and replenishment task tracking.
+4. Enable RLS on the new S Store tables without policies.
+
+No existing table is dropped, renamed, or destructively changed.
+
+API impact:
+
+No backend API endpoint, Supabase RPC, service function behavior, local fallback behavior, or frontend API implementation was changed.
+
+Permission impact:
+
+No role, route permission, RBAC helper, auth behavior, or RLS policy was changed.
+
+The migration draft enables RLS on new tables only. Actual RLS policies are not added in Task-052 and remain Task-053.
+
+Business logic impact:
+
+No new business rule was added.
+
+The schema draft follows already-confirmed rules:
+
+1. S Store current identity extends `stores`.
+2. Store-submitted sell-through remains weekly/monthly open-system and disposable quantities.
+3. Store-submitted history remains locked after submission.
+4. Low-stock fields support the confirmed `current stock <= target stock / 3` service/RPC rule.
+5. S Store visit details attach to existing field visits.
+6. Replenishment completion keeps photo evidence fields.
+7. Contribution metrics are not duplicated into a manual S Store contribution table.
+
+Other page impact:
+
+No runtime page impact.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Report;
+4. Backend S Store Management;
+5. Backend S Store Detail;
+6. Field Visit creation/detail;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. Supabase mode persistence.
+
+Risk notes:
+
+1. This migration has not been applied to a Supabase project.
+2. Enabling RLS without policies would block access to the new protected S Store tables until Task-053 adds explicit policies.
+3. Future service/RPC work must keep field names aligned with this migration draft.
+4. Production Manager region scope still needs careful RLS helper design in Task-053.
+5. The migration intentionally does not add SKU-level sell-through, pricing analysis, automatic replenishment, incentive policies, or a manual contribution table.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/s-store-supabase-schema.static.test.mjs`
+   - Failed first because `supabase/migrations/20260718000100_s_store_schema.sql` did not exist.
+2. Focused Task-052 test:
+   - `npm test -- src/utils/s-store-supabase-schema.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+3. Full test suite:
+   - `npm test`
+   - Passed: 85 files, 338 tests.
+4. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-053 / S Store RLS Policy Draft.
+2. Task-053 should add RLS helper functions and policies for the S Store tables with static/acceptance coverage.
+3. Task-053 should not change frontend page behavior, service behavior, Supabase RPCs, `.env`, or dependencies unless separately confirmed.
+
+---
+
+## Task-053: S Store RLS Policy Draft
+
+Status: Completed
+
+Scope:
+
+This task adds a policy-only Supabase RLS draft for the S Store V1 production tables introduced in Task-052. It does not execute migrations, change page behavior, change API service behavior, add Supabase RPCs, change `.env`, or add dependencies.
+
+What changed:
+
+1. Added an S Store RLS policy draft migration:
+   - `supabase/migrations/20260718000200_s_store_rls_policies.sql`.
+2. Added scoped S Store RLS helper functions:
+   - `is_manager_for_store`;
+   - `is_active_s_store`;
+   - `can_manage_s_store`;
+   - `can_submit_s_store_report`;
+   - `can_submit_s_store_visit`;
+   - `can_manage_s_store_replenishment`.
+3. Added explicit policies for:
+   - `s_store_status_history`;
+   - `s_store_sell_through`;
+   - `s_store_product_inventory_snapshots`;
+   - `s_store_material_inventory_snapshots`;
+   - `s_store_visit_details`;
+   - `s_store_replenishment_tasks`.
+4. Kept S Store report submissions limited to own active S Store owners through `can_submit_s_store_report`.
+5. Kept locked history updates limited to `can_manage_s_store` Manager/Admin paths.
+6. Kept fan and anonymous users out of S Store operating tables.
+7. Added static RLS coverage:
+   - `frontend/src/utils/s-store-rls-policies.static.test.mjs`.
+8. Updated related docs:
+   - `docs/ROADMAP.md`;
+   - `docs/07_RBAC.md`;
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `SUPABASE-RLS-ACCEPTANCE.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `supabase/migrations/20260718000200_s_store_rls_policies.sql`
+2. `frontend/src/utils/s-store-rls-policies.static.test.mjs`
+3. `docs/ROADMAP.md`
+4. `docs/07_RBAC.md`
+5. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+6. `SUPABASE-RLS-ACCEPTANCE.md`
+7. `PROGRESS.md`
+
+Database impact:
+
+Task-053 adds a migration file, but it does not execute it.
+
+If executed in a future confirmed task, the migration would:
+
+1. Create S Store RLS helper functions.
+2. Enable RLS on the S Store tables.
+3. Add authenticated-only policies for S Store reads and writes.
+4. Grant execute permission on S Store helper functions to authenticated users.
+
+No table is dropped, renamed, or destructively changed.
+
+API impact:
+
+No backend API endpoint, Supabase RPC, service function behavior, local fallback behavior, or frontend API implementation was changed.
+
+Permission impact:
+
+Task-053 changes permission design at the migration-draft level only.
+
+The draft direction is:
+
+1. Admin can manage S Store records.
+2. Manager S Store management is city/region scoped through `is_manager_for_store`.
+3. Store Owner can submit reports only for their own active S Store.
+4. Field Rep can submit S Store visit/replenishment data for assigned stores.
+5. Fan has no direct S Store operating-table access.
+6. No `anon` policy is added.
+
+Business logic impact:
+
+No new business rule was added.
+
+The RLS draft enforces already-confirmed boundaries:
+
+1. Store owners cannot edit locked S Store history.
+2. Reps cannot manage S Store status.
+3. Fans only see fan-safe S Store presentation through normal app logic.
+4. Manager access must be scoped, not global.
+
+Other page impact:
+
+No runtime page impact.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Report;
+4. Backend S Store Management;
+5. Backend S Store Detail;
+6. Field Visit creation/detail;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. Supabase mode persistence.
+
+Risk notes:
+
+1. This migration has not been applied to a Supabase project.
+2. Manager scope currently uses `profiles.city` and `stores.city`; future production may need a richer assigned-region model.
+3. Policies are static-draft covered, but they still need SQL acceptance in a real Supabase preview.
+4. Future Task-054 service reads must preserve current page contracts while using these protected tables.
+5. Production write/RPC behavior is still not implemented.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/s-store-rls-policies.static.test.mjs`
+   - Failed first because `supabase/migrations/20260718000200_s_store_rls_policies.sql` did not exist.
+2. Focused Task-053 test:
+   - `npm test -- src/utils/s-store-rls-policies.static.test.mjs`
+   - Passed: 1 file, 6 tests.
+3. Focused S Store production-boundary regression:
+   - `npm test -- src/utils/s-store-rls-policies.static.test.mjs src/utils/s-store-supabase-schema.static.test.mjs src/utils/supabaseRlsPolicies.test.mjs`
+   - Passed: 3 files, 16 tests.
+4. Full test suite:
+   - `npm test`
+   - Passed: 86 files, 344 tests.
+5. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-054 / S Store Service Supabase Reads.
+2. Task-054 should make S Store read APIs Supabase-first while keeping local fallback and existing page contracts.
+3. Task-054 should not add write/RPC behavior, page behavior changes, `.env`, or dependencies unless separately confirmed.
+
+---
+
+## Task-054: S Store Service Supabase Reads
+
+Status: Completed
+
+Scope:
+
+This task makes S Store read services Supabase-first while preserving local/demo fallback and existing page contracts. It does not add write/RPC behavior, execute database migrations, change page UI, change permissions, modify `.env`, or add dependencies.
+
+What changed:
+
+1. Updated `frontend/src/services/api/s-stores.js` read paths to use Supabase first outside local/demo mode.
+2. Preserved local/demo fallback through the existing API helper boundary.
+3. Added Supabase read coverage for:
+   - `stores`;
+   - `s_store_status_history`;
+   - `s_store_sell_through`;
+   - `s_store_product_inventory_snapshots`;
+   - `s_store_material_inventory_snapshots`;
+   - `s_store_visit_details`;
+   - `s_store_replenishment_tasks`.
+4. Kept S Store contribution metrics as aggregation from existing operational source records:
+   - `campaign_claims`;
+   - `mall_redemptions`;
+   - `scan_records`;
+   - `fan_engagement_tasks`.
+5. Confirmed no manual S Store contribution table was introduced.
+6. Updated `frontend/src/services/supabase.js` so the Supabase client is only created in browser runtime when Supabase env values exist, preventing Node/Vitest runtime crashes from browser-only realtime dependencies.
+7. Expanded static service coverage in `frontend/src/services/api/s-stores.static.test.mjs`.
+8. Updated related docs:
+   - `docs/ROADMAP.md`;
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/06_API.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `frontend/src/services/api/s-stores.js`
+2. `frontend/src/services/api/s-stores.static.test.mjs`
+3. `frontend/src/services/supabase.js`
+4. `docs/ROADMAP.md`
+5. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+6. `docs/06_API.md`
+7. `PROGRESS.md`
+
+Database impact:
+
+No migration was executed.
+
+This task only reads from the S Store production tables drafted in Task-052/Task-053. It does not create, drop, rename, or alter any database table.
+
+API impact:
+
+Read service behavior changed:
+
+1. In local/demo mode, S Store reads keep existing local data behavior.
+2. Outside local/demo mode, S Store reads now try Supabase first.
+3. Existing function names, return shapes, and page contracts are preserved.
+4. Read failures still fall back to local/demo behavior through the existing fallback helper.
+
+Write service behavior did not change:
+
+1. `submitSStoreSellThrough`
+2. `submitSStoreInventory`
+3. `submitSStoreMaterialInventory`
+4. `submitSStoreVisitDetail`
+5. `createReplenishmentTask`
+6. `completeReplenishmentTask`
+7. `downgradeSStoreToA`
+8. `restoreSStore`
+
+Permission impact:
+
+No role, route permission, RBAC helper, RLS policy, or Supabase permission was changed.
+
+In Supabase mode, read visibility depends on the RLS policies drafted in Task-053. Fan users still must not read S Store operational tables directly.
+
+Business logic impact:
+
+No new business rule was added.
+
+The task preserves previously confirmed S Store V1 rules:
+
+1. S Store current identity extends `stores`.
+2. Sell-through remains weekly/monthly open-system and disposable quantities only.
+3. Low-stock remains `current stock <= target stock / 3`.
+4. Store-submitted history remains locked at the service contract level.
+5. Replenishment completion still requires photos in the existing local/demo mutation path.
+6. Contribution metrics are derived from existing source records, not manual numbers.
+
+Other page impact:
+
+No UI page was intentionally changed.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Store Report;
+4. Backend S Store Management;
+5. Backend S Store Detail;
+6. Field Visit creation/detail;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. `.env`.
+
+Risk notes:
+
+1. Supabase read behavior depends on migrations and RLS policies being applied in a future confirmed production/preview environment.
+2. Local fallback can still hide remote Supabase/RLS failures during acceptance if fallback-disabled checks are not run.
+3. Read functions are aligned first; high-risk writes are still not transaction-safe production RPCs.
+4. Contribution aggregation reads source tables directly and should keep counting only real source records.
+5. This task intentionally does not add automatic replenishment, SKU-level sell-through, pricing analysis, incentives, or backend correction UI.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs`
+   - Failed first because `s-stores.js` did not yet include Supabase read branches.
+2. Focused Task-054 service regression:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs`
+   - Passed: 2 files, 10 tests.
+3. Supabase helper/RLS focused regression:
+   - `npm test -- src/services/api/helpers.test.mjs src/utils/supabasePreviewBindings.test.mjs src/utils/supabaseRlsPolicies.test.mjs`
+   - Passed: 3 files, 12 tests.
+4. Wider S Store regression:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/utils/s-store-supabase-schema.static.test.mjs src/utils/s-store-rls-policies.static.test.mjs`
+   - Passed: 8 files, 42 tests.
+5. Full test suite:
+   - `npm test`
+   - Passed: 86 files, 345 tests.
+6. Build:
+   - `npm run build`
+   - Passed.
+   - Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-055 / S Store Controlled Mutations / RPCs.
+2. Task-055 should add transaction-safe RPC or equivalent controlled service boundaries for status changes, store reports, inventory snapshots, visit details, and replenishment completion.
+3. Task-055 must keep downgrade/restore history and audit behavior atomic, preserve the low-stock rule, require replenishment completion photos, and start with fresh impact analysis before implementation.
+
+---
+
+## Task-055: S Store Controlled Mutations / RPCs
+
+Status: Completed
+
+Scope:
+
+This task adds a controlled Supabase RPC draft for existing S Store V1 write actions and wires the frontend S Store service write functions to those RPC boundaries when a real browser Supabase runtime is available. It does not execute migrations, change page UI, add new business rules, change `.env`, add dependencies, or change the confirmed S Store V1 scope.
+
+What changed:
+
+1. Added controlled mutation RPC migration draft:
+   - `supabase/migrations/20260718000300_s_store_controlled_mutations.sql`.
+2. Added RPC draft coverage for:
+   - `submit_s_store_sell_through`;
+   - `submit_s_store_product_inventory`;
+   - `submit_s_store_material_inventory`;
+   - `submit_s_store_visit_detail`;
+   - `create_s_store_replenishment_task`;
+   - `complete_s_store_replenishment_task`;
+   - `downgrade_s_store_to_a`;
+   - `restore_s_store`.
+3. Added an S Store audit helper draft:
+   - `write_s_store_audit`.
+4. Updated `frontend/src/services/api/s-stores.js` so write services:
+   - keep existing local/demo implementations;
+   - call Supabase RPCs when browser Supabase env is available;
+   - keep local/demo behavior when no real Supabase runtime is present.
+5. Preserved existing frontend service function names:
+   - `submitSStoreSellThrough`;
+   - `submitSStoreInventory`;
+   - `submitSStoreMaterialInventory`;
+   - `submitSStoreVisitDetail`;
+   - `createReplenishmentTask`;
+   - `completeReplenishmentTask`;
+   - `downgradeSStoreToA`;
+   - `restoreSStore`.
+6. Added static RPC coverage:
+   - `frontend/src/utils/s-store-controlled-mutations.static.test.mjs`.
+7. Expanded service static coverage:
+   - `frontend/src/services/api/s-stores.static.test.mjs`.
+8. Updated related docs:
+   - `docs/ROADMAP.md`;
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/06_API.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `supabase/migrations/20260718000300_s_store_controlled_mutations.sql`
+2. `frontend/src/services/api/s-stores.js`
+3. `frontend/src/services/api/s-stores.static.test.mjs`
+4. `frontend/src/utils/s-store-controlled-mutations.static.test.mjs`
+5. `docs/ROADMAP.md`
+6. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+7. `docs/06_API.md`
+8. `PROGRESS.md`
+
+Database impact:
+
+Task-055 adds a migration draft, but it does not execute it.
+
+If executed in a future confirmed task, the migration would add controlled RPC functions for S Store write actions and an audit helper function. It does not create, drop, or rename tables.
+
+API impact:
+
+Frontend service function names and page contracts are preserved.
+
+S Store write service behavior now has two paths:
+
+1. Local/demo or non-browser test/runtime:
+   - uses the existing localDb implementations and local Audit Log behavior.
+2. Real browser Supabase runtime:
+   - calls controlled Supabase RPCs.
+
+Permission impact:
+
+No frontend route permission, RBAC helper, or existing RLS policy was changed.
+
+The RPC draft uses previously defined Task-053 helper boundaries:
+
+1. `can_submit_s_store_report`
+2. `can_submit_s_store_visit`
+3. `can_manage_s_store`
+4. `can_manage_s_store_replenishment`
+
+Business logic impact:
+
+No new business rule was added.
+
+The RPC draft preserves already-confirmed S Store V1 rules:
+
+1. Weekly/monthly sell-through only.
+2. Open-system and disposable quantities only.
+3. Product/material inventory snapshots are locked after submission.
+4. Low-stock rule remains `current stock <= target stock / 3`.
+5. Replenishment completion requires photos.
+6. Downgrade/restore require reasons.
+7. Downgrade/restore update store state and write status history in one RPC boundary.
+8. No SKU-level sell-through, price analysis, automatic replenishment, or incentive policy was added.
+
+Other page impact:
+
+No UI page was intentionally changed.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Store Report UI;
+4. Backend S Store Management UI;
+5. Backend S Store Detail UI;
+6. Field Visit creation/detail UI;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. `.env`.
+
+Risk notes:
+
+1. The migration has not been applied to a Supabase project.
+2. RPC behavior still needs SQL acceptance against a real Supabase preview.
+3. The audit helper is defensive and only writes if `public.audit_logs` exists. Final production audit table shape, RLS, and cross-module audit consistency remain Task-056.
+4. Local fallback can still hide remote RPC/RLS issues during acceptance if fallback-disabled checks are not run.
+5. Manager scope still depends on the Task-053 region/city helper direction and may need production region assignment refinement later.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs`
+   - Failed first because the controlled mutation migration did not exist and `s-stores.js` did not call S Store RPCs.
+2. Focused Task-055 static test:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs`
+   - Passed: 2 files, 12 tests.
+3. Focused S Store service/schema/RLS regression:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs src/utils/s-store-supabase-schema.static.test.mjs src/utils/s-store-rls-policies.static.test.mjs`
+   - Passed: 5 files, 27 tests.
+4. Wider S Store regression:
+   - `npm test -- src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/utils/s-store-supabase-schema.static.test.mjs src/utils/s-store-rls-policies.static.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs`
+   - Passed: 9 files, 48 tests.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-056 / Production Audit Log Alignment.
+2. Task-056 should align the production `audit_logs` table shape, RLS, read scopes, and cross-module audit service before relying on audit data for production governance.
+3. Task-056 should start with fresh impact analysis and should not add new S Store business rules, UI redesign, `.env`, dependencies, or automatic replenishment.
+
+---
+
+## Task-056: Production Audit Log Alignment
+
+Status: Completed
+
+Scope:
+
+This task adds a production Audit Log schema/RLS/helper draft and aligns the shared Audit Log service with the production `write_audit_log` RPC boundary. It does not execute migrations, change page UI, add S Store business rules, modify `.env`, add dependencies, or remove existing local/demo audit behavior.
+
+What changed:
+
+1. Added production Audit Log migration draft:
+   - `supabase/migrations/20260718000400_audit_logs_production_alignment.sql`.
+2. The migration draft defines:
+   - `public.audit_logs`;
+   - required audit fields;
+   - JSONB before/after values;
+   - severity constraint;
+   - governance filtering indexes;
+   - scoped RLS policies;
+   - controlled `write_audit_log` helper function.
+3. Updated shared Audit Log service:
+   - `frontend/src/services/api/audit-logs.js`.
+4. `recordAuditLog` now:
+   - normalizes the production audit payload shape;
+   - keeps local/demo writes through `localDb`;
+   - calls `write_audit_log` when a real browser Supabase runtime is available.
+5. Updated S Store controlled mutation draft for JSONB compatibility:
+   - `write_s_store_audit` now writes `before_value` and `after_value` through `to_jsonb(...)`.
+6. Added static production audit coverage:
+   - `frontend/src/utils/audit-logs-production.static.test.mjs`.
+7. Added shared Audit Log service coverage:
+   - `frontend/src/services/api/audit-logs.static.test.mjs`.
+8. Updated related docs:
+   - `docs/ROADMAP.md`;
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`;
+   - `docs/06_API.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `supabase/migrations/20260718000400_audit_logs_production_alignment.sql`
+2. `supabase/migrations/20260718000300_s_store_controlled_mutations.sql`
+3. `frontend/src/services/api/audit-logs.js`
+4. `frontend/src/services/api/audit-logs.static.test.mjs`
+5. `frontend/src/utils/audit-logs-production.static.test.mjs`
+6. `frontend/src/utils/s-store-controlled-mutations.static.test.mjs`
+7. `docs/ROADMAP.md`
+8. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+9. `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`
+10. `docs/06_API.md`
+11. `PROGRESS.md`
+
+Database impact:
+
+Task-056 adds a migration draft, but it does not execute it.
+
+If executed in a future confirmed task, the migration would:
+
+1. Create or align `public.audit_logs`.
+2. Add production audit fields.
+3. Add governance indexes.
+4. Enable RLS.
+5. Add scoped Admin/Manager read policies.
+6. Block normal direct inserts through a controlled insert policy.
+7. Add the `write_audit_log` helper.
+
+No business table is dropped, renamed, or destructively changed.
+
+API impact:
+
+The shared frontend function name remains:
+
+1. `recordAuditLog`
+
+Runtime behavior:
+
+1. Local/demo or non-browser runtime:
+   - writes to localDb `audit_logs`.
+2. Real browser Supabase runtime:
+   - calls Supabase RPC `write_audit_log`.
+
+Permission impact:
+
+No frontend route permission or existing RBAC helper was changed.
+
+The migration draft introduces production Audit Log RLS direction:
+
+1. Admin can read all audit logs.
+2. Manager can read audit logs for matching region/city.
+3. Rep, Store Owner, Fan, and anonymous users do not receive direct Audit Log read policies.
+4. Normal direct authenticated inserts are blocked; writes should go through `write_audit_log` or controlled RPC/service boundaries.
+
+Business logic impact:
+
+No new business rule was added.
+
+This task only aligns the audit record boundary for existing critical operations. It does not add automatic replenishment, SKU-level sell-through, pricing analysis, S Store incentives, reward policy changes, point changes, review rules, or risk rules.
+
+Other page impact:
+
+No UI page was intentionally changed.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App UI;
+4. Backend S Store Management UI;
+5. Backend S Store Detail UI;
+6. Field Visit UI;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. `.env`.
+
+Risk notes:
+
+1. The migration has not been applied to a Supabase project.
+2. RLS/RPC behavior still needs SQL acceptance against a real Supabase preview.
+3. Manager read scope currently uses region/city matching and may need a richer assigned-region model in production.
+4. Existing pages still contain scattered local/demo direct `localDb.insert('audit_logs')` calls. Task-056 does not broadly refactor every page to avoid expanding scope.
+5. Local fallback can still hide remote audit write failures during acceptance if fallback-disabled checks are not run.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/audit-logs-production.static.test.mjs src/services/api/audit-logs.static.test.mjs`
+   - Failed first because the production Audit Log migration did not exist and `audit-logs.js` did not call `write_audit_log`.
+2. Focused Task-056 audit test:
+   - `npm test -- src/utils/audit-logs-production.static.test.mjs src/services/api/audit-logs.static.test.mjs`
+   - Passed: 2 files, 6 tests.
+3. Audit + S Store regression:
+   - `npm test -- src/utils/audit-logs-production.static.test.mjs src/services/api/audit-logs.static.test.mjs src/pages/settings/AuditLogPage.local.test.mjs src/services/api/s-stores.behavior.test.mjs src/services/api/s-stores.static.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs`
+   - Passed: 6 files, 25 tests.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-057 / S Store Production Acceptance.
+2. Task-057 should verify schema/RLS/RPC/audit behavior against a real Supabase preview or an equivalent SQL acceptance flow.
+3. Task-057 should specifically verify fallback-disabled behavior so local fallback does not hide production Supabase/RLS/RPC failures.
+
+---
+
+## Task-057: S Store Production Acceptance
+
+Status: Completed
+
+Scope:
+
+This task adds static production acceptance coverage for the S Store production boundary. It does not execute Supabase migrations, change page UI, add business rules, modify `.env`, add dependencies, or remove local/demo fallback behavior.
+
+What changed:
+
+1. Added static production acceptance coverage:
+   - `frontend/src/utils/s-store-production-acceptance.static.test.mjs`.
+2. The new acceptance test verifies:
+   - S Store migration order is schema, RLS, controlled RPC mutations, then Audit Log alignment;
+   - protected S Store operating tables exist and have RLS enabled;
+   - protected S Store operating tables do not expose `anon`, `public`, or direct fan policies;
+   - frontend S Store mutation services call the confirmed controlled RPC names;
+   - controlled RPC migration defines and grants the same RPC names;
+   - S Store critical RPCs write through the S Store audit helper;
+   - shared Audit Log service writes through `write_audit_log`;
+   - direct Audit Log inserts are blocked by the controlled insert policy;
+   - fallback-disabled production acceptance is represented in helper logic and docs.
+3. Updated related docs:
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `frontend/src/utils/s-store-production-acceptance.static.test.mjs`
+2. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+3. `docs/ROADMAP.md`
+4. `PROGRESS.md`
+
+Database impact:
+
+No database migration was executed.
+
+No table, column, RLS policy, RPC, or real Supabase data was changed by this task.
+
+API impact:
+
+No API function name or runtime service contract was changed.
+
+The task only verifies existing intended API/RPC alignment for:
+
+1. `submit_s_store_sell_through`
+2. `submit_s_store_product_inventory`
+3. `submit_s_store_material_inventory`
+4. `submit_s_store_visit_detail`
+5. `create_s_store_replenishment_task`
+6. `complete_s_store_replenishment_task`
+7. `downgrade_s_store_to_a`
+8. `restore_s_store`
+9. `write_audit_log`
+
+Permission impact:
+
+No frontend route permission, RBAC helper, or RLS policy was changed.
+
+The static acceptance verifies the intended production boundary:
+
+1. Admin/Manager access is represented by scoped RLS helpers and policies.
+2. Store Owner S Store reporting remains owner-scoped.
+3. Rep S Store visit/replenishment access remains assigned-store scoped.
+4. Fans do not receive direct access to protected S Store operating tables.
+5. Anonymous/public policies are not present on protected S Store operating tables.
+
+Business logic impact:
+
+No new business rule was added.
+
+The task does not add automatic replenishment, SKU-level sell-through, price analysis, S Store incentives, points changes, reward changes, review changes, or risk rules.
+
+Other page impact:
+
+No UI page was intentionally changed.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App UI;
+4. Backend S Store Management UI;
+5. Backend S Store Detail UI;
+6. Field Visit UI;
+7. reward pickup operation behavior;
+8. scan operation behavior;
+9. campaign operation behavior;
+10. `.env`.
+
+Risk notes:
+
+1. Task-057 is a static acceptance pass only.
+2. The four production migration drafts have not been applied to a Supabase preview project.
+3. Real Admin, Manager, Rep, Store Owner, and Fan role-session RLS/RPC checks still require a controlled Supabase preview environment.
+4. Local fallback remains available for local/demo mode; production acceptance should set fallback disabled when real Supabase verification is performed.
+5. Manager scope still depends on the current region/city helper direction and may need a richer assigned-region model later.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/s-store-production-acceptance.static.test.mjs`
+   - Failed first because `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md` did not explicitly document fallback-disabled production acceptance.
+2. Focused Task-057 acceptance test:
+   - `npm test -- src/utils/s-store-production-acceptance.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+3. Production boundary regression:
+   - `npm test -- src/utils/s-store-production-acceptance.static.test.mjs src/utils/s-store-supabase-schema.static.test.mjs src/utils/s-store-rls-policies.static.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs src/utils/audit-logs-production.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/audit-logs.static.test.mjs`
+   - Passed: 7 files, 34 tests.
+4. Full frontend test:
+   - `npm test`
+   - Passed: 90 files, 362 tests.
+5. Production build:
+   - `npm run build`
+   - Passed. Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: Task-058 / Backend Correction Flows for locked S Store sell-through, product inventory, and material inventory history.
+2. Real Supabase preview acceptance should still be run before production launch when a controlled Supabase environment is available.
+3. Task-058 should start with fresh impact analysis and should not add new S Store business rules, UI redesign, `.env`, dependencies, automatic replenishment, SKU-level sell-through, or incentive policy.
+
+---
+
+## Task-058: Backend Correction Flows
+
+Status: Completed
+
+Scope:
+
+This task adds backend correction flows for locked S Store sell-through, product inventory, and material inventory history. It does not execute Supabase migrations, change fan UI, change Store App submission rules, add business rules, modify `.env`, add dependencies, add automatic replenishment, add SKU-level sell-through, add price analysis, or add S/A Store incentive policy.
+
+What changed:
+
+1. Added local/demo correction service behavior:
+   - `correctSStoreSellThrough`;
+   - `correctSStoreInventory`;
+   - `correctSStoreMaterialInventory`.
+2. Added S Store correction permission helper:
+   - `canCorrectSStoreHistory`.
+3. Correction service behavior:
+   - requires `correction_reason`;
+   - preserves `locked: true`;
+   - writes `corrected_by`;
+   - writes `corrected_at`;
+   - writes `correction_reason`;
+   - writes `correction_note`;
+   - recomputes product and material low-stock flags;
+   - writes Audit Log records.
+4. Added Backend S Store Detail correction UI:
+   - Sell-through records can be corrected from the `Sell-through` tab;
+   - Product inventory records can be corrected from the `Product Inventory` tab;
+   - Material inventory records can be corrected from the `Material Inventory` tab;
+   - Correction modal requires a reason before saving.
+5. Added controlled Supabase correction RPC migration draft:
+   - `supabase/migrations/20260718000500_s_store_correction_flows.sql`.
+6. Updated production acceptance coverage to include the correction migration and correction RPCs:
+   - `frontend/src/utils/s-store-production-acceptance.static.test.mjs`.
+7. Added correction-specific static migration coverage:
+   - `frontend/src/utils/s-store-correction-flows.static.test.mjs`.
+8. Updated related docs:
+   - `docs/06_API.md`;
+   - `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`;
+   - `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`;
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/ROADMAP.md`;
+   - `PROGRESS.md`.
+
+Files changed in this task:
+
+1. `frontend/src/services/api/s-stores.js`
+2. `frontend/src/services/api.js`
+3. `frontend/src/pages/stores/SStoreDetailPage.jsx`
+4. `frontend/src/services/api/s-stores.static.test.mjs`
+5. `frontend/src/services/api/s-stores.behavior.test.mjs`
+6. `frontend/src/pages/stores/SStoreDetailPage.static.test.mjs`
+7. `frontend/src/utils/s-store-correction-flows.static.test.mjs`
+8. `frontend/src/utils/s-store-production-acceptance.static.test.mjs`
+9. `supabase/migrations/20260718000500_s_store_correction_flows.sql`
+10. `docs/06_API.md`
+11. `docs/20_S_STORE_V1_IMPLEMENTATION_PLAN.md`
+12. `docs/21_BACKEND_GOVERNANCE_V1_PLAN.md`
+13. `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+14. `docs/ROADMAP.md`
+15. `PROGRESS.md`
+
+Database impact:
+
+No database migration was executed.
+
+Task-058 adds a migration draft only. If executed in a future confirmed Supabase task, it would add controlled RPC functions for:
+
+1. `correct_s_store_sell_through`;
+2. `correct_s_store_product_inventory`;
+3. `correct_s_store_material_inventory`.
+
+No table is created, dropped, renamed, or destructively changed by the draft.
+
+API impact:
+
+New frontend service functions:
+
+1. `correctSStoreSellThrough(recordId, payload, profile)`
+2. `correctSStoreInventory(recordId, payload, profile)`
+3. `correctSStoreMaterialInventory(recordId, payload, profile)`
+4. `canCorrectSStoreHistory(profile, store)`
+
+Runtime behavior:
+
+1. Local/demo or non-browser runtime:
+   - updates localDb records and writes local Audit Log entries.
+2. Real browser Supabase runtime:
+   - calls controlled correction RPCs with local/demo fallback preserved by the existing helper boundary.
+
+Permission impact:
+
+No route permission or global RBAC matrix was changed.
+
+S Store correction access follows the confirmed S Store direction:
+
+1. Admin can correct S Store locked history.
+2. Manager can correct S Store locked history within assigned region.
+3. Store Owner cannot correct locked history.
+4. Field Rep cannot correct sell-through or inventory history.
+5. Fan has no access to S Store operating history.
+
+Business logic impact:
+
+No new business rule was added.
+
+Preserved rules:
+
+1. Store-submitted history remains locked.
+2. Corrections require a reason.
+3. Product/material low-stock remains `current stock <= target stock / 3`.
+4. No SKU-level sell-through.
+5. No price analysis.
+6. No automatic replenishment.
+7. No incentive policy.
+8. No fan points, reward, scan, activity, or S Store selection rule changes.
+
+Other page impact:
+
+Intended UI impact is limited to:
+
+1. Backend S Store Detail:
+   - `frontend/src/pages/stores/SStoreDetailPage.jsx`.
+
+No intended impact on:
+
+1. real fan portal;
+2. `/preview/fan`;
+3. Store App S Store Report submission;
+4. Store App read-only locked history behavior;
+5. Field Visit creation/detail UI;
+6. reward pickup operation behavior;
+7. scan operation behavior;
+8. campaign operation behavior;
+9. `.env`.
+
+Risk notes:
+
+1. The correction RPC migration has not been applied to a Supabase project.
+2. Real Admin/Manager role-session correction checks still need controlled Supabase preview acceptance.
+3. Manager correction scope uses the current assigned region/city helper direction.
+4. Correction updates the existing record with metadata instead of creating a separate correction event table. This matches the current V1 schema fields but may need a richer immutable correction ledger in a later governance version if compliance needs increase.
+5. Local fallback can still hide remote RPC/RLS issues unless fallback is disabled during real Supabase acceptance.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/services/api/s-stores.behavior.test.mjs src/services/api/s-stores.static.test.mjs src/utils/s-store-correction-flows.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Failed first because correction services, correction migration draft, and S Store Detail correction UI did not exist.
+2. Focused Task-058 test:
+   - `npm test -- src/services/api/s-stores.behavior.test.mjs src/services/api/s-stores.static.test.mjs src/utils/s-store-correction-flows.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Passed: 4 files, 26 tests.
+3. S Store production/page/service regression:
+   - `npm test -- src/utils/s-store-production-acceptance.static.test.mjs src/utils/s-store-supabase-schema.static.test.mjs src/utils/s-store-rls-policies.static.test.mjs src/utils/s-store-controlled-mutations.static.test.mjs src/utils/s-store-correction-flows.static.test.mjs src/utils/audit-logs-production.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/services/api/audit-logs.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`
+   - Passed: 13 files, 67 tests.
+4. Final focused regression after docs update:
+   - `npm test -- src/utils/s-store-production-acceptance.static.test.mjs src/utils/s-store-correction-flows.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs`
+   - Passed: 4 files, 23 tests.
+5. Full frontend test:
+   - `npm test`
+   - Passed: 91 files, 370 tests.
+6. Production build:
+   - `npm run build`
+   - Passed. Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: controlled real Supabase preview acceptance for the S Store schema/RLS/RPC/Audit/correction migration sequence.
+2. Real Supabase acceptance should verify Admin, Manager, Rep, Store Owner, and Fan sessions with fallback disabled.
+3. Do not start automatic replenishment, SKU-level sell-through, price analysis, S/A Store incentive policy, or more fan UI work without a new confirmed impact analysis.
+
+## Task-059: Real Supabase Preview Acceptance Readiness
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Prepare a non-destructive real Supabase preview acceptance checklist for the S Store production boundary, so the next real preview run can validate schema, RLS, RPC, Audit Log, role sessions, frontend behavior, and fallback-disabled behavior in a controlled way.
+
+Scope completed:
+
+1. Added Supabase preview acceptance checklist:
+   - `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`.
+2. Added static acceptance coverage:
+   - `frontend/src/utils/supabase-preview-acceptance-checklist.static.test.mjs`.
+3. Updated production alignment documentation:
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`.
+4. Updated roadmap next-step status:
+   - `docs/ROADMAP.md`.
+
+Checklist coverage:
+
+1. Non-destructive task boundary:
+   - no migration execution from Codex in Task-059;
+   - no `.env` modification;
+   - no dependency installation;
+   - no production data use for first acceptance;
+   - no new S Store business rules during acceptance.
+2. Required preview environment:
+   - preview-only Admin, Manager, Rep, Store Owner, Fan accounts;
+   - active S Store, unrelated-region S Store, and non-S Store;
+   - fallback disabled with `VITE_ALLOW_LOCAL_DB_FALLBACK=false`.
+3. Migration order:
+   - `20260718000100_s_store_schema.sql`;
+   - `20260718000200_s_store_rls_policies.sql`;
+   - `20260718000300_s_store_controlled_mutations.sql`;
+   - `20260718000400_audit_logs_production_alignment.sql`;
+   - `20260718000500_s_store_correction_flows.sql`.
+4. Role-boundary acceptance:
+   - Admin;
+   - Manager;
+   - Rep;
+   - Store Owner;
+   - Fan;
+   - anonymous.
+5. RPC acceptance:
+   - sell-through submission;
+   - product inventory submission;
+   - material inventory submission;
+   - S Store visit detail;
+   - replenishment create/complete;
+   - downgrade/restore;
+   - correction flows;
+   - `write_audit_log`.
+6. Audit Log acceptance:
+   - critical mutation writes;
+   - scoped read expectations.
+7. Data integrity acceptance:
+   - locked history;
+   - correction metadata;
+   - low-stock formula;
+   - fan-safe exposure.
+8. Frontend preview acceptance:
+   - Backend S Store Management;
+   - Backend S Store Detail;
+   - Store App S Store Report;
+   - Field Visit S Store detail;
+   - correction modal;
+   - fallback-disabled failure visibility.
+
+Database impact:
+
+No database migration was executed.
+
+No Supabase project was connected.
+
+No production database was changed.
+
+API impact:
+
+No runtime API behavior was changed.
+
+Permission impact:
+
+No permission behavior was changed.
+
+Other page impact:
+
+No fan, store, backend, or preview page UI was changed.
+
+Risk notes:
+
+1. This task proves readiness only through documentation and static coverage.
+2. Real Supabase role-session behavior still needs controlled preview execution.
+3. The preview execution task must prepare test accounts and rollback/restoration approach first.
+4. Fallback-disabled acceptance requires `VITE_ALLOW_LOCAL_DB_FALLBACK=false` in the preview environment, but Task-059 did not edit `.env`.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Failed first because the checklist did not exist, then failed once because the non-destructive dependency-install assertion was checking for the wrong condition.
+2. Focused checklist test:
+   - `npm test -- src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Focused Supabase preview/S Store acceptance regression:
+   - `npm test -- src/utils/supabase-preview-acceptance-checklist.static.test.mjs src/utils/s-store-production-acceptance.static.test.mjs src/utils/s-store-correction-flows.static.test.mjs`
+   - Passed: 3 files, 13 tests.
+4. Full frontend test:
+   - `npm test`
+   - Passed: 92 files, 374 tests.
+5. Production build:
+   - `npm run build`
+   - Passed. Existing large chunk warning remains.
+
+Follow-up notes:
+
+1. Recommended next direction: controlled real Supabase preview execution using `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`.
+2. Do not execute migrations, connect to Supabase, or change `.env` without a separate explicit confirmation and preview environment details.
+
+## Task-060: Real Supabase Preview Execution
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Execute the S Store production-boundary acceptance checklist against the connected Supabase preview project and identify real schema/RLS/RPC/Audit readiness gaps before any production use.
+
+Supabase project:
+
+1. Project ref:
+   - `rdsrgpnvzcchqlsghsrq`
+2. Project name:
+   - `store-manager`
+3. Secret handling:
+   - Supabase PAT was used only as an in-memory command credential.
+   - No token, API key, database password, service role key, or `.env` value was written to project docs.
+   - The PAT should be revoked after this preview execution window.
+
+Scope executed:
+
+1. Applied the five S Store production-boundary migrations through Supabase Management API:
+   - `20260718000100_s_store_schema.sql`;
+   - `20260718000200_s_store_rls_policies.sql`;
+   - `20260718000300_s_store_controlled_mutations.sql`;
+   - `20260718000400_audit_logs_production_alignment.sql`;
+   - `20260718000500_s_store_correction_flows.sql`.
+2. Requested PostgREST schema cache reload.
+3. Verified preview Auth users exist:
+   - Admin;
+   - Manager;
+   - Rep;
+   - Store Owner;
+   - Fan.
+4. Ran preview identity binding:
+   - `supabase/acceptance/preview-identity-binding.sql`.
+5. Ran preview identity checks:
+   - `supabase/acceptance/preview-identity-checks.sql`.
+6. Seeded minimum preview acceptance objects:
+   - one active Riyadh S Store;
+   - one outside-region Jeddah S Store;
+   - one Riyadh non-S Store;
+   - one assigned field visit shell for the Rep.
+7. Ran role-session REST/RPC acceptance checks using preview role logins.
+
+Acceptance results:
+
+Passed:
+
+1. All five migrations executed successfully.
+2. Preview identity binding checks returned `ok`.
+3. Admin, Manager, Rep, Store Owner, and Fan preview logins succeeded.
+4. Anonymous and Fan could not read protected S Store operating tables:
+   - `s_store_status_history`;
+   - `s_store_sell_through`;
+   - `s_store_product_inventory_snapshots`;
+   - `s_store_material_inventory_snapshots`;
+   - `s_store_visit_details`;
+   - `s_store_replenishment_tasks`;
+   - `audit_logs`.
+5. Store Owner could submit own active S Store:
+   - sell-through;
+   - product inventory;
+   - material inventory.
+6. Store Owner could not submit another store's S Store reports.
+7. Sell-through duplicate period uniqueness rejected duplicate submission.
+8. Product inventory low-stock formula worked:
+   - `current stock <= target stock / 3`.
+9. Material inventory low-stock formula worked:
+   - `current quantity <= target quantity / 3`.
+10. Rep could submit assigned S Store visit detail.
+11. Rep could not manage S Store status.
+12. Manager could not manage unrelated-region S Store status.
+13. Manager could downgrade and restore assigned-region S Store with reason.
+14. Correction without reason failed.
+15. Rep, Store Owner, and Fan could not correct locked S Store history.
+16. Manager could correct assigned-region sell-through with reason.
+17. Admin could correct product inventory with reason.
+18. Manager could create assigned-region replenishment task.
+19. Replenishment completion without photos failed.
+20. Rep could complete assigned replenishment task with photos.
+21. Admin could read S Store Audit Log records.
+22. Manager could read assigned-region S Store Audit Log records.
+23. Rep and Store Owner could not directly read Audit Log records.
+
+Failed / blocking:
+
+1. Fan-safe store exposure failed at the direct database/API layer.
+   - Fan cannot read protected S Store operating tables, which is correct.
+   - However, Fan can still query the `stores` row for the fan's bound store and explicitly select internal columns:
+     - `is_s_store`;
+     - `s_store_status`;
+     - `s_store_source`;
+     - `cooperation_note`.
+   - This happens because the existing `stores_select_scoped` RLS policy allows Fan access through `can_access_store(id)`, and PostgreSQL RLS controls rows, not per-role column visibility.
+
+Database impact:
+
+1. The five S Store migration drafts were applied to the connected Supabase project.
+2. Preview acceptance data was inserted or updated:
+   - active S Store;
+   - outside-region S Store;
+   - non-S Store;
+   - visit shell;
+   - S Store report/history/task/audit records generated during RPC acceptance.
+3. No `.env` file was modified.
+4. No dependency was installed.
+
+API impact:
+
+1. S Store RPCs now exist in the connected Supabase project.
+2. Runtime acceptance confirmed most controlled RPC behavior works with real role sessions.
+3. Fan-safe store exposure remains incomplete because direct `stores` table access still exposes internal S Store columns to Fan users who can access their bound store row.
+
+Permission impact:
+
+1. Protected S Store operating table RLS passed for anonymous and Fan.
+2. S Store mutation RPC role boundaries mostly passed.
+3. `stores` table fan exposure remains a permission/API design gap.
+
+Other page impact:
+
+No frontend page UI was changed in this task.
+
+Risk notes:
+
+1. This was run against the configured Supabase project `store-manager`; confirm that this is the intended preview project before any production launch.
+2. The exposed `stores` internal columns should be fixed before production S Store launch.
+3. A robust fix likely requires a fan-safe store read boundary:
+   - fan-facing store discovery should use a safe view/RPC or API projection;
+   - direct Fan access to `stores` rows with internal columns should be removed or isolated;
+   - because RLS is row-level, not role-based column filtering.
+4. The current `.env` does not include `VITE_ALLOW_LOCAL_DB_FALLBACK=false`; fallback-disabled frontend browser acceptance still needs a dedicated run after the fan-safe exposure gap is resolved.
+
+Verification:
+
+1. Migration execution:
+   - Passed: 5/5 migrations returned success from Supabase Management API.
+2. Identity binding:
+   - Passed: preview identity checks returned `ok` for Admin, Manager, Rep, Store Owner, Fan, store owner binding, rep binding, and fan binding.
+3. Role-session acceptance:
+   - Passed: 48/49 checks.
+   - Failed: Fan direct `stores` query exposes internal S Store columns.
+
+Follow-up notes:
+
+1. Recommended immediate next task: fix fan-safe store exposure at the Supabase/API boundary.
+2. Do not proceed to production acceptance closeout until Fan cannot directly receive internal S Store fields.
+3. Revoke the supplied Supabase PAT after this execution window.
+
+## Task-061: Fan-safe Store Exposure Boundary Fix
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Close the Task-060 real Supabase preview blocker where Fan users could directly select internal S Store columns from the accessible `stores` row.
+
+Root cause:
+
+1. The existing `stores_select_scoped` policy allows a Fan to access the Fan's bound store row through `can_access_store(id)`.
+2. PostgreSQL RLS is row-level and does not hide role-sensitive columns once a row is visible.
+3. Therefore Fan could explicitly select:
+   - `is_s_store`;
+   - `s_store_status`;
+   - `s_store_source`;
+   - `cooperation_note`.
+
+Scope completed:
+
+1. Added migration:
+   - `supabase/migrations/20260718000600_fan_safe_store_exposure.sql`.
+2. Added static coverage:
+   - `frontend/src/utils/fan-safe-store-exposure.static.test.mjs`.
+3. Updated existing static coverage:
+   - `frontend/src/services/api/s-stores.static.test.mjs`;
+   - `frontend/src/utils/s-store-production-acceptance.static.test.mjs`;
+   - `frontend/src/utils/supabase-preview-acceptance-checklist.static.test.mjs`.
+4. Updated frontend store read boundaries:
+   - `frontend/src/services/api/stores.js`;
+   - `frontend/src/services/api/s-stores.js`;
+   - `frontend/src/pages/fans/tabs/MapTab.jsx`.
+5. Updated docs:
+   - `docs/23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`;
+   - `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`;
+   - `PROGRESS.md`.
+
+Database impact:
+
+Task-061 adds and executed a preview migration that:
+
+1. Adds `stores.exposure_controls JSONB DEFAULT '{}'::jsonb` if missing.
+2. Revokes broad direct `stores` SELECT from:
+   - `anon`;
+   - `authenticated`.
+3. Grants only safe direct `stores` columns to `authenticated`.
+4. Adds fan-safe RPC:
+   - `get_fan_safe_stores(p_filters jsonb)`.
+5. Adds internal RPCs:
+   - `get_internal_stores(p_filters jsonb)`;
+   - `get_internal_store(p_store_id uuid)`.
+
+No table was dropped.
+
+No S Store business rule was added.
+
+No `.env` file was modified.
+
+No dependency was installed.
+
+API impact:
+
+1. Fan-facing store discovery now has a dedicated safe RPC boundary.
+2. Backend/S Store store reads now use internal RPCs instead of direct `stores.select('*')`.
+3. Existing S Store mutation RPC names remain unchanged.
+4. Local/demo mode remains backed by `localDb`.
+
+Permission impact:
+
+Expected after Task-061:
+
+1. Fan cannot directly select internal S Store columns from `stores`.
+2. Fan can read fan-safe store presentation through `get_fan_safe_stores`.
+3. Fan cannot call internal store RPCs.
+4. Admin/Manager/Rep/Store Owner can continue using internal store reads through RPCs according to existing scoped rules.
+
+Other page impact:
+
+Intended impact:
+
+1. Fan Stores/Map reads through `getFanSafeStores`.
+2. Backend Store and S Store reads use internal RPCs in remote Supabase mode.
+
+No UI redesign was performed.
+
+No `/preview/fan` work was performed.
+
+Risk notes:
+
+1. Backend/store/field pages that directly rely on `stores.select('*')` in remote mode must use internal store services.
+2. Any future new fan-facing store query must use fan-safe RPC/API, not direct `stores` access.
+3. Store create/update remote flows may need a later dedicated preview smoke test because broad direct SELECT on `stores` was intentionally removed.
+4. The supplied Supabase PAT should be revoked after this execution window.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs`
+   - Failed first because migration, fan-safe RPC, internal RPC, service routing, and MapTab fan-safe API usage did not exist.
+2. Focused Task-061 static test:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+3. Focused fan/S Store production regression:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/services/api/s-stores.static.test.mjs src/utils/s-store-production-acceptance.static.test.mjs`
+   - Passed: 4 files, 25 tests.
+4. Preview Supabase migration:
+   - `20260718000600_fan_safe_store_exposure.sql`
+   - Executed successfully against `rdsrgpnvzcchqlsghsrq` / `store-manager`.
+5. Preview Supabase retest:
+   - Fan direct internal `stores` columns query returned permission denied.
+   - Fan-safe RPC returned safe fields only.
+   - Fan internal RPC returned `Internal store access is not allowed for Fan users.`
+   - Manager internal RPC returned full internal S Store fields.
+6. Focused behavior regression after local/demo read-boundary fix:
+   - `npm test -- src/services/api/s-stores.behavior.test.mjs`
+   - Passed: 1 file, 6 tests.
+7. Focused Task-061 regression including behavior and checklist coverage:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/s-store-production-acceptance.static.test.mjs src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Passed: 6 files, 36 tests.
+8. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 380 tests.
+9. Production build:
+   - `npm run build`
+   - Passed. Vite emitted only existing large chunk size warnings.
+
+Follow-up notes:
+
+1. Recommended next step: run final fallback-disabled browser/API preview acceptance with `VITE_ALLOW_LOCAL_DB_FALLBACK=false`.
+2. Do not add new S Store business rules, incentive rules, automatic replenishment, SKU-level sell-through, price analysis, or fan UI redesign as part of that final acceptance.
+
+## Task-062: Fallback-disabled Preview And Browser Acceptance
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Run the next production hardening pass with local fallback disabled so real Supabase Auth/RLS/RPC/page issues are visible instead of being hidden by local/demo data.
+
+Current status:
+
+Partially completed and blocked for full internal-role acceptance.
+
+Scope executed:
+
+1. Used existing preview Supabase project:
+   - `rdsrgpnvzcchqlsghsrq`.
+2. Did not modify `.env`.
+3. Did not install dependencies.
+4. Did not add migrations.
+5. Did not change schema, RLS, RPC, API code, business rules, or UI.
+6. Started fallback-disabled local preview only through process environment:
+   - `VITE_ALLOW_LOCAL_DB_FALLBACK=false`;
+   - `VITE_ALLOW_LOCAL_AUTH_FALLBACK=false`.
+7. Used production build plus `vite preview` and accessed the app through the machine network address instead of `localhost`, because the current auth store intentionally enables local auth fallback on localhost-style hosts.
+
+API acceptance results:
+
+Passed:
+
+1. Fan preview login succeeds with the current Fan test account.
+2. Fan-safe store RPC succeeds:
+   - `get_fan_safe_stores`;
+   - returned 1 row;
+   - no internal S Store keys leaked.
+3. Fan internal store RPC is blocked:
+   - `get_internal_stores`;
+   - returned `Internal store access is not allowed for Fan users.`
+4. Fan direct internal `stores` column select is blocked:
+   - permission denied for `stores`.
+5. Fan cannot see protected S Store sell-through rows directly:
+   - `s_store_sell_through` returned no rows.
+6. Anonymous cannot read protected S Store operating table rows.
+
+Blocked:
+
+1. Internal preview role accounts could not complete Auth login with the historical temporary credentials:
+   - Admin;
+   - Manager;
+   - Rep;
+   - Store Owner;
+   - Fan account with the old temporary credential.
+2. Because Admin/Manager/Rep/Store Owner sessions were unavailable, Task-062 could not truthfully complete full role-session acceptance for:
+   - Store Owner own S Store report submission;
+   - Rep S Store visit submission;
+   - Rep replenishment task creation/completion;
+   - Manager downgrade/restore;
+   - Manager/Admin correction flows;
+   - Admin/Manager Audit Log read checks.
+3. The blocked RPC attempts correctly failed without localDb fallback, but they were not valid positive role checks because there was no authenticated internal role session.
+
+Browser preview acceptance results:
+
+Passed:
+
+1. Built production assets with fallback disabled:
+   - `npm run build`;
+   - passed;
+   - Vite emitted only the existing large chunk size warnings.
+2. Started production preview:
+   - `npm run preview -- --host 0.0.0.0 --port 5188`.
+3. Opened the real fan app through the machine network address:
+   - not `localhost`;
+   - avoids the local auth fallback host rule.
+4. Browser login with the current Fan test account succeeded.
+5. Fan Home showed remote Fan data:
+   - `UWELL Preview Fan`;
+   - no `Ahmed` / local `f-001` fan data appeared on screen.
+6. Fan Stores showed the fan-safe Brand Store presentation.
+7. Supabase browser calls completed without 4xx/5xx failures in the checked flow.
+8. No browser console errors or page errors were detected.
+9. Screenshots saved:
+   - `frontend/output/playwright/task-062-fallback-disabled-preview/fan-home.png`;
+   - `frontend/output/playwright/task-062-fallback-disabled-preview/fan-stores.png`.
+
+Residual risk:
+
+1. Fan entry still writes legacy localStorage markers such as `fan_logged_in` and `store_manager_current_user`.
+   - In this browser check, the rendered page still used remote Fan data and did not show local `Ahmed` / `f-001` data.
+   - This marker cleanup should be a later confirmed task if the project wants a cleaner production auth boundary.
+2. Full Step 11 cannot be closed until Admin, Manager, Rep, and Store Owner preview credentials are reset or confirmed.
+3. A later internal-role rerun should avoid recording passwords or tokens in docs.
+
+Verification:
+
+1. REST/Auth Fan boundary check:
+   - Passed.
+   - Confirmed Fan login, fan-safe RPC, internal RPC block, internal `stores` column block, and protected S Store table invisibility.
+2. Production build:
+   - `VITE_ALLOW_LOCAL_DB_FALLBACK=false VITE_ALLOW_LOCAL_AUTH_FALLBACK=false npm run build`
+   - Passed.
+3. Browser preview QA:
+   - Used installed Chrome through Playwright because Playwright-managed browsers were not installed.
+   - Passed for fallback-disabled real Fan Home and Stores flow.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 380 tests.
+
+Next required step:
+
+Before rerunning the full Step 11 internal-role acceptance, reset or confirm preview Auth credentials for:
+
+1. Admin;
+2. Manager;
+3. Rep;
+4. Store Owner.
+
+Then rerun the role-session acceptance with fallback disabled and record:
+
+1. Store Owner report submission evidence;
+2. Rep visit/replenishment evidence;
+3. Manager/Admin status and correction evidence;
+4. Audit Log evidence;
+5. final `npm test`;
+6. final `npm run build`.
+
+## Task-063: Internal-role Preview Acceptance Rerun
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Reset or confirm preview Auth credentials for the internal test roles, rerun the S Store Step 11 role-session acceptance against the real Supabase preview project, and identify any remaining production-boundary blockers.
+
+Current status:
+
+Partially completed and blocked by one confirmed Manager internal-store read-boundary issue.
+
+Scope executed:
+
+1. Used existing preview Supabase project:
+   - `rdsrgpnvzcchqlsghsrq`.
+2. Did not modify `.env`.
+3. Did not install dependencies.
+4. Did not add migrations.
+5. Did not change frontend code, backend API code, schema, RLS policies, business rules, or UI.
+6. Restored preview Auth login ability for the role test accounts through the Supabase Management API and database query endpoint.
+7. Re-ran the existing preview identity binding SQL:
+   - `supabase/acceptance/preview-identity-binding.sql`.
+8. Re-ran the existing preview identity checks:
+   - `supabase/acceptance/preview-identity-checks.sql`.
+
+Do not record passwords, API keys, PATs, service-role keys, or `.env` values in project docs.
+
+Auth and identity results:
+
+Passed:
+
+1. Admin preview Auth login succeeds.
+2. Manager preview Auth login succeeds.
+3. Rep preview Auth login succeeds.
+4. Store Owner preview Auth login succeeds.
+5. Fan preview Auth login succeeds.
+6. `profiles` role binding is correct for:
+   - Admin;
+   - Manager;
+   - Rep;
+   - Store Owner;
+   - Fan.
+7. Active preview S Store binding is correct:
+   - `stores.rep_id` -> Rep;
+   - `stores.owner_profile_id` -> Store Owner.
+8. Preview Fan binding is correct:
+   - `fans.user_id` -> Fan.
+
+API/RPC acceptance results:
+
+Passed:
+
+1. Admin can read the active internal S Store through `get_internal_store`.
+2. Store Owner can submit own active S Store sell-through.
+3. Duplicate sell-through period submission is blocked by uniqueness.
+4. Store Owner cannot submit sell-through for another S Store.
+5. Store Owner can submit own active S Store product inventory.
+6. Store Owner can submit own active S Store material inventory.
+7. Store-submitted sell-through, product inventory, and material inventory records remain locked.
+8. Product and material low-stock flags follow the one-third threshold.
+9. Store Owner cannot directly edit locked sell-through history.
+10. Rep can create a fresh field visit for the assigned S Store.
+11. Rep can submit assigned S Store visit detail.
+12. Rep can create an assigned S Store replenishment task with a valid `field_visit` trigger.
+13. Replenishment completion without photos is blocked.
+14. Rep can complete assigned replenishment task with photos.
+15. Rep cannot manage S Store status.
+16. Correction without reason is blocked.
+17. Manager can correct assigned-region sell-through.
+18. Manager can correct assigned-region product inventory.
+19. Admin can correct material inventory.
+20. Fan cannot correct S Store history.
+21. Manager can downgrade assigned S Store to A.
+22. Manager can restore assigned S Store to S.
+23. Fan sees only fan-safe store presentation through `get_fan_safe_stores`.
+24. Fan cannot call internal store RPCs.
+25. Fan cannot read protected S Store operating table rows.
+26. Anonymous cannot read protected S Store operating table rows.
+27. Fan cannot call S Store operating mutation RPCs.
+28. Anonymous cannot call S Store operating mutation RPCs.
+29. Admin can read generated S Store Audit Log records.
+30. Manager can read matching-region Audit Log records.
+31. Rep, Store Owner, Fan, and anonymous cannot directly read Audit Log records.
+32. Manager cannot directly read unrelated-region S Store operating rows.
+33. Manager cannot correct unrelated-region sell-through.
+
+Blocked:
+
+1. Manager can read an unrelated-region S Store through `get_internal_store`.
+   - Example boundary: Manager profile city is Riyadh, unrelated test S Store city is Jeddah.
+   - Expected by the Step 11 checklist: Manager cannot access unrelated-region S Store data.
+   - Actual result: `get_internal_store` returned the Jeddah S Store with internal fields.
+2. Root cause:
+   - `get_internal_store` / `get_internal_stores` currently use `public.can_access_store(store_row.id)`.
+   - Existing legacy `can_access_store` grants `public.is_admin_or_manager()` broad store read access.
+   - S Store operating table/correction checks use S Store-specific scoped helpers and correctly block unrelated-region Manager access.
+3. This should not be patched casually because changing `can_access_store` itself would affect broader backend store, visit, fan, campaign, QR, material, and evaluation access.
+
+Recommended next task:
+
+Create a separate confirmed Task-064 for Manager-scoped internal S Store RPC read boundary.
+
+Expected Task-064 direction:
+
+1. Do not change the global `can_access_store` rule unless explicitly approved.
+2. Add or adjust S Store/internal-store RPC read filtering so:
+   - Admin can read all internal stores;
+   - Manager can read assigned-region internal stores;
+   - Rep can read assigned stores;
+   - Store Owner can read own store;
+   - Fan remains blocked from internal RPCs.
+3. Add static tests for this boundary.
+4. Apply the additive preview migration only after impact analysis and confirmation.
+5. Rerun Task-063 role-session acceptance after the fix.
+
+Verification:
+
+1. Internal-role Auth login check:
+   - Passed for Admin, Manager, Rep, Store Owner, and Fan.
+2. Preview identity binding check:
+   - Passed.
+3. Task-063 API/RPC acceptance:
+   - Main run: 31 passed, 4 failed.
+   - Parameter-corrected rerun for visit/replenishment/unrelated operating-row checks: 8 passed, 0 failed.
+   - Remaining real blocker: Manager unrelated-region internal store read through `get_internal_store`.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 380 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk size warnings.
+
+## Task-064: Manager-scoped Internal Store RPC Read Boundary
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Close the Task-063 blocker where a Manager could read unrelated-region S Store internal fields through `get_internal_store`.
+
+Root cause:
+
+1. `get_internal_store` and `get_internal_stores` from Task-061 used the legacy `public.can_access_store(store_row.id)` boundary.
+2. The legacy `can_access_store` grants broad `public.is_admin_or_manager()` access.
+3. That broad rule is still needed by older backend modules and should not be changed casually.
+4. S Store operating tables and correction RPCs already used stricter S Store helpers and correctly blocked unrelated-region Manager access.
+
+Scope completed:
+
+1. Added migration:
+   - `supabase/migrations/20260718000700_internal_store_rpc_scope.sql`.
+2. Added a dedicated internal store read helper:
+   - `public.can_read_internal_store(target_store_id uuid)`.
+3. Replaced the internal RPC read predicates in:
+   - `get_internal_stores(p_filters jsonb)`;
+   - `get_internal_store(p_store_id uuid)`.
+4. Updated static coverage:
+   - `frontend/src/utils/fan-safe-store-exposure.static.test.mjs`;
+   - `frontend/src/utils/supabase-preview-acceptance-checklist.static.test.mjs`.
+5. Updated checklist docs:
+   - `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`.
+
+Database impact:
+
+1. Executed `20260718000700_internal_store_rpc_scope.sql` against the preview Supabase project:
+   - `rdsrgpnvzcchqlsghsrq`.
+2. Added or replaced functions only.
+3. No table was added.
+4. No data was deleted.
+5. No global `can_access_store` rule was changed.
+6. No `.env` file was modified.
+7. No dependency was installed.
+
+Permission impact:
+
+Internal store RPC read behavior is now:
+
+1. Admin can read all internal stores.
+2. Manager can read assigned-region internal stores.
+3. Manager cannot read unrelated-region internal store RPC data.
+4. Rep can read assigned stores.
+5. Store Owner can read own store.
+6. Fan remains blocked from internal store RPCs.
+
+API impact:
+
+1. RPC names are unchanged:
+   - `get_internal_stores`;
+   - `get_internal_store`.
+2. Frontend service calls are unchanged.
+3. Return scope is stricter for Manager users.
+4. Runtime note:
+   - PostgREST returns a null-shaped composite for `get_internal_store` when no authorized store row is returned.
+   - Treat `id = null` as no internal store returned.
+
+Other page impact:
+
+No UI was changed.
+
+No intended impact on:
+
+1. Fan UI.
+2. Store App UI.
+3. Backend non-S Store pages using legacy access rules.
+4. Global store access policies.
+5. Permissions outside the internal store RPC boundary.
+
+Preview Supabase acceptance:
+
+Passed:
+
+1. Admin can read outside-region internal store.
+2. Manager can read assigned-region internal store.
+3. Manager cannot read unrelated-region internal store.
+4. Rep can read assigned internal store.
+5. Store Owner can read own internal store.
+6. Fan remains blocked from internal store RPC.
+7. Manager internal store list excludes unrelated-region S Store.
+
+Verification:
+
+1. TDD red test:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Failed as expected before implementation because `20260718000700_internal_store_rpc_scope.sql` and checklist coverage were missing.
+2. Focused static tests after implementation:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Passed: 2 files, 10 tests.
+3. Preview migration:
+   - `20260718000700_internal_store_rpc_scope.sql`
+   - Executed successfully against `rdsrgpnvzcchqlsghsrq`.
+4. Preview internal store RPC retest:
+   - Passed: 8 checks, 0 failed.
+
+Final verification:
+
+1. Focused S Store regression:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs src/utils/s-store-production-acceptance.static.test.mjs src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Passed: 6 files, 37 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 381 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk size warnings.
+
+Follow-up:
+
+Task-064 closes the Task-063 internal store RPC blocker. Recommended next step is to rerun or close the final fallback-disabled Step 11 acceptance record, then decide whether to move to frontend browser acceptance for internal S Store pages or the next roadmap phase.
+
+## Task-065: Final Step 11 Closeout
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Close the low-level Supabase/RLS/RPC production-boundary hardening line for S Store Step 11 and move the project to page-level/browser workflow acceptance.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Ran a final focused Step 11 API/RPC closeout against the preview Supabase project:
+   - `rdsrgpnvzcchqlsghsrq`.
+2. Did not add migrations.
+3. Did not change schema.
+4. Did not change RLS.
+5. Did not change RPC code.
+6. Did not change frontend UI.
+7. Did not modify `.env`.
+8. Did not install dependencies.
+9. Updated docs only:
+   - `PROGRESS.md`;
+   - `docs/24_SUPABASE_PREVIEW_ACCEPTANCE_CHECKLIST.md`;
+   - `docs/ROADMAP.md`.
+
+Closeout result:
+
+Passed:
+
+1. Preview role logins were available for:
+   - Admin;
+   - Manager;
+   - Rep;
+   - Store Owner;
+   - Fan.
+2. Admin can read outside-region internal store data.
+3. Manager can read assigned-region internal store data.
+4. Manager cannot read unrelated-region internal store data.
+5. Rep can read assigned internal store data.
+6. Store Owner can read own internal store data.
+7. Fan remains blocked from internal store RPCs.
+8. Fan-safe store RPC returns no internal S Store keys.
+9. Fan cannot read protected S Store rows.
+10. Anonymous cannot read protected S Store rows.
+11. Store Owner can submit own S Store sell-through.
+12. Manager can correct assigned-region sell-through.
+13. Rep cannot manage S Store status.
+14. Fan cannot call S Store operating mutation RPCs.
+15. Admin can read S Store Audit Log records.
+16. Fan cannot directly read Audit Log records.
+
+Summary:
+
+- 16 checks passed.
+- 0 checks failed.
+
+Closed blockers:
+
+1. Task-060 Fan direct internal store-column exposure:
+   - Closed by Task-061.
+2. Task-062 internal preview role Auth login blocker:
+   - Closed by Task-063.
+3. Task-063 Manager unrelated-region internal store RPC read blocker:
+   - Closed by Task-064.
+
+Residual notes:
+
+1. This closes the low-level Supabase/RLS/RPC hardening loop for S Store Step 11.
+2. Browser/page-level acceptance for internal S Store pages should be a next phase, not another low-level permission loop.
+3. The previously supplied Supabase PAT should be revoked or rotated.
+
+Final verification:
+
+1. Final Step 11 API/RPC closeout:
+   - Passed: 16 checks, 0 failed.
+2. Focused static closeout tests:
+   - `npm test -- src/utils/fan-safe-store-exposure.static.test.mjs src/utils/supabase-preview-acceptance-checklist.static.test.mjs`
+   - Passed: 2 files, 10 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 381 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk size warnings.
+
+Next recommended phase:
+
+1. Internal S Store page-level browser acceptance:
+   - Backend S Store Management;
+   - Backend S Store Detail;
+   - correction modal;
+   - visible remote/RLS errors.
+2. Store App S Store report UX acceptance.
+3. Field Rep S Store visit/replenishment UX acceptance.
+4. Brand Growth Dashboard phase after the above workflows are stable.
+
+## Task-066: Internal S Store Page-Level Browser Acceptance
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Verify and close backend S Store page-level browser acceptance in fallback-disabled remote preview mode.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Used the real backend S Store pages:
+   - `/#/app/stores/s-stores`;
+   - `/#/app/stores/s-stores/:id`.
+2. Did not use `/preview/fan`.
+3. Did not change database schema.
+4. Did not change RLS policies.
+5. Did not change backend RPC definitions.
+6. Did not modify `.env`.
+7. Did not install dependencies.
+8. Changed only S Store frontend read-service resilience and the related static regression test.
+
+Root cause found:
+
+1. `get_internal_stores` RPC returned real remote store data successfully.
+2. S Store Management still rendered as empty because optional/secondary page read requests were coupled to the main list read model.
+3. Two remote page requests could fail in preview:
+   - `fan_engagement_tasks` returned 404 because the optional contribution source is not available in the current remote schema;
+   - `s_store_replenishment_tasks` with embedded `stores(*)` returned 403.
+4. Those secondary failures made the S Store page behave as if no S Store records existed.
+
+Fix implemented:
+
+1. `frontend/src/services/api/s-stores.js`
+   - Replenishment remote read now selects the task table directly without `stores(*)` embedding.
+   - Optional remote contribution sources are guarded through `safeOptionalRemoteRows`.
+   - `fan_engagement_tasks` remains counted in the read model but is disabled as an optional remote source until the remote schema supports it.
+2. `frontend/src/services/api/s-stores.static.test.mjs`
+   - Added regression coverage to prevent optional remote sources from emptying the S Store management list again.
+
+Browser acceptance result:
+
+Passed:
+
+1. Admin can log into the real backend preview.
+2. S Store Management title renders.
+3. S Store Management shows visible S Store rows.
+4. S Store Management no longer shows the false empty state.
+5. S Store Management has no horizontal overflow.
+6. S Store Detail opens from a real row.
+7. S Store Detail renders the real detail content.
+8. S Store Detail is not blocked by the outside-scope empty state.
+9. S Store Detail has no horizontal overflow.
+10. Sell-through correction action is visible.
+11. Correction modal opens.
+12. Correction reason field is visible and required by the UI.
+13. Console errors: 0.
+14. Visible HTTP 4xx/5xx errors: 0.
+
+Screenshots:
+
+1. `frontend/output/playwright/task-066-s-store-page-acceptance/management-fixed.png`
+2. `frontend/output/playwright/task-066-s-store-page-acceptance/detail-fixed.png`
+3. `frontend/output/playwright/task-066-s-store-page-acceptance/correction-modal-fixed.png`
+
+Verification:
+
+1. Focused failing-then-passing regression:
+   - `npm test -- src/services/api/s-stores.static.test.mjs`
+   - Passed: 1 file, 9 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 382 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk size warnings.
+
+Residual notes:
+
+1. The preview Auth accounts currently accept the older shared preview password; the newer role-specific credentials recorded in recent notes did not authenticate during Task-066 browser QA.
+2. The previously supplied Supabase PAT should be revoked or rotated.
+3. Next recommended phase:
+   - Store App S Store report UX acceptance;
+   - Field Rep S Store visit/replenishment UX acceptance;
+   - then Brand Growth Dashboard phase.
+
+## Task-067: Store App S Store Report UX Acceptance
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Verify the real Store App S Store reporting loop in fallback-disabled remote preview mode.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Used the real Store App pages:
+   - `/#/store-login`;
+   - `/#/store-owner`.
+2. Used the real backend S Store Detail page for sync verification:
+   - `/#/app/stores/s-stores/:id`.
+3. Did not use `/preview/fan`.
+4. Did not change database schema.
+5. Did not change RLS policies.
+6. Did not change backend RPC definitions.
+7. Did not modify `.env`.
+8. Did not install dependencies.
+9. No frontend source code change was required for Task-067.
+
+Acceptance result:
+
+Passed:
+
+1. Store Owner can log into the real Store App preview.
+2. Store App account shell renders.
+3. Active S Store shows the `S Report` tab.
+4. Store App shows UWELL Brand Store/S Store context.
+5. Store Home has no horizontal overflow on mobile viewport.
+6. S Report workbench renders.
+7. Sell-through form is visible.
+8. Product inventory form is visible.
+9. Material inventory form is visible.
+10. Locked-history copy is visible.
+11. S Report page has no horizontal overflow on mobile viewport.
+12. Store Owner can submit sell-through:
+    - weekly/monthly period fields;
+    - open-system sold quantity;
+    - disposable sold quantity.
+13. Store Owner can submit product inventory:
+    - open-system current/target stock;
+    - disposable current/target stock.
+14. Store Owner can submit material inventory:
+    - material type;
+    - current quantity;
+    - target quantity.
+15. Submitted records appear in the Store App history.
+16. Submitted records show locked history behavior/copy.
+17. Backend S Store Detail opens the submitted S Store.
+18. Backend S Store Detail shows the submitted sell-through values.
+19. Backend S Store Detail shows the submitted product inventory values.
+20. Backend S Store Detail shows the submitted material inventory values.
+21. Backend S Store Detail has no horizontal overflow.
+22. Console errors: 0.
+23. Visible HTTP 4xx/5xx errors: 0.
+
+Preview data note:
+
+1. This acceptance created normal preview operational records through the existing S Store submission RPC flow:
+   - sell-through;
+   - product inventory;
+   - material inventory.
+2. No schema/RLS/API change was made.
+3. The test values were intentionally small and used only for preview acceptance evidence.
+
+Screenshots:
+
+1. `frontend/output/playwright/task-067-store-s-report-acceptance/store-home.png`
+2. `frontend/output/playwright/task-067-store-s-report-acceptance/s-report.png`
+3. `frontend/output/playwright/task-067-store-s-report-acceptance/s-report-after-submit.png`
+4. `frontend/output/playwright/task-067-store-s-report-acceptance/admin-sync-detail.png`
+
+Verification:
+
+1. Browser Store App S Report acceptance:
+   - Passed: 16 checks, 0 failed.
+2. Browser backend sync acceptance:
+   - Passed: 9 checks, 0 failed.
+3. Focused Store/S Store regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/services/api/s-stores.static.test.mjs`
+   - Passed: 2 files, 13 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 93 files, 382 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk size warnings.
+
+Residual notes:
+
+1. The first Store App login can show the existing store photo reminder modal.
+   - This is expected current behavior.
+   - The acceptance flow closed it with `Keep in Me` before opening S Report.
+2. The preview Auth accounts currently accept the older shared preview password.
+3. The previously supplied Supabase PAT should be revoked or rotated.
+
+Next recommended phase:
+
+Task-068:
+Field Rep S Store Visit / Replenishment UX Acceptance.
+
+Recommended scope:
+
+1. Real rep login.
+2. Assigned S Store visit creation.
+3. S Store visit detail submission:
+   - inventory;
+   - display;
+   - sell-through observation;
+   - competitor situation;
+   - hot brands;
+   - hot flavors;
+   - consumer feedback;
+   - market notes;
+   - support needed;
+   - visit photos.
+4. Replenishment creation/completion UX.
+5. Backend S Store Detail sync verification.
+6. No schema/RLS/API/.env/dependency changes unless a confirmed blocker is found.
+
+## Task-068: Field Rep S Store Visit / Replenishment UX Acceptance
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Verify the real Field Rep S Store visit and replenishment loop in fallback-disabled remote preview mode.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Used the real backend Field Visit pages:
+   - `/#/app/visits/create`;
+   - `/#/app/visits/:id`;
+   - `/#/app/visits/list`;
+   - `/#/app/dashboard`.
+2. Used the real backend S Store Detail page for sync and replenishment verification:
+   - `/#/app/stores/s-stores/:id`.
+3. Did not use `/preview/fan`.
+4. Did not change database schema.
+5. Did not change RLS policies.
+6. Did not change backend RPC definitions.
+7. Did not modify `.env`.
+8. Did not install dependencies.
+9. Changed only the frontend visit API service compatibility boundary and related static regression coverage.
+
+Root causes found:
+
+1. Field Rep dashboard/list remote reads failed with `403 permission denied for table stores` because `getVisits` and `getVisitById` embedded `stores(*)` after direct `stores` SELECT had been tightened by the fan-safe store exposure hardening.
+2. Field Rep S Store visit creation failed with `PGRST204` because the real Supabase `visits` table does not contain local/demo extension fields such as `display_data`.
+3. The real Supabase `visits.status` check constraint uses `planned`, `completed`, and `cancelled`, while the current UI draft status is a local/demo value.
+
+Fix implemented:
+
+1. `frontend/src/services/api/visits.js`
+   - Remote visit reads no longer embed `stores(*)`.
+   - Remote visit rows are enriched through the existing internal store service boundary.
+   - Remote visit writes use a `toRemoteVisitPayload` whitelist so local/demo-only visit fields are not sent directly to Supabase.
+   - Remote `draft` status is mapped to `planned` for the existing Supabase schema.
+   - Local/demo behavior remains unchanged.
+2. `frontend/src/services/api/visits.static.test.mjs`
+   - Added regression coverage for fan-safe store exposure compatibility and remote visit write payload filtering.
+
+Acceptance result:
+
+Passed:
+
+1. Field Rep can log into the real backend preview.
+2. Field Rep can open Create Field Visit.
+3. Repeat Visit can select the assigned active S Store.
+4. Active S Store selection shows `S Store Visit Detail`.
+5. Field Rep can submit S Store visit detail:
+   - inventory status;
+   - display status;
+   - sell-through observation;
+   - competitor situation;
+   - hot brands;
+   - hot flavors;
+   - consumer feedback;
+   - market notes;
+   - support needed;
+   - replenishment needed.
+6. The created visit opens in Visit Detail.
+7. Visit Detail displays the submitted S Store visit detail.
+8. Field Rep Visit List loads without the previous `stores(*)` 403.
+9. Field Rep Dashboard loads without the previous `stores(*)` 403.
+10. Backend S Store Detail shows the submitted Field Visit Notes.
+11. Backend S Store Detail can create a replenishment task.
+12. Backend S Store Detail can complete a replenishment task with completion photo evidence.
+13. Backend S Store Detail has no horizontal overflow in the tested desktop viewport.
+14. Field Rep Visit List has no horizontal overflow in the tested mobile viewport.
+15. Field Rep Dashboard has no horizontal overflow in the tested mobile viewport.
+16. Console errors: 0.
+17. Visible HTTP 4xx/5xx errors after the fix: 0.
+
+Preview data note:
+
+1. This acceptance created normal preview operational records through the existing visit and S Store RPC flow:
+   - one Field Rep visit;
+   - one S Store visit detail;
+   - one replenishment task;
+   - one replenishment completion with photo reference.
+2. No schema/RLS/API change was made.
+3. The test values were intentionally small and used only for preview acceptance evidence.
+
+Screenshots:
+
+1. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/login-probe.png`
+2. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/create-probe.png`
+3. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/s-store-form-probe.png`
+4. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/visit-submit-fixed.png`
+5. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/visit-detail-s-store-tab.png`
+6. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/visit-list-fixed.png`
+7. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/rep-dashboard-fixed.png`
+8. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/admin-field-visit-sync.png`
+9. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/replenishment-created.png`
+10. `frontend/output/playwright/task-068-field-rep-s-store-acceptance/replenishment-completed.png`
+
+Verification:
+
+1. Focused failing-then-passing regression:
+   - `npm test -- src/services/api/visits.static.test.mjs`
+   - Failed first for direct `stores(*)` embedding and missing remote payload filtering.
+   - Passed after the service fix: 1 file, 2 tests.
+2. Focused Field Visit / S Store regression:
+   - `npm test -- src/services/api/visits.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitCreatePage.workflow.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs src/pages/visits/VisitDetailPage.rbac.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/services/api/s-stores.static.test.mjs src/services/api/s-stores.behavior.test.mjs`
+   - Passed: 8 files, 40 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 384 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only existing large chunk size warnings.
+
+Residual notes:
+
+1. Visit Detail currently shows the remote `planned` status as `-` because the page status label map does not yet include `planned`.
+   - This did not block the S Store visit submission or sync loop.
+   - A later UI polish task can normalize the displayed label.
+2. Field Visit local/demo fields remain richer than the current Supabase `visits` base table.
+   - The service now protects remote writes, but future production schema alignment for field visits can decide whether those fields should become real remote columns.
+3. The preview Auth accounts currently accept the older shared preview password.
+4. The previously supplied Supabase PAT should be revoked or rotated.
+
+Next recommended phase:
+
+Task-069:
+S Store V1 Final Closed-loop Acceptance and closeout.
+
+Recommended scope:
+
+1. Confirm S Store V1 closed loop end to end:
+   - fan-safe UWELL Brand Store presentation;
+   - Store App S Report;
+   - Field Rep S Store Visit;
+   - Backend S Store Detail;
+   - replenishment;
+   - correction/audit visibility.
+2. Do not add new S Store features.
+3. Decide whether S Store V1 is ready to pause feature development and move to three-portal flow optimization.
+
+## Task-069: S Store V1 Final Closed-loop Acceptance And Closeout
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Run one final real-browser S Store V1 closed-loop acceptance pass and decide whether the S Store feature-development phase can pause.
+
+Current status:
+
+Completed.
+
+Decision:
+
+S Store V1 is ready to pause feature development.
+
+The next major product phase should move to three-portal flow optimization, then three-portal UI polish, then controlled trial-operation preparation.
+
+Scope executed:
+
+1. Used the real backend S Store pages:
+   - `/#/app/stores/s-stores`;
+   - `/#/app/stores/s-stores/:id`.
+2. Used the real backend Field Rep visit list:
+   - `/#/app/visits/list`.
+3. Used the real Store App:
+   - `/#/store-login`;
+   - `/#/store-owner`.
+4. Used the real Fan App:
+   - `/fan-app.html#/fan-center`.
+5. Did not use `/preview/fan`.
+6. Did not add new S Store features.
+7. Did not change database schema.
+8. Did not change RLS policies.
+9. Did not change backend RPC definitions.
+10. Did not modify `.env`.
+11. Did not install dependencies.
+12. No production source code change was required for Task-069.
+
+Closed-loop acceptance result:
+
+Passed:
+
+1. Backend S Store Management loads.
+2. Backend S Store Management shows the active S Store row.
+3. Backend S Store Management has no horizontal overflow.
+4. Backend S Store Detail loads.
+5. Backend S Store Detail has no horizontal overflow.
+6. Backend S Store Detail exposes:
+   - Sell-through;
+   - Product Inventory;
+   - Material Inventory;
+   - Field Visit Notes;
+   - Contribution;
+   - Replenishment.
+7. Backend S Store Detail shows the latest Field Rep S Store visit note from Task-068.
+8. Backend S Store Detail shows replenishment records and completed replenishment evidence.
+9. Field Rep Visit List loads.
+10. Field Rep Visit List shows assigned S Store visit data.
+11. Field Rep Visit List has no horizontal overflow on mobile viewport.
+12. Store App logs into the S Store account.
+13. Store App shows S Store context and the S Report entry.
+14. Store App S Report workbench is visible.
+15. Store App has no horizontal overflow on mobile viewport.
+16. Fan App can enter the real fan center.
+17. Fan App shows fan-safe UWELL Brand Store presentation.
+18. Fan App has no horizontal overflow on mobile viewport.
+19. Console errors: 0.
+20. Visible HTTP 4xx/5xx errors: 0.
+
+S Store V1 closed-loop summary:
+
+The V1 loop now works at the product level:
+
+```text
+Backend selects/manages S Store
+-> Store App submits sell-through, product inventory, and material inventory
+-> Field Rep submits S Store visit intelligence
+-> Backend sees sell-through, inventory, material, visit notes, contribution, replenishment, correction, and status history
+-> Fan App sees only fan-safe UWELL Brand Store presentation
+-> Replenishment and correction remain controlled backend operations
+```
+
+What is intentionally not added in V1:
+
+1. SKU-level sell-through.
+2. Price analysis.
+3. Automatic replenishment prediction.
+4. Automatic replenishment creation from low stock.
+5. S/A Store incentive policy.
+6. Importer/wholesaler modules.
+7. More fan UI redesign inside this S Store phase.
+
+Why the phase can close:
+
+1. The S Store business identity and status are represented.
+2. Store-side data submission works.
+3. Field-side terminal intelligence works.
+4. Backend management and correction visibility works.
+5. Fan-side exposure stays safe and does not leak operational S Store data.
+6. Real Supabase preview acceptance has covered low-level RLS/RPC/API, backend pages, Store App, Field Rep flow, and final cross-portal smoke.
+
+Screenshots:
+
+1. `frontend/output/playwright/task-069-s-store-v1-closeout/backend-s-store-management.png`
+2. `frontend/output/playwright/task-069-s-store-v1-closeout/backend-s-store-detail-closeout.png`
+3. `frontend/output/playwright/task-069-s-store-v1-closeout/field-rep-visit-list.png`
+4. `frontend/output/playwright/task-069-s-store-v1-closeout/store-app-s-report-closeout.png`
+5. `frontend/output/playwright/task-069-s-store-v1-closeout/fan-safe-brand-store.png`
+
+Verification:
+
+1. Browser final closed-loop acceptance:
+   - Passed: 25 checks, 0 failed.
+   - Console errors: 0.
+   - Visible HTTP 4xx/5xx errors: 0.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed after Task-069 closeout verification.
+3. Production build:
+   - `npm run build`
+   - Passed after Task-069 closeout verification.
+   - Vite emitted only existing large chunk size warnings.
+
+Residual notes:
+
+1. Store App first login can still show the existing store photo reminder modal.
+   - This is expected current behavior.
+2. Remote visit `planned` status can still display as `-` in Visit Detail.
+   - This is a minor display-label polish item and does not block the S Store V1 closed loop.
+3. Field Visit production schema can later be expanded if UWELL wants the richer local/demo visit fields stored directly on remote `visits`.
+4. The preview Auth accounts currently accept the older shared preview password.
+5. The previously supplied Supabase PAT should be revoked or rotated.
+
+Next major phase:
+
+Three-portal flow optimization.
+
+Recommended order:
+
+1. Backend flow optimization:
+   - dashboard decision flow;
+   - reviews/risk/audit handoff;
+   - S Store management summary;
+   - activity/reward operational flow.
+2. Store App flow optimization:
+   - login/register;
+   - store profile/photo completion;
+   - S Report;
+   - campaign participation;
+   - reward pickup verification.
+3. Fan App flow optimization:
+   - first-use path;
+   - activity freshness;
+   - points journey;
+   - reward redemption;
+   - store discovery.
+4. Three-portal UI polish after flow issues are clear.
+5. Trial-operation preparation:
+   - pilot city/store list;
+   - trial account cleanup;
+   - activity and reward pool;
+   - field rep SOP;
+   - daily/weekly backend operating checklist.
+
+## Task-071A: Backend Dashboard Operations Command Center Polish
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Start the three-portal flow optimization phase by making the backend Dashboard act more like a daily operations command center.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Added a new `Today operations command` queue near the top of the backend Dashboard.
+2. The queue groups daily backend work into five operator-facing streams:
+   - Review decisions;
+   - Risk triage;
+   - S Store follow-up;
+   - Campaign and rewards;
+   - Field and replenishment.
+3. Each queue card uses existing source data and links to the relevant backend module:
+   - Reviews;
+   - Risk Center;
+   - S Store Management;
+   - Rewards;
+   - Field Visits.
+4. Added scoped Dashboard styles for the new command queue and mobile breakpoints.
+5. Added static regression coverage for the new Dashboard command queue.
+6. Normalized the Dashboard recent-visit status label for remote `planned` visit records.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+   - Existing Admin/Manager/Rep Dashboard branch behavior is preserved.
+4. Other portal impact:
+   - Fan App: none.
+   - Store App: none.
+   - S Store business rules: none.
+5. Dependency impact:
+   - None.
+
+Files changed in this task:
+
+1. `frontend/src/pages/dashboard/DashboardPage.jsx`
+2. `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`
+3. `frontend/src/index.css`
+4. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs`
+   - Failed first because `todayOperatingCommandItems` did not exist.
+2. Focused Dashboard tests:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs src/pages/dashboard/DashboardPage.rep.static.test.mjs`
+   - Passed: 2 files, 10 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 385 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-071B should continue backend flow optimization by improving the handoff between Dashboard, Reviews, Risk Center, Rewards, Campaigns, and S Store Management without adding new business rules.
+
+## Task-071B: Backend Pending-Work Handoff Optimization
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Continue the three-portal flow optimization phase by making backend pending work easier to hand off between Dashboard, Reviews, Risk Center, Rewards, Campaigns, and S Store Management.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Added a `Pending-work handoff` queue to Reviews.
+   - Clarifies source record;
+   - next action owner;
+   - destination module after decision.
+2. Added a `Risk-to-review handoff` queue to Risk Center.
+   - Clarifies escalation path;
+   - resolution evidence;
+   - audit outcome.
+3. Added a `Reward fulfillment handoff` queue to Rewards.
+   - Clarifies review decision;
+   - pickup assignment;
+   - fan/store notification state.
+4. Added a `Campaign freshness handoff` strip to Campaign List.
+   - Clarifies fan-facing freshness;
+   - review needs;
+   - store execution;
+   - expired/completed campaign handling.
+5. Added an `S Store follow-up handoff` queue to S Store Management.
+   - Clarifies low stock to field replenishment;
+   - missing visit to field check;
+   - downgraded store to manager recovery review.
+6. Added scoped handoff card styles so the new backend handoff blocks stay readable on light backend surfaces.
+7. Added static regression coverage for the new handoff surfaces.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+   - Existing Admin/Manager/Rep action boundaries are preserved.
+4. Business rule impact:
+   - None.
+   - No new review rule, risk rule, reward rule, campaign rule, S Store rule, incentive rule, or replenishment automation was added.
+5. Other portal impact:
+   - Fan App: none.
+   - Store App: none.
+6. Dependency impact:
+   - None.
+
+Files changed in this task:
+
+1. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+2. `frontend/src/pages/admin-ops/RiskCenterPage.jsx`
+3. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+4. `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+5. `frontend/src/pages/campaigns/CampaignListPage.jsx`
+6. `frontend/src/pages/campaigns/CampaignListPage.static.test.mjs`
+7. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+8. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+9. `frontend/src/index.css`
+10. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Failed first because the new handoff queue markers did not exist.
+2. Focused backend handoff tests:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Passed: 3 files, 18 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 388 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-071C should continue backend flow optimization by reviewing the actual target work queues after handoff:
+
+1. Reviews queue source visibility and source navigation.
+2. Risk Center escalation status clarity.
+3. Reward pickup assignment and fulfillment visibility.
+4. Campaign status freshness and review readiness.
+5. S Store follow-up summary and field visit linkage.
+
+## Task-071C: Backend Target Work Queue Handling Clarity
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Continue backend flow optimization by making the actual target queues easier for operators to handle after the Task-071B handoff layer points them into Reviews, Risk Center, Rewards, Campaigns, and S Store Management.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Reviews:
+   - Added source table/source id visibility in the review queue.
+   - Added destination module visibility.
+   - Added a `View source` action that routes to the existing relevant backend module or detail page.
+2. Risk Center:
+   - Added a `Next action` column based on current risk status.
+   - Clarified whether the operator should verify evidence, hold related points, wait for Reviews, or rely on the audit outcome.
+3. Rewards:
+   - Added `Fulfillment state` visibility for high-value reward requests.
+   - Clarifies waiting review decision, ready for pickup assignment, pickup assigned, or rejected/stopped.
+4. Campaigns:
+   - Added campaign `Freshness state` labels to campaign cards.
+   - Clarifies fan-visible now, review before fan exposure, history only, or general freshness state.
+5. S Store Management:
+   - Added `Follow-up status` to the S Store target queue.
+   - Clarifies replenishment follow-up, field visit check, recovery review, or healthy follow-up.
+6. Added static regression coverage for the new target-queue handling cues.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+   - Existing Admin/Manager/Rep action boundaries are preserved.
+4. Business rule impact:
+   - None.
+   - No new review rule, risk rule, reward rule, campaign rule, S Store rule, incentive rule, or automatic action was added.
+5. Other portal impact:
+   - Fan App: none.
+   - Store App: none.
+6. Dependency impact:
+   - None.
+
+Files changed in this task:
+
+1. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+2. `frontend/src/pages/admin-ops/RiskCenterPage.jsx`
+3. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+4. `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+5. `frontend/src/pages/campaigns/CampaignListPage.jsx`
+6. `frontend/src/pages/campaigns/CampaignListPage.static.test.mjs`
+7. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+8. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+9. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Failed first because the new target-queue handling markers did not exist.
+2. Focused backend target-queue tests:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/campaigns/CampaignListPage.static.test.mjs`
+   - Passed: 3 files, 21 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 391 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-072 should move from backend flow optimization into Store App and Field execution flow optimization:
+
+1. Store login/register and first-use clarity.
+2. Store profile/photo completion flow.
+3. Store App S Store Report daily usability.
+4. Campaign participation and store verification flow.
+5. Reward pickup verification flow.
+6. Field Rep visit, S Store follow-up, and replenishment execution flow.
+
+## Task-072A: Store App And Field Execution Entry Clarity
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Start Store App and Field execution flow optimization by making daily execution entry points clearer for store owners and field reps without changing existing business rules.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Store App Home:
+   - Added `Today execution command` across setup readiness, fan verification, campaign execution, S Store reporting, and reward pickup.
+   - Each command routes to an existing Store App tab only.
+2. Store App S Report:
+   - Added `S Store execution rhythm`.
+   - Clarifies weekly sell-through, monthly sell-through, product stock check, and material stock check.
+   - Clarifies that backend sees locked history and low-stock signals after submission.
+3. Store App Reward Pickup:
+   - Added `Pickup execution queue`.
+   - Clarifies checking redemption code, confirming eligible pickup, and system record closure.
+   - Preserves the existing A/S, S, and high-value assigned-pickup rules.
+4. Field Visits:
+   - Added `S Store follow-up execution` lane to the field visit workbench.
+   - Clarifies inventory/display checks, competitor and market intelligence, replenishment evidence, and backend S Store Management visibility.
+5. Added scoped responsive styles for the new store execution command cards.
+6. Added static regression coverage for the new store/field execution entry points.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+   - Store Owner and Field Rep action boundaries are unchanged.
+4. Business rule impact:
+   - None.
+   - No new reward rule, S Store rule, campaign rule, replenishment rule, approval rule, or points rule was added.
+5. Other portal impact:
+   - Fan App: none.
+   - Backend: no behavior changes; the Field Visit lane only clarifies existing backend visibility.
+6. Dependency impact:
+   - None.
+
+Files changed in this task:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+3. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+4. `frontend/src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs`
+5. `frontend/src/pages/visits/VisitListPage.jsx`
+6. `frontend/src/pages/visits/VisitFieldOps.static.test.mjs`
+7. `frontend/src/index.css`
+8. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Failed first because the new Store/Field execution markers did not exist.
+2. Focused Store/Field execution tests:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Passed: 4 files, 28 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 395 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-072B should continue Store App and Field execution optimization by improving the actual execution forms and queue readability:
+
+1. Store App S Report form grouping and latest-history readability.
+2. Reward pickup verification result state clarity.
+3. Store campaign participation/result submission visibility.
+4. Field Visit create page S Store visit template clarity.
+5. Field Visit list filters for S Store follow-up and replenishment-related records.
+
+## Task-072B: Store App And Field Execution Form/Queue Readability Optimization
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Continue Store App and Field execution flow optimization by making the actual execution forms, verification results, activity work, and S Store visit queues easier to operate without changing existing business rules.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Store App S Report:
+   - Added form-level operation guidance for sell-through rhythm, stock health, and material readiness.
+   - Added clearer latest locked-history snapshots for sell-through, product inventory, and material inventory.
+   - Preserved the confirmed V1 fields only.
+2. Store App Reward Pickup:
+   - Added a clearer pickup validation result card.
+   - Separates eligible pickup from blocked-before-handover states before the store confirms pickup.
+   - Keeps the existing validation and confirmation logic unchanged.
+3. Store App Activities:
+   - Added an execution board separating official UWELL campaign work, store-created event review work, and execution result status.
+   - Clarifies that store-created events stay internal until UWELL approval.
+4. Field Visit Create:
+   - Added an S Store visit execution checklist for store reality checks, market intelligence, support/replenishment follow-up, and evidence reminder.
+   - Preserved the existing S Store visit detail fields and did not add automatic replenishment task creation.
+5. Field Visit List:
+   - Added S Store follow-up and replenishment visibility labels/filters using existing visit/store/detail fields.
+   - Added summary cards for S Store follow-up and replenishment-needed records.
+6. Added scoped responsive CSS for the new Store/Field readability blocks.
+7. Added static regression coverage for the new Store/Field readability cues.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+   - Store Owner and Field Rep action boundaries are unchanged.
+4. Business rule impact:
+   - None.
+   - No new reward rule, S Store rule, campaign rule, replenishment rule, review rule, or points rule was added.
+5. Other portal impact:
+   - Fan App: none.
+   - Backend: no behavior changes.
+6. Dependency impact:
+   - None.
+
+Files changed in this task:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+2. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+3. `frontend/src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs`
+4. `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+5. `frontend/src/pages/visits/VisitCreatePage.jsx`
+6. `frontend/src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`
+7. `frontend/src/pages/visits/VisitListPage.jsx`
+8. `frontend/src/pages/visits/VisitFieldOps.static.test.mjs`
+9. `frontend/src/index.css`
+10. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Failed first because the new Store/Field readability markers did not exist.
+2. Focused Store/Field readability tests:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Passed: 5 files, 26 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 400 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-072C can finish this Store App and Field execution phase with a human-view QA pass:
+
+1. Store App Home, Verify, Activities, S Report, Me.
+2. Field Visit List and Visit Create.
+3. Check mobile spacing, result-state clarity, S Store follow-up filters, and whether the new readability blocks feel too dense.
+4. If QA passes, move to the next larger phase: three-portal UI polish before trial-operation preparation.
+
+## Task-072C: Store App And Field Execution Human-View QA Closeout
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Close the Store App and Field execution optimization phase with a real-browser human-view QA pass and only fix clear execution-blocking UI issues.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Ran real-browser QA with local Chrome against the real Store App and backend Field Visit routes:
+   - Store App Home.
+   - Store App Verify.
+   - Store App Activities.
+   - Store App S Report.
+   - Store App Me.
+   - Field Visit List.
+   - Field Visit Create.
+2. Captured desktop and mobile screenshots under `frontend/output/playwright/task-072c`.
+3. Verified the Task-072B readability cues are visible:
+   - Store App S Report latest locked-history snapshot.
+   - Store App Activities official campaign/store-created event execution board.
+   - Store App Verify pickup execution queue.
+   - Field Visit List S Store follow-up and replenishment visibility cues.
+4. Fixed one real mobile QA issue:
+   - Store App bottom navigation computed as `relative` at 390px mobile width.
+   - Added a final scoped CSS rule to keep `.store-bottom-nav` fixed and preserve bottom padding above content.
+5. Did not change any Store App, Field Visit, S Store, reward, campaign, replenishment, review, or points business logic.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+   - No new S Store rule, campaign rule, reward rule, replenishment rule, points rule, or approval rule was added.
+5. Other portal impact:
+   - Fan App: none.
+   - Backend: no functional behavior change.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/index.css`
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+3. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed first because the final scoped fixed bottom-nav rule did not exist.
+2. Store App static regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 16 tests.
+3. Playwright focused mobile recheck:
+   - Store App at 390x844 returned:
+     - bottom nav computed position: `fixed`;
+     - bottom: `0px`;
+     - horizontal overflow: `false`.
+4. Focused Store/Field regression tests:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/visits/VisitFieldOps.static.test.mjs`
+   - Passed: 6 files, 42 tests.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 401 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Notes:
+
+1. The QA script saw an existing backend menu duplicate-key warning:
+   - `Duplicated key '/app/evaluation' used in Menu by path [field-visits > /app/evaluation]`.
+   - This was not changed in Task-072C because the task scope is Store App and Field execution closeout, and the warning does not block the checked flows.
+2. Playwright package existed, but the bundled browser was missing. QA used the installed system Chrome instead.
+3. The Store App first-login photo reminder modal is expected behavior; QA bypassed it by setting the reminder count to the completed threshold.
+
+Next recommendation:
+
+Task-073 should start the larger three-portal UI polish phase.
+
+Recommended order:
+
+1. Store App overall UI polish first, because the Store/S Field execution flow just closed.
+2. Backend management UI polish second, with stronger operator density and clearer queues.
+3. Fan App premium brand/member-experience upgrade third, using the confirmed UWELL high-end, young, game-like, brand-culture direction.
+4. After the three portals are visually and operationally aligned, move to trial-operation preparation.
+
+## Task-073A: Store App Overall UI And Experience Polish
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Start the three-portal UI polish phase by making the real Store App feel more unified, premium, operational, and mobile-native without changing business rules.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Added a scoped Store App premium workbench shell:
+   - `store-premium-workbench-shell`;
+   - `store-premium-section`;
+   - `store-premium-section-stack`.
+2. Applied the shell to the real Store App pages:
+   - Home;
+   - Verify;
+   - Activities through shared Store App section styling;
+   - S Report;
+   - Me.
+3. Added scoped CSS for a consistent premium operational surface:
+   - unified 18px desktop card radius and 16px mobile radius;
+   - smaller 12px radius for repeated task/action cards;
+   - consistent card head contrast;
+   - tactile active feedback on Store App buttons;
+   - mobile card padding and shadow tuning.
+4. Preserved the existing Store App bottom navigation behavior.
+5. Did not add new Store App, S Store, reward, campaign, replenishment, review, or points business logic.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Other portal impact:
+   - Fan App: no intended behavior change.
+   - Backend: no intended behavior change.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+2. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+3. `frontend/src/index.css`
+4. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Failed first because the new Store App premium workbench shell and tactile UI CSS did not exist.
+2. Store App static regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+   - Passed: 1 file, 17 tests.
+3. Focused Store App regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.static.test.mjs src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+   - Passed: 4 files, 31 tests.
+4. Real-browser Store App QA:
+   - Used system Chrome against `http://127.0.0.1:5173/store-app.html#/store-owner`.
+   - Captured screenshots under `frontend/output/playwright/task-073a`.
+   - Checked Home, Verify, Activities, S Report, and Me at 390x844.
+   - Results:
+     - bottom nav computed position: `fixed`;
+     - bottom: `0px`;
+     - horizontal overflow: `false`;
+     - premium shell present;
+     - mobile Store App card radius: `16px`.
+   - Also checked desktop 1280x900:
+     - horizontal overflow: `false`;
+     - premium shell present.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 402 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-073B should continue the three-portal UI polish phase with Backend Management UI / operator-console polish. The focus should be admin density, queue clarity, review/risk table readability, and S Store Management operational scanning, without changing database, API, permissions, or business rules unless separately confirmed.
+
+## Task-073B: Backend Management UI And Operator Console Polish
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Continue the three-portal UI polish phase by making the backend management portal feel more like a unified operator console, with clearer queues, table scanning, card hierarchy, and S Store operations visibility.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Added backend operator-console UI markers:
+   - `admin-operator-console-page`;
+   - `admin-operator-section-stack`;
+   - `admin-operator-hero`;
+   - `admin-operator-metric-grid`;
+   - `admin-operator-filter-card`;
+   - `admin-operator-table-card`.
+2. Applied the operator-console shell to:
+   - Backend Dashboard;
+   - Backend S Store Management.
+3. Added scoped backend CSS under `.admin-liquid-shell`:
+   - unified 18px desktop operator radius;
+   - 16px mobile operator radius;
+   - 10px repeated action-card radius;
+   - clearer table headers and hover scanning;
+   - consistent status tag rounding;
+   - tactile active feedback for dashboard queue cards.
+4. Preserved existing backend data reads, routes, table columns, filters, permissions, review queues, risk queues, rewards operations, and S Store business rules.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Other portal impact:
+   - Fan App: none.
+   - Store App: none.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/pages/dashboard/DashboardPage.jsx`
+2. `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`
+3. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+4. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+5. `frontend/src/index.css`
+6. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Failed first because the backend operator-console markers and scoped CSS did not exist.
+2. Backend operator-console static tests:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Passed: 2 files, 19 tests.
+3. Focused backend regression:
+   - `npm test -- src/pages/dashboard/DashboardPage.static.test.mjs src/pages/dashboard/DashboardPage.rep.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/stores/SStoreDetailPage.static.test.mjs src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs src/pages/admin-ops/AdminOperationalRules.static.test.mjs src/pages/admin-ops/RewardsOpsPage.operations.test.mjs src/pages/admin-ops/admin-ops-workflows.behavior.test.mjs`
+   - Passed: 9 files, 46 tests.
+4. Real-browser backend QA:
+   - Used system Chrome against:
+     - `http://127.0.0.1:5173/#/app/dashboard`;
+     - `http://127.0.0.1:5173/#/app/stores/s-stores`.
+   - Captured screenshots under `frontend/output/playwright/task-073b`.
+   - Checked desktop 1366x900 and mobile 390x844.
+   - Results:
+     - admin shell present;
+     - operator page present;
+     - operator hero present;
+     - table headers present where expected;
+     - horizontal overflow: `false`;
+     - desktop operator hero radius: `18px`;
+     - mobile operator hero radius: `16px`.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 404 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-073C should move to the Fan App premium brand/member-experience upgrade. The focus should be the real fan portal only, using the confirmed UWELL premium, young, high-end, brand-culture direction inspired by major consumer membership experiences. Do not use `/preview/fan`.
+
+## Task-073C: Fan App Premium Brand And Member Experience Upgrade
+
+Date:
+
+2026-07-18
+
+Goal:
+
+Continue the three-portal UI polish phase by upgrading the real Fan App with a more premium UWELL brand/member feel while preserving the existing fan closed-loop functions.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Added a real Fan App premium member shell marker:
+   - `fan-premium-member-shell`.
+2. Added a compact brand-culture strip to the Fan Home/Me member hero:
+   - `UWELL Clubhouse`;
+   - `Official drops`;
+   - `Brand Store access`;
+   - `Member-only growth`.
+3. Added scoped Fan App CSS for a more unified premium brand/member surface:
+   - softer 24px hero/card radius;
+   - 14px compact chip/action radius;
+   - yellow-green premium shadow;
+   - higher-end card surface treatment;
+   - consistent button active feedback;
+   - mobile radius adjustment.
+4. Preserved existing fan functions:
+   - check-in;
+   - scan;
+   - scan modal;
+   - activities;
+   - rewards;
+   - stores;
+   - community;
+   - Me;
+   - invite;
+   - old fan verification;
+   - help/new user guide.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Other portal impact:
+   - Store App: none.
+   - Backend Management: none.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/pages/fans/FanCenterPage.jsx`
+2. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+3. `frontend/src/index.css`
+4. `PROGRESS.md`
+
+Verification:
+
+1. Red test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Failed first because the Fan App premium member shell and brand-culture strip markers did not exist.
+2. Fan Center static test:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 1 file, 22 tests.
+3. Focused Fan App regression:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/FanStoresExposure.static.test.mjs src/pages/fans/tabs/CampaignTab.static.test.mjs src/pages/fans/tabs/CheckInTab.static.test.mjs src/pages/fans/tabs/CommunityTab.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/MallTab.redemption.static.test.mjs src/pages/fans/tabs/MallTab.inventory-copy.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs`
+   - Passed: 12 files, 74 tests.
+4. Real-browser Fan App QA:
+   - Used system Chrome against:
+     - `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Captured screenshots under `frontend/output/playwright/task-073c`.
+   - Checked Home, Activities, Community, Rewards, Stores, and Me at 390x844.
+   - Checked desktop Home at 1280x900.
+   - Results:
+     - bottom nav computed position: `fixed`;
+     - bottom: `0px`;
+     - horizontal overflow: `false`;
+     - premium shell present;
+     - culture strip visible on Home and Me;
+     - desktop premium shell present;
+     - desktop culture strip visible.
+5. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 405 tests.
+6. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-073D should be a final three-portal human-view QA closeout before trial-operation preparation. Check the real Fan App, Store App, and Backend Management portal together for brand consistency, mobile navigation, no horizontal overflow, role navigation, and no obvious UI regressions. After that, move into trial-operation preparation: demo accounts, test scripts, seed data review, and operator workflow rehearsal.
+
+## Task-073D: Three-Portal Final Human-View QA Closeout
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Close the three-portal UI polish phase by checking the real Fan App, Store App, and Backend Management portal together before trial-operation preparation.
+
+Current status:
+
+Completed as QA-only closeout.
+
+Scope executed:
+
+1. Real Fan App QA:
+   - Home;
+   - Activities;
+   - Community;
+   - Rewards;
+   - Stores;
+   - Me;
+   - Scan detail;
+   - Invite secondary entry.
+2. Store App QA:
+   - Home;
+   - Verify;
+   - Activities;
+   - S Report;
+   - Me;
+   - first-login photo reminder behavior.
+3. Backend Management QA:
+   - Dashboard;
+   - S Store Management;
+   - Rewards Ops;
+   - Reviews;
+   - Risk Center;
+   - mobile Dashboard.
+4. Checked:
+   - UWELL yellow-green visual consistency;
+   - premium/member/store/operator shell presence;
+   - fixed mobile bottom navigation;
+   - horizontal overflow;
+   - S Store data visibility;
+   - console errors and warnings;
+   - trial-account suitability.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Code impact:
+   - None.
+   - This task did not change UI, business logic, backend APIs, database schema, permissions, or dependencies.
+6. Artifact impact:
+   - Added QA screenshots and `qa-results.json` under `frontend/output/playwright/task-073d`.
+
+QA findings:
+
+1. Fan App:
+   - No horizontal overflow detected on checked pages.
+   - Bottom nav is fixed with bottom `0px`.
+   - Real Fan App premium shell is present.
+   - Scan detail and Invite secondary entry render without route breakage.
+   - Note for later UI polish: some member hero microcopy in the dark card can still be improved for contrast, but it is not a blocking functional issue.
+2. Store App:
+   - No horizontal overflow detected on checked pages.
+   - Bottom nav is fixed with bottom `0px`.
+   - Store premium workbench shell is present.
+   - Store bottom nav works after the first-login photo reminder modal is closed.
+   - First-login photo reminder is expected and blocks underlying navigation until dismissed.
+3. Backend Management:
+   - No horizontal overflow detected on checked pages.
+   - Dashboard and S Store Management operator shell are present.
+   - `u-admin` can see S Store Management data:
+     - Active S Stores: 2;
+     - Low-stock S Stores: 1;
+     - Pending Replenishment: 1.
+   - `u-manager` currently sees 0 S Store records because the demo manager is region-scoped to Riyadh while the seeded active S stores are in other regions. This is permission-consistent, but it is a trial-operation demo-account risk.
+4. Existing non-blocking warnings observed:
+   - Duplicated menu key warning for `/app/evaluation`.
+   - Ant Design deprecation warnings including `Space direction`, `Timeline items.children`, and `Progress trailColor`.
+   - Some Supabase `400` resource warnings occurred before local fallback; the checked local trial pages still rendered.
+
+Verification:
+
+1. Real-browser QA:
+   - Used system Chrome against:
+     - `http://127.0.0.1:5173/fan-app.html#/fan-center`;
+     - `http://127.0.0.1:5173/store-app.html#/store-owner`;
+     - `http://127.0.0.1:5173/#/app/dashboard`;
+     - `http://127.0.0.1:5173/#/app/stores/s-stores`;
+     - `http://127.0.0.1:5173/#/app/rewards`;
+     - `http://127.0.0.1:5173/#/app/reviews`;
+     - `http://127.0.0.1:5173/#/app/risk-center`.
+   - Captured screenshots under `frontend/output/playwright/task-073d`.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 405 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Move into trial-operation preparation. The first task should be a trial demo account and route readiness pass: define which account is used for fan, store owner, admin, manager, and rep demos; make sure each role sees meaningful data; and document the exact demo path for the closed loop from fan activity to store verification/S Store report to backend operations.
+
+## Task-074: Trial Operation Account And Closed-Loop Readiness
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Start the trial-operation preparation phase by documenting the demo accounts, real routes, closed-loop demo script, acceptance checklist, known risks, and next trial-operation order.
+
+Current status:
+
+Completed as documentation-only readiness.
+
+Scope executed:
+
+1. Added `docs/25_TRIAL_OPERATION_READINESS.md`.
+2. Documented the trial goal:
+   - fan trust and activity;
+   - store execution and verification;
+   - S Store sell-through/inventory reporting;
+   - backend review/risk/reward/S Store operations;
+   - brand growth loop.
+3. Documented trial entry points:
+   - Fan App;
+   - Store App;
+   - Backend login;
+   - Backend Dashboard;
+   - Backend S Store Management.
+4. Documented trial accounts and role use:
+   - fan;
+   - S Store owner;
+   - admin;
+   - manager;
+   - reps.
+5. Captured the Task-073D demo-account risk:
+   - `admin@uwell.com` should be used for the main S Store backend demo;
+   - `manager@uwell.com` is region-scoped to Riyadh and does not currently see seeded Jeddah/Makkah S Stores.
+6. Added a full three-step closed-loop demo script:
+   - Fan trust and engagement;
+   - Store execution;
+   - Backend operations.
+7. Added acceptance checklists for:
+   - Fan App;
+   - Store App;
+   - Backend;
+   - closed loop.
+8. Updated `docs/ROADMAP.md` so the next major implementation direction is Trial Operation Preparation instead of broad UI or remote-only S Store acceptance.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. UI/code impact:
+   - None.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `docs/25_TRIAL_OPERATION_READINESS.md`
+2. `docs/ROADMAP.md`
+3. `PROGRESS.md`
+
+Verification:
+
+1. Documentation scope review:
+   - Confirmed the new readiness document does not introduce new point values, S Store rules, permission changes, API changes, database changes, or dependency requirements.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 405 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-075 should execute the trial demo route and account smoke test. Use the accounts and routes in `docs/25_TRIAL_OPERATION_READINESS.md`, verify each role sees meaningful data, and capture browser evidence for the trial handoff.
+
+## Task-075: Trial Demo Route And Account Smoke Test
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Verify the Task-074 trial accounts and real routes in a browser, confirm each role can reach meaningful trial data, and capture evidence for the trial-operation handoff.
+
+Current status:
+
+Completed as QA-only smoke test.
+
+Scope executed:
+
+1. Fan App account/route smoke:
+   - Account path: `fan.preview@uwell.com` / local fan session.
+   - Route: `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Checked Home, Activities, Community, Rewards, Stores, and Me.
+2. Store App account/route smoke:
+   - Account path: `store.owner@uwell.com` / `s-real-012` local store session.
+   - Route: `http://127.0.0.1:5173/store-app.html#/store-owner`.
+   - Checked Home, Verify, Activities, S Report, and Me.
+3. Admin backend account/route smoke:
+   - Account path: `admin@uwell.com` / `u-admin` local staff session.
+   - Checked Dashboard, S Store Management, Rewards, Reviews, and Risk Center.
+4. Manager backend boundary smoke:
+   - Account path: `manager@uwell.com` / `u-manager` local staff session.
+   - Checked Dashboard and S Store Management regional boundary.
+5. Rep backend boundary smoke:
+   - Account path: `rep2@uwell.com` / `u-rep2` local staff session.
+   - Checked Dashboard, Visits, and attempted S Store Management access.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. UI/code impact:
+   - None.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Smoke findings:
+
+1. Fan App:
+   - Fan Home route loads.
+   - Fan premium shell is present.
+   - Fan bottom navigation clicks through Activities, Community, Rewards, Stores, and Me.
+   - No mobile horizontal overflow detected in the checked route states.
+2. Store App:
+   - Store workbench route loads for `s-real-012`.
+   - First-login photo reminder can be dismissed.
+   - Store bottom navigation clicks through Verify, Activities, S Report, and Me.
+   - S Report is available for the active S Store account.
+   - S Report shows sell-through, product inventory, material inventory, and locked history sections.
+   - No mobile horizontal overflow detected in the checked route states.
+3. Admin backend:
+   - Dashboard loads with operator data.
+   - S Store Management shows trial S Store data.
+   - Admin can see active S Store rows, sell-through values, product stock, material stock, and follow-up state.
+   - Rewards, Reviews, and Risk Center render.
+4. Manager boundary:
+   - Manager Dashboard loads.
+   - Manager S Store Management shows no records in the current trial data because `u-manager` is Riyadh-scoped while seeded active S Stores are in Jeddah/Makkah.
+   - This remains permission-consistent and should be presented as a region-boundary demo, not as the main S Store demo.
+5. Rep boundary:
+   - Jeddah rep Dashboard and Visits load.
+   - Rep attempted S Store Management access is redirected back to Field Rep Workspace/Dashboard.
+   - S Store Management is not exposed in the rep sidebar.
+6. Trial issue discovered:
+   - Backend S Store Management table has meaningful data, but the store/city text is visually squeezed into vertical wrapping in the current desktop screenshot.
+   - This does not block data smoke, but it should be entered into the trial issue log as a targeted UI polish item before customer-facing demos.
+7. Existing non-blocking warnings observed:
+   - Backend duplicated menu key warning for `/app/evaluation`.
+   - Ant Design deprecation warnings.
+   - Store App local trial had Supabase `400` resource warnings before fallback.
+
+Artifacts:
+
+1. Screenshots and structured smoke output:
+   - `frontend/output/playwright/task-075`
+2. Structured result file:
+   - `frontend/output/playwright/task-075/task-075-smoke-results.json`
+
+Verification:
+
+1. Real-browser smoke:
+   - Used system Chrome against the trial routes listed above.
+   - Captured 22 screenshots and one structured JSON result file.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 405 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-076 should run the actual closed-loop rehearsal: fan activity/scan/reward/store exposure path, store verification/S Report path, and backend S Store/reward/review/risk observation path. During Task-076, create a trial issue log from real rehearsal friction instead of doing broad UI redesign.
+
+## Task-076: Closed-loop Trial Operation Rehearsal
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Run the actual trial closed-loop rehearsal across the real Fan App, Store App, and Backend, capture browser evidence, and record practical issues for the trial-operation issue log.
+
+Current status:
+
+Completed as QA/documentation-only rehearsal.
+
+Scope executed:
+
+1. Fan App rehearsal:
+   - Route: `http://127.0.0.1:5173/fan-app.html#/fan-center`.
+   - Account path: `fan.preview@uwell.com` / local fan session.
+   - Checked Home, Activities, Community, Rewards, Stores, Me, and Scan detail.
+2. Store App rehearsal:
+   - Route: `http://127.0.0.1:5173/store-app.html#/store-entry`.
+   - Account: `store.owner@uwell.com`.
+   - Checked Home after dismissing the first-login photo reminder, Verify, Activities, S Report, and Me.
+3. Backend admin rehearsal:
+   - Account: `admin@uwell.com`.
+   - Checked Dashboard, S Store Management, Rewards, Reviews, and Risk Center.
+4. Backend boundary rehearsal:
+   - Account: `manager@uwell.com`.
+   - Confirmed manager regional S Store boundary remains visible as zero seeded S Store records for the Riyadh-scoped demo account.
+   - Account: `rep2@uwell.com`.
+   - Confirmed direct S Store Management access redirects to Field Rep Workspace instead of exposing manager/admin S Store management.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. UI/code impact:
+   - None.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Rehearsal findings:
+
+1. Closed-loop readiness:
+   - Fan trust and engagement path is present.
+   - Store execution and S Report path is present.
+   - Backend S Store, reward, review, and risk observation path is present.
+   - Admin should remain the main S Store backend demo account.
+2. Fan App:
+   - Bottom navigation is fixed.
+   - Stores page shows fan-safe `UWELL Brand Store` presentation.
+   - Fan-facing pages did not expose internal S Store sell-through, replenishment, downgrade, or audit data.
+   - Rewards category chip layout has a small measured mobile overflow on `Coupon` and `VIP`; document width did not exceed viewport, so this is targeted polish rather than a route blocker.
+3. Store App:
+   - First-login photo reminder can be dismissed.
+   - Store Home, Verify, Activities, S Report, and Me are reachable.
+   - S Report shows sell-through, product inventory, material inventory, and locked history.
+   - No mobile horizontal overflow detected in checked Store App states.
+4. Backend:
+   - S Store Management shows active S Store data, sell-through, inventory, material stock, replenishment, and contribution areas.
+   - Rewards, Reviews, and Risk Center render.
+   - S Store Management desktop layout/table still has a squeeze/overflow issue and should be a targeted trial polish item.
+5. Known non-blocking warnings observed:
+   - Local Supabase fallback warning for `s-real-012` UUID syntax before local mode.
+   - Duplicated backend menu key warning for `/app/evaluation`.
+
+Artifacts:
+
+1. Rehearsal log:
+   - `docs/26_TRIAL_OPERATION_REHEARSAL_LOG.md`
+2. Screenshots and structured browser output:
+   - `frontend/output/playwright/task-076`
+3. Structured result file:
+   - `frontend/output/playwright/task-076/task-076-closed-loop-results.json`
+
+Verification:
+
+1. Real-browser rehearsal:
+   - Used system Chrome against real trial routes.
+   - Captured Fan, Store, Backend, Manager-boundary, and Rep-boundary evidence.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 405 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-077 should create the trial issue log and launch checklist from the Task-076 findings, then Task-078 should make only targeted polish fixes discovered during rehearsal.
+
+## Task-077: Trial Issue Log And Launch Checklist
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Convert the Task-076 closed-loop rehearsal findings into a clear trial-operation issue log and launch checklist, with issue severity, demo account positioning, go/no-go criteria, and the narrow Task-078 polish scope.
+
+Current status:
+
+Completed as documentation-only trial readiness work.
+
+Scope executed:
+
+1. Added `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`.
+2. Classified Task-076 findings into:
+   - blockers;
+   - pre-trial polish;
+   - known non-blocking warnings;
+   - demo account positioning;
+   - launch checklist;
+   - go/no-go criteria;
+   - Task-078 recommended scope.
+3. Confirmed no local rehearsal blocker was found.
+4. Marked the main pre-trial polish items:
+   - Backend S Store Management desktop table/layout squeeze;
+   - Fan Rewards mobile `Coupon` / `VIP` chip fit;
+   - Store App first-login photo reminder demo note.
+5. Preserved the confirmed demo-account story:
+   - Admin for the main S Store backend demo;
+   - Manager for regional boundary;
+   - Rep for field execution/boundary.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. UI/code impact:
+   - None.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `docs/27_TRIAL_ISSUE_LOG_AND_LAUNCH_CHECKLIST.md`
+2. `PROGRESS.md`
+
+Verification:
+
+1. Documentation scope review:
+   - Confirmed the new checklist does not introduce new point values, S Store incentives, automatic replenishment, SKU-level sell-through, permission changes, database changes, API changes, or dependency requirements.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 405 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-078 should make only targeted trial polish fixes:
+
+1. Backend S Store Management desktop table/layout polish.
+2. Fan Rewards mobile category chip fit if included.
+3. Keep the task narrow and do not restart broad UI redesign.
+
+## Task-078: Targeted Pre-trial Layout Polish
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Fix only the visible pre-trial polish items found in Task-076 and classified in Task-077, without changing business rules, permissions, database schema, API behavior, `.env`, dependencies, or unrelated portals.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Polished Backend S Store Management desktop layout:
+   - gave the dense S Store operations table a stable desktop work width;
+   - constrained the S Store page stack and table card to the visible content area;
+   - moved horizontal overflow responsibility to the table's own scroll behavior instead of letting the whole page/card stretch;
+   - kept filters visible and wrapping inside the card.
+2. Polished Fan Rewards mobile category filters:
+   - changed reward category chips from a hidden horizontal strip to a wrapping mobile-safe layout;
+   - kept `Coupon` and `VIP` chips inside the 390px viewport;
+   - preserved the existing yellow-green mall styling and reward business copy.
+3. Added static regression checks for:
+   - S Store table layout constraints;
+   - Rewards category chip mobile fit.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Other page impact:
+   - Limited to Backend S Store Management and Fan Rewards layout styling.
+   - Store App was not modified.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+2. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+3. `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+4. `frontend/src/index.css`
+5. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-078/backend-s-store-management-desktop.png`
+2. `frontend/output/playwright/task-078/backend-s-store-management-desktop-metrics.json`
+3. `frontend/output/playwright/task-078/fan-rewards-mobile.png`
+4. `frontend/output/playwright/task-078/fan-rewards-mobile-metrics.json`
+
+Browser QA findings:
+
+1. Backend S Store Management at 1440px:
+   - page-level horizontal overflow: false;
+   - filter toolbar clipped items: 0;
+   - Ant Table internal horizontal scroll remains available for dense operations columns.
+2. Fan Rewards at 390px:
+   - page-level horizontal overflow: false;
+   - reward filter bar width equals viewport-safe content width;
+   - `Coupon` and `VIP` category buttons remain inside viewport.
+
+Verification:
+
+1. Focused static regression:
+   - `npm test -- src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs`
+   - Passed: 2 files, 20 tests.
+2. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 407 tests.
+3. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Next recommendation:
+
+Task-079 should prepare the trial operation handoff package: real URLs, trial accounts, role-by-role demo script, known demo notes, go/no-go checklist, and the exact closed-loop walkthrough for Fan App, Store App, and Backend.
+
+## Task-079A: Three-portal Language Foundation
+
+Date:
+
+2026-07-19
+
+Goal:
+
+Prepare the language foundation before trial readiness work by separating Fan App, Store App, and Backend language behavior:
+
+1. Fan App:
+   - default language remains English;
+   - Arabic remains the only alternate language for the fan-facing experience.
+2. Store App:
+   - default language remains English;
+   - Arabic remains the only alternate language for store-facing users.
+3. Backend:
+   - default language becomes Chinese;
+   - English becomes the alternate language;
+   - Arabic is not exposed in the backend language switcher.
+
+Current status:
+
+Completed as language-foundation work.
+
+Scope executed:
+
+1. Updated language store behavior:
+   - added portal-specific language policy;
+   - added portal-specific storage keys:
+     - `uwell_lang_admin`;
+     - `uwell_lang_fan`;
+     - `uwell_lang_store`;
+   - kept legacy `uwell_lang` migration only for Fan/Store English-Arabic compatibility;
+   - added active portal language activation.
+2. Updated portal shells:
+   - Backend activates `admin` language policy;
+   - Fan App activates `fan` language policy;
+   - Store App activates `store` language policy.
+3. Updated Backend Ant Design locale:
+   - Backend uses `zh_CN` and `en_US`;
+   - Backend remains left-to-right.
+4. Updated Fan/Store Ant Design locale:
+   - Fan and Store continue using `en_US` and `ar_EG`;
+   - Arabic still switches to RTL.
+5. Updated language switcher:
+   - Backend shows Chinese and English;
+   - Fan/Store show English and Arabic.
+6. Added/updated static tests for portal language policy and language switcher options.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. UI/code impact:
+   - Language menu options and document language/direction behavior changed by portal.
+   - Page-level hardcoded copy was not broadly translated in this task.
+6. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/stores/languageStore.js`
+2. `frontend/src/stores/languageStore.static.test.mjs`
+3. `frontend/src/components/common/LanguageSwitcher.jsx`
+4. `frontend/src/components/common/LanguageSwitcher.static.test.mjs`
+5. `frontend/src/utils/translations.js`
+6. `frontend/src/App.jsx`
+7. `frontend/src/fan/App.jsx`
+8. `frontend/src/store/App.jsx`
+9. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-079a/admin-language-default.png`
+2. `frontend/output/playwright/task-079a/fan-language-default.png`
+3. `frontend/output/playwright/task-079a/store-language-default.png`
+4. `frontend/output/playwright/task-079a/task-079a-language-metrics.json`
+
+Browser QA findings:
+
+1. Backend:
+   - `html.lang`: `zh`;
+   - `html.dir`: `ltr`;
+   - language options include Chinese and English.
+2. Fan App:
+   - `html.lang`: `en`;
+   - `html.dir`: `ltr`;
+   - language options include English and Arabic.
+3. Store App:
+   - `html.lang`: `en`;
+   - `html.dir`: `ltr`;
+   - language options include English and Arabic.
+
+Verification:
+
+1. Focused language regression:
+   - `npm test -- src/stores/languageStore.static.test.mjs src/components/common/LanguageSwitcher.static.test.mjs`
+   - Passed: 2 files, 10 tests.
+2. Language persistence and entry HTML regression:
+   - `npm test -- src/stores/languageStore.static.test.mjs src/components/common/LanguageSwitcher.static.test.mjs src/stores/languagePersistence.static.test.mjs src/stores/entryHtmlLanguage.static.test.mjs`
+   - Passed: 4 files, 12 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 94 files, 409 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Known limitation:
+
+This task only completed the language foundation. It did not yet translate every hardcoded page string. The next language tasks should cover actual page copy:
+
+1. Backend Chinese-first page copy.
+2. Fan Arabic page copy and RTL QA.
+3. Store Arabic page copy and RTL QA.
+
+Next recommendation:
+
+Task-079B should begin Backend Chinese-first copy coverage, starting from the backend shell, login, dashboard, S Store Management, Rewards, Reviews, and Risk Center.
+
+---
+
+## Task-079B: Backend Chinese-first Core Copy Coverage
+
+Goal:
+
+Cover the backend core demo chain with Chinese-first operating copy while keeping English as the backend fallback direction for later expansion:
+
+1. Backend shell/sidebar/topbar/settings popup.
+2. Backend login page.
+3. Dashboard.
+4. S Store Management.
+5. Rewards.
+6. Reviews.
+7. Risk Center.
+
+Current status:
+
+Completed.
+
+Scope executed:
+
+1. Updated backend navigation visible labels:
+   - S店管理;
+   - 曝光控制;
+   - 新店拜访;
+   - 复访记录;
+   - 陈列数据.
+2. Updated backend login warning copy:
+   - staff accounts are assigned by Admin;
+   - Manager and Rep accounts are created from 系统设置 > 用户管理.
+3. Updated Dashboard core operator copy:
+   - 今日运营指挥台;
+   - 运营动作中心;
+   - 试运营准备度;
+   - 方案落地覆盖;
+   - 核心指标总览;
+   - 粉丝增长闭环 / 门店服务闭环 / 地推执行闭环.
+4. Updated S Store Management display copy:
+   - UWELL品牌店运营;
+   - S店管理;
+   - low-stock, replenishment, weekly/monthly sell-through, contribution, and follow-up labels.
+5. Updated Rewards display copy:
+   - 奖励运营;
+   - 奖励治理驾驶舱;
+   - 高价值奖励审批;
+   - reward rules, pickup logic, approval queue, and fulfillment handoff.
+6. Updated Reviews display copy:
+   - 审核中心;
+   - 跨端审核入口;
+   - 审核队列;
+   - source map, decision ladder, action labels, destination labels, and handoff queue.
+7. Updated Risk Center display copy:
+   - 风控中心;
+   - 反作弊分诊;
+   - 发送至审核中心;
+   - risk categories, policy cards, resolution ladder, status labels, and queue actions.
+8. Updated static and operations tests to assert Chinese-first backend copy while preserving workflow identifiers and data-field checks.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Backend data/status field impact:
+   - Stored fields and workflow keys are unchanged.
+   - `review_status`, `risk_review_status`, `assigned_pickup_store_id`, and `audit_logs` behavior remains intact.
+6. Fan/Store impact:
+   - None.
+   - This task did not change Fan App or Store App language copy.
+7. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/components/layout/AppLayout.jsx`
+2. `frontend/src/components/layout/AppLayout.static.test.mjs`
+3. `frontend/src/pages/login/LoginPage.jsx`
+4. `frontend/src/pages/login/LoginPage.static.test.mjs`
+5. `frontend/src/pages/dashboard/DashboardPage.jsx`
+6. `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`
+7. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+8. `frontend/src/pages/stores/SStoreManagementPage.static.test.mjs`
+9. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+10. `frontend/src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`
+11. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+12. `frontend/src/pages/admin-ops/RiskCenterPage.jsx`
+13. `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+14. `frontend/src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`
+15. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-079b/01-login.png`
+2. `frontend/output/playwright/task-079b/02-dashboard.png`
+3. `frontend/output/playwright/task-079b/03-s-store-management.png`
+4. `frontend/output/playwright/task-079b/04-rewards.png`
+5. `frontend/output/playwright/task-079b/05-reviews.png`
+6. `frontend/output/playwright/task-079b/06-risk-center.png`
+7. `frontend/output/playwright/task-079b/task-079b-browser-qa.json`
+
+Browser QA findings:
+
+1. Dashboard:
+   - matched 今日运营指挥台, 运营动作中心, 核心指标总览.
+2. S Store Management:
+   - matched S店管理, UWELL品牌店运营, 低库存S店, 补货状态.
+3. Rewards:
+   - matched 奖励运营, 奖励治理驾驶舱, 高价值奖励审批.
+4. Reviews:
+   - matched 审核中心, 跨端审核入口, 审核队列.
+5. Risk Center:
+   - matched 风控中心, 反作弊分诊, 发送至审核中心.
+
+Verification:
+
+1. Focused backend Chinese copy regression:
+   - `npm test -- src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+2. Directly impacted page tests:
+   - `npm test -- src/pages/login/LoginPage.static.test.mjs src/pages/dashboard/DashboardPage.static.test.mjs src/pages/stores/SStoreManagementPage.static.test.mjs src/pages/admin-ops/RewardsOpsPage.operations.test.mjs`
+   - Passed: 4 files, 24 tests.
+3. Backend governance page tests:
+   - `npm test -- src/pages/admin-ops/AdminOpsPages.static.test.mjs src/pages/admin-ops/AdminOpsActionRbac.static.test.mjs src/pages/admin-ops/admin-ops-workflows.behavior.test.mjs src/pages/admin-ops/AdminOperationalRules.static.test.mjs`
+   - Passed: 4 files, 15 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 95 files, 413 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Known limitation:
+
+1. This task covered the agreed backend core chain only.
+2. It did not translate every backend page.
+3. Fan Arabic and Store Arabic full copy coverage remain future tasks.
+
+Next recommendation:
+
+Proceed to Task-079C: Fan Arabic copy and RTL coverage for the fan-facing app, or first review the backend Chinese pages visually with the provided local URL before continuing.
+
+---
+
+## Task-079C: Fan Arabic Copy and RTL Coverage
+
+Status: Completed
+
+Scope:
+
+1. Continued on the real fan portal only:
+   - `frontend/src/pages/fans`
+   - `frontend/src/fan/App.jsx`
+   - Real route: `fan-app.html#/fan-center`
+2. Added natural fan-facing Arabic keys for the core journey:
+   - Home, Activities, Community, Rewards, Stores, Me.
+   - Daily check-in, Scan, Rewards, Invite, Old fan verification, Store map, Help.
+   - Mission, language, settings, primary scan/reward/invite/help labels.
+3. Connected real fan pages to the language store:
+   - Bottom navigation.
+   - Header language/settings copy.
+   - Home mission/action/spotlight labels.
+   - Secondary page titles and Back label.
+   - Scan page and scan modal core labels.
+   - Rewards page hero, points mall, rules link, catalog/filter labels.
+   - Invite page hero, referral code, stats, and rule heading.
+   - Store map hero/filter labels.
+   - Help guide hero and support card.
+4. Added fan-only RTL CSS guards:
+   - `html[dir="rtl"] .fan-shell`
+   - `html[dir="rtl"] .fan-bottom-nav`
+   - `html[dir="rtl"] .fan-shell-header`
+   - `html[dir="rtl"] .fan-scan-modal`
+   - `html[dir="rtl"] .fan-reward-filter-bar`
+   - `html[dir="rtl"] .fan-store-card`
+   - Mixed Arabic / UWELL / numbers use `unicode-bidi: plaintext`.
+5. Updated static tests so they verify language-key usage and translation-source copy instead of locking new components to English-only hardcoded strings.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Backend/Admin impact:
+   - None.
+   - Backend remains Chinese-first from Task-079B.
+6. Store impact:
+   - None.
+7. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/utils/translations.js`
+2. `frontend/src/pages/fans/FanCenterPage.jsx`
+3. `frontend/src/pages/fans/FanArabicRtl.static.test.mjs`
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+5. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+6. `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`
+7. `frontend/src/pages/fans/tabs/MallTab.jsx`
+8. `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+9. `frontend/src/pages/fans/tabs/InviteTab.jsx`
+10. `frontend/src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+11. `frontend/src/pages/fans/tabs/MapTab.jsx`
+12. `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+13. `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`
+14. `frontend/src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+15. `frontend/src/index.css`
+16. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-079c/01-home-en.png`
+2. `frontend/output/playwright/task-079c/02-rewards-en.png`
+3. `frontend/output/playwright/task-079c/03-stores-en.png`
+4. `frontend/output/playwright/task-079c/04-scan-en.png`
+5. `frontend/output/playwright/task-079c/05-scan-modal-en.png`
+6. `frontend/output/playwright/task-079c/06-home-ar.png`
+7. `frontend/output/playwright/task-079c/07-rewards-ar.png`
+8. `frontend/output/playwright/task-079c/08-stores-ar.png`
+9. `frontend/output/playwright/task-079c/09-scan-modal-ar.png`
+10. `frontend/output/playwright/task-079c/10-home-ar-header-fixed.png`
+
+Browser QA findings:
+
+1. Arabic fan portal initializes with:
+   - `document.documentElement.lang = ar`
+   - `document.documentElement.dir = rtl`
+   - `document.body.dir = rtl`
+2. Arabic mobile viewport check:
+   - Viewport: 390 x 844.
+   - `scrollWidth = 390`, `innerWidth = 390`.
+   - No horizontal overflow detected.
+3. Header language button:
+   - Arabic state displays `اللغة`.
+4. Visual QA covered:
+   - Home.
+   - Rewards.
+   - Stores.
+   - Scan detail.
+   - Scan modal.
+
+Verification:
+
+1. New Arabic RTL focused regression:
+   - `npm test -- src/pages/fans/FanArabicRtl.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+2. Directly impacted fan page tests:
+   - `npm test -- src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/InviteTab.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Passed: 6 files, 46 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 96 files, 416 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Known limitation:
+
+1. This task covered the core Arabic fan journey and RTL shell stability.
+2. Some long-form operational strings, generated store labels, product names, and detailed FAQ/body copy remain English and should be handled in a later Arabic full-copy pass with native review.
+3. Store portal Arabic is still a future task.
+
+## Task-079D: Fan Full Arabic Copy Sweep
+
+Status: Completed
+
+Scope:
+
+1. Continued on the real fan portal only:
+   - `frontend/src/pages/fans`
+   - Real route: `fan-app.html#/fan-center`
+2. Added a full-sweep Arabic static regression:
+   - `frontend/src/pages/fans/FanArabicFullSweep.static.test.mjs`
+3. Expanded fan-facing Arabic translation coverage for high-impact remaining UI:
+   - Home task/store/member culture copy.
+   - Me growth center, history panels, utility cards, language card, sign out.
+   - Old fan verification page.
+   - Scan modal, scan code matrix, recent scan records, empty states, messages.
+   - Rewards mall summary, flow, pickup policy, item cards, redemption modal, rules modal.
+   - Invite page and copy fallback.
+   - Store map labels, popup labels, storefront photo states, map legend.
+   - Help / new user guide FAQ cards.
+4. Kept product names, store names, campaign names, code types, and backend/business data unchanged unless used as UI fallback labels.
+5. Updated related static tests so they verify translation-key usage and translation-source defaults instead of requiring English hardcoded inside JSX.
+
+Impact:
+
+1. Database impact:
+   - None.
+2. API impact:
+   - None.
+3. Permission impact:
+   - None.
+4. Business rule impact:
+   - None.
+5. Backend/Admin impact:
+   - None.
+   - Backend remains Chinese-first.
+6. Store portal impact:
+   - None.
+7. Dependency impact:
+   - None.
+   - Did not run `npm install`, `pip install`, or `playwright install`.
+
+Files changed in this task:
+
+1. `frontend/src/utils/translations.js`
+2. `frontend/src/pages/fans/FanArabicFullSweep.static.test.mjs`
+3. `frontend/src/pages/fans/FanCenterPage.jsx`
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+5. `frontend/src/pages/fans/FanStoresExposure.static.test.mjs`
+6. `frontend/src/pages/fans/tabs/ScanTab.jsx`
+7. `frontend/src/pages/fans/tabs/ScanTab.static.test.mjs`
+8. `frontend/src/pages/fans/tabs/MallTab.jsx`
+9. `frontend/src/pages/fans/tabs/MallTab.static.test.mjs`
+10. `frontend/src/pages/fans/tabs/MallTab.inventory-copy.test.mjs`
+11. `frontend/src/pages/fans/tabs/InviteTab.jsx`
+12. `frontend/src/pages/fans/tabs/InviteAndGuide.static.test.mjs`
+13. `frontend/src/pages/fans/tabs/MapTab.jsx`
+14. `frontend/src/pages/fans/tabs/MapTab.exposure.static.test.mjs`
+15. `frontend/src/pages/fans/tabs/HowItWorksTab.jsx`
+16. `frontend/src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+17. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-079d/01-home-ar.png`
+2. `frontend/output/playwright/task-079d/02-rewards-ar.png`
+3. `frontend/output/playwright/task-079d/03-stores-ar.png`
+4. `frontend/output/playwright/task-079d/04-me-ar.png`
+5. `frontend/output/playwright/task-079d/05-scan-ar.png`
+6. `frontend/output/playwright/task-079d/06-scan-modal-ar.png`
+7. `frontend/output/playwright/task-079d/07-invite-ar.png`
+8. `frontend/output/playwright/task-079d/08-help-ar.png`
+9. `frontend/output/playwright/task-079d/metrics.json`
+
+Browser QA findings:
+
+1. QA used build preview:
+   - `http://127.0.0.1:4173/fan-app.html#/fan-center`
+2. Arabic state confirmed on all checked pages:
+   - `document.documentElement.lang = ar`
+   - `document.documentElement.dir = rtl`
+   - `document.body.dir = rtl`
+3. Mobile viewport check:
+   - Viewport: 390 x 844.
+   - `scrollWidth = 390`, `innerWidth = 390`.
+   - No horizontal overflow detected.
+4. High-impact English sweep found no hits for:
+   - `Today's tasks`
+   - `Growth center`
+   - `Account overview`
+   - `Submit Code`
+   - `Product unique code`
+   - `Reward image`
+   - `I understand`
+   - `Share this code:`
+   - `Storefront photo pending`
+   - `No nearby UWELL partner stores are available right now.`
+   - `Existing fan verification can grant +100 points`
+
+Verification:
+
+1. New Arabic full-copy regression:
+   - `npm test -- src/pages/fans/FanArabicFullSweep.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+2. Impacted fan regression:
+   - `npm test -- src/pages/fans/FanArabicFullSweep.static.test.mjs src/pages/fans/FanArabicRtl.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs src/pages/fans/tabs/ScanTab.static.test.mjs src/pages/fans/tabs/MallTab.static.test.mjs src/pages/fans/tabs/InviteAndGuide.static.test.mjs src/pages/fans/tabs/MapTab.exposure.static.test.mjs src/pages/fans/tabs/HowItWorksTab.static.test.mjs`
+   - Passed: 8 files, 52 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 97 files, 419 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Known limitation:
+
+1. This pass removes the high-impact remaining English UI labels from the real fan portal.
+2. Dynamic product names, store names, campaign names, and operational records may still appear in English because they are seeded/business data, not UI shell copy.
+3. Native Middle East Arabic review is still recommended before production launch.
+
+## Task-079E: Fan Arabic Remaining Coverage Fix
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued real fan portal Arabic coverage only.
+2. Did not use `/preview/fan`.
+3. Did not change database, backend API, permissions, `.env`, or dependencies.
+4. Kept fan default language as English and Arabic as the alternate language.
+
+What changed:
+
+1. Added Arabic translation coverage for remaining high-impact fan areas:
+   - Activities
+   - Community
+   - Check-in detail
+   - Home recent activity
+   - Me recent activity
+   - Store trust labels
+   - Rewards category labels
+2. Rewired `CampaignTab` to render activity shell copy, quick tasks, status labels, modal labels, and known demo campaign copy through translation keys.
+3. Rewired `CommunityTab` to render composer copy, rule hints, buttons, image placeholders, demo posts, and demo comments through translation keys.
+4. Rewired `CheckInTab` to render title, today status, week labels, action card, and weekday labels through translation keys.
+5. Added display-layer localization for known dynamic/demo fan content without changing stored data:
+   - Demo campaign names and descriptions.
+   - Store trust presentation strings.
+   - Common point-log sources/descriptions.
+   - Reward category chips and filters.
+6. Updated static tests so Arabic coverage is locked by translation-key usage rather than English hardcoded JSX.
+
+Files changed in this task:
+
+1. `frontend/src/utils/translations.js`
+2. `frontend/src/pages/fans/FanArabicFullSweep.static.test.mjs`
+3. `frontend/src/pages/fans/FanCenterPage.jsx`
+4. `frontend/src/pages/fans/FanCenterPage.static.test.mjs`
+5. `frontend/src/pages/fans/tabs/CampaignTab.jsx`
+6. `frontend/src/pages/fans/tabs/CampaignTab.static.test.mjs`
+7. `frontend/src/pages/fans/tabs/CommunityTab.jsx`
+8. `frontend/src/pages/fans/tabs/CommunityTab.static.test.mjs`
+9. `frontend/src/pages/fans/tabs/CheckInTab.jsx`
+10. `frontend/src/pages/fans/tabs/MallTab.jsx`
+11. `frontend/src/pages/fans/tabs/MapTab.jsx`
+12. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-079e/01-الرئيسية.png`
+2. `frontend/output/playwright/task-079e/02-الفعاليات.png`
+3. `frontend/output/playwright/task-079e/03-المجتمع.png`
+4. `frontend/output/playwright/task-079e/04-المكافآت.png`
+5. `frontend/output/playwright/task-079e/05-المتاجر.png`
+6. `frontend/output/playwright/task-079e/06-حسابي.png`
+7. `frontend/output/playwright/task-079e/metrics-final.json`
+
+Browser QA findings:
+
+1. QA used build preview:
+   - `http://127.0.0.1:4173/fan-app.html#/fan-center`
+2. Arabic state confirmed on all checked pages:
+   - `document.documentElement.lang = ar`
+   - `document.documentElement.dir = rtl`
+   - `document.body.dir = rtl`
+3. Mobile viewport check:
+   - Viewport: 390 x 844.
+   - `scrollWidth = 390`, `innerWidth = 390`.
+   - No horizontal overflow detected.
+4. Final targeted English sweep found no hits across:
+   - Home
+   - Activities
+   - Community
+   - Rewards
+   - Stores
+   - Me
+
+Verification:
+
+1. RED test was added first:
+   - `npm test -- src/pages/fans/FanArabicFullSweep.static.test.mjs`
+   - Failed as expected before implementation because Activities, Community, and Check-in were still hardcoded.
+2. Focused Arabic/fan regression:
+   - `npm test -- src/pages/fans/FanArabicFullSweep.static.test.mjs src/pages/fans/FanCenterPage.static.test.mjs`
+   - Passed: 2 files, 25 tests.
+3. Fan regression:
+   - `npm test -- src/pages/fans`
+   - Passed: 19 files, 86 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 97 files, 419 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. Brand names, product names, store names, member names, map provider labels, and social platform names remain as source data or proper nouns.
+2. User-generated content will display in the language entered by the user until a formal data-layer localization/translation workflow is defined.
+3. Native Gulf/Middle East Arabic review is still recommended before production launch.
+
+## Task-080: Store Portal Arabic Full Coverage
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued real store portal Arabic coverage only.
+2. Did not use `/preview/fan`.
+3. Did not change database, backend API, permissions, `.env`, or dependencies.
+4. Kept store portal default language as English and Arabic as the alternate language.
+5. Did not touch admin/backend Chinese-first direction.
+
+What changed:
+
+1. Added a store Arabic full-sweep static regression test for high-impact store shell copy.
+2. Added Arabic translation keys for store entry/login/register shell copy and store owner core workbench copy.
+3. Rewired store entry page placeholders, legal copy, photo expectations, and validation messages through translations.
+4. Rewired high-impact store owner navigation and workbench sections through translations:
+   - Home / Verify / Activities / S Report / Me tabs.
+   - Today execution command.
+   - New store readiness.
+   - Level exposure and pickup rules.
+   - Store operations status.
+   - Campaign status.
+   - Material inventory.
+   - Store activity application.
+   - S Store terminal report.
+   - Sell-through and product/material inventory panels.
+   - Reward pickup and scan/verify modal titles.
+   - Store profile and setup visibility.
+5. Added store runtime Arabic copy mapping for remaining high-frequency store UI/toast copy without changing source business data.
+6. Updated existing store-owner static tests so they protect translation-key usage instead of locking English hardcoded JSX.
+
+Files changed in this task:
+
+1. `frontend/src/utils/translations.js`
+2. `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+3. `frontend/src/pages/store-owner/StoreEntryPage.jsx`
+4. `frontend/src/pages/store-owner/StoreEntryPage.static.test.mjs`
+5. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+6. `frontend/src/pages/store-owner/StoreOwnerPage.static.test.mjs`
+7. `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+8. `frontend/src/pages/store-owner/StoreOwnerPage.operations.test.mjs`
+9. `frontend/src/pages/store-owner/StoreOwnerPage.reward-pickup.test.mjs`
+10. `PROGRESS.md`
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-080/01-home-ar.png`
+2. `frontend/output/playwright/task-080/02-verify-ar.png`
+3. `frontend/output/playwright/task-080/03-activities-ar.png`
+4. `frontend/output/playwright/task-080/04-s-report-ar.png`
+5. `frontend/output/playwright/task-080/05-me-ar.png`
+6. `frontend/output/playwright/task-080/metrics-final.json`
+
+Browser QA findings:
+
+1. QA used build preview:
+   - `http://127.0.0.1:4174/store-app.html#/store-owner`
+2. Arabic state confirmed on all checked store pages:
+   - `document.documentElement.lang = ar`
+   - `document.documentElement.dir = rtl`
+   - `document.body.dir = rtl`
+3. Mobile viewport check:
+   - Viewport: 390 x 844.
+   - `scrollWidth = 390`, `innerWidth = 390`.
+   - No horizontal overflow detected.
+4. Final targeted English sweep found no hits across:
+   - Home
+   - Verify
+   - Activities
+   - S Report
+   - Me
+
+Verification:
+
+1. RED test was added first:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Failed as expected before implementation because store entry and store owner still had missing keys and hardcoded English shell copy.
+2. Store owner regression:
+   - `npm test -- src/pages/store-owner`
+   - Passed: 6 files, 42 tests.
+3. Full frontend test suite:
+   - `npm test`
+   - Passed: 98 files, 422 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Remaining notes:
+
+1. Store names, product names, campaign names, material names, warehouse names, and user-entered records remain as source data or proper nouns.
+2. This task focused the real store portal. Admin remains Chinese-first with English fallback, per current product direction.
+3. Native Gulf/Middle East Arabic review is still recommended before production launch.
+
+## Task-081: Backend Chinese-First Core Operations Copy Sweep
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued the backend/admin Chinese-first direction.
+2. Focused real backend management pages only.
+3. Did not change fan portal UI, store portal UI, `/preview/fan`, database schema, backend API, permissions, `.env`, or dependencies.
+4. Kept backend/admin as Chinese-first with English/source identifiers retained only where they are role names, data keys, product terms, status keys, or internal audit/action identifiers.
+
+What changed:
+
+1. Expanded the backend Chinese core static regression test to cover:
+   - Operational Rules;
+   - Scan Codes.
+2. Converted high-impact visible copy in `OperationalRulesPage.jsx` from English-first to Chinese-first:
+   - page title and description;
+   - fixed rules;
+   - configurable rules;
+   - review-required rules;
+   - editable trial parameters;
+   - reward catalog governance;
+   - fan level/points channel section;
+   - store activity verification loop;
+   - store rating model;
+   - exposure/warehouse and risk sections;
+   - visible validation/toast messages.
+3. Converted high-impact visible copy in `ScanCodesPage.jsx` from English-first to Chinese-first:
+   - page title and description;
+   - UWELL scan anti-fraud cockpit;
+   - supported code class labels;
+   - validation boundary ladder;
+   - metrics cards;
+   - generate batch panel;
+   - code library columns and action labels;
+   - suspicious scan review labels and messages.
+4. Updated existing admin static tests so they protect Chinese-first copy while still keeping data logic identifiers stable.
+
+Files changed in this task:
+
+1. `frontend/src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`
+2. `frontend/src/pages/admin-ops/AdminOpsPages.static.test.mjs`
+3. `frontend/src/pages/admin-ops/OperationalRulesPage.jsx`
+4. `frontend/src/pages/admin-ops/ScanCodesPage.jsx`
+5. `PROGRESS.md`
+
+Verification:
+
+1. RED test was added first:
+   - `npm test -- src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`
+   - Failed as expected before implementation because Operational Rules and Scan Codes still exposed English-first backend copy.
+2. Focused backend Chinese regression:
+   - `npm test -- src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+3. Backend focused regression:
+   - `npm test -- src/pages/admin-ops src/pages/login/LoginPage.static.test.mjs src/components/layout/AppLayout.static.test.mjs src/pages/dashboard src/pages/stores/SStoreManagementPage.static.test.mjs`
+   - Passed: 11 files, 52 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 98 files, 423 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-081/01-dashboard-zh.png`
+2. `frontend/output/playwright/task-081/02-rules-zh.png`
+3. `frontend/output/playwright/task-081/03-scan-codes-zh.png`
+4. `frontend/output/playwright/task-081/04-s-stores-zh.png`
+5. `frontend/output/playwright/task-081/05-reviews-zh.png`
+6. `frontend/output/playwright/task-081/06-risk-zh.png`
+7. `frontend/output/playwright/task-081/metrics-final.json`
+
+Browser QA findings:
+
+1. QA used build preview:
+   - `http://127.0.0.1:4175/#/admin`
+2. Admin account used:
+   - `admin@uwell.com`
+3. Checked backend real routes:
+   - Dashboard;
+   - Operational Rules;
+   - Scan Codes;
+   - S Store Management;
+   - Reviews;
+   - Risk Center.
+4. Final targeted Chinese sweep found:
+   - missing required Chinese labels: 0;
+   - target English-first residual hits: 0;
+   - desktop horizontal overflow: false on all checked pages.
+
+Remaining notes:
+
+1. Role names such as Admin, Manager, Rep, level names such as Gold/Diamond, source status keys, data field names, and internal audit/action identifiers intentionally remain as source identifiers.
+2. This task did not perform a full backend visual/UI redesign. It only tightened Chinese-first backend operations copy for the agreed trial path.
+
+## Task-082: Backend Remaining Trial Pages Chinese-First Copy Sweep
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued backend/admin Chinese-first direction after Task-081.
+2. Focused remaining real backend trial-operation pages:
+   - Material Stocks;
+   - Field Visits list/create;
+   - Store List and Store Detail;
+   - Campaign List;
+   - User Management;
+   - Audit Log.
+3. Did not change fan portal UI, store portal UI, `/preview/fan`, database schema, backend API, permissions, `.env`, or dependencies.
+4. Kept source identifiers, role names, region names, SKU/product names, internal table names, route keys, status keys, and audit/action keys stable where they are data or logic identifiers.
+
+What changed:
+
+1. Added `BackendRemainingChineseCopy.static.test.mjs` to protect Chinese-first copy on remaining backend trial pages.
+2. Converted high-impact visible copy in Material Stocks:
+   - inventory dashboard;
+   - regional warehouse command;
+   - visible warehouse scope;
+   - pending store request;
+   - stock-risk request;
+   - low-stock alert;
+   - table empty/pagination copy.
+3. Converted high-impact visible copy in Field Visits:
+   - new-store and repeat-visit workflow labels;
+   - visit command center;
+   - S Store follow-up lane;
+   - operational summary cards;
+   - review/final-level and replenishment filters;
+   - table columns and status labels.
+4. Converted high-impact visible copy in Store List and Store Detail:
+   - store photo review cards;
+   - old fan review cards;
+   - review action/toast copy;
+   - restricted access fallback;
+   - store rating/profile/fan-exposure readiness copy.
+5. Converted high-impact visible copy in Campaign List:
+   - campaign freshness handoff;
+   - review/store execution handoff;
+   - freshness state labels;
+   - detail action button.
+6. Converted high-impact visible copy in User Management:
+   - staff account creation panel;
+   - validation messages;
+   - form labels/placeholders;
+   - create action/toast copy.
+7. Converted high-impact visible copy in Audit Log:
+   - title;
+   - access-restricted state;
+   - CSV headers;
+   - table columns;
+   - filters;
+   - dashboard statistic labels;
+   - export action.
+8. Updated existing static tests so they protect Chinese-first backend copy while keeping data logic and permission identifiers stable.
+
+Files changed in this task:
+
+1. `frontend/src/pages/admin-ops/BackendRemainingChineseCopy.static.test.mjs`
+2. `frontend/src/pages/admin-ops/AdminOperationalRules.static.test.mjs`
+3. `frontend/src/pages/materials/MaterialStocksPage.jsx`
+4. `frontend/src/pages/materials/MaterialStocksPage.region-access.static.test.mjs`
+5. `frontend/src/pages/visits/VisitListPage.jsx`
+6. `frontend/src/pages/visits/VisitFieldOps.static.test.mjs`
+7. `frontend/src/pages/visits/VisitCreatePage.jsx`
+8. `frontend/src/pages/visits/VisitCreatePage.workflow.test.mjs`
+9. `frontend/src/pages/stores/StoreListPage.jsx`
+10. `frontend/src/pages/stores/StoreDetailPage.jsx`
+11. `frontend/src/pages/stores/StoreDetailPage.static.test.mjs`
+12. `frontend/src/pages/stores/StoreDetailPage.rbac.static.test.mjs`
+13. `frontend/src/pages/campaigns/CampaignListPage.jsx`
+14. `frontend/src/pages/campaigns/CampaignListPage.static.test.mjs`
+15. `frontend/src/pages/settings/UserManagementPage.jsx`
+16. `frontend/src/pages/settings/UserManagementPage.static.test.mjs`
+17. `frontend/src/pages/settings/AuditLogPage.jsx`
+18. `frontend/src/pages/settings/AuditLogPage.local.test.mjs`
+19. `PROGRESS.md`
+
+Verification:
+
+1. RED test was added first:
+   - `npm test -- src/pages/admin-ops/BackendRemainingChineseCopy.static.test.mjs`
+   - Failed as expected because remaining backend pages still exposed English-first primary copy.
+2. Task focused regression:
+   - `npm test -- src/pages/admin-ops/BackendRemainingChineseCopy.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+3. Backend remaining-page regression:
+   - `npm test -- src/pages/admin-ops src/pages/materials src/pages/visits src/pages/stores src/pages/campaigns src/pages/settings`
+   - Passed: 23 files, 80 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 99 files, 426 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-082/01-material-stocks-zh.png`
+2. `frontend/output/playwright/task-082/02-visits-zh.png`
+3. `frontend/output/playwright/task-082/03-stores-zh.png`
+4. `frontend/output/playwright/task-082/04-store-detail-zh.png`
+5. `frontend/output/playwright/task-082/05-campaigns-zh.png`
+6. `frontend/output/playwright/task-082/06-users-zh.png`
+7. `frontend/output/playwright/task-082/07-audit-zh.png`
+8. `frontend/output/playwright/task-082/metrics-final.json`
+
+Browser QA findings:
+
+1. QA used build preview:
+   - `http://127.0.0.1:4176/#/admin`
+2. Admin account used:
+   - `admin@uwell.com`
+3. Checked backend real routes:
+   - Material Stocks;
+   - Field Visits;
+   - Store List;
+   - Store Detail;
+   - Campaign List;
+   - User Management;
+   - Audit Log.
+4. Final targeted Chinese sweep found:
+   - missing required Chinese labels: 0;
+   - target English-first residual hits: 0;
+   - desktop horizontal overflow: false on all checked pages;
+   - page errors: 0.
+
+Remaining notes:
+
+1. Some role names, city/warehouse names, product/SKU names, table names, status keys, and audit/source identifiers remain English by design because they are data identifiers or operational roles.
+2. VisitCreate still contains some deeper field-level English guidance outside the high-impact trial shell. It can be handled later if the backend needs fully localized form internals before customer-facing training.
+3. This task did not redesign backend UI. It tightened language consistency and trial readability only.
+
+## Task-084: Store Portal Arabic Coverage And English Chinese Residual Cleanup
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued the real Store App language readiness work after Task-083 browser QA.
+2. Focused only the real store owner portal:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+3. Did not change fan portal UI, backend/admin UI, `/preview/fan`, database schema, backend API, permissions, `.env`, or dependencies.
+4. Kept product names, SKU/material names, store names, campaign names, city/warehouse names, and seed-data operational notes as data identifiers where appropriate.
+
+What changed:
+
+1. Expanded store-owner Arabic coverage for remaining operational workbench copy:
+   - Home execution command cards;
+   - today operating queue;
+   - exposure metrics;
+   - level exposure and reward pickup rules;
+   - Activities guidance and review states;
+   - S Store report form labels, period options, history labels, and empty states;
+   - Verify result states, reward pickup guidance, scanner modal, and S-level policy modal;
+   - Me/profile photo reminder, regional warehouse copy, and photo/material workbench.
+2. Added store display category mapping at the Store App render layer so English mode no longer shows Chinese category labels:
+   - Product placement;
+   - Material placement;
+   - Activity showcase;
+   - Hot UWELL products.
+3. Kept the shared display-category seed labels unchanged, avoiding database/data-shape changes.
+4. Strengthened `StoreArabicFullSweep.static.test.mjs`:
+   - added remaining Arabic workbench copy assertions;
+   - added a guard that English `store_*` translation entries contain no Chinese fallback copy.
+
+Files changed in this task:
+
+1. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+2. `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+3. `PROGRESS.md`
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Failed as expected because remaining store operational workbench copy was not covered by Arabic dictionary/render calls.
+2. Focused Arabic sweep:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Passed: 1 file, 5 tests.
+3. Store portal regression:
+   - `npm test -- src/pages/store-owner`
+   - Passed: 6 files, 44 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 99 files, 428 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-084/store-en-home.png`
+2. `frontend/output/playwright/task-084/store-en-nav-0.png`
+3. `frontend/output/playwright/task-084/store-en-nav-1.png`
+4. `frontend/output/playwright/task-084/store-en-nav-2.png`
+5. `frontend/output/playwright/task-084/store-en-nav-3.png`
+6. `frontend/output/playwright/task-084/store-en-nav-4.png`
+7. `frontend/output/playwright/task-084/store-ar-home.png`
+8. `frontend/output/playwright/task-084/store-ar-nav-0.png`
+9. `frontend/output/playwright/task-084/store-ar-nav-1.png`
+10. `frontend/output/playwright/task-084/store-ar-nav-2.png`
+11. `frontend/output/playwright/task-084/store-ar-nav-3.png`
+12. `frontend/output/playwright/task-084/store-ar-nav-4.png`
+13. `frontend/output/playwright/task-084-rerun/metrics.json`
+
+Browser QA findings:
+
+1. QA used the real Store App:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+2. Store account/session used:
+   - `store.owner@uwell.com` / local store id `s-real-012`.
+3. Checked English and Arabic modes across Store Home, Verify, Activities, S Report, and Me.
+4. Final browser sweep found:
+   - English-mode Chinese visible hits: 0;
+   - Arabic-mode targeted store workbench English residual hits: 0;
+   - mobile horizontal overflow: false;
+   - page errors: 0.
+
+Remaining notes:
+
+1. Arabic mode may still show English product names, SKU/material names, campaign names, warehouse names, and seed-data notes because those are data identifiers rather than UI shell copy.
+2. Store App still has known non-blocking Ant Design deprecation warnings in broader QA contexts; this task did not address framework cleanup.
+
+## Task-085: Store Date Picker Locale Cleanup
+
+Date: 2026-07-19
+
+Scope:
+
+1. Fixed the real Store App date placeholder language leak reported from:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Focused only the real store owner portal:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`.
+3. Did not change fan portal UI, backend/admin UI, `/preview/fan`, database schema, backend API, permissions, `.env`, or dependencies.
+
+What changed:
+
+1. Replaced native store-owner date inputs with Ant Design `DatePicker` using fixed `YYYY-MM-DD` format and placeholder.
+2. Covered both affected store flows:
+   - S Report sell-through period start/end;
+   - Store-created activity start/end date modal.
+3. Added `formatStoreDateValue` so DatePicker Dayjs values are submitted as existing `YYYY-MM-DD` strings.
+4. Added a static regression guard to prevent native `<Input type="date">` returning and reintroducing browser/system-localized placeholders such as `年/月/日`.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Failed as expected because `DatePicker` was not present and native date inputs still existed.
+2. Focused S Report regression:
+   - `npm test -- src/pages/store-owner/StoreOwnerPage.s-store-report.static.test.mjs`
+   - Passed: 1 file, 7 tests.
+3. Store portal regression:
+   - `npm test -- src/pages/store-owner`
+   - Passed: 6 files, 45 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 99 files, 429 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-085-store-date-locale.png`
+
+Browser QA findings:
+
+1. QA used the real Store App:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+2. Checked English mode on:
+   - S Report sell-through date fields;
+   - Store-created activity date fields inside the modal.
+3. Final browser sweep found:
+   - S Report date placeholders: `YYYY-MM-DD`;
+   - activity modal date placeholders: `YYYY-MM-DD`;
+   - Chinese visible hits in these checked areas: 0.
+
+Remaining notes:
+
+1. Browser QA still shows existing non-blocking Ant Design `Progress.trailColor` deprecation warning.
+2. Browser QA also observed several existing 400 network/resource responses in the local trial context; they were not introduced by this date input change.
+
+## Task-086: Store Deep Interaction Arabic Cleanup
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued the real Store App language cleanup after Task-085.
+2. Focused only the real store owner portal:
+   - `frontend/src/pages/store-owner/StoreOwnerPage.jsx`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+3. Did not change fan portal UI, backend/admin UI, `/preview/fan`, database schema, backend API, permissions, `.env`, or dependencies.
+
+What changed:
+
+1. Added Arabic coverage and `st()` rendering for deeper store-owner interaction copy:
+   - store-created activity confirmation modal;
+   - store-created activity form labels and validation messages;
+   - store-created activity point support guidance;
+   - S Store sell-through/product inventory/material inventory success and failure toasts;
+   - fan participation verification result toasts;
+   - material request success and failure toasts;
+   - display photo upload limit warning;
+   - first/third/store photo reminder modal titles;
+   - activity approval modal submit button.
+2. Preserved dynamic values in translated copy:
+   - material name;
+   - category name;
+   - awarded points;
+   - min/max store event point support range.
+3. Updated the store dashboard progress ring from deprecated `trailColor` to current `railColor`.
+4. Kept existing operational contracts intact, including the store-created campaign cost-responsibility text that existing static tests guard.
+
+Verification:
+
+1. RED tests:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Failed as expected before implementation because deeper modal/toast copy and the deprecated `trailColor` usage were not covered.
+2. Focused Arabic sweep:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Passed: 1 file, 7 tests.
+3. Store portal regression:
+   - `npm test -- src/pages/store-owner`
+   - Passed: 6 files, 47 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 99 files, 431 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-086-store-en.png`
+2. `frontend/output/playwright/task-086-store-ar.png`
+3. `frontend/output/playwright/task-086-store-ar-corrected.png`
+4. `frontend/output/playwright/task-086-store-ar-activity-modal.png`
+5. `frontend/output/playwright/task-086-store-ar-activity-modal-final.png`
+
+Browser QA findings:
+
+1. QA used the real Store App:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+2. Arabic browser state used:
+   - `uwell_lang_store=ar`;
+   - body `lang=ar`;
+   - body `dir=rtl`.
+3. Final activity modal sweep found:
+   - Arabic visible in the modal: true;
+   - Chinese visible in the modal: false;
+   - core shell English residual in activity modal labels/buttons: false;
+   - `Progress.trailColor` warning: 0;
+   - mobile horizontal overflow: false;
+   - page errors excluding existing failed resource responses: 0.
+
+Remaining notes:
+
+1. Browser QA still observes several existing 400 network/resource responses in the local trial context; this task did not address remote resource/API availability.
+2. Product names, SKU/material names, campaign names, warehouse names, and example placeholders such as `G5 tasting weekend` may remain English as data/example identifiers unless the project decides to localize example content too.
+
+## Task-087: Store Arabic Settings Panel Overflow Fix
+
+Date: 2026-07-19
+
+Scope:
+
+1. Fixed the real Store App Arabic RTL settings panel overflow reported from:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`.
+2. Focused only the real store owner portal styling and regression guard:
+   - `frontend/src/index.css`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`.
+3. Did not change fan portal UI, backend/admin UI, `/preview/fan`, database schema, backend API, permissions, `.env`, dependencies, or store business logic.
+
+What changed:
+
+1. Added a scoped RTL rule for the Store App settings panel:
+   - `html[dir="rtl"] .store-liquid-shell .store-settings-panel`.
+2. In Arabic RTL, the settings panel now anchors from the left-side trigger into the viewport:
+   - `right: auto`;
+   - `left: -2px`;
+   - `max-width: calc(100vw - 32px)`;
+   - right-aligned text.
+3. Added static regression coverage so the Store App cannot fall back to the LTR `right` anchor in RTL.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Failed as expected before implementation because the Store App RTL settings-panel positioning rule was missing.
+2. Focused Arabic sweep:
+   - `npm test -- src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`
+   - Passed: 1 file, 8 tests.
+3. Store portal regression:
+   - `npm test -- src/pages/store-owner`
+   - Passed: 6 files, 48 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 99 files, 432 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-087-store-rtl-settings-panel.png`
+
+Browser QA findings:
+
+1. QA used the real Store App with Arabic store language:
+   - `http://127.0.0.1:5173/store-app.html#/store-owner`
+2. Viewport matched the reported browser size:
+   - 863 x 698.
+3. Final panel measurement:
+   - panel x: 31;
+   - panel width: 238;
+   - left overflow: false;
+   - right overflow: false;
+   - top overflow: false;
+   - bottom overflow: false;
+   - document horizontal overflow: false.
+
+Remaining notes:
+
+1. This task fixed the reported settings dropdown overflow only. It did not redesign the Arabic store header or navigation layout.
+
+## Task-088: Store + Admin Language Overlap Sweep
+
+Date: 2026-07-19
+
+Scope:
+
+1. Swept the real Store App and real Admin backend for language overlap:
+   - Store English;
+   - Store Arabic RTL;
+   - Admin Chinese-first shell.
+2. Fixed high-impact Store Arabic official campaign copy that still displayed English campaign titles/descriptions.
+3. Fixed Admin sidebar Chinese shell copy and removed previous hardcoded/garbled menu labels.
+4. Fixed Admin Dashboard high-impact English shell headings and summary labels.
+5. Fixed high-impact Chinese-first shell copy on:
+   - field visit create page;
+   - evaluation create page.
+6. Did not change fan portal UI, `/preview/fan`, database schema, backend API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/components/layout/AppLayout.jsx`
+   - Replaced hardcoded admin sidebar labels with translation keys:
+     - S Store Management;
+     - exposure control;
+     - new store visit;
+     - repeat visit;
+     - display data;
+     - admin settings aria label.
+2. `frontend/src/utils/translations.js`
+   - Added zh/en/ar entries for the new admin navigation/settings keys.
+3. `frontend/src/pages/store-owner/StoreOwnerPage.jsx`
+   - Added Arabic display-time mapping for official campaign titles/descriptions.
+   - Preserved original campaign seed data and business behavior.
+4. `frontend/src/pages/dashboard/DashboardPage.jsx`
+   - Converted high-impact backend shell copy from English to Chinese-first labels.
+5. `frontend/src/pages/visits/VisitCreatePage.jsx`
+   - Converted the top-level field visit create shell to Chinese-first copy.
+6. `frontend/src/pages/evaluation/EvalCreatePage.jsx`
+   - Converted the top-level evaluation create shell to Chinese-first copy.
+7. Static regression tests updated/added:
+   - `frontend/src/components/layout/AppLayout.static.test.mjs`;
+   - `frontend/src/pages/store-owner/StoreArabicFullSweep.static.test.mjs`;
+   - `frontend/src/pages/dashboard/DashboardPage.static.test.mjs`;
+   - `frontend/src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`;
+   - `frontend/src/pages/evaluation/EvalCreatePage.rating-model.test.mjs`;
+   - `frontend/src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`;
+   - `frontend/src/pages/visits/VisitCreatePage.workflow.test.mjs`.
+
+Verification:
+
+1. RED tests:
+   - Focused language tests failed before production-code changes as expected.
+2. Focused regression:
+   - `npm test -- src/components/layout/AppLayout.static.test.mjs src/pages/store-owner/StoreArabicFullSweep.static.test.mjs src/pages/dashboard/DashboardPage.static.test.mjs src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs src/pages/evaluation/EvalCreatePage.rating-model.test.mjs`
+   - Passed: 5 files, 38 tests.
+3. Full frontend test suite:
+   - First full run found 2 expectation-drift failures after the Chinese-first copy changes:
+     - `src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs`;
+     - `src/pages/visits/VisitCreatePage.workflow.test.mjs`.
+   - Updated those tests to match the current translation-key structure and Chinese-first visit shell.
+   - Focused recheck:
+     - `npm test -- src/pages/admin-ops/backendChineseCoreCopy.static.test.mjs src/pages/visits/VisitCreatePage.workflow.test.mjs`
+     - Passed: 2 files, 10 tests.
+   - Final full recheck:
+     - `npm test`
+     - Passed: 99 files, 437 tests.
+4. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+5. Browser QA:
+   - Store Arabic campaign recheck:
+     - `lang=ar`;
+     - `dir=rtl`;
+     - no leaked `G5 flagship device launch campaign`;
+     - no leaked `Ramadan holiday promotion`;
+     - Arabic G5/Ramadan campaign titles visible.
+   - Admin Dashboard Chinese recheck:
+     - `lang=zh`;
+     - `dir=ltr`;
+     - no leaked high-impact English shell headings;
+     - no admin sidebar/dashboard mojibake;
+     - Chinese shell headings visible.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-088-language-sweep/task-088-store-ar-campaign-recheck.png`
+2. `frontend/output/playwright/task-088-language-sweep/task-088-admin-dashboard-zh-recheck.png`
+3. `frontend/output/playwright/task-088-language-sweep/language-sweep-recheck.json`
+
+Remaining notes:
+
+1. Some backend English remains as business data, product/model names, store names, SKU/material names, warehouse names, campaign seed records, or specialist field labels inside deeper forms.
+2. A later Admin Chinese Deep Sweep should continue page-by-page for:
+   - store list exposure panel;
+   - materials inbound/outbound;
+   - settings data setup guide;
+   - fan growth/rules/complaints;
+   - deeper S Store visit detail fields.
+
+## Task-089: Admin Chinese Deep Sweep
+
+Date: 2026-07-19
+
+Scope:
+
+1. Continued backend/admin Chinese-first language cleanup after Task-088.
+2. Focused real backend pages only:
+   - campaign create/detail;
+   - material inbound/outbound;
+   - fan growth/rules/complaints/scan center;
+   - visit create S Store detail;
+   - visit detail;
+   - settings data management cloud setup guide.
+3. Did not change fan portal UI, store portal UI, `/preview/fan`, database schema, backend API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/campaigns/CampaignCreatePage.jsx`
+   - Converted campaign form labels, status options, validation copy, submit/cancel actions, and success/error toasts to Chinese-first copy.
+2. `frontend/src/pages/campaigns/CampaignDetailPage.jsx`
+   - Converted campaign detail descriptions, task table/actions, claim table, material assignment modal, and review report modal to Chinese-first copy.
+3. `frontend/src/pages/materials/MaterialInboundPage.jsx`
+   - Converted inbound management form, table columns, empty state, and success toast to Chinese-first copy.
+4. `frontend/src/pages/materials/MaterialOutboundPage.jsx`
+   - Converted outbound/requisition form, records table, status labels, approval actions, and toasts to Chinese-first copy.
+5. `frontend/src/pages/fans/FanGrowthPage.jsx`
+   - Converted fan growth dashboard shell, selector, check-in/points, lucky draw, points mall, fan map, empty states, and visible action copy to Chinese-first copy.
+   - Kept existing point source identifiers such as `Daily Check-in`, `Lucky Draw`, and `Points Mall` stable for historical point records.
+6. `frontend/src/pages/fans/FanRulesPage.jsx`
+   - Converted rule boundary cards, fixed/configurable/review groups, points/level table labels, modal copy, and toasts to Chinese-first copy.
+7. `frontend/src/pages/fans/ComplaintReplyPage.jsx`
+   - Converted complaint reply shell, status filters, reply input, empty state, and toasts to Chinese-first copy.
+8. `frontend/src/pages/fans/ScanCenterPage.jsx`
+   - Converted QR management, scan records, QR cards, modal labels, statistics, and toasts to Chinese-first copy.
+9. `frontend/src/pages/visits/VisitCreatePage.jsx`
+   - Converted repeat-visit S Store detail template labels, checklist guidance, select options, placeholders, and S Store detail submit toast to Chinese-first copy.
+10. `frontend/src/pages/visits/VisitDetailPage.jsx`
+    - Converted access-restricted state, visit detail shell, sales table, S Store visit detail, replenishment yes/no, photo tab, and empty states to Chinese-first copy.
+11. `frontend/src/pages/settings/DataManagement.jsx`
+    - Converted cloud/Supabase setup guide to Chinese-first copy.
+12. Static regression tests updated/added:
+    - `frontend/src/pages/admin-ops/BackendDeepChineseCopy.static.test.mjs`;
+    - `frontend/src/pages/fans/ComplaintReplyPage.static.test.mjs`;
+    - `frontend/src/pages/fans/FanRulesPage.operational-boundary.test.mjs`;
+    - `frontend/src/pages/visits/VisitCreatePage.s-store-visit.static.test.mjs`;
+    - `frontend/src/pages/visits/VisitDetailPage.rbac.static.test.mjs`.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/admin-ops/BackendDeepChineseCopy.static.test.mjs`
+   - Failed as expected before implementation because deep backend campaign/material/fan/visit/settings copy still exposed English-first shell labels.
+2. Focused deep backend regression:
+   - `npm test -- src/pages/admin-ops/BackendDeepChineseCopy.static.test.mjs`
+   - Passed: 1 file, 4 tests.
+3. Backend related regression:
+   - `npm test -- src/pages/admin-ops src/pages/campaigns src/pages/materials src/pages/fans/FanRulesPage.operational-boundary.test.mjs src/pages/fans/ComplaintReplyPage.static.test.mjs src/pages/fans/ScanCenterPage.jsx src/pages/visits src/pages/settings`
+   - Passed: 20 files, 62 tests.
+4. Full frontend test suite:
+   - `npm test`
+   - Passed: 100 files, 441 tests.
+5. Production build:
+   - `npm run build`
+   - Passed.
+   - Vite emitted only the existing large chunk size warning.
+
+Browser QA:
+
+1. QA used production preview:
+   - `http://127.0.0.1:4177/`
+2. Browser automation used installed Chrome because Playwright's bundled browser executable was unavailable and no dependency/browser install was performed.
+3. Admin session:
+   - `store_manager_current_user=u-admin`;
+   - `uwell_lang_admin=zh`;
+   - `uwell_lang=zh`.
+4. Checked real backend routes:
+   - `/app/campaigns/create`;
+   - `/app/campaigns/ca-real-001`;
+   - `/app/materials/inbound`;
+   - `/app/materials/outbound`;
+   - `/app/fans/growth`;
+   - `/app/fans/rules`;
+   - `/app/fans/complaints`;
+   - `/app/fans/scan`;
+   - `/app/visits/v-real-001`;
+   - `/app/settings/data`.
+5. Final browser metrics:
+   - target English-first shell hits: 0;
+   - expected Chinese labels missing: 0;
+   - horizontal overflow: false on all checked routes.
+
+Browser QA artifacts:
+
+1. `frontend/output/playwright/task-089-admin-deep-chinese-final/metrics.json`
+2. `frontend/output/playwright/task-089-admin-deep-chinese-final/campaign-create.png`
+3. `frontend/output/playwright/task-089-admin-deep-chinese-final/campaign-detail.png`
+4. `frontend/output/playwright/task-089-admin-deep-chinese-final/material-inbound.png`
+5. `frontend/output/playwright/task-089-admin-deep-chinese-final/material-outbound.png`
+6. `frontend/output/playwright/task-089-admin-deep-chinese-final/fan-growth.png`
+7. `frontend/output/playwright/task-089-admin-deep-chinese-final/fan-rules.png`
+8. `frontend/output/playwright/task-089-admin-deep-chinese-final/fan-complaints.png`
+9. `frontend/output/playwright/task-089-admin-deep-chinese-final/scan-center.png`
+10. `frontend/output/playwright/task-089-admin-deep-chinese-final/visit-detail.png`
+11. `frontend/output/playwright/task-089-admin-deep-chinese-final/data-management.png`
+
+Remaining notes:
+
+1. English product names, model names, SKU/material names, store names, campaign names, staff names, warehouse names, and historical data notes remain as data values.
+2. Some internal point source strings remain stable intentionally so historical fan point records are not rewritten.
+3. This task did not redesign backend UI. It tightened Chinese readability only.
+
+## Task-090: Trial Closeout Table And Arabic Modal Polish
+
+Date: 2026-07-20
+
+Scope:
+
+1. Closed the current repeated language/layout QA loop with a narrow trial-readiness polish task.
+2. Focused only on:
+   - Backend S Store Management wide table readability;
+   - Backend Reviews queue wide table readability;
+   - Backend Rewards Ops catalog/review wide table readability;
+   - Store App Arabic settings/photo-reminder modal overflow and language residual spot checks.
+3. Did not change fan portal UI, `/preview/fan`, database schema, backend API, permissions, `.env`, dependencies, or business rules.
+
+What changed:
+
+1. `frontend/src/pages/stores/SStoreManagementPage.jsx`
+   - Added the shared backend trial wide-table class to the existing S Store table scroll frame.
+2. `frontend/src/pages/admin-ops/ReviewsPage.jsx`
+   - Added the shared backend trial wide-table class and explicit horizontal table scroll for the review queue.
+3. `frontend/src/pages/admin-ops/RewardsOpsPage.jsx`
+   - Added the shared backend trial wide-table class and explicit horizontal table scroll for the reward catalog and high-value reward review queue.
+4. `frontend/src/index.css`
+   - Added a shared `.admin-trial-wide-table` affordance:
+     - mobile touch horizontal scrolling;
+     - Chinese `横向滑动` hint on narrow screens;
+     - constrained table wrapper width.
+5. `frontend/src/pages/admin-ops/BackendTrialPolish.static.test.mjs`
+   - Added static coverage for the Task-090 backend table polish boundary.
+
+Verification:
+
+1. RED test:
+   - `npm test -- src/pages/admin-ops/BackendTrialPolish.static.test.mjs`
+   - Failed as expected before implementation because Reviews/Rewards did not have explicit shared trial wide-table treatment and the shared CSS affordance did not exist.
+2. Focused regression:
+   - `npm test -- src/pages/admin-ops/BackendTrialPolish.static.test.mjs`
+   - Passed: 1 file, 3 tests.
+3. Browser QA on local dev server:
+   - `http://127.0.0.1:5173/`
+   - Backend checked:
+     - `/app/stores/s-stores`;
+     - `/app/reviews`;
+     - `/app/rewards`.
+   - Store Arabic checked:
+     - settings dropdown open;
+     - photo reminder modal state.
+   - Results:
+     - document-level horizontal overflow: false on all checked states;
+     - backend English shell hits for the targeted polish hint: 0;
+     - backend wide-table affordance present on all targeted pages;
+     - Store Arabic Chinese residual count: 0;
+     - Store Arabic targeted English shell hits: 0;
+     - Store Arabic overflow offenders: 0.
+
+Remaining notes:
+
+1. Backend tables are intentionally wider than a phone viewport because they carry operational data. The page no longer overflows; users scroll inside the table frame.
+2. Product names, store names, warehouse names, SKU/material names, role identifiers, and historical seed values may remain English where they are business data rather than UI shell.
+3. This task should be treated as the closeout for the current language/layout sweep. Next work should move to final user review and only fix concrete issues found by the user, not continue broad repeated scanning.

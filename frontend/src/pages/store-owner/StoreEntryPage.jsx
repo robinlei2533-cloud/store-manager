@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { App, Button, Input } from "antd";
 import { ShopOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
@@ -15,18 +15,21 @@ import {
   countryOptions,
   validateCountryCity,
 } from "../../utils/trialOps";
+import { isValidBusinessEmail } from "../../utils/uwellLaunchRules";
 
 const isLocalStoreOwnerShortcutAllowed = () => {
   if (!import.meta.env?.VITE_SUPABASE_URL) return true;
   if (import.meta.env?.DEV || import.meta.env?.VITE_ALLOW_LOCAL_AUTH_FALLBACK === "true") return true;
   if (typeof window === "undefined") return false;
   const hostname = window.location.hostname;
-  return ["localhost", "127.0.0.1", "::1"].includes(hostname) || hostname.endsWith(".vercel.app");
+  return ["localhost", "127.0.0.1", "::1"].includes(hostname);
 };
+
+// Task-141 ReactBits-inspired store login polish: restrained form/CTA motion only.
 
 const StoreEntryPage = () => {
   const navigate = useNavigate();
-  const { t, setLang } = useLanguageStore();
+  const { t } = useLanguageStore();
   const { signIn } = useAuthStore();
   const { message } = App.useApp();
   const [mode, setMode] = useState("login");
@@ -39,23 +42,15 @@ const StoreEntryPage = () => {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const ensureEnglishFirst = useCallback(() => {
-    setLang("en");
-  }, [setLang]);
-
-  useEffect(() => {
-    ensureEnglishFirst();
-  }, [ensureEnglishFirst]);
-
   const handleLogin = useCallback(async () => {
     const email = ownerEmail.trim().toLowerCase();
     const loginPassword = password.trim();
     if (!email || !loginPassword) {
-      message.warning("Please enter email and password");
+      message.warning(t("store_entry_login_required"));
       return;
     }
-    if (!email.includes("@")) {
-      message.warning("Please enter a valid email address");
+    if (!isValidBusinessEmail(email)) {
+      message.warning(t("store_entry_assigned_email_required"));
       return;
     }
 
@@ -97,7 +92,11 @@ const StoreEntryPage = () => {
 
   const handleRegister = useCallback(async () => {
     if (!storeName || !ownerEmail || !password || !phone) {
-      message.warning("Please fill in store name, owner email, password and phone");
+      message.warning(t("store_entry_register_required"));
+      return;
+    }
+    if (!isValidBusinessEmail(ownerEmail)) {
+      message.warning(t("store_entry_real_email_required"));
       return;
     }
     const cityValidation = validateCountryCity({ country, city });
@@ -159,14 +158,14 @@ const StoreEntryPage = () => {
       message.success(t("store_entry_review_submitted"));
       navigate("/store-owner", { replace: true });
     } catch (err) {
-      message.error(err?.message || "Store registration failed");
+      message.error(err?.message || t("store_entry_registration_failed"));
     } finally {
       setLoading(false);
     }
-  }, [address, city, country, navigate, ownerEmail, password, phone, storeName]);
+  }, [address, city, country, message, navigate, ownerEmail, password, phone, storeName, t]);
 
   return (
-    <div className="store-entry-page app-liquid-shell bg-radial-center">
+    <div className="store-entry-page store-entry-green-theme app-liquid-shell bg-radial-center">
       <video
         className="app-liquid-bg-video"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
@@ -189,68 +188,82 @@ const StoreEntryPage = () => {
           menuMinWidth={220}
         />
       </div>
-      <section className="store-entry-card liquid-glass uw-panel-rise">
+      <section className="store-entry-card liquid-glass uw-panel-rise uw-reactbits-fade-content">
         <div className="store-entry-mark">
           <ShopOutlined />
         </div>
-        <div className="store-entry-kicker">{t("store_entry_kicker")}</div>
+        <div className="store-entry-kicker uw-reactbits-shiny-text">{t("store_entry_kicker")}</div>
         <h1>{t("store_entry_title")}</h1>
         <p>{t("store_entry_desc")}</p>
         <div className="store-entry-mode-switch" role="tablist" aria-label="Store entry mode">
           <button type="button" className={mode === "login" ? "is-active" : ""} onClick={() => setMode("login")}>{t("store_entry_login_tab")}</button>
-          <button type="button" className={mode === "register" ? "is-active" : ""} onClick={() => setMode("register")}>{t("store_entry_register_tab")}</button>
+          <button type="button" className={mode === "register" ? "is-active" : ""} onClick={() => setMode("register")}>{t("store_entry_apply_review_tab")}</button>
         </div>
         {mode === "login" && (
           <div className="store-entry-form">
-            <Input
-              value={ownerEmail}
-              onChange={(event) => setOwnerEmail(event.target.value)}
-              placeholder="Email"
-              className="so-input-dark"
-              size="large"
-            />
-            <Input
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-              className="so-input-dark"
-              size="large"
-              type="password"
-            />
-            <Button type="primary" size="large" loading={loading} onClick={handleLogin} block className="uw-pressable uw-shine-button store-entry-main-action">
+            <div className="store-entry-field uw-reactbits-field">
+              <Input
+                value={ownerEmail}
+                onChange={(event) => setOwnerEmail(event.target.value)}
+                placeholder={t("store_entry_email_placeholder")}
+                className="so-input-dark"
+                size="large"
+              />
+            </div>
+            <div className="store-entry-field uw-reactbits-field">
+              <Input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder={t("store_entry_password_placeholder")}
+                className="so-input-dark"
+                size="large"
+                type="password"
+              />
+            </div>
+            <Button type="primary" size="large" loading={loading} onClick={handleLogin} block className="uw-pressable uw-shine-button uw-reactbits-specular-button store-entry-main-action">
               {t("store_entry_button")}
             </Button>
-            <div style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>
-              By logging in, you confirm you are of legal age. See our{' '}
-              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Privacy Policy</a>
-              {' '}and{' '}
-              <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Terms</a>.
+            <div className="store-entry-legal-copy">
+              <span>{t("store_entry_login_legal")}</span>{' '}
+              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#4f8f00' }}>{t("store_entry_privacy_policy")}</a>
+              {' · '}
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: '#4f8f00' }}>{t("store_entry_terms")}</a>
             </div>
           </div>
         )}
         {mode === "register" && (
           <div className="store-entry-form">
-            <Input value={storeName} onChange={(event) => setStoreName(event.target.value)} placeholder="Store name *" className="so-input-dark" size="large" />
-            <Input value={ownerEmail} onChange={(event) => setOwnerEmail(event.target.value)} placeholder="Owner email *" className="so-input-dark" size="large" />
-            <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password *" className="so-input-dark" size="large" type="password" />
-            <Input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="Phone *" className="so-input-dark" size="large" />
-            <select className="so-input-dark store-entry-select" value={country} onChange={(event) => { setCountry(event.target.value); setCity(""); }} aria-label="Country">
-              <option value="">Country *</option>
-              {countryOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-            <select className="so-input-dark store-entry-select" value={city} onChange={(event) => setCity(event.target.value)} disabled={!country} aria-label="City">
-              <option value="">City *</option>
-              {cityOptionsForCountry(country).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-            <Input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Address (optional)" className="so-input-dark" size="large" />
-            <Button type="primary" size="large" loading={loading} onClick={handleRegister} block className="uw-pressable uw-shine-button store-entry-main-action">
-              Submit for review
+            <div className="store-entry-field uw-reactbits-field"><Input value={storeName} onChange={(event) => setStoreName(event.target.value)} placeholder={t("store_entry_store_name_placeholder")} className="so-input-dark" size="large" /></div>
+            <div className="store-entry-field uw-reactbits-field"><Input value={ownerEmail} onChange={(event) => setOwnerEmail(event.target.value)} placeholder={t("store_entry_owner_email_placeholder")} className="so-input-dark" size="large" /></div>
+            <div className="store-entry-field uw-reactbits-field"><Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("store_entry_password_required_placeholder")} className="so-input-dark" size="large" type="password" /></div>
+            <div className="store-entry-field uw-reactbits-field"><Input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder={t("store_entry_phone_placeholder_required")} className="so-input-dark" size="large" /></div>
+            <div className="store-entry-field uw-reactbits-field">
+              <select className="so-input-dark store-entry-select" value={country} onChange={(event) => { setCountry(event.target.value); setCity(""); }} aria-label={t("store_entry_country_placeholder")}>
+                <option value="">{t("store_entry_country_placeholder")}</option>
+                {countryOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </div>
+            <div className="store-entry-field uw-reactbits-field">
+              <select className="so-input-dark store-entry-select" value={city} onChange={(event) => setCity(event.target.value)} disabled={!country} aria-label={t("store_entry_city_placeholder")}>
+                <option value="">{t("store_entry_city_placeholder")}</option>
+                {cityOptionsForCountry(country).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </div>
+            <div className="store-entry-field uw-reactbits-field"><Input value={address} onChange={(event) => setAddress(event.target.value)} placeholder={t("store_entry_address_optional")} className="so-input-dark" size="large" /></div>
+            <div className="store-entry-photo-expectation">
+              <strong>{t("store_entry_photos_after_review")}</strong>
+              <span>{t("store_entry_storefront_photo_map")}</span>
+              <span>{t("store_entry_display_photos_review")}</span>
+              <small>{t("store_entry_first_three_login_reminder")}</small>
+            </div>
+            <Button type="primary" size="large" loading={loading} onClick={handleRegister} block className="uw-pressable uw-shine-button uw-reactbits-specular-button store-entry-main-action">
+              {t("store_entry_submit_review")}
             </Button>
-            <div style={{ fontSize: 11, color: '#666', textAlign: 'center', marginTop: 8 }}>
-              By registering, you confirm you are of legal age and agree to our{' '}
-              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Privacy Policy</a>
-              {' '}and{' '}
-              <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: '#FFD700' }}>Terms of Service</a>.
+            <div className="store-entry-legal-copy">
+              <span>{t("store_entry_apply_legal")}</span>{' '}
+              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#4f8f00' }}>{t("store_entry_privacy_policy")}</a>
+              {' · '}
+              <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: '#4f8f00' }}>{t("store_entry_terms_service")}</a>
             </div>
           </div>
         )}

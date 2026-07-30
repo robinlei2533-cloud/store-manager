@@ -5,22 +5,24 @@ export const legalPolicyMeta = {
 
 export const rewardRules = {
   title: 'Reward Redemption Rules',
-  operatorNote: '运营备注：粉丝兑换后生成唯一兑奖码，只能到 S 级门店核销；核销成功后奖品库存扣减。',
-  summary: 'Redeem points for eligible rewards, then collect the reward at an approved S-level UWELL store.',
+  operatorNote: 'Operations note: the system generates a unique redemption code after points are deducted. Store users verify pickup only; successful pickup deducts reward inventory.',
+  summary: 'Redeem points for eligible rewards, then collect the reward at an eligible UWELL store according to the reward type.',
   items: [
     'A redemption code is generated after points are deducted and the reward is reserved.',
-    'The code can be fulfilled only by an approved S-level UWELL store listed in the UWELL Store Portal.',
+    'Normal rewards can be collected at approved A or S-level UWELL stores.',
+    'Premium rewards require an approved S-level UWELL store.',
+    'Diamond and high-value rewards require backend approval before pickup.',
     'Each code can be used once. After successful pickup, the code status changes to picked up and cannot be reused.',
-    'The default validity period is 30 days from redemption unless a campaign states a shorter period.',
+    'The default validity period is 7 days from redemption unless a campaign states a shorter period.',
     'The fan must show the redemption code in the Fan Center. The store may ask to confirm the fan account or phone number.',
-    'Rewards are subject to store inventory. If the selected S-level store has no stock, the fan should visit another S-level store or contact support.',
+    'Rewards are subject to store inventory. If an eligible store has no stock, the fan should visit another eligible store or contact support.',
     'UWELL may cancel suspicious redemptions, freeze abnormal points, or refuse fulfillment for fraud, resale, duplicated screenshots, or account misuse.',
   ],
 };
 
 export const sLevelStorePolicy = {
   title: 'S-Level Store Responsibility and Reward Policy',
-  operatorNote: '运营备注：S 级门店承担兑奖核销和库存准确责任，平台按核销质量、库存准确率和服务记录给激励。',
+  operatorNote: 'Operations note: S-level stores carry premium reward pickup responsibility. UWELL may use pickup quality, inventory accuracy, and service records for store incentives.',
   responsibilities: [
     'Verify the redemption code in the Store Portal before handing over any reward.',
     'Confirm the displayed reward name and quantity match the physical item being handed to the fan.',

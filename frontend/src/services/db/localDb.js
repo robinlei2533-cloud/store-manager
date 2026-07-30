@@ -5,7 +5,7 @@
 
 const DB_PREFIX = 'store_manager_db_';
 const VERSION_KEY = 'store_manager_version';
-const CURRENT_VERSION = '5.4';
+const CURRENT_VERSION = '6.0';
 
 // 表结构定义
 const TABLE_NAMES = [
@@ -35,11 +35,24 @@ const TABLE_NAMES = [
   'mall_redemptions',
   'community_posts',
   'community_comments',
+  'community_point_actions',
+  'fan_engagement_tasks',
   'store_tasks',
   'material_requests',
   'store_display_uploads',
+  'store_activity_verifications',
+  'store_exposure_events',
   'old_fan_verifications',
   'fan_complaints',
+  'reward_reviews',
+  'warehouse_inventory_alerts',
+  's_store_status_history',
+  's_store_sell_through',
+  's_store_product_inventory_snapshots',
+  's_store_material_inventory_snapshots',
+  's_store_visit_details',
+  's_store_replenishment_tasks',
+  'audit_logs',
   'auth'
 ];
 

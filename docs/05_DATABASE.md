@@ -11,7 +11,7 @@ Local DB is useful for demos and local fallback. Supabase is the production dire
 
 ## Local DB Version
 
-Current local DB version: `5.9`
+Current local DB version: `6.0`
 
 ## Core Tables
 
@@ -54,8 +54,71 @@ Current local DB version: `5.9`
 | fan_complaints | Fan complaints |
 | reward_reviews | High-value reward reviews |
 | warehouse_inventory_alerts | Warehouse low-stock alerts |
+| s_store_status_history | Local/demo S Store promote, downgrade, restore, pause, and status history |
+| s_store_sell_through | Local/demo S Store weekly/monthly open-system and disposable sell-through records |
+| s_store_product_inventory_snapshots | Local/demo S Store product inventory snapshots and low-stock flags |
+| s_store_material_inventory_snapshots | Local/demo S Store material inventory snapshots and low-stock flags |
+| s_store_visit_details | Local/demo S Store field visit details and terminal market feedback |
+| s_store_replenishment_tasks | Local/demo S Store low-stock and replenishment follow-up tasks |
 | audit_logs | Critical operation records |
 | auth | Local trial auth records |
+
+## S Store Data Objects
+
+As of Task-039, these objects exist in the local/demo database foundation only.
+
+They are not yet Supabase tables and do not yet have production RLS policies.
+
+| Data object | Purpose |
+|---|---|
+| S Store profile/status | Store-level S Store identity, source, became-S date, cooperation status, review metadata |
+| S Store status history | Promote, downgrade, restore, pause, and status-change records |
+| S Store sell-through records | Weekly/monthly open-system and disposable sold quantities |
+| S Store product inventory | Open-system/disposable current stock, target stock, low-stock flag |
+| S Store material inventory | Display, poster, lightbox, gift, campaign material, and other material quantities |
+| S Store visit notes | Field rep S Store visit notes, market feedback, competitor situation, hot brands/flavors, support needed, photos |
+| S Store replenishment follow-up | Low-stock or rep-triggered replenishment tasks, responsible rep, status, completion photos |
+| S Store contribution metrics | Aggregated activity verifications, reward pickups, store-linked scans, and fan contribution signals |
+
+S Store contribution metrics should be aggregated from existing operational records when possible instead of requiring manual store entry.
+
+## S Store Local Foundation Status
+
+Task-039 added the local/demo foundation for:
+
+- current S Store fields on `stores`;
+- `s_store_status_history`;
+- `s_store_sell_through`;
+- `s_store_product_inventory_snapshots`;
+- `s_store_material_inventory_snapshots`;
+- `s_store_visit_details`;
+- `s_store_replenishment_tasks`.
+
+No Supabase migration was added in Task-039.
+
+Task-051 documented the production alignment direction for Supabase S Store fields, dedicated S Store tables, indexes, constraints, RLS scope, API/RPC boundaries, and audit coverage.
+
+Primary production-boundary reference:
+
+- `23_S_STORE_SUPABASE_RLS_API_ALIGNMENT.md`
+
+Task-052 added a confirmed additive migration draft:
+
+- `supabase/migrations/20260718000100_s_store_schema.sql`
+
+The migration draft covers:
+
+- S Store current-state fields on `stores`;
+- `s_store_status_history`;
+- `s_store_sell_through`;
+- `s_store_product_inventory_snapshots`;
+- `s_store_material_inventory_snapshots`;
+- `s_store_visit_details`;
+- `s_store_replenishment_tasks`.
+
+Contribution metrics should continue to aggregate from existing operational source tables instead of adding a manual contribution table in V1.
+
+The migration file has not been executed against a remote Supabase project in Task-052. Production RLS policies remain a separate confirmed task.
 
 ## Required Database Principles
 
@@ -67,6 +130,9 @@ Current local DB version: `5.9`
 - Store level changes require before/after value and reason in audit logs.
 - Material inventory must support Riyadh, Dammam, and Jeddah warehouses.
 - Region permissions must be enforceable by data fields, not only UI hiding.
+- S Store historical sell-through submissions should be read-only to stores after submission.
+- Manager/Admin corrections to key S Store data should keep an audit trail.
+- Low-stock detection for S Stores should compare current stock with target stock.
 
 ## Database Change Rule
 
@@ -81,4 +147,3 @@ Before any database change, the task must state:
 7. Whether existing data needs migration
 
 No database change is allowed without user confirmation.
-

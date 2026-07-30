@@ -13,5 +13,29 @@ export { getEvaluations, getEvaluationById, createEvaluation, updateEvaluation, 
 export { getCampaigns, getCampaignById, createCampaign, updateCampaign, deleteCampaign, createCampaignTask, updateCampaignTask, deleteCampaignTask, createCampaignReport, updateCampaignReport } from './api/campaigns';
 export { getQrCodes, createQrCode, updateQrCode, deleteQrCode, scanQrCode, getScanRecords } from './api/qrcodes';
 export { getProfiles, updateProfile } from './api/profiles';
-export { getDashboardStats, getVisitTrend, getStoreDistribution, getScanTrend, IS_LOCAL_MODE } from './api/dashboard';
+export { getDashboardStats, getVisitTrend, getStoreDistribution, getScanTrend, isLocalMode } from './api/dashboard';
 export { createRewardRedemptionRemote, confirmRewardPickupRemote } from './api/rewards';
+export { recordAuditLog } from './api/audit-logs';
+export {
+  getSStores,
+  getSStoreDetail,
+  getSStoreStatusHistory,
+  getSStoreSellThroughHistory,
+  getSStoreInventoryHistory,
+  getSStoreMaterialInventoryHistory,
+  getSStoreVisitDetails,
+  getReplenishmentTasks,
+  getSStoreContributionMetrics,
+  submitSStoreSellThrough,
+  submitSStoreInventory,
+  submitSStoreMaterialInventory,
+  submitSStoreVisitDetail,
+  createReplenishmentTask,
+  completeReplenishmentTask,
+  downgradeSStoreToA,
+  restoreSStore,
+  correctSStoreSellThrough,
+  correctSStoreInventory,
+  correctSStoreMaterialInventory,
+  canCorrectSStoreHistory,
+} from './api/s-stores';

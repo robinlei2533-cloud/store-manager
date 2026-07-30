@@ -1,37 +1,29 @@
 import useLanguageStore from '../../stores/languageStore';
-import BlurText from '../../components/effects/BlurText';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { App, Form, Input, Button, Card, Typography, Modal, Select, Divider, Alert } from 'antd';
-import { MailOutlined, LockOutlined, UserOutlined, ShopOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { App, Form, Input, Button, Card, Typography, Alert } from 'antd';
+import { MailOutlined, LockOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import useAuthStore, { isLocalAuthFallbackEnabled } from '../../stores/authStore';
 import { ROLES } from '../../utils/constants';
-import { IS_LOCAL_MODE } from '../../services/api';
+import { isLocalMode } from '../../services/api';
 
 const { Title, Text } = Typography;
+const STAFF_ROLES = new Set([ROLES.ADMIN, ROLES.MANAGER, ROLES.REP]);
+const assignedAccountSummary = '\u5458\u5de5\u8d26\u53f7\u7531\u7ba1\u7406\u5458\u7edf\u4e00\u5206\u914d';
+const assignedAccountNotice = 'Manager \u548c Rep \u4e0d\u80fd\u81ea\u884c\u6ce8\u518c\u3002\u7ba1\u7406\u5458\u53ef\u5728 \u7cfb\u7edf\u8bbe\u7f6e > \u7528\u6237\u7ba1\u7406 \u4e2d\u521b\u5efa Manager \u6216 Rep \u8d26\u53f7\u3002';
+// Task-141 ReactBits-inspired staff login polish: restrained form interactions.
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { t, setLang } = useLanguageStore();
-  const { user, loading, signIn, signUp } = useAuthStore();
+  const { t } = useLanguageStore();
+  const { user, profile, loading, signIn } = useAuthStore();
   const { message } = App.useApp();
   const [loginForm] = Form.useForm();
-  const [registerForm] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
-  const [registerModalOpen, setRegisterModalOpen] = useState(false);
-  const [registering, setRegistering] = useState(false);
-
-  const ensureChineseFirst = () => {
-    setLang('zh');
-  };
 
   useEffect(() => {
-    ensureChineseFirst();
-  }, []);
-
-  useEffect(() => {
-    if (user && !loading) navigate('/app/dashboard', { replace: true });
-  }, [user, loading, navigate]);
+    if (user && !loading && STAFF_ROLES.has(profile?.role)) navigate('/app/dashboard', { replace: true });
+  }, [user, profile?.role, loading, navigate]);
 
   if (loading) return null;
 
@@ -43,6 +35,9 @@ const LoginPage = () => {
       if (isLocalAuthFallbackEnabled() && values.email?.toLowerCase() === 'admin@uwell.com' && result?.profile?.role !== ROLES.ADMIN) {
         resolvedProfile = { ...result.profile, id: result.profile?.id || 'u-admin', role: ROLES.ADMIN, name: result.profile?.name || 'admin' };
         useAuthStore.getState().setProfile(resolvedProfile);
+      }
+      if (!STAFF_ROLES.has(resolvedProfile?.role)) {
+        throw new Error('This login is for assigned staff accounts only.');
       }
       if (isLocalAuthFallbackEnabled() && resolvedProfile) {
         localStorage.setItem('store_manager_current_user', resolvedProfile.id);
@@ -56,29 +51,15 @@ const LoginPage = () => {
     }
   };
 
-  const handleRegister = async (values) => {
-    setRegistering(true);
-    try {
-      await signUp(values.email, values.password, { name: values.name, role: values.role });
-      message.success(t('account_created'));
-      setRegisterModalOpen(false);
-      registerForm.resetFields();
-    } catch (err) {
-      message.error(err.message || t('register_failed'));
-    } finally {
-      setRegistering(false);
-    }
-  };
-
   return (
-    <div className="staff-login-page bg-radial-top">
+    <div className="staff-login-page staff-login-green-theme bg-radial-top">
       <div className="staff-login-copy">
         <div className="brand-mark text-gold-gradient">UWELL CRM</div>
-        <BlurText text={t('staff_login_title')} as="h1" delay={0.04} style={{ fontSize: 32, fontWeight: 700, lineHeight: 1.3 }} />
+        <h1 className="staff-login-heading uw-reactbits-split-text">{t('staff_login_title')}</h1>
         <Text>{t('staff_login_desc')}</Text>
       </div>
 
-      <Card className="staff-login-card liquid-glass-strong" styles={{ body: { padding: 32 } }}>
+      <Card className="staff-login-card liquid-glass-strong uw-reactbits-fade-content" styles={{ body: { padding: 32 } }}>
         <div className="login-title">
           <div className="login-icon">
             <SafetyCertificateOutlined />
@@ -87,54 +68,33 @@ const LoginPage = () => {
           <Text type="secondary">{t('staff_login_hint')}</Text>
         </div>
 
-        {IS_LOCAL_MODE && (
+        {isLocalMode() && (
           <Alert
             type="info"
             showIcon
-            message={t('local_demo')}
+            title={t('local_demo')}
             description={t('staff_local_demo_desc')}
             className="login-mb16"
           />
         )}
 
         <Form form={loginForm} layout="vertical" onFinish={handleLogin} size="large" autoComplete="off">
-          <Form.Item name="email" rules={[{ required: true, message: t('email_required') }, { type: 'email', message: t('email_invalid') }]}>
+          <Form.Item name="email" className="staff-login-field uw-reactbits-field" rules={[{ required: true, message: t('email_required') }, { type: 'email', message: t('email_invalid') }]}>
             <Input prefix={<MailOutlined />} placeholder={t('admin_email')} />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: t('password_required') }]}>
+          <Form.Item name="password" className="staff-login-field uw-reactbits-field" rules={[{ required: true, message: t('password_required') }]}>
             <Input.Password prefix={<LockOutlined />} placeholder={t('admin_password')} />
           </Form.Item>
           <Form.Item className="login-mb12">
-            <Button type="primary" htmlType="submit" loading={submitting} block className="login-btn-primary">{t('admin_login_btn')}</Button>
+            <Button type="primary" htmlType="submit" loading={submitting} block className="login-btn-primary uw-reactbits-specular-button">{t('admin_login_btn')}</Button>
           </Form.Item>
         </Form>
 
-        <Divider plain><Text type="secondary" className="login-divider-text">{t('first_time_use')}</Text></Divider>
-        <Button block className="login-btn-secondary" onClick={() => setRegisterModalOpen(true)}>{t('create_staff_account')}</Button>
+        <details className="staff-login-notice-fold">
+          <summary>{assignedAccountSummary}</summary>
+          <p>{assignedAccountNotice}</p>
+        </details>
       </Card>
-
-      <Modal title={t('create_staff_account')} open={registerModalOpen} onCancel={() => { setRegisterModalOpen(false); registerForm.resetFields(); }} footer={null} width={420} destroyOnHidden>
-        <Form form={registerForm} layout="vertical" onFinish={handleRegister} className="login-form-mt16">
-          <Form.Item name="name" rules={[{ required: true, message: t('name_required') }]}>
-            <Input prefix={<UserOutlined />} placeholder={t('staff_name')} />
-          </Form.Item>
-          <Form.Item name="email" rules={[{ required: true, message: t('email_required') }, { type: 'email', message: t('email_invalid') }]}>
-            <Input prefix={<MailOutlined />} placeholder={t('admin_email')} />
-          </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: t('password_required') }, { min: 6, message: t('password_min') }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder={t('password_min')} />
-          </Form.Item>
-          <Form.Item name="role" rules={[{ required: true, message: t('role_required') }]} initialValue={ROLES.REP}>
-            <Select prefix={<ShopOutlined />} popupClassName="staff-role-select-dropdown" placeholder={t('profile')} options={[
-              { label: t('set_role_employee'), value: ROLES.REP },
-              { label: t('set_role_admin'), value: ROLES.ADMIN },
-            ]} />
-          </Form.Item>
-          <Form.Item className="login-mb0">
-            <Button type="primary" htmlType="submit" loading={registering} block className="login-btn-primary">{t('create_staff_account')}</Button>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };

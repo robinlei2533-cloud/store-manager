@@ -4,8 +4,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 let client;
+const isBrowserRuntime = typeof window !== 'undefined';
 
-if (supabaseUrl && supabaseAnonKey) {
+if (isBrowserRuntime && supabaseUrl && supabaseAnonKey) {
   client = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       autoRefreshToken: true,

@@ -1,41 +1,90 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Card, Tag, Button, Spin, Empty, Typography, Space } from 'antd';
+import { Card, Button, Spin, Empty, Typography } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
-import { DISPLAY_CATEGORIES, STORE_LEVEL_LABELS, STORE_RECOMMEND_LEVELS, getDisplayCategoryLabel } from '../../../utils/uwellClosedLoop';
+import { getFanSafeStores } from '../../../services/api/stores';
+import { getFanFacingStorePresentation, getStoreExposureScore, sortStoresForFanExposure } from '../../../utils/uwellLaunchRules';
+import useLanguageStore from '../../../stores/languageStore';
 import 'leaflet/dist/leaflet.css';
 
 const { Text } = Typography;
 
 const LVL = {
-  S: { label: 'Platinum', mark: '#B9F2FF' },
-  A: { label: 'Gold', mark: '#FFD700' },
-  B: { label: 'Silver', mark: '#C0C0C0' },
-  C: { label: 'Bronze', mark: '#CD7F32' },
+  S: { labelKey: 'fan_real_store_brand_store', className: 'is-s' },
+  A: { labelKey: 'fan_real_store_recommended', className: 'is-a' },
+  B: { labelKey: 'fan_real_store_listed', className: 'is-b' },
+  C: { labelKey: 'fan_real_store_listed', className: 'is-c' },
 };
 const LVL_KEYS = ['S', 'A', 'B', 'C'];
+const STOREFRONT_CATEGORY = { key: 'store_front_photo', labelKey: 'fan_real_storefront_photo', noteKey: 'fan_real_storefront_note' };
+const STORE_HERO_VISUAL = '/uwell-assets/fan-refresh-v2/store-hero.jpg';
+const STORE_DETAIL_VISUAL = '/uwell-assets/fan-refresh-v2/store-detail.jpg';
+const STORE_FALLBACK_VISUALS = {
+  S: '/uwell-assets/fan-refresh-v2/store-s.jpg',
+  A: '/uwell-assets/fan-refresh-v2/store-a.jpg',
+  B: '/uwell-assets/fan-refresh-v2/store-b.jpg',
+  C: '/uwell-assets/fan-refresh-v2/store-c.jpg',
+};
+const STORE_VISUAL_SEQUENCE = [
+  '/uwell-assets/fan-refresh-v2/store-s.jpg',
+  '/uwell-assets/fan-refresh-v2/store-a.jpg',
+  '/uwell-assets/fan-refresh-v2/store-b.jpg',
+  '/uwell-assets/fan-refresh-v2/store-gallery.jpg',
+];
 
-function makePopup(store) {
+function localizeStorePresentation(presentation, t) {
+  const copyKeys = {
+    'UWELL Brand Store': 'fan_real_store_brand_store',
+    'Official UWELL brand experience and premium reward pickup readiness.': 'fan_real_store_brand_experience',
+    'Premium pickup ready': 'fan_real_store_premium_pickup_ready',
+    'Recommended UWELL partner': 'fan_real_store_recommended_partner',
+    'Reviewed UWELL partner with reward pickup readiness.': 'fan_real_store_reviewed_pickup',
+    'Pickup eligible': 'fan_real_pickup_eligible',
+    'UWELL partner store': 'fan_real_store_partner_store',
+    'Visible UWELL partner for store visits and product support.': 'fan_real_store_visible_partner',
+    'Partner store': 'fan_real_store_partner_pickup',
+  };
+  return {
+    ...presentation,
+    fanLabel: t(copyKeys[presentation.fanLabel], presentation.fanLabel),
+    trustCopy: t(copyKeys[presentation.trustCopy], presentation.trustCopy),
+    pickupLabel: t(copyKeys[presentation.pickupLabel], presentation.pickupLabel),
+  };
+}
+
+function getStoreVisual(store, index, selectedDisplays = []) {
+  const approvedFront = selectedDisplays.find((item) => item.category === STOREFRONT_CATEGORY.key);
+  if (approvedFront?.image_url) return approvedFront.image_url;
+  const level = store?.level || 'C';
+  return STORE_FALLBACK_VISUALS[level] || STORE_VISUAL_SEQUENCE[Math.min(index, STORE_VISUAL_SEQUENCE.length - 1)];
+}
+
+function makePopup(store, t) {
   const lv = store.level || 'C';
   const cfg = LVL[lv] || LVL.C;
+  const exposure_controls = store.exposure_controls || {};
+  const presentation = localizeStorePresentation(getFanFacingStorePresentation(store), t);
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`;
   const mapUrl = store.address?.startsWith('http')
     ? store.address
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address || store.name || '')}`;
 
   return `
-    <div style="font-family:system-ui,sans-serif;min-width:200px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span style="width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:${cfg.mark};color:#000;font-size:12px;font-weight:800;">${lv}</span>
-        <strong style="font-size:14px;color:#1a1a2e;">${escapeHtml(store.name)}</strong>
+    <div class="fan-map-popup">
+      <div class="fan-map-popup-head">
+        <span class="fan-map-popup-level ${cfg.className}">${lv}</span>
+        <strong>${escapeHtml(store.name)}</strong>
       </div>
-      <div style="margin-bottom:6px;">
-        <span style="background:${cfg.mark};color:#000;padding:1px 10px;border-radius:8px;font-size:11px;font-weight:bold;">${cfg.label} store</span>
+      <div class="fan-map-popup-label-row">
+        <span class="fan-map-popup-label ${cfg.className}">${presentation.fanLabel}</span>
       </div>
-      <div style="font-size:12px;color:#666;margin:4px 0;">Phone: ${escapeHtml(store.phone || 'N/A')}</div>
-      <div style="margin-top:8px;">
-        <a href="${directionsUrl}" target="_blank" rel="noopener" style="display:inline-block;background:#1677ff;color:white;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">Navigate</a>
-        <a href="${mapUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-left:6px;background:#f0f0f0;color:#333;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;">Map</a>
+      <div class="fan-map-popup-trust">${presentation.trustCopy}</div>
+      <div class="fan-map-popup-muted">${t('fan_real_phone')}: ${escapeHtml(store.phone || t('fan_real_not_available'))}</div>
+      ${exposure_controls.fan_map_highlighted ? `<div class="fan-map-popup-active">${t('fan_real_map_highlighted_ops')}</div>` : ''}
+      ${exposure_controls.reward_pickup_recommended ? `<div class="fan-map-popup-pickup">${presentation.pickupLabel}</div>` : ''}
+      <div class="fan-map-popup-actions">
+        <a class="fan-map-popup-primary" href="${directionsUrl}" target="_blank" rel="noopener">${t('fan_real_navigate')}</a>
+        <a class="fan-map-popup-secondary" href="${mapUrl}" target="_blank" rel="noopener">${t('fan_real_map_label')}</a>
       </div>
     </div>`;
 }
@@ -46,6 +95,7 @@ function escapeHtml(str) {
 }
 
 const MapTab = ({ fan: _fan }) => {
+  const { t } = useLanguageStore();
   const mapDiv = useRef(null);
   const mapInst = useRef(null);
   const [stores, setStores] = useState([]);
@@ -60,7 +110,7 @@ const MapTab = ({ fan: _fan }) => {
         const seed = (await import('../../../services/db/seedData')).default;
         localDb.init(seed);
       }
-      const list = localDb.all('stores').filter(s => s.lat && s.lng && STORE_RECOMMEND_LEVELS.includes(s.level));
+      const list = sortStoresForFanExposure(await getFanSafeStores());
       setStores(list);
       setLoading(false);
     })();
@@ -103,29 +153,25 @@ const MapTab = ({ fan: _fan }) => {
       attribution: '&copy; OpenStreetMap',
     }).addTo(map);
 
-    const filtered = filter ? stores.filter(s => s.level === filter) : stores.filter(s => STORE_RECOMMEND_LEVELS.includes(s.level));
+    const filtered = filter ? stores.filter(s => s.level === filter) : stores;
     const markers = [];
 
     filtered.forEach(store => {
       const lv = store.level || 'C';
       const cfg = LVL[lv] || LVL.C;
+      const exposure_controls = store.exposure_controls || {};
+      const exposureScore = getStoreExposureScore(store);
 
       const icon = L.divIcon({
-        className: '',
-        html: '<div style="' +
-          'width:38px;height:38px;background:' + cfg.mark + ';' +
-          'border:3px solid ' + (lv === 'A' ? '#FFD700' : lv === 'B' ? '#FFA500' : '#C0C0C0') + ';' +
-          'border-radius:50%;display:flex;align-items:center;justify-content:center;' +
-          'font-size:15px;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.4);' +
-          'cursor:pointer;color:#000;' +
-        '">' + lv + '</div>',
+        className: `fan-map-marker-wrap ${cfg.className}${exposure_controls.fan_map_highlighted ? ' is-highlighted' : ''}`,
+        html: '<div class="fan-map-marker" title="' + t('fan_real_exposure_score') + ' ' + exposureScore + '">' + lv + '</div>',
         iconSize: [38, 38],
         iconAnchor: [19, 19],
         popupAnchor: [0, -22],
       });
 
       const marker = L.marker([store.lat, store.lng], { icon }).addTo(map);
-      marker.bindPopup(makePopup(store), { maxWidth: 280 });
+      marker.bindPopup(makePopup(store, t), { maxWidth: 280 });
       marker.on('click', () => setSelected(store));
       markers.push(marker);
     });
@@ -136,7 +182,7 @@ const MapTab = ({ fan: _fan }) => {
     }
 
     mapInst.current = map;
-  }, [stores, filter]);
+  }, [stores, filter, t]);
 
   useEffect(() => {
     if (!loading) drawMap();
@@ -153,11 +199,11 @@ const MapTab = ({ fan: _fan }) => {
   }, [loading, drawMap]);
 
   if (loading) {
-    return <div style={{display:'flex',justifyContent:'center',padding:60}}><Spin size="large" /></div>;
+    return <div className="fan-map-loading"><Spin size="large" /></div>;
   }
 
   if (stores.length === 0) {
-    return <Card style={{textAlign:'center',margin:20}}><Empty description="No nearby stores found" /></Card>;
+    return <div className="fan-map-page"><Card className="fan-map-empty-card"><Empty description={t('fan_real_map_empty')} /></Card></div>;
   }
 
   const counts = {};
@@ -165,77 +211,103 @@ const MapTab = ({ fan: _fan }) => {
   const selectedDisplays = selected
     ? (localDb.find('store_display_uploads', (item) => item.store_id === selected.id && item.status === 'approved') || [])
     : [];
+  const selectedExposure = selected?.exposure_controls || {};
+  const selectedPresentation = selected ? localizeStorePresentation(getFanFacingStorePresentation(selected), t) : null;
+  const selectedMedia = selected ? getStoreVisual(selected, 0, selectedDisplays) : null;
+  const selectedGallery = selectedDisplays.slice(0, 2);
+  const selectedGalleryFallback = [
+    STORE_DETAIL_VISUAL,
+    STORE_VISUAL_SEQUENCE[3],
+  ];
+  const selectedGalleryItems = [
+    ...selectedGallery,
+    ...selectedGalleryFallback
+      .slice(0, Math.max(0, 2 - selectedGallery.length))
+      .map((imageUrl, index) => ({
+        id: `fallback-store-gallery-${index}`,
+        image_url: imageUrl,
+      })),
+  ].slice(0, 2);
 
   return (
-    <div>
-      <div style={{display:'flex',gap:6,padding:'8px 0',flexWrap:'wrap',justifyContent:'center'}}>
-        <Button size="small" type={!filter ? 'primary' : 'default'}
-          onClick={() => setFilter(null)} style={{borderRadius:20,fontSize:12}}>
-          All ({stores.length})
+    <div className="fan-map-page">
+      <section className="fan-map-hero">
+        <div className="fan-map-hero-copy">
+          <span className="fan-mini-label">{t('fan_real_store_map_label')}</span>
+          <h2>{t('fan_real_store_map_title')}</h2>
+        </div>
+        <div className="fan-map-hero-visual">
+          <img src={STORE_HERO_VISUAL} alt="UWELL store discovery visual" loading="lazy" />
+          <div className="fan-map-hero-score">
+            <strong>{stores.length}</strong>
+            <span>{t('fan_real_visible_stores')}</span>
+          </div>
+        </div>
+      </section>
+
+      <div className="fan-map-filter-row">
+        <Button className={`fan-map-filter-btn ${!filter ? 'is-active' : ''}`} aria-pressed={!filter}
+          onClick={() => setFilter(null)}>
+          {t('fan_real_all')} ({stores.length})
         </Button>
         {LVL_KEYS.map(k => (
-          <Button key={k} size="small" type={filter === k ? 'primary' : 'default'}
-            onClick={() => setFilter(k)}
-            style={{
-              borderRadius:20, fontSize:12,
-              background: filter === k ? LVL[k].mark : undefined,
-              borderColor: LVL[k].mark,
-              color: filter === k ? '#000' : LVL[k].mark,
-              fontWeight: 600,
-            }}>
-            {k} {LVL[k].label} ({counts[k] || 0})
+          <Button key={k} className={`fan-map-filter-btn ${filter === k ? 'is-active' : ''}`} aria-pressed={filter === k}
+            onClick={() => setFilter(k)}>
+            {k} {t(LVL[k].labelKey)} ({counts[k] || 0})
           </Button>
         ))}
       </div>
 
-      <div style={{display:'flex',gap:12,justifyContent:'center',marginBottom:4,fontSize:11,color:'#999'}}>
+      <div className="fan-map-legend">
+        <span>{t('fan_real_map_unavailable_hidden')}</span>
         {LVL_KEYS.map(k => (
-          <span key={k}><span style={{color:LVL[k].mark}}>●</span> {LVL[k].label}</span>
+          <span key={k}><span className="fan-map-legend-dot" /> {t(LVL[k].labelKey)}</span>
         ))}
       </div>
 
-      <div className='liquid-glass' style={{borderRadius:12,overflow:'hidden'}}>
-        <div ref={mapDiv} style={{width:'100%',height:400}} />
+      <div className="fan-map-canvas liquid-glass">
+        <div ref={mapDiv} className="fan-map-canvas-inner" />
       </div>
 
       {selected && (
-        <Card size="small" className='liquid-glass' style={{marginTop:10}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+        <Card size="small" className="fan-map-detail-card liquid-glass">
+          <div className="fan-map-detail-head">
             <div>
-              <Space>
-                <span style={{fontSize:13,fontWeight:800,color:LVL[selected.level]?.mark || LVL.C.mark}}>{selected.level || 'C'}</span>
-                <Text strong style={{color:'#e5e5e5',fontSize:14}}>{selected.name}</Text>
-                <Tag color={LVL[selected.level]?.mark} style={{color:'#000',fontWeight:600}}>
-                  {STORE_LEVEL_LABELS[selected.level]?.label || LVL[selected.level]?.label}
-                </Tag>
-              </Space>
-              <div style={{fontSize:12,color:'#888',marginTop:4}}>
-                Phone: {selected.phone || 'N/A'}
+              <div className="fan-map-store-title">
+                <span className="fan-map-level-chip">{selected.level || 'C'}</span>
+                <Text strong>{selected.name}</Text>
+                <span className="fan-map-trust-chip">{selectedPresentation.fanLabel}</span>
+              </div>
+              <div className="fan-map-store-phone">
+                {t('fan_real_phone')}: {selected.phone || t('fan_real_not_available')}
+              </div>
+              <div className="fan-map-photo-note">{selectedPresentation.trustCopy}</div>
+              <div className="fan-map-trust-row">
+                {selectedExposure.fan_map_highlighted && <span className="fan-map-trust-chip">{t('fan_real_map_highlighted')}</span>}
+                {selectedExposure.reward_pickup_recommended && <span className="fan-map-trust-chip">{selectedPresentation.pickupLabel}</span>}
               </div>
             </div>
             <a href={`https://www.google.com/maps/dir/?api=1&destination=${selected.lat},${selected.lng}`}
                target="_blank" rel="noopener noreferrer">
-              <Button type="primary" icon={<EnvironmentOutlined />} size="small">Navigate</Button>
+              <Button className="fan-map-navigate-button" type="primary" icon={<EnvironmentOutlined />}>{t('fan_real_navigate')}</Button>
             </a>
           </div>
-          <div style={{marginTop:12,display:'grid',gap:10}}>
-            {DISPLAY_CATEGORIES.map((category) => {
-              const images = selectedDisplays.filter((item) => item.category === category.key).slice(0, 3);
-              return (
-                <div key={category.key}>
-                  <Text style={{color:'#d6d6d6',fontSize:12,fontWeight:700}}>{getDisplayCategoryLabel(category.key)}</Text>
-                  {images.length ? (
-                    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginTop:6}}>
-                      {images.map((item) => (
-                        <img key={item.id} src={item.image_url} alt={category.label} style={{width:'100%',aspectRatio:'1 / 1',objectFit:'cover',borderRadius:8,border:'1px solid rgba(255,255,255,0.12)'}} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{fontSize:12,color:'#888',marginTop:4,padding:'8px 10px',border:'1px dashed rgba(255,255,255,0.14)',borderRadius:8}}>No approved photos yet</div>
-                  )}
+          <div className="fan-map-photo-sections">
+            <div className="fan-map-store-media">
+              <img src={selectedMedia} alt={selected?.name || t('fan_real_storefront_photo')} loading="lazy" />
+            </div>
+            <div className="fan-map-trust-strip">
+              <span>{selectedPresentation.fanLabel}</span>
+              <span>{selectedPresentation.trustCopy}</span>
+              <span>{selectedExposure.fan_map_highlighted ? t('fan_real_map_highlighted') : t('fan_real_storefront_pending')}</span>
+            </div>
+            <div className="fan-map-photo-grid">
+              {selectedGalleryItems.map((item) => (
+                <div key={item.id} className="fan-map-gallery-tile">
+                  <img src={item.image_url} alt={t('fan_real_storefront_photo')} loading="lazy" />
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </Card>
       )}

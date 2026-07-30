@@ -10,6 +10,27 @@ import { addFanPoints } from './fans';
 
 const USE_TRIAL_LOCAL_SCAN_RECORDS = true;
 
+function normalizeScanArgs(qrCodeIdOrInput, fanId) {
+  if (qrCodeIdOrInput && typeof qrCodeIdOrInput === 'object') {
+    return {
+      qrCodeId: qrCodeIdOrInput.qrCodeId || qrCodeIdOrInput.id,
+      fanId: qrCodeIdOrInput.fanId || qrCodeIdOrInput.fan_id || fanId,
+    };
+  }
+  return { qrCodeId: qrCodeIdOrInput, fanId };
+}
+
+function getCurrentLocalFanId(fanId) {
+  if (fanId) return fanId;
+  if (typeof localStorage === 'undefined') return null;
+  return localStorage.getItem('store_manager_current_user');
+}
+
+function getDemoLocalFan() {
+  const demoFanAccount = (localDb.all('auth') || []).find((account) => account.email === 'fan.preview@uwell.com');
+  return demoFanAccount?.fan_id ? localDb.findById('fans', demoFanAccount.fan_id) : null;
+}
+
 export async function getQrCodes(filters = {}) {
   ensureLocalInit();
   if (isLocal()) {
@@ -50,15 +71,16 @@ export async function deleteQrCode(id) {
   if (error) throw error;
 }
 
-export async function scanQrCode(qrCodeId) {
+export async function scanQrCode(qrCodeIdOrInput, fanId) {
+  const { qrCodeId, fanId: explicitFanId } = normalizeScanArgs(qrCodeIdOrInput, fanId);
   ensureLocalInit();
   if (isLocal()) {
     const qr = localDb.findById('qr_codes', qrCodeId);
     if (!qr || !qr.is_active) throw new Error('QR code invalid or disabled');
 
-    // Get store fans
-    const fan = localDb.find('fans', (f) => f.store_id === qr.store_id)[0];
-    if (!fan) throw new Error('No fan account for this store');
+    const scanFanId = getCurrentLocalFanId(explicitFanId);
+    const fan = (scanFanId ? localDb.findById('fans', scanFanId) : null) || (!explicitFanId ? getDemoLocalFan() : null);
+    if (!fan) throw new Error('Fan identity is required before scanning this QR code');
 
     // Update QR scan count.
     localDb.update('qr_codes', qrCodeId, { scan_count: qr.scan_count + 1 });

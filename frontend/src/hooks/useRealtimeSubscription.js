@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../services/supabase';
-import { IS_LOCAL_MODE } from '../services/api';
+import { isLocalMode } from '../services/api';
 
 export function useRealtimeSubscription(table, options = {}, callback) {
   const callbackRef = useRef(callback);
@@ -12,7 +12,7 @@ export function useRealtimeSubscription(table, options = {}, callback) {
   }, [callback]);
 
   useEffect(() => {
-    if (IS_LOCAL_MODE) return;
+    if (isLocalMode()) return;
 
     const realtimeOptions = JSON.parse(optionsKey || '{}');
     const { event = '*', schema = 'public', filter } = realtimeOptions;

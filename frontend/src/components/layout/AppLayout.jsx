@@ -15,7 +15,6 @@ import {
   QrcodeOutlined,
   RiseOutlined,
   MenuOutlined,
-  ApartmentOutlined,
   SearchOutlined,
   FileTextOutlined,
   WarningOutlined,
@@ -32,9 +31,8 @@ import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import ShinyText from '../../components/effects/ShinyText';
 import PageTransition from '../../components/common/PageTransition';
 import { ROLES, ROLE_NAMES } from '../../utils/constants';
-import { IS_LOCAL_MODE } from '../../services/api';
-import { motion } from 'framer-motion';
-import { canViewCompanyScope } from '../../utils/uwellRoleAccess';
+import { isLocalMode } from '../../services/api';
+import { canViewOpsScope } from '../../utils/uwellRoleAccess';
 import { DeviceProvider } from '../../contexts/DeviceContext';
 
 const { Header, Sider, Content } = Layout;
@@ -43,24 +41,24 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, signOut } = useAuthStore();
-  const { t, lang, setLang } = useLanguageStore();
+  const { t, lang } = useLanguageStore();
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const contentRef = useRef(null);
 
-  const ensureChineseFirst = () => {
-    setLang('zh');
-  };
-
   useEffect(() => {
-    ensureChineseFirst();
     document.body.classList.add('admin-workspace-active');
     return () => {
       document.body.classList.remove('admin-workspace-active');
     };
-  }, [profile?.role, setLang]);
+  }, [profile?.role]);
+
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname, location.search]);
 
   if (!profile) {
     return (
@@ -72,15 +70,7 @@ const AppLayout = () => {
 
   const getMenuItems = () => {
     const isAdmin = profile.role === ROLES.ADMIN;
-    const canViewAllCRM = canViewCompanyScope(profile);
-
-    const crmChildren = [
-      ...(canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_stores') }] : []),
-      ...(!canViewAllCRM ? [{ key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('rep_responsible_stores') }] : []),
-      { key: '/app/visits/list', icon: React.createElement(CameraOutlined), label: t('nav_visits') },
-      { key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
-      { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: canViewAllCRM ? t('nav_campaigns') : t('rep_campaign_execution') },
-    ];
+    const canViewAllCRM = canViewOpsScope(profile);
 
     const materialChildren = [
       { key: '/app/materials/list', icon: React.createElement(InboxOutlined), label: t('nav_material_list') },
@@ -91,22 +81,76 @@ const AppLayout = () => {
 
     const items = [
       { key: '/app/dashboard', icon: React.createElement(DashboardOutlined), label: canViewAllCRM ? t('nav_dashboard2') : t('rep_workspace') },
-      { key: 'crm', icon: React.createElement(ApartmentOutlined), label: t('nav_crm'), children: crmChildren },
-      { key: 'materials', icon: React.createElement(InboxOutlined), label: t('nav_materials'), children: materialChildren },
     ];
 
     if (canViewAllCRM) {
-      items.push({
-        key: 'fan-ops',
-        icon: React.createElement(TeamOutlined),
-        label: t('fan_operations'),
-        children: [
-          { key: '/app/fans/list', icon: React.createElement(TeamOutlined), label: t('nav_fan_list') },
-          { key: '/app/fans/growth', icon: React.createElement(RiseOutlined), label: t('nav_fan_growth') },
-          { key: '/app/fans/scan', icon: React.createElement(QrcodeOutlined), label: t('nav_fan_scan') },
-          { key: '/app/fans/rules', icon: React.createElement(SettingOutlined), label: t('nav_fan_rules') },
-        ],
-      });
+      items.push(
+        {
+          key: 'stores-module',
+          icon: React.createElement(ShopOutlined),
+          label: t('nav_ops_stores'),
+          children: [
+            { key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('nav_store_list') },
+            { key: '/app/stores/s-stores', icon: React.createElement(StarOutlined), label: t('nav_s_store_management') },
+            { key: '/app/evaluation?scope=stores', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
+            { key: '/app/stores/list?review=display', icon: React.createElement(CameraOutlined), label: t('eval_display') },
+            { key: '/app/stores/list?exposure=control', icon: React.createElement(RiseOutlined), label: t('nav_exposure_control') },
+          ],
+        },
+        {
+          key: 'fans-module',
+          icon: React.createElement(TeamOutlined),
+          label: t('nav_ops_fans'),
+          children: [
+            { key: '/app/fans/list', icon: React.createElement(TeamOutlined), label: t('nav_fan_list') },
+            { key: '/app/fans/growth', icon: React.createElement(RiseOutlined), label: t('nav_fan_growth') },
+            { key: '/app/fans/scan', icon: React.createElement(QrcodeOutlined), label: t('nav_fan_scan') },
+            { key: '/app/fans/rules', icon: React.createElement(SettingOutlined), label: t('nav_fan_rules') },
+            { key: '/app/fans/complaints', icon: React.createElement(CustomerServiceOutlined), label: t('nav_community') },
+          ],
+        },
+        { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: t('nav_campaigns') },
+        { key: '/app/rewards', icon: React.createElement(StarOutlined), label: t('nav_ops_rewards') },
+        { key: '/app/scan-codes', icon: React.createElement(QrcodeOutlined), label: t('nav_ops_scan_codes') },
+        { key: 'materials', icon: React.createElement(InboxOutlined), label: t('nav_ops_materials'), children: materialChildren },
+        {
+          key: 'field-visits',
+          icon: React.createElement(CameraOutlined),
+          label: t('nav_ops_field_visits'),
+          children: [
+            { key: '/app/visits/create?type=new', icon: React.createElement(ShopOutlined), label: t('nav_new_store_visit') },
+            { key: '/app/visits/create?type=repeat', icon: React.createElement(CameraOutlined), label: t('nav_repeat_visit') },
+            { key: '/app/visits/list', icon: React.createElement(FileTextOutlined), label: t('nav_visits') },
+            { key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
+            { key: '/app/stores/list?display=data', icon: React.createElement(DatabaseOutlined), label: t('nav_display_data') },
+          ],
+        },
+        { key: '/app/reviews', icon: React.createElement(FileTextOutlined), label: t('nav_ops_reviews') },
+        { key: '/app/risk-center', icon: React.createElement(WarningOutlined), label: t('nav_ops_risk_center') },
+      );
+    } else {
+      items.push(
+        { key: '/app/stores/list', icon: React.createElement(ShopOutlined), label: t('rep_responsible_stores') },
+        {
+          key: 'field-visits',
+          icon: React.createElement(CameraOutlined),
+          label: t('nav_ops_field_visits'),
+          children: [
+            { key: '/app/visits/create?type=new', icon: React.createElement(ShopOutlined), label: t('nav_new_store_visit') },
+            { key: '/app/visits/create?type=repeat', icon: React.createElement(CameraOutlined), label: t('nav_repeat_visit') },
+            { key: '/app/visits/list', icon: React.createElement(FileTextOutlined), label: t('nav_visits') },
+            { key: '/app/evaluation', icon: React.createElement(StarOutlined), label: t('nav_evaluation') },
+          ],
+        },
+        { key: '/app/campaigns', icon: React.createElement(ThunderboltOutlined), label: t('rep_campaign_execution') },
+        { key: 'materials', icon: React.createElement(InboxOutlined), label: t('nav_ops_materials'), children: materialChildren },
+      );
+    }
+
+    if (canViewAllCRM) {
+      items.push(
+        { key: '/app/rules', icon: React.createElement(SettingOutlined), label: t('nav_ops_rules') },
+      );
     } else {
       items.push({
         key: 'fan-support',
@@ -118,17 +162,22 @@ const AppLayout = () => {
       });
     }
 
-    if (isAdmin) {
+    if (canViewAllCRM) {
+      const settingsChildren = isAdmin
+        ? [
+            { key: '/app/settings/users', icon: React.createElement(UserOutlined), label: t('nav_users') },
+            { key: '/app/settings/products', icon: React.createElement(AppstoreOutlined), label: t('nav_products') },
+            { key: '/app/settings/data', icon: React.createElement(DatabaseOutlined), label: t('nav_data') },
+            { key: '/app/settings/audit', icon: React.createElement(FileTextOutlined), label: t('audit_log') },
+          ]
+        : [
+            { key: '/app/settings/audit', icon: React.createElement(FileTextOutlined), label: t('audit_log') },
+          ];
       items.push({
         key: 'settings',
         icon: React.createElement(SettingOutlined),
         label: t('nav_settings'),
-        children: [
-          { key: '/app/settings/users', icon: React.createElement(UserOutlined), label: t('nav_users') },
-          { key: '/app/settings/products', icon: React.createElement(AppstoreOutlined), label: t('nav_products') },
-          { key: '/app/settings/data', icon: React.createElement(DatabaseOutlined), label: t('nav_data') },
-          { key: '/app/settings/audit', icon: React.createElement(FileTextOutlined), label: t('audit_log') },
-        ],
+        children: settingsChildren,
       });
     }
 
@@ -158,10 +207,16 @@ const AppLayout = () => {
   const getSelectedKey = () => {
     const path = location.pathname;
     if (path.startsWith('/app/dashboard')) return '/app/dashboard';
+    if (path.startsWith('/app/stores/s-stores')) return '/app/stores/s-stores';
     if (path.startsWith('/app/stores')) return '/app/stores/list';
     if (path.startsWith('/app/visits')) return '/app/visits/list';
     if (path.startsWith('/app/evaluation')) return '/app/evaluation';
     if (path.startsWith('/app/campaigns')) return '/app/campaigns';
+    if (path.startsWith('/app/rewards')) return '/app/rewards';
+    if (path.startsWith('/app/scan-codes')) return '/app/scan-codes';
+    if (path.startsWith('/app/rules')) return '/app/rules';
+    if (path.startsWith('/app/reviews')) return '/app/reviews';
+    if (path.startsWith('/app/risk-center')) return '/app/risk-center';
     if (path.startsWith('/app/fans/complaints')) return '/app/fans/complaints';
     if (path.startsWith('/app/fans/scan')) return '/app/fans/scan';
     if (path.startsWith('/app/fans/growth')) return '/app/fans/growth';
@@ -179,10 +234,10 @@ const AppLayout = () => {
   };
 
   const getOpenKeys = () => {
-    const keys = ['crm', 'materials'];
-    if (canViewCompanyScope(profile)) keys.push('fan-ops');
-    if (!canViewCompanyScope(profile)) keys.push('fan-support');
-    if (profile.role === ROLES.ADMIN) keys.push('settings');
+    const keys = ['field-visits', 'materials'];
+    if (canViewOpsScope(profile)) keys.push('stores-module', 'fans-module');
+    if (!canViewOpsScope(profile)) keys.push('fan-support');
+    if (canViewOpsScope(profile)) keys.push('settings');
     return keys;
   };
 
@@ -209,18 +264,24 @@ const AppLayout = () => {
     />
   );
 
+  const menuPanel = (
+    <div className="admin-ref-menu-scroll">
+      {menu}
+    </div>
+  );
+
   return (
     <DeviceProvider>
       <Layout className="layout-root app-liquid-shell admin-liquid-shell">
         {!isMobile && (
           <Sider width={260} breakpoint="lg" collapsedWidth={0} className="layout-sider admin-ref-sider">
             {brandBlock}
-            {IS_LOCAL_MODE && (
+            {isLocalMode() && (
               <div style={{ padding: '10px 16px 2px', textAlign: 'center' }}>
                 <Tag color="blue" className="layout-role-tag">{t('local_demo')}</Tag>
               </div>
             )}
-            {menu}
+            {menuPanel}
           </Sider>
         )}
 
@@ -231,17 +292,17 @@ const AppLayout = () => {
             onClose={() => setDrawerOpen(false)}
             size={292}
             styles={{
-              body: { padding: 0, background: '#071a2a' },
-              section: { background: '#071a2a' },
-              header: { background: '#071a2a', borderBottom: '1px solid rgba(255,255,255,0.08)' },
+              body: { padding: 0, background: '#253123' },
+              section: { background: '#253123' },
+              header: { background: '#253123', borderBottom: '1px solid rgba(204,255,0,0.14)' },
             }}
           >
             {brandBlock}
-            {menu}
+            {menuPanel}
           </Drawer>
         )}
 
-        <Layout>
+        <Layout className="admin-ref-main">
           <Header className="admin-ref-header" style={{
             padding: isMobile ? '0 12px' : '0 24px',
             display: 'flex',
@@ -281,7 +342,7 @@ const AppLayout = () => {
                 type="button"
                 className={`layout-settings-trigger${settingsOpen ? ' is-open' : ''}`}
                 onClick={() => setSettingsOpen((value) => !value)}
-                aria-label="Open admin settings"
+                aria-label={t('admin_open_settings')}
               >
                 <SettingOutlined />
               </button>
@@ -313,14 +374,7 @@ const AppLayout = () => {
             overflow: 'auto',
             boxShadow: 'none',
           }}>
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <PageTransition><Outlet /></PageTransition>
-            </motion.div>
+            <PageTransition key={`${location.pathname}${location.search}`}><Outlet /></PageTransition>
           </Content>
         </Layout>
       </Layout>

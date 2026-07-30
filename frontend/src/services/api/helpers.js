@@ -29,7 +29,7 @@ export function ensureLocalInit() {
 export function enrichVisit(visit) {
   const store = localDb.findById('stores', visit.store_id);
   const rep = localDb.findById('profiles', visit.rep_id);
-  return { ...visit, stores: store ? { name: store.name } : null, profiles: rep ? { name: rep.name } : null };
+  return { ...visit, stores: store || null, profiles: rep ? { name: rep.name } : null };
 }
 
 export function enrichFan(fan) {

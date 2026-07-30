@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,6 +10,28 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png" />
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
+    <script>
+      (function () {
+        var isLocalDev = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+        window.__UWELL_LOCAL_DEV__ = isLocalDev;
+        if (isLocalDev && "serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations()
+            .then(function (registrations) {
+              registrations.forEach(function (registration) { registration.unregister(); });
+            })
+            .catch(function () {});
+          if ("caches" in window) {
+            caches.keys()
+              .then(function (keys) {
+                keys
+                  .filter(function (key) { return key.indexOf("uwell-crm-") === 0; })
+                  .forEach(function (key) { caches.delete(key); });
+              })
+              .catch(function () {});
+          }
+        }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -28,7 +50,7 @@
     <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>
   <script>
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.__UWELL_LOCAL_DEV__) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js').catch(function() {});
   });

@@ -43,6 +43,14 @@ Code review must protect product direction, UI consistency, database consistency
 - Can Field Rep see only assigned scope?
 - Can Manager see only assigned region?
 - Is Admin-only behavior protected?
+- Are permission checks enforced in service/API or data access, not only through hidden UI?
+
+### Governance
+
+- Does a reviewable operation enter Reviews when required?
+- Does risky behavior enter Risk Center when required?
+- Does a critical operation write Audit Log?
+- Does the change preserve the separation between Reviews, Risk Center, and Audit Log?
 
 ### Tests
 
@@ -58,4 +66,3 @@ Code review must protect product direction, UI consistency, database consistency
 3. Missing tests
 4. Product/design concerns
 5. Approval or requested changes
-

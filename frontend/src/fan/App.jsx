@@ -2,7 +2,6 @@
 import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import arEG from 'antd/locale/ar_EG';
 import ErrorBoundary from '../components/common/ErrorBoundary';
@@ -39,14 +38,18 @@ const router = createHashRouter([
 ]);
 
 const FanApp = () => {
-  const { lang } = useLanguageStore();
-  const localeMap = { zh: zhCN, en: enUS, ar: arEG };
-  const locale = localeMap[lang] || zhCN;
+  const { lang, activatePortalLanguage } = useLanguageStore();
+  React.useEffect(() => {
+    activatePortalLanguage('fan');
+  }, [activatePortalLanguage]);
+  const localeMap = { en: enUS, ar: arEG };
+  const locale = localeMap[lang] || enUS;
 
   return (
     <PageTransition>
     <ConfigProvider
       locale={locale}
+      direction={lang === 'ar' ? 'rtl' : 'ltr'}
       theme={{
         token: {
           colorPrimary: '#FFD700',

@@ -164,5 +164,6 @@ export async function getScanTrend(days = 30) {
   }
 }
 
-// 
-export const IS_LOCAL_MODE = isLocal();
+export function isLocalMode() {
+  return isLocal();
+}

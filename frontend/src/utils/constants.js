@@ -2,6 +2,7 @@
   ADMIN: 'admin',
   MANAGER: 'manager',
   REP: 'rep',
+  STORE_OWNER: 'store_owner',
   FAN: 'fan',
 };
 
@@ -9,12 +10,13 @@ export const ROLE_NAMES = {
   admin: '管理员',
   manager: '运营经理',
   rep: '业务代表',
-  fan: '粉丝/门店',
+  store_owner: '门店账号',
+  fan: '粉丝',
 };
 
 export const hasPermission = (profile, requiredRole) => {
   if (!profile) return false;
-  const roleHierarchy = { admin: 4, manager: 3, rep: 2, fan: 1 };
+  const roleHierarchy = { admin: 4, manager: 3, rep: 2, store_owner: 1, fan: 1 };
   return (roleHierarchy[profile.role] || 0) >= (roleHierarchy[requiredRole] || 0);
 };
 
@@ -49,8 +51,8 @@ export const VISIT_STATUS = {
 
 export const FAN_LEVELS = [
   { label: 'Bronze member', value: 'bronze', color: '#CD7F32', min_points: 0 },
-  { label: 'Silver member', value: 'silver', color: '#8b949e', min_points: 1000 },
-  { label: 'Gold member', value: 'gold', color: '#d97706', min_points: 2500 },
+  { label: 'Silver member', value: 'silver', color: '#8b949e', min_points: 300 },
+  { label: 'Gold member', value: 'gold', color: '#d97706', min_points: 1000 },
   { label: 'Diamond member', value: 'diamond', color: '#0891b2', min_points: 5000 },
 ];
 
@@ -96,12 +98,12 @@ export const LOTTERY_PRIZES = [
 ];
 
 export const MALL_ITEMS = [
-  { id: 'mall-001', name: 'UWELL G4 Device', points_cost: 800, image: '', stock: 50, category: 'Device' },
-  { id: 'mall-002', name: 'UWELL KOKO Device', points_cost: 500, image: '', stock: 80, category: 'Device' },
-  { id: 'mall-003', name: 'UWELL Pod Pack - 3 pcs', points_cost: 150, image: '', stock: 200, category: 'Pod' },
-  { id: 'mall-004', name: 'UWELL T-shirt', points_cost: 300, image: '', stock: 100, category: 'Merch' },
-  { id: 'mall-005', name: 'UWELL Cap', points_cost: 200, image: '', stock: 150, category: 'Merch' },
-  { id: 'mall-006', name: 'Store voucher - 50 SAR', points_cost: 400, image: '', stock: 100, category: 'Coupon' },
-  { id: 'mall-007', name: 'UWELL VIP Badge', points_cost: 1000, image: '', stock: 20, category: 'VIP' },
-  { id: 'mall-008', name: 'UWELL Lighter', points_cost: 80, image: '', stock: 300, category: 'Merch' },
+  { id: 'mall-001', name: 'UWELL G4 Device', points_cost: 800, image: '/uwell-assets/rewards/task102-caliburn-g4-device.webp', stock: 50, category: 'Device' },
+  { id: 'mall-002', name: 'UWELL KOKO Device', points_cost: 500, image: '/uwell-assets/rewards/task102-koko-device.webp', stock: 80, category: 'Device' },
+  { id: 'mall-003', name: 'UWELL Pod Pack - 3 pcs', points_cost: 150, image: '/uwell-assets/rewards/task102-gpp-pod-pack.png', stock: 200, category: 'Pod' },
+  { id: 'mall-004', name: 'UWELL T-shirt', points_cost: 300, image: '/uwell-assets/rewards/task102-uwell-shirt.jpg', stock: 100, category: 'Merch' },
+  { id: 'mall-005', name: 'UWELL Cap', points_cost: 200, image: '/uwell-assets/rewards/task102-uwell-cap.jpg', stock: 150, category: 'Merch' },
+  { id: 'mall-006', name: 'Store voucher - 50 SAR', points_cost: 400, image: '/uwell-assets/rewards/task102-brand-store-voucher.jpg', stock: 100, category: 'Coupon' },
+  { id: 'mall-007', name: 'UWELL VIP Badge', points_cost: 1000, image: '/uwell-assets/rewards/task102-vip-badge.jpg', stock: 20, category: 'VIP' },
+  { id: 'mall-008', name: 'UWELL Lighter', points_cost: 80, image: '/uwell-assets/rewards/task102-uwell-lighter.jpg', stock: 300, category: 'Merch' },
 ];

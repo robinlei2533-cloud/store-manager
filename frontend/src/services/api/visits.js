@@ -4,6 +4,52 @@
 import { supabase } from '../supabase';
 import localDb from '../db/localDb';
 import { isLocal, ensureLocalInit, enrichVisit } from './helpers';
+import { getStores as getInternalStores } from './stores';
+import { canAccessVisit } from '../../utils/uwellRoleAccess';
+
+const REMOTE_VISIT_COLUMNS = [
+  'store_id',
+  'rep_id',
+  'visit_date',
+  'status',
+  'notes',
+];
+
+const LOCAL_ONLY_VISIT_FIELDS = [
+  'display_data',
+  'field_rating',
+  'field_rating_summary',
+  'suggested_level',
+  'suggested_store_level',
+  'repeat_visit_summary',
+  'new_store_profile',
+  'suggested_level_status',
+  'visit_type',
+  'next_action',
+];
+
+function toRemoteVisitPayload(visit) {
+  const remoteSource = { ...visit };
+  LOCAL_ONLY_VISIT_FIELDS.forEach((field) => {
+    delete remoteSource[field];
+  });
+  const payload = {};
+  REMOTE_VISIT_COLUMNS.forEach((column) => {
+    if (remoteSource[column] !== undefined) payload[column] = remoteSource[column];
+  });
+  if (payload.status === 'draft') payload.status = 'planned';
+  return payload;
+}
+
+async function enrichRemoteVisitsWithStores(visits) {
+  const rows = Array.isArray(visits) ? visits : visits ? [visits] : [];
+  const stores = await getInternalStores({});
+  const storeById = new Map((stores || []).map((store) => [store.id, store]));
+  return rows.map((visit) => ({
+    ...visit,
+    stores: storeById.get(visit.store_id) || null,
+  }));
+}
 
 // ============ 鎷滆 ============
 
@@ -20,7 +66,7 @@ export async function getVisits(filters = {}) {
     return data.map(enrichVisit);
   }
 
-  let query = supabase.from('visits').select('*, stores(name), profiles!visits_rep_id_fkey(name)');
+  let query = supabase.from('visits').select('*, profiles!visits_rep_id_fkey(name)');
   if (filters.store_id) query = query.eq('store_id', filters.store_id);
   if (filters.rep_id) query = query.eq('rep_id', filters.rep_id);
   if (filters.status) query = query.eq('status', filters.status);
@@ -28,25 +74,27 @@ export async function getVisits(filters = {}) {
   if (filters.date_to) query = query.lte('visit_date', filters.date_to);
   const { data, error } = await query.order('visit_date', { ascending: false });
   if (error) throw error;
-  return data;
+  return enrichRemoteVisitsWithStores(data);
 }
 
-export async function getVisitById(id) {
+export async function getVisitById(id, options = {}) {
   ensureLocalInit();
   if (isLocal()) {
     const visit = localDb.findById('visits', id);
     if (!visit) return null;
+    if (options.scopeProfile && !canAccessVisit(options.scopeProfile, visit, localDb.all('stores'))) return null;
     return enrichVisit(visit);
   }
-  const { data, error } = await supabase.from('visits').select('*, stores(*), profiles!visits_rep_id_fkey(name)').eq('id', id).single();
+  const { data, error } = await supabase.from('visits').select('*, profiles!visits_rep_id_fkey(name)').eq('id', id).single();
   if (error) throw error;
-  return data;
+  const [visit] = await enrichRemoteVisitsWithStores(data);
+  return visit;
 }
 
 export async function createVisit(visit) {
   ensureLocalInit();
   if (isLocal()) return localDb.insert('visits', visit);
-  const { data, error } = await supabase.from('visits').insert(visit).select().single();
+  const { data, error } = await supabase.from('visits').insert(toRemoteVisitPayload(visit)).select().single();
   if (error) throw error;
   return data;
 }
@@ -54,7 +102,7 @@ export async function createVisit(visit) {
 export async function updateVisit(id, visit) {
   ensureLocalInit();
   if (isLocal()) return localDb.update('visits', id, visit);
-  const { data, error } = await supabase.from('visits').update(visit).eq('id', id).select().single();
+  const { data, error } = await supabase.from('visits').update(toRemoteVisitPayload(visit)).eq('id', id).select().single();
   if (error) throw error;
   return data;
 }

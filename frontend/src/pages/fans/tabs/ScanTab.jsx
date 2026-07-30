@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { message, Button, Card, Statistic, Row, Col, Typography, Input, Divider, List, Empty, Modal, Spin, Alert } from 'antd';
+import { message, Button, Typography, Input, Empty, Modal, Spin, Alert, Tag } from 'antd';
 import { QrcodeOutlined, CameraOutlined, ScanOutlined } from '@ant-design/icons';
 import localDb from '../../../services/db/localDb';
-import { addFanPoints, scanQrCode } from '../../../services/api';
+import { addFanPoints } from '../../../services/api';
+import { OPERATIONAL_RULE_RECORD_ID, classifyScanResult, mergeOperationalRules } from '../../../utils/uwellLaunchRules';
+import useLanguageStore from '../../../stores/languageStore';
 
 const { Title, Paragraph, Text } = Typography;
 
-const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
+const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached, initialManual = false, t }) => {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [cameraReady, setCameraReady] = useState(false);
@@ -34,7 +36,7 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
     detectedRef.current = false;
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error('Camera is not available in this browser.');
+        throw new Error(t('fan_real_scan_camera_unavailable'));
       }
       const stream = await navigator.mediaDevices?.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
@@ -48,18 +50,21 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
       }
     } catch (err) {
       console.error('Camera error:', err);
-      setCameraError('Camera access denied. Please grant camera permission or enter code manually.');
+      setCameraError(t('fan_real_scan_camera_denied'));
       setUseManual(true);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (open) {
-      // Check if BarcodeDetector is available
+      setManualCode('');
+      setCameraError(null);
+      setUseManual(Boolean(initialManual));
+      if (initialManual || scanLimitReached) return;
       if ('BarcodeDetector' in window) {
         startCamera();
       } else {
-        setCameraError('QR scanner not supported in this browser. Please enter the code manually.');
+        setCameraError(t('fan_real_scan_not_supported'));
         setUseManual(true);
       }
     } else {
@@ -69,7 +74,7 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
       setCameraError(null);
     }
     return () => stopCamera();
-  }, [open, startCamera, stopCamera]);
+  }, [open, initialManual, scanLimitReached, startCamera, stopCamera, t]);
 
   // Detection loop
   useEffect(() => {
@@ -109,88 +114,64 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
     <Modal
       className="fan-scan-modal"
       rootClassName="fan-scan-modal-root"
-      title={<span className="fan-scan-modal-title"><ScanOutlined /> Scan QR Code</span>}
+      title={<span className="fan-scan-modal-title"><ScanOutlined /> {t('fan_real_scan_modal_title')}</span>}
       open={open}
       onCancel={() => { stopCamera(); onClose(); }}
       footer={null}
       width={400}
       destroyOnHidden
     >
-      {scanLimitReached ? (
+      {scanLimitReached && !useManual ? (
         <div className="fan-scan-limit">
-          <Text>Daily scan limit reached (3/3)</Text>
-          <Paragraph>Come back tomorrow to scan more products!</Paragraph>
-          <Button onClick={onClose}>Close</Button>
+          <Text>{t('fan_real_daily_limit')}</Text>
+          <Paragraph>{t('fan_real_scan_limit_note')}</Paragraph>
+          <Button onClick={() => setUseManual(true)}>{t('fan_real_enter_code')}</Button>
         </div>
       ) : (
         <div>
           {!useManual ? (
             <div>
               <Alert
-                message="Use phone camera"
-                description="On mobile, this opens your camera to scan the product QR code. Desktop browsers can still enter the code manually."
+                title={t('fan_real_use_camera')}
+                description={t('fan_real_scan_camera_desc')}
                 type="info"
                 showIcon
-                style={{ marginBottom: 12, borderRadius: 8 }}
+                className="fan-scan-camera-alert"
               />
               {cameraError && (
-                <Alert message={cameraError} type="warning" showIcon style={{ marginBottom: 12, borderRadius: 8 }} />
+                <Alert title={cameraError} type="warning" showIcon className="fan-scan-camera-alert" />
               )}
-              <div style={{
-                position: 'relative', width: '100%', height: 320, borderRadius: 12, overflow: 'hidden',
-                background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
+              <div className="fan-scan-camera-viewport">
                 <video
                   ref={videoRef}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  className="fan-scan-camera-video"
                   muted playsInline
                 />
                 {!cameraReady && !cameraError && (
-                  <Spin size="large" style={{ position: 'absolute' }} />
+                  <Spin size="large" className="fan-scan-camera-spinner" />
                 )}
-                {/* Scanner frame overlay */}
-                <div style={{
-                  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                  width: 200, height: 200, border: '2px solid rgba(255,215,0,0.6)', borderRadius: 12,
-                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.4)',
-                }}>
-                  <div style={{
-                    position: 'absolute', top: -1, left: -1, width: 24, height: 24,
-                    borderTop: '3px solid #FFD700', borderLeft: '3px solid #FFD700',
-                    borderTopLeftRadius: 12,
-                  }} />
-                  <div style={{
-                    position: 'absolute', top: -1, right: -1, width: 24, height: 24,
-                    borderTop: '3px solid #FFD700', borderRight: '3px solid #FFD700',
-                    borderTopRightRadius: 12,
-                  }} />
-                  <div style={{
-                    position: 'absolute', bottom: -1, left: -1, width: 24, height: 24,
-                    borderBottom: '3px solid #FFD700', borderLeft: '3px solid #FFD700',
-                    borderBottomLeftRadius: 12,
-                  }} />
-                  <div style={{
-                    position: 'absolute', bottom: -1, right: -1, width: 24, height: 24,
-                    borderBottom: '3px solid #FFD700', borderRight: '3px solid #FFD700',
-                    borderBottomRightRadius: 12,
-                  }} />
+                <div className="fan-scan-frame" aria-hidden="true">
+                  <div className="fan-scan-corner is-top-left" />
+                  <div className="fan-scan-corner is-top-right" />
+                  <div className="fan-scan-corner is-bottom-left" />
+                  <div className="fan-scan-corner is-bottom-right" />
                 </div>
                 {detecting && (
-                  <div style={{ position: 'absolute', bottom: 16 }}>
-                    <Spin style={{ color: '#FFD700' }} />
+                  <div className="fan-scan-detecting">
+                    <Spin />
                   </div>
                 )}
               </div>
-              <div style={{ textAlign: 'center', marginTop: 12 }}>
-                <Button type="link" onClick={() => { stopCamera(); setUseManual(true); }} style={{ color: '#FFD700' }}>
-                  Enter code manually
+              <div className="fan-scan-manual-link-row">
+                <Button type="link" onClick={() => { stopCamera(); setUseManual(true); }} className="fan-scan-manual-link">
+                  {t('fan_real_enter_code')}
                 </Button>
               </div>
             </div>
           ) : (
             <div className="fan-scan-manual-panel">
               <Paragraph className="fan-scan-manual-copy">
-                Enter the QR code from your UWELL product packaging
+                {t('fan_real_scan_manual_copy')}
               </Paragraph>
               <Input
                 size="large"
@@ -203,7 +184,7 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
               <Button type="primary" block size="large" onClick={handleManualSubmit}
                 disabled={!manualCode.trim()}
                 className="fan-scan-submit">
-                Submit Code
+                {t('fan_real_scan_submit_code')}
               </Button>
             </div>
           )}
@@ -214,8 +195,11 @@ const QrScannerModal = ({ open, onClose, onScanResult, scanLimitReached }) => {
 };
 
 const ScanTab = ({ fan, onPointsChange }) => {
+  const { t } = useLanguageStore();
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [scannerMode, setScannerMode] = useState('camera');
   const [scanning, setScanning] = useState(false);
+  const [lastScanResult, setLastScanResult] = useState(null);
 
   // Load scan records from localDb directly
   const [scanRecords, setScanRecords] = useState([]);
@@ -227,146 +211,295 @@ const ScanTab = ({ fan, onPointsChange }) => {
   }, [refreshKey]);
 
   const todayStr = new Date().toISOString().split('T')[0];
+  const operationalRules = mergeOperationalRules(localDb.findById('fan_points_rules', OPERATIONAL_RULE_RECORD_ID)?.settings);
   const myScans = scanRecords.filter((s) => s.fan_id === fan?.id);
-  const todayScans = myScans.filter((s) => {
+  const todayCountedProductScans = myScans.filter((s) => {
     const date = s.created_at ? String(s.created_at) : '';
-    return date.startsWith(todayStr);
+    return date.startsWith(todayStr)
+      && s.code_type === 'product_unique'
+      && Number(s.points_earned || 0) > 0;
   }).length;
-  const scanLimit = 3;
-  const scansRemaining = scanLimit - todayScans;
+  const scanLimit = operationalRules.dailyScanLimit;
+  const scansRemaining = Math.max(0, scanLimit - todayCountedProductScans);
+  const scanProgress = scanLimit > 0 ? Math.min(100, Math.round((todayCountedProductScans / scanLimit) * 100)) : 100;
+  const openScanner = (mode = 'camera') => {
+    setScannerMode(mode);
+    setScannerOpen(true);
+  };
+  const formatScanStatus = (status) => String(status || 'recognized_no_points').replaceAll('_', ' ');
+  const scanCodeClasses = [
+    {
+      title: t('fan_real_scan_product_unique'),
+      type: 'product_unique',
+      desc: `${t('fan_real_scan_desc')} +${operationalRules.scanPoints} ${t('fan_real_points_unit')}, max ${operationalRules.dailyScanLimit}/day.`,
+      tone: 'primary',
+    },
+    {
+      title: t('fan_real_scan_store_event'),
+      type: 'store_event',
+      desc: t('fan_real_scan_store_event_desc'),
+      tone: 'store',
+    },
+    {
+      title: t('fan_real_scan_activity_code'),
+      type: 'official_activity',
+      desc: t('fan_real_scan_activity_desc'),
+      tone: 'activity',
+    },
+    {
+      title: t('fan_real_scan_entry_code'),
+      type: 'fan_center_entry',
+      desc: t('fan_real_scan_entry_desc'),
+      tone: 'entry',
+    },
+    {
+      title: t('fan_real_scan_non_uwell'),
+      type: 'not_uwell',
+      desc: t('fan_real_scan_non_uwell_desc'),
+      tone: 'blocked',
+    },
+  ];
 
-  // Get products for lookup
-  const products = localDb.all('products') || [];
+  const resolveUwellCode = (rawCode) => {
+    const code = String(rawCode || '').trim();
+    const normalized = code.toUpperCase();
+    const allQrCodes = localDb.all('qr_codes') || [];
+    const matchedQr = allQrCodes.find(q => String(q.code || '').toUpperCase() === normalized || String(q.id || '').toUpperCase() === normalized);
+    if (matchedQr?.is_active === false) {
+      return { code, codeType: 'inactive_product', matchedQr };
+    }
+    if (matchedQr) {
+      return { code, codeType: matchedQr.code_type || 'product_unique', matchedQr };
+    }
+    if (/^UWELL-(G4|G5|CALIBURN|KOKO|POD|PRODUCT)-[A-Z0-9-]{4,}$/.test(normalized)) {
+      return { code, codeType: 'product_unique', matchedQr: null };
+    }
+    if (/^(UWELL-)?STORE-EVENT-[A-Z0-9-]{3,}$/.test(normalized)) {
+      return { code, codeType: 'store_event', matchedQr: null };
+    }
+    if (/^(UWELL-)?(OFFICIAL-)?ACTIVITY-[A-Z0-9-]{3,}$/.test(normalized)) {
+      return { code, codeType: 'official_activity', matchedQr: null };
+    }
+    if (/^(UWELL-)?FAN-CENTER(-ENTRY)?/.test(normalized)) {
+      return { code, codeType: 'fan_center_entry', matchedQr: null };
+    }
+    if (/UWELL|ELUXTECH/.test(normalized) && /HTTPS?:\/\/|WWW\.|\.COM|INSTAGRAM|TIKTOK|WHATSAPP|COMMUNITY/.test(normalized)) {
+      return { code, codeType: 'social_community', matchedQr: null };
+    }
+    return { code, codeType: 'not_uwell', matchedQr: null };
+  };
 
   const handleScanResult = async (code) => {
     setScannerOpen(false);
-    if (!code || scansRemaining <= 0) return;
+    if (!code) return;
     setScanning(true);
     try {
-      // Try the standard API first (works for both local and Supabase)
-      let points = 5;
-      let productId = null;
-      let storeId = null;
-      let matchedQr = null;
+      const resolved = resolveUwellCode(code);
+      const scanKey = resolved.matchedQr?.id || resolved.code;
+      const existingScans = localDb.all('scan_records') || [];
+      const previousClaim = existingScans.find((record) => {
+        const sameCode = record.qr_code_id === scanKey || String(record.scanned_code || '').toUpperCase() === resolved.code.toUpperCase();
+        if (!sameCode) return false;
+        if (resolved.codeType !== 'product_unique') return true;
+        return Number(record.points_earned || 0) > 0 || record.validation_mode === 'trial_admin_code_library';
+      });
+      let scanDecision = classifyScanResult({
+        codeType: resolved.codeType,
+        alreadyClaimed: Boolean(previousClaim),
+        claimedByCurrentFan: previousClaim?.fan_id === fan?.id,
+        scansToday: todayCountedProductScans,
+        hasServerValidation: Boolean(resolved.matchedQr),
+        ruleSettings: operationalRules,
+      });
 
-      try {
-        const apiResult = await scanQrCode(code, fan.id);
-        if (apiResult) {
-          points = apiResult.points_earned || apiResult.points || 5;
-          productId = apiResult.product_id || null;
-          storeId = apiResult.store_id || null;
-          matchedQr = { id: apiResult.qr_code_id || code, code: code };
-        }
-      } catch (_apiErr) {
-        // Fallback: direct localDb lookup
-        const allQrCodes = localDb.all('qr_codes') || [];
-        matchedQr = allQrCodes.find(q => q.code === code || q.id === code);
-
-        if (matchedQr) {
-          points = matchedQr.points || 5;
-          productId = matchedQr.product_id;
-          storeId = matchedQr.store_id || null;
-          localDb.update('qr_codes', matchedQr.id, { scan_count: (matchedQr.scan_count || 0) + 1 });
-        } else {
-          const products = localDb.all('products') || [];
-          const matchedProduct = products.find(p =>
-            code.toLowerCase().includes(p.sku?.toLowerCase() || '') ||
-            p.sku?.toLowerCase().includes(code.toLowerCase())
-          );
-          if (matchedProduct) {
-            points = 5;
-            productId = matchedProduct.id;
-          }
-          const newQr = localDb.insert('qr_codes', { code, points: 5, is_active: true, scan_count: 1, product_id: productId, store_id: null });
-          if (newQr?.id) matchedQr = newQr;
-        }
-
-        // Record locally if API failed
-        localDb.insert('scan_records', {
-          qr_code_id: matchedQr?.id || code,
-          fan_id: fan.id,
-          product_id: productId,
-          store_id: storeId,
-          points_earned: points,
-        });
+      if (resolved.codeType === 'inactive_product') {
+        scanDecision.status = 'suspicious';
+        scanDecision.message = t('fan_real_scan_inactive_code');
       }
 
-      await addFanPoints(fan.id, points, 'earn', 'QR Scan', 'Scanned: ' + (matchedQr?.code || code));
-      message.success('Scan successful! +' + points + ' points');
+      const record = {
+        qr_code_id: scanKey,
+        fan_id: fan.id,
+        product_id: resolved.matchedQr?.product_id || null,
+        store_id: resolved.matchedQr?.store_id || null,
+        scanned_code: resolved.code,
+        code_type: resolved.codeType,
+        scan_status: scanDecision.status,
+        points_earned: scanDecision.points,
+        validator_source: scanDecision.validatorSource || (resolved.matchedQr ? 'admin_generated_trial_batch' : 'local_preview_recognition'),
+        decision_reason: scanDecision.decisionReason || scanDecision.message,
+        validation_mode: resolved.matchedQr ? 'trial_admin_code_library' : 'trial_preview_only',
+        code_signature: resolved.matchedQr?.code_signature || null,
+        batch_no: resolved.matchedQr?.batch_no || resolved.matchedQr?.batch_id || null,
+      };
+
+      if (scanDecision.status === 'not_uwell') {
+        localDb.insert('scan_records', record);
+        setLastScanResult(scanDecision);
+        message.error(scanDecision.message || t('fan_real_scan_not_eligible_title'));
+        setRefreshKey(k => k + 1);
+        return;
+      }
+
+      if (['suspicious', 'already_claimed', 'daily_limit', 'unverified_preview_only'].includes(scanDecision.status)) {
+        localDb.insert('scan_records', record);
+        setLastScanResult(scanDecision);
+        message.warning(scanDecision.message);
+        setRefreshKey(k => k + 1);
+        return;
+      }
+
+      if (scanDecision.status === 'points_awarded') {
+        let matchedQr = resolved.matchedQr;
+        if (!matchedQr) throw new Error('Official UWELL code validation is required before product scan points can be awarded.');
+        localDb.update('qr_codes', matchedQr.id, {
+          scan_count: (matchedQr.scan_count || 0) + 1,
+          status: 'claimed',
+          claimed_by: fan.id,
+          claimed_at: new Date().toISOString(),
+          validator_source: 'admin_generated_trial_batch',
+          decision_reason: scanDecision.decisionReason,
+        });
+        localDb.insert('scan_records', { ...record, qr_code_id: matchedQr.id });
+        await addFanPoints(fan.id, scanDecision.points, 'earn', 'QR Scan', 'Scanned unique UWELL code: ' + resolved.code);
+        setLastScanResult(scanDecision);
+        message.success(scanDecision.message);
+        setRefreshKey(k => k + 1);
+        if (onPointsChange) onPointsChange();
+        return;
+      }
+
+      localDb.insert('scan_records', record);
+      setLastScanResult(scanDecision);
+      message.info(scanDecision.message);
       setRefreshKey(k => k + 1);
-      if (onPointsChange) onPointsChange();
     } catch (err) {
-      message.error(err?.message || 'Scan failed');
+      message.error(err?.message || t('fan_real_scan_failed'));
     } finally {
       setScanning(false);
     }
   };
 
   return (
-    <div style={{ padding: '8px 0' }}>
-      <Card className='liquid-glass' style={{ textAlign: 'center', borderRadius: 16, marginBottom: 16 }}>
-        <QrcodeOutlined style={{ fontSize: 64, color: '#722ed1', marginBottom: 16 }} />
-        <Title level={4}>Scan to Earn Points!</Title>
-        <Paragraph type="secondary" style={{ fontSize: 13 }}>
-          Buy any UWELL product, find the QR code inside the package, and scan it here to earn points. On mobile, this opens your camera when the browser supports QR scanning.
-        </Paragraph>
-        <Divider style={{ margin: '12px 0' }} />
-        <Row gutter={16}>
-          <Col span={12}>
-            <Statistic title="Today's Scans" value={`${todayScans}/${scanLimit}`} styles={{ content: { color: scansRemaining > 0 ? '#52c41a' : '#ff4d4f' } }} />
-          </Col>
-          <Col span={12}>
-            <Statistic title="Total Scans" value={myScans.length} />
-          </Col>
-        </Row>
-      </Card>
+    <div className="fan-scan-page fan-scan-primary-task-page fan-scan-centered-action-lock fan-scan-layout-discipline">
+      <section className="fan-scan-focus-hero">
+        <div className="fan-scan-visual-stage" style={{ '--scan-progress': `${scanProgress}%` }}>
+          <div className="fan-scan-qr-mark">
+            <QrcodeOutlined />
+            <span />
+          </div>
+        </div>
+        <div className="fan-scan-cockpit-copy fan-scan-copy-stage fan-scan-main-action-panel">
+          <span className="fan-mini-label">{t('fan_real_scan_title')}</span>
+          <Title level={4}>{t('fan_real_scan_title')}</Title>
+          <div className="fan-scan-action-grid">
+            <Button
+              type="primary"
+              size="large"
+              loading={scanning}
+              onClick={() => openScanner('camera')}
+              icon={<CameraOutlined />}
+              className="fan-scan-primary-button"
+            >
+              {scanning ? t('fan_real_processing') : scansRemaining > 0 ? t('fan_real_use_camera') : t('fan_real_scan_anyway')}
+            </Button>
+            <Button
+              size="large"
+              onClick={() => openScanner('manual')}
+              icon={<QrcodeOutlined />}
+              className="fan-scan-manual-button"
+            >
+              {t('fan_real_enter_code')}
+            </Button>
+            <span className="fan-scan-limit-note">
+              {todayCountedProductScans}/{scanLimit} {t('fan_real_scan_limit_used')}
+            </span>
+          </div>
+        </div>
+      </section>
 
-      <Button
-        type="primary"
-        size="large"
-        block
-        loading={scanning}
-        disabled={scansRemaining <= 0}
-        onClick={() => setScannerOpen(true)}
-        icon={<CameraOutlined />}
-        style={{ height: 56, fontSize: 18, fontWeight: 700, borderRadius: 16, marginBottom: 16, background: 'linear-gradient(135deg, #722ed1 0%, #FFD700 100%)', border: 'none' }}
-      >
-        {scanning ? 'Processing...' : scansRemaining > 0 ? 'Use phone camera' : 'Limit Reached (3/day)'}
-      </Button>
+      <section className="fan-scan-status-strip">
+        <div>
+          <span>{t('fan_real_scan_remaining')}</span>
+          <strong>{scansRemaining}</strong>
+        </div>
+        <div>
+          <span>{t('fan_real_product_points_rule')}</span>
+          <strong>+{operationalRules.scanPoints} {t('fan_real_scan_valid_points')}</strong>
+        </div>
+        <div>
+          <span>{t('fan_real_daily_limit')}</span>
+          <strong>{scanLimit} {t('fan_real_scan_product_scans')}</strong>
+        </div>
+        <div>
+          <span>{t('fan_real_total_scan_records')}</span>
+          <strong>{myScans.length}</strong>
+        </div>
+      </section>
 
-      <Card title="Recent Scans" size="small" className='liquid-glass' style={{ borderRadius: 12 }}>
+      {lastScanResult && (
+        <section className={`fan-scan-result-panel is-${lastScanResult.status}`}>
+          <span>{lastScanResult.points > 0 ? `+${lastScanResult.points}` : t('fan_real_scan_status_zero')} {t('fan_real_pts_unit')}</span>
+          <strong>{formatScanStatus(lastScanResult.status)}</strong>
+          <p>{lastScanResult.message}</p>
+        </section>
+      )}
+
+      <details className="fan-scan-rules-drawer is-secondary-detail">
+        <summary>{t('fan_real_scan_rules_summary', 'Scan rules and supported codes')}</summary>
+        <p className="fan-scan-guide-link">{t('fan_real_scan_desc')}</p>
+        <section className="fan-scan-code-matrix is-folded" aria-label="Supported UWELL scan code classes">
+          {scanCodeClasses.map((item) => (
+            <article key={item.type} className={`fan-scan-code-card is-${item.tone}`}>
+              <Tag color={item.type === 'product_unique' ? 'green' : item.type === 'not_uwell' ? 'red' : 'blue'}>{item.type}</Tag>
+              <strong>{item.title}</strong>
+              <p>{item.desc}</p>
+            </article>
+          ))}
+        </section>
+        <p className="fan-scan-warning-note">{t('fan_real_scan_not_eligible_title')}</p>
+      </details>
+
+      <section className="fan-scan-recent-panel is-secondary-history">
+        <div className="fan-scan-section-heading">
+          <span>{t('fan_real_recent_scans')}</span>
+          <strong>{myScans.length} {t('fan_real_records_unit')}</strong>
+        </div>
         {myScans.length === 0 ? (
-          <Empty description="No scans yet. Buy a UWELL product and scan the QR code!" />
+          <div className="fan-scan-empty">
+            <Empty description={t('fan_real_scan_empty')} />
+          </div>
         ) : (
-          <List
-            size="small"
-            dataSource={myScans.slice(0, 10)}
-            renderItem={(s) => {
+          <div className="fan-scan-recent-list">
+            {myScans.slice(0, 10).map((s) => {
               const product = s.product_id ? localDb.findById('products', s.product_id) : null;
+              const points = Number(s.points_earned || 0);
+              const status = formatScanStatus(s.scan_status || (points > 0 ? 'points_awarded' : 'recognized_no_points'));
+              const scanTime = s.created_at || s.scanned_at;
               return (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={<QrcodeOutlined style={{ fontSize: 20, color: '#722ed1' }} />}
-                    title={product?.name || s.products?.name || 'Scanned Product'}
-                    description={<>
-                      <Text style={{ color: '#52c41a', fontWeight: 600 }}>+{s.points_earned} pts</Text>
-                      <Text style={{ color: '#888', marginLeft: 8, fontSize: 11 }}>
-                        {new Date(s.created_at).toLocaleString('en-US')}
-                      </Text>
-                    </>}
-                  />
-                </List.Item>
+                <article key={s.id || `${s.scanned_code}-${scanTime}`} className={`fan-scan-recent-item is-${s.scan_status || 'recognized_no_points'}`}>
+                  <div className="fan-scan-recent-icon"><QrcodeOutlined /></div>
+                  <div className="fan-scan-recent-main">
+                    <strong>{product?.name || s.products?.name || s.scanned_code || t('fan_real_uwell_code')}</strong>
+                    <span>{status} · {scanTime ? new Date(scanTime).toLocaleString('en-US') : '-'}</span>
+                  </div>
+                  <Tag color={points > 0 ? 'green' : 'default'}>
+                    {points > 0 ? `+${points} ${t('fan_real_pts_unit')}` : t('fan_real_no_product_points')}
+                  </Tag>
+                </article>
               );
-            }}
-          />
+            })}
+          </div>
         )}
-      </Card>
+      </section>
 
       <QrScannerModal
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
         onScanResult={handleScanResult}
         scanLimitReached={scansRemaining <= 0}
+        initialManual={scannerMode === 'manual'}
+        t={t}
       />
     </div>
   );

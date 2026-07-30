@@ -2,7 +2,7 @@ import useLanguageStore from '../../stores/languageStore';
 import React from 'react';
 import { Card, Button, Upload, message, Space, Divider, Typography, Tag, Alert } from 'antd';
 import { DownloadOutlined, ImportOutlined, DatabaseOutlined, CloudOutlined } from '@ant-design/icons';
-import { IS_LOCAL_MODE } from '../../services/api';
+import { isLocalMode } from '../../services/api';
 import localDb from '../../services/db/localDb';
 import seedData from '../../services/db/seedData';
 import PageTransition from "../../components/common/PageTransition";
@@ -93,18 +93,18 @@ const DataManagement = () => {
 
   return (
     <PageTransition>
-    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
+    <div className="bg-radial-top admin-settings-page admin-settings-data-page" style={{minHeight:"100vh",padding:24}}>
     <Card className="liquid-glass admin-readable-card" title={<><DatabaseOutlined /> {t('data_management')}</>} style={{ maxWidth: 760 }}>
-      {IS_LOCAL_MODE ? (
+      {isLocalMode() ? (
         <Alert
           type="info"
-          message={t('local_demo')}
+          title={t('local_demo')}
           description={t('local_data_warning')}
           showIcon
           style={{ marginBottom: 16 }}
         />
       ) : (
-        <Alert type="success" message={`${t('cloud_mode')} (Supabase)`} description={t('cloud_mode_desc')} showIcon style={{ marginBottom: 16 }} />
+        <Alert type="success" title={`${t('cloud_mode')} (Supabase)`} description={t('cloud_mode_desc')} showIcon style={{ marginBottom: 16 }} />
       )}
 
       <div style={{ marginBottom: 16 }}>
@@ -115,8 +115,8 @@ const DataManagement = () => {
 
       <Divider />
 
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <div>
+      <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
+        <div className="admin-settings-cloud-guide">
           <h4>{t('backup_restore')}</h4>
           <Paragraph type="secondary" style={{ fontSize: 13 }}>
             {t('backup_restore_desc')}
@@ -147,15 +147,15 @@ const DataManagement = () => {
         <div>
           <h4><CloudOutlined /> {t('cloud_upgrade')}</h4>
           <Paragraph type="secondary" style={{ fontSize: 13 }}>
-            To enable multi-user access, cloud storage, and data persistence:
+            云端模式启用说明：用于多用户访问、云端存储和数据持久化。
           </Paragraph>
           <ol style={{ paddingLeft: 20, color: '#666', fontSize: 13, lineHeight: 2 }}>
-            <li>Create a free account at <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a></li>
-            <li>Create a new project (free tier is sufficient)</li>
-            <li>Run the SQL migration script (in <code>database/migration.sql</code>) in Supabase SQL Editor</li>
-            <li>Create a Storage bucket named <code>visit-photos</code> (set to public)</li>
-            <li>Copy your Project URL and anon key into <code>.env</code> file</li>
-            <li>Redeploy — the app automatically switches to cloud mode</li>
+            <li>创建 Supabase 免费账号：<a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a></li>
+            <li>创建新项目，免费套餐即可满足试运营。</li>
+            <li>在 Supabase SQL Editor 中执行 SQL migration 脚本（位于 <code>database/migration.sql</code>）。</li>
+            <li>创建名为 <code>visit-photos</code> 的 Storage bucket，并设置为 public。</li>
+            <li>将 Project URL 和 anon key 写入 <code>.env</code> 文件。</li>
+            <li>重新部署后，系统会自动切换到云端模式。</li>
           </ol>
         </div>
       </Space>

@@ -1,14 +1,7 @@
 import React from 'react';
 import { Button, Result } from 'antd';
 
-/**
- * 通用错误状态组件
- * @param {string} title - 错误标题
- * @param {string} message - 错误详情
- * @param {function} onRetry - 重试回调
- * @param {function} onBack - 返回回调
- */
-const ErrorState = ({ title = '加载失败', message, onRetry, onBack }) => {
+const ErrorState = ({ title = 'Unable to load this section', message, onRetry, onBack }) => {
   return (
     <div style={{
       display: 'flex',
@@ -23,14 +16,14 @@ const ErrorState = ({ title = '加载失败', message, onRetry, onBack }) => {
         title={<span style={{ color: '#e5e5e5' }}>{title}</span>}
         subTitle={message ? <span style={{ color: '#888' }}>{message}</span> : undefined}
         extra={
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             {onRetry && (
-              <Button type="primary" onClick={onRetry} style={{ background: '#FFD700', borderColor: '#FFD700', color: '#14141e' }}>
-                重试
+              <Button type="primary" onClick={onRetry} style={{ background: '#d8ff2f', borderColor: '#d8ff2f', color: '#14141e' }}>
+                Retry
               </Button>
             )}
             {onBack && (
-              <Button onClick={onBack}>返回</Button>
+              <Button onClick={onBack}>Back</Button>
             )}
           </div>
         }

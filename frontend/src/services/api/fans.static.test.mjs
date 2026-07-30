@@ -11,3 +11,9 @@ test('fan point awards fall back locally when remote point write fails during tr
   assert.match(source, /Supabase points unavailable/);
   assert.match(source, /return addFanPointsLocal\(fanId, points, type, source, description\)/);
 });
+
+test('fan list API supports explicit RBAC scope filtering for local trial data', () => {
+  assert.match(source, /filterFansByScope/);
+  assert.match(source, /filters\.scopeProfile/);
+  assert.match(source, /localDb\.all\('stores'\)/);
+});

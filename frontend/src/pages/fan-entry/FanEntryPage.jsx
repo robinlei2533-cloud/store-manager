@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useLanguageStore from '../../stores/languageStore';
-import useAuthStore from '../../stores/authStore';
+import useAuthStore, { isLocalAuthFallbackEnabled } from '../../stores/authStore';
 import localDb from '../../services/db/localDb';
 import seedData from '../../services/db/seedData';
 import { supabase } from '../../services/supabase';
@@ -17,6 +17,7 @@ import {
   processLocalReferralSignup,
   validateCountryCity,
 } from '../../utils/trialOps';
+import { isValidBusinessEmail } from '../../utils/uwellLaunchRules';
 import { addFanPoints } from '../../services/api';
 import caliburnBubble1 from '../../assets/products/caliburn-bubble-1.png';
 import caliburnBubble2 from '../../assets/products/caliburn-bubble-2.png';
@@ -42,10 +43,24 @@ const memberBenefits = [
   'Scan products, join campaigns, and redeem rewards',
 ];
 
+// Task-141 ReactBits-inspired entry effects: local CSS-only motion, no external dependency.
+
+const entryBenefitSteps = [
+  { number: '01', title: 'Join UWELL Fans', detail: 'Create your member profile quickly.' },
+  { number: '02', title: 'Get welcome points', detail: 'Start with points after sign-up.' },
+  { number: '03', title: 'Scan products and join campaigns', detail: 'Earn from product scans and activities.' },
+  { number: '04', title: 'Redeem member rewards', detail: 'Use points for available rewards.' },
+];
+
+const getPreviewFan = () => {
+  if (localDb.needsInit() || localDb.all('fans').length === 0) { localDb.init(seedData); }
+  return localDb.findById('fans', 'f-001') || localDb.all('fans')[0] || null;
+};
+
 // ============ Main Component ============
 const FanEntryPage = () => {
   const navigate = useNavigate();
-  const { t, setLang } = useLanguageStore();
+  const { t } = useLanguageStore();
   const { setProfile, setUser, signIn, signInLocal } = useAuthStore();
   const { message } = App.useApp();
   const [email, setEmail] = useState('');
@@ -68,20 +83,10 @@ const FanEntryPage = () => {
     new URLSearchParams((window.location.hash.split('?')[1] || window.location.search || '').replace(/^\?/, '')).get('ref') || ''
   );
 
-  const ensureEnglishFirst = useCallback(() => {
-    setLang('en');
-  }, [setLang]);
-
-  useEffect(() => {
-    ensureEnglishFirst();
-  }, [ensureEnglishFirst]);
-
   const enterDemoFan = useCallback(() => {
     setEnteringDemo(true);
     setAuthOpen(false);
-    if (localDb.needsInit() || localDb.all('fans').length === 0) { localDb.init(seedData); }
-    const fans = localDb.all('fans');
-    const demoFan = fans[0];
+    const demoFan = getPreviewFan();
     if (demoFan) {
       localStorage.setItem('store_manager_current_user', demoFan.id);
       localStorage.setItem('fan_logged_in', 'true');
@@ -94,12 +99,16 @@ const FanEntryPage = () => {
       message.warning('Please enter your email and password, or continue as a demo fan.');
       return;
     }
-    const userEmail = email;
-    let authUserId = null;
+    const userEmail = email.trim().toLowerCase();
+    let authUserId;
     try {
       const result = await signIn(userEmail, password);
       authUserId = result?.user?.id || null;
     } catch (_e) {
+      if (!isLocalAuthFallbackEnabled()) {
+        message.error('Login failed. Please check your email and password.');
+        return;
+      }
       try {
         const result = await signInLocal(userEmail, password);
         authUserId = result?.user?.id || null;
@@ -114,18 +123,22 @@ const FanEntryPage = () => {
       navigate('/fan-center', { replace: true });
       return;
     }
-    if (localDb.needsInit() || localDb.all('fans').length === 0) { localDb.init(seedData); }
-    const fans = localDb.all('fans');
-    if (fans.length > 0) {
-      localStorage.setItem('store_manager_current_user', fans[0].id);
+    const localFan = authUserId ? localDb.findById('fans', authUserId) : null;
+    const previewFan = localFan || getPreviewFan();
+    if (previewFan) {
+      localStorage.setItem('store_manager_current_user', previewFan.id);
       localStorage.setItem('fan_logged_in', 'true');
     }
     navigate('/fan-center', { replace: true });
-  }, [email, navigate, password, signIn, signInLocal]);
+  }, [email, message, navigate, password, signIn, signInLocal]);
 
   const handleRegister = useCallback(async () => {
     if (!regName || !regEmail || !regPassword) {
       message.warning("Please enter your name, email, and password.");
+      return;
+    }
+    if (!isValidBusinessEmail(regEmail)) {
+      message.warning("Please use a real email domain suffix. Examples like 123@123.com are not accepted.");
       return;
     }
     const cityValidation = validateCountryCity({ country: regCountry, city: regCity });
@@ -151,7 +164,7 @@ const FanEntryPage = () => {
         });
         localDb.insert("profiles", records.profile);
         localDb.insert("fans", records.fan);
-        localDb.insert("auth", { id: localUserId, email: regEmail, password: regPassword, role: "fan" });
+        localDb.insert("auth", { id: localUserId, profile_id: records.fan.id, fan_id: records.fan.id, email: regEmail.trim().toLowerCase(), password: regPassword, role: "fan" });
         localStorage.setItem("store_manager_current_user", localUserId);
         localStorage.setItem("fan_logged_in", "true");
         setUser({ id: localUserId, email: regEmail });
@@ -209,15 +222,15 @@ const FanEntryPage = () => {
               if (referralReadError) throw referralReadError;
               const inviter = findFanByReferralCode(remoteFans || [], referralCode);
               if (inviter && inviter.id !== data.user.id) {
-                await addFanPoints(data.user.id, 30, 'earn', 'Referral', `Welcome referral bonus from ${referralCode}`);
-                await addFanPoints(inviter.id, 30, 'earn', 'Referral', `Friend registered with ${referralCode}`);
+                await addFanPoints(data.user.id, 50, 'earn', 'Referral', `Welcome referral bonus from ${referralCode}`);
+                await addFanPoints(inviter.id, 50, 'earn', 'Referral', `Friend registered with ${referralCode}`);
                 localDb.insert('mall_redemptions', {
                   fan_id: inviter.id,
                   source: 'invite',
                   referred_fan_id: data.user.id,
                   referral_code: referralCode,
                   status: 'completed',
-                  points: 30,
+                  points: 50,
                 });
                 referralApplied = true;
               }
@@ -244,7 +257,7 @@ const FanEntryPage = () => {
       setLoading(false);
       message.error(err?.message || "Registration failed. Please try again.");
     }
-  }, [ageConfirmed, navigate, referralCode, regCity, regCountry, regEmail, regName, regPassword, regPhone, setProfile, setUser, termsAccepted]);
+  }, [ageConfirmed, message, navigate, referralCode, regCity, regCountry, regEmail, regName, regPassword, regPhone, setProfile, setUser, termsAccepted]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') handleLogin();
@@ -268,13 +281,13 @@ const FanEntryPage = () => {
       )}
       {mode === 'login' && (
         <>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={t('fan_entry_placeholder_email')} autoComplete="email"
               className="fe-input-dark"
             />
           </div>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={t('fan_entry_placeholder_password')} autoComplete="current-password"
               className="fe-input-dark"
@@ -290,7 +303,7 @@ const FanEntryPage = () => {
             <input type="checkbox" defaultChecked />
             I confirm I am of legal age in my region.
           </label>
-          <button onClick={handleLogin} className="fe-btn-primary">{t('fan_entry_signin_btn')}</button>
+          <button onClick={handleLogin} className="fe-btn-primary uw-reactbits-specular-button">{t('fan_entry_signin_btn')}</button>
           <button type="button" onClick={enterDemoFan} className="fe-demo-link">Continue as demo fan</button>
           <div className="fe-form-toggle">
             <button type="button" onClick={() => setMode('register')} className="fe-form-link fe-link-button">
@@ -304,19 +317,19 @@ const FanEntryPage = () => {
           <button type="button" className="fe-register-back" onClick={() => setMode('login')}>
             Back to sign in
           </button>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <input type="text" value={regName} onChange={e => setRegName(e.target.value)} placeholder="Name *" autoComplete="name" className="fe-input-dark" />
           </div>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <input type="email" value={regEmail} onChange={e => setRegEmail(e.target.value)} placeholder="Email *" autoComplete="email" className="fe-input-dark" />
           </div>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <input type="password" value={regPassword} onChange={e => setRegPassword(e.target.value)} placeholder="Password *" autoComplete="new-password" className="fe-input-dark" />
           </div>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <input type="tel" value={regPhone} onChange={e => setRegPhone(e.target.value)} placeholder="Phone (optional)" autoComplete="tel" className="fe-input-dark" />
           </div>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <select
               value={regCountry}
               onChange={e => { setRegCountry(e.target.value); setRegCity(""); }}
@@ -329,7 +342,7 @@ const FanEntryPage = () => {
               ))}
             </select>
           </div>
-          <div className="fe-input-group">
+          <div className="fe-input-group fe-input-field uw-reactbits-field">
             <select
               value={regCity}
               onChange={e => setRegCity(e.target.value)}
@@ -352,7 +365,7 @@ const FanEntryPage = () => {
             I agree to the <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:'#FFD700',textDecoration:'underline'}}>privacy notice</a> and <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{color:'#FFD700',textDecoration:'underline'}}>member terms</a>.
           </label>
           <p className="fe-form-helper">You will enter your member center after sign-up.</p>
-          <button onClick={handleRegister} disabled={loading} className="fe-btn-primary">{loading ? t('fan_entry_registering') : t('fan_entry_register_btn')}</button>
+          <button onClick={handleRegister} disabled={loading} className="fe-btn-primary uw-reactbits-specular-button">{loading ? t('fan_entry_registering') : t('fan_entry_register_btn')}</button>
           <div className="fe-form-toggle">
             <button type="button" onClick={() => setMode('login')} className="fe-form-link fe-link-button">
               {t('fan_entry_have_account')} <span className="fe-btn-secondary">{t('fan_entry_sign_in')}</span>
@@ -368,7 +381,7 @@ const FanEntryPage = () => {
       <header className="fe-luxury-header">
         <div className="fe-luxury-brand">
           <span>UWELL</span>
-          <small>Fans Club</small>
+          <small className="fe-entry-wishline uw-reactbits-shiny-text">I Wish You Well</small>
         </div>
         <div className="fe-header-actions">
           <div className="fe-language-slot">
@@ -405,35 +418,37 @@ const FanEntryPage = () => {
           <div className="fe-luxury-edge-lines" aria-hidden="true">
             <span /><span /><span /><span />
           </div>
-          <div className="fe-luxury-copy uw-split-reveal">
+          <div className="fe-luxury-copy uw-split-reveal uw-reactbits-split-text">
             <h1 aria-label="Uwell Fans Club">
               {"Uwell Fans Club".split(" ").map((word, index) => (
                 <span key={word} style={{ "--uw-word-index": index }}>{word}</span>
               ))}
             </h1>
-            <p aria-label="I Wish You Well">
-              {"I Wish You Well".split(" ").map((word, index) => (
-                <span key={word} style={{ "--uw-word-index": index + 3 }}>{word}</span>
-              ))}
-            </p>
-          </div>
-          <div className="fe-luxury-join">
-            <p>Join UWELL fans, check activities, scan for points, and redeem member rewards.</p>
-            <div className="fe-luxury-benefit-row">
-              <span>100 welcome points</span>
-              <span>Verified store map</span>
-              <span>Member rewards</span>
+            <div className="fe-luxury-center-action">
+              <button type="button" className="fe-luxury-cta uw-reactbits-specular-button uw-pressable uw-shine-button" onClick={() => setAuthOpen(true)}>
+                Join / Sign in <span aria-hidden="true">-&gt;</span>
+              </button>
             </div>
-            <button type="button" className="fe-luxury-cta uw-pressable uw-shine-button" onClick={() => setAuthOpen(true)}>
-              Join / Sign in <span aria-hidden="true">-&gt;</span>
-            </button>
+          </div>
+          <div className="fe-luxury-support">
+            <div className="fe-luxury-benefit-dock" aria-label="Fan platform benefits">
+              {entryBenefitSteps.map((step) => (
+                <div className="fe-luxury-benefit-step" key={step.number}>
+                  <span>{step.number}</span>
+                  <div>
+                    <strong>{step.title}</strong>
+                    <small>{step.detail}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>
 
       {authOpen && (
         <div className="fe-auth-modal-backdrop" onClick={() => setAuthOpen(false)}>
-          <div className="fe-auth-modal" onClick={e => e.stopPropagation()}>
+          <div className="fe-auth-modal uw-reactbits-fade-content" onClick={e => e.stopPropagation()}>
             <button type="button" className="fe-modal-close" onClick={() => setAuthOpen(false)} aria-label="Close">x</button>
             {authForm}
           </div>

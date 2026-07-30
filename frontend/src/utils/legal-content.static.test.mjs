@@ -9,11 +9,12 @@ const termsHtml = readFileSync(new URL('../../public/terms.html', import.meta.ur
 test('legal content covers launch privacy, terms, reward pickup, and S-level store policy', () => {
   assert.match(source, /Reward Redemption Rules/);
   assert.match(source, /S-Level Store Responsibility and Reward Policy/);
-  assert.match(source, /30 days/);
+  assert.match(source, /7 days/);
+  assert.doesNotMatch(source, /default validity period is 30 days/);
   assert.match(source, /one-time use|used once/);
   assert.match(source, /stock/);
-  assert.match(source, /运营备注/);
-  assert.match(source, /S 级门店/);
+  assert.match(source, /Operations note/);
+  assert.match(source, /S-level stores/);
 });
 
 test('public privacy notice explains data categories, purposes, retention, and user rights', () => {
@@ -32,5 +33,6 @@ test('public member terms include redemption rules and S-level store responsibil
   assert.match(termsHtml, /Only approved S-level UWELL stores/);
   assert.match(termsHtml, /S-Level Store Responsibility/);
   assert.match(termsHtml, /S-Level Store Rewards and Consequences/);
-  assert.match(termsHtml, /30 days/);
+  assert.match(termsHtml, /7 days/);
+  assert.doesNotMatch(termsHtml, /default validity period is 30 days/);
 });

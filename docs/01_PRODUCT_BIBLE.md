@@ -19,6 +19,16 @@ This is the highest-level product reference. When specs, code, or AI suggestions
 13. Any business rule may have only one official version.
 14. If requirements are unclear, stop and ask.
 
+## Brand Direct-to-Terminal Strategy
+
+UWELL CRM is also a brand operating system for reaching terminal consumers and terminal stores directly.
+
+Importers and wholesalers may remain part of capital flow, stock flow, and trade execution, but UWELL should build its own terminal market visibility through fans, stores, field reps, and backend data.
+
+S Stores are the planned terminal brand nodes for this strategy. An S Store is a **UWELL Brand Store** selected from A-level stores based on cooperation willingness, owner attitude, and willingness to recommend UWELL products. It can sell other brands, but it represents UWELL brand culture, display, staff training, activities, reward pickup, inventory feedback, and sell-through feedback.
+
+The S Store strategy is documented in `19_S_STORE_BRAND_GROWTH_LOOP.md`.
+
 ## Portal Boundaries
 
 | Portal | Role | Main Purpose |
@@ -79,4 +89,3 @@ Every future meaningful change must record:
 4. Which database tables it affects
 5. Follow-up notes
 6. Next recommendation
-

@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useLanguageStore from '../../stores/languageStore';
 import { LANGUAGES } from '../../utils/translations';
+
+const PORTAL_LANGUAGE_CODES = {
+  admin: ['zh', 'en'],
+  fan: ['en', 'ar'],
+  store: ['en', 'ar'],
+};
 
 const LanguageSwitcher = ({
   position,
@@ -18,10 +24,15 @@ const LanguageSwitcher = ({
   tone = 'dark',
   labelOverride,
   hideFlag = false,
+  portal,
 }) => {
-  const { lang, setLang, t } = useLanguageStore();
+  const { activePortal, lang, setLang, t } = useLanguageStore();
   const [open, setOpen] = useState(false);
-  const current = LANGUAGES.find((item) => item.code === lang) || LANGUAGES[0];
+  const switcherRef = useRef(null);
+  const resolvedPortal = portal || activePortal || 'fan';
+  const allowedLanguageCodes = PORTAL_LANGUAGE_CODES[resolvedPortal] || PORTAL_LANGUAGE_CODES.fan;
+  const visibleLanguages = LANGUAGES.filter((item) => allowedLanguageCodes.includes(item.code));
+  const current = visibleLanguages.find((item) => item.code === lang) || visibleLanguages[0] || LANGUAGES[0];
   const isRtl = lang === 'ar';
   const isLight = tone === 'light';
   const alignItems = anchor === 'end'
@@ -29,6 +40,27 @@ const LanguageSwitcher = ({
     : anchor === 'start'
       ? 'flex-start'
       : (isRtl ? 'flex-start' : 'flex-end');
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (switcherRef.current?.contains(event.target)) return;
+      setOpen(false);
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
 
   const colors = isLight
     ? {
@@ -54,6 +86,7 @@ const LanguageSwitcher = ({
 
   return (
     <div
+      ref={switcherRef}
       className={className}
       style={{
         ...(style || {}),
@@ -108,14 +141,14 @@ const LanguageSwitcher = ({
             boxShadow: colors.menuShadow,
           }}
         >
-          {LANGUAGES.map((item) => {
+          {visibleLanguages.map((item) => {
             const selected = lang === item.code;
             return (
               <div
                 key={item.code}
                 role="menuitemradio"
                 aria-checked={selected}
-                onClick={() => { setLang(item.code); setOpen(false); }}
+                onClick={() => { setLang(item.code, resolvedPortal); setOpen(false); }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

@@ -8,8 +8,14 @@ import { getCampaignById, createCampaignTask, updateCampaignTask, deleteCampaign
 import PageTransition from "../../components/common/PageTransition";
 
 const { TextArea } = Input;
-const statusConfig = { planned: 'Planned', ongoing: 'Ongoing', completed: 'Completed', cancelled: 'Cancelled' };
-const taskStatusConfig = { pending: 'Pending', ongoing: 'In Progress', done: 'Done' };
+const statusConfig = { planned: '已计划', ongoing: '进行中', completed: '已完成', cancelled: '已取消' };
+const taskStatusConfig = { pending: '待处理', ongoing: '进行中', done: '已完成' };
+const deliveryStatusConfig = {
+  none: { label: '未分配', color: 'default' },
+  delivered: { label: '已送达', color: 'success' },
+  shipping: { label: '运输中', color: 'processing' },
+  pending: { label: '待审批', color: 'orange' },
+};
 
 const CampaignDetailPage = () => {
   const { id } = useParams();
@@ -28,10 +34,10 @@ const CampaignDetailPage = () => {
 
   const getDeliveryStatus = (claimId) => {
     const obs = allOutbounds.filter(o => o.claim_id === claimId);
-    if (obs.length === 0) return { status: "none", label: "Not Assigned", color: "default" };
-    if (obs.some(o => o.status === "delivered")) return { status: "delivered", label: "Delivered", color: "success" };
-    if (obs.some(o => o.status === "approved")) return { status: "shipping", label: "In Transit", color: "processing" };
-    return { status: "pending", label: "Pending Approval", color: "orange" };
+    if (obs.length === 0) return { status: "none", ...deliveryStatusConfig.none };
+    if (obs.some(o => o.status === "delivered")) return { status: "delivered", ...deliveryStatusConfig.delivered };
+    if (obs.some(o => o.status === "approved")) return { status: "shipping", ...deliveryStatusConfig.shipping };
+    return { status: "pending", ...deliveryStatusConfig.pending };
   };
 
   const handleAssignMaterial = async () => {
@@ -45,7 +51,7 @@ const CampaignDetailPage = () => {
       claim_id: claim.id,
       applicant_id: "u-admin",
       status: "pending",
-      reason: "Campaign: " + (campaign?.name || "") + " - Material delivery",
+      reason: "活动：" + (campaign?.name || "") + " - 物料配送",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });
@@ -56,7 +62,7 @@ const CampaignDetailPage = () => {
     setClaims(prev => [...prev]);
     setDeliveryModal({ open: false, claim: null, storeName: "" });
     deliveryForm.resetFields();
-    message.success("Material assigned for delivery!");
+    message.success("已分配物料发货");
   };
 
   const materials = localDb.all("materials") || [];
@@ -66,15 +72,15 @@ const CampaignDetailPage = () => {
   const campaignClaims = useMemo(() => (localDb.all('campaign_claims') || []).filter(c => c.campaign_id === id), [id]);
   const storeList = useMemo(() => localDb.all('stores') || [], []);
   useEffect(() => { setClaims(campaignClaims); setAllStores(storeList); }, [campaignClaims, storeList]);
-  const taskMut = useMutation({ mutationFn: ({ data, taskId }) => taskId ? updateCampaignTask(taskId, data) : createCampaignTask(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task saved'); setTaskModalOpen(false); taskForm.resetFields(); setEditingTask(null); } });
-  const deleteTaskMut = useMutation({ mutationFn: deleteCampaignTask, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Task deleted'); } });
-  const reportMut = useMutation({ mutationFn: ({ data, reportId }) => reportId ? updateCampaignReport(reportId, data) : createCampaignReport(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('Report saved'); setReportModalOpen(false); } });
+  const taskMut = useMutation({ mutationFn: ({ data, taskId }) => taskId ? updateCampaignTask(taskId, data) : createCampaignTask(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('任务已保存'); setTaskModalOpen(false); taskForm.resetFields(); setEditingTask(null); } });
+  const deleteTaskMut = useMutation({ mutationFn: deleteCampaignTask, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('任务已删除'); } });
+  const reportMut = useMutation({ mutationFn: ({ data, reportId }) => reportId ? updateCampaignReport(reportId, data) : createCampaignReport(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); message.success('复盘报告已保存'); setReportModalOpen(false); } });
   const approvalMut = useMutation({
     mutationFn: (data) => updateCampaign(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaign', id] });
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
-      message.success('Activity review saved');
+      message.success('活动审核已保存');
     },
   });
 
@@ -82,23 +88,23 @@ const CampaignDetailPage = () => {
   if (!campaign) return <Empty />;
 
   const taskColumns = [
-    { title: 'Task', dataIndex: 'title', key: 'title' },
-    { title: 'Due Date', dataIndex: 'due_date', key: 'due', render: (d) => d ? new Date(d).toLocaleDateString('en-US') : '-' },
-    { title: 'Status', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'done' ? 'success' : s === 'ongoing' ? 'processing' : 'default'}>{taskStatusConfig[s] || s}</Tag> },
-    { title: 'Actions', key: 'action', render: (_, r) => (
+    { title: '任务', dataIndex: 'title', key: 'title' },
+    { title: '截止日期', dataIndex: 'due_date', key: 'due', render: (d) => d ? new Date(d).toLocaleDateString('zh-CN') : '-' },
+    { title: '状态', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'done' ? 'success' : s === 'ongoing' ? 'processing' : 'default'}>{taskStatusConfig[s] || s}</Tag> },
+    { title: '操作', key: 'action', render: (_, r) => (
       <Space>
-        {r.status !== 'done' && <Button type="link" size="small" onClick={() => { taskMut.mutate({ taskId: r.id, data: { status: 'done' } }); }}>Mark Done</Button>}
-        <Button type="link" size="small" onClick={() => { setEditingTask(r); taskForm.setFieldsValue({ ...r, due_date: r.due_date ? dayjs(r.due_date) : null }); setTaskModalOpen(true); }}>Edit</Button>
-        <Popconfirm title="Delete?" onConfirm={() => deleteTaskMut.mutate(r.id)}><Button type="link" danger size="small">Delete</Button></Popconfirm>
+        {r.status !== 'done' && <Button type="link" size="small" onClick={() => { taskMut.mutate({ taskId: r.id, data: { status: 'done' } }); }}>标记完成</Button>}
+        <Button type="link" size="small" onClick={() => { setEditingTask(r); taskForm.setFieldsValue({ ...r, due_date: r.due_date ? dayjs(r.due_date) : null }); setTaskModalOpen(true); }}>编辑</Button>
+        <Popconfirm title="确认删除？" onConfirm={() => deleteTaskMut.mutate(r.id)}><Button type="link" danger size="small">删除</Button></Popconfirm>
       </Space>
     )},
   ];
 
   return (
     <PageTransition>
-    <div className="bg-radial-top" style={{minHeight:"100vh",padding:24}}>
-      <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; Back to Campaigns</Button>
-      <Card className="liquid-glass" title={campaign.name} extra={(
+    <div className="bg-radial-top admin-campaign-detail-page">
+      <Button type="link" onClick={() => navigate('/app/campaigns')} style={{ marginBottom: 16, paddingLeft: 0 }}>&larr; 返回活动列表</Button>
+      <Card className="liquid-glass admin-campaign-detail-card" title={campaign.name} extra={(
         <Space>
           {campaign.source === 'store_application' && campaign.approval_status !== 'approved' && (
             <Button
@@ -106,7 +112,7 @@ const CampaignDetailPage = () => {
               size="small"
               onClick={() => approvalMut.mutate({ approval_status: 'approved', fan_visible: true, status: 'ongoing' })}
             >
-              Approve for Fan Center
+              通过并展示到粉丝端
             </Button>
           )}
           {campaign.source === 'store_application' && campaign.approval_status !== 'rejected' && (
@@ -115,131 +121,135 @@ const CampaignDetailPage = () => {
               size="small"
               onClick={() => approvalMut.mutate({ approval_status: 'rejected', fan_visible: false, status: 'cancelled' })}
             >
-              Reject
+              拒绝
             </Button>
           )}
           <Tag color={campaign.status === 'ongoing' ? 'processing' : campaign.status === 'completed' ? 'default' : 'blue'}>{statusConfig[campaign.status]}</Tag>
         </Space>
       )}>
-        <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 3 }} bordered>
-          <Descriptions.Item label="Type">{campaign.type}</Descriptions.Item>
+        <Descriptions className="admin-campaign-detail-descriptions" column={{ xs: 1, sm: 1, md: 2, lg: 3 }} bordered>
+          <Descriptions.Item label="活动类型">{campaign.type}</Descriptions.Item>
           {campaign.source === 'store_application' && (
-            <Descriptions.Item label="Fan visibility">
+            <Descriptions.Item label="粉丝端可见">
               <Tag color={campaign.fan_visible ? 'green' : 'orange'}>{campaign.approval_status || 'pending'}</Tag>
             </Descriptions.Item>
           )}
-          <Descriptions.Item label="Start">{campaign.start_date}</Descriptions.Item>
-          <Descriptions.Item label="End">{campaign.end_date}</Descriptions.Item>
-          <Descriptions.Item label="Budget">${campaign.budget || 0}</Descriptions.Item>
-          <Descriptions.Item label="Actual Cost">${campaign.actual_cost || 0}</Descriptions.Item>
-          <Descriptions.Item label="Stores">{campaign.target_stores?.length || 0}</Descriptions.Item>
-          <Descriptions.Item label="Description" span={3}>{campaign.description}</Descriptions.Item>
+          <Descriptions.Item label="开始日期">{campaign.start_date}</Descriptions.Item>
+          <Descriptions.Item label="结束日期">{campaign.end_date}</Descriptions.Item>
+          <Descriptions.Item label="预算">${campaign.budget || 0}</Descriptions.Item>
+          <Descriptions.Item label="实际成本">${campaign.actual_cost || 0}</Descriptions.Item>
+          <Descriptions.Item label="门店数">{campaign.target_stores?.length || 0}</Descriptions.Item>
+          <Descriptions.Item label="活动说明" span={{ xs: 1, sm: 1, md: 2, lg: 3 }}>{campaign.description}</Descriptions.Item>
         </Descriptions>
-        <Tabs style={{ marginTop: 16 }} items={[
-          { key: 'overview', label: 'Overview', children: (
+        <Tabs className="admin-campaign-detail-tabs" style={{ marginTop: 16 }} items={[
+          { key: 'overview', label: '概览', children: (
             <div>
-              <h4>Target Stores</h4>
+              <h4>目标门店</h4>
               <Row gutter={[8, 8]}>
                 {campaign.target_store_details?.map(s => (
                   <Col xs={24} sm={12} md={8} key={s.id}>
-                    <Tag className="campaign-store-tag" color={s.level === 'A' ? 'green' : s.level === 'B' ? 'blue' : 'default'}>{s.name} (Level {s.level || '-'})</Tag>
+                    <Tag className="campaign-store-tag" color={s.level === 'A' ? 'green' : s.level === 'B' ? 'blue' : 'default'}>{s.name}（等级 {s.level || '-'}）</Tag>
                   </Col>
                 ))}
               </Row>
             </div>
           )},
-          { key: 'tasks', label: `Tasks (${campaign.tasks?.length || 0})`, children: (
+          { key: 'tasks', label: `任务（${campaign.tasks?.length || 0}）`, children: (
             <div>
-              <Button type="primary" style={{ marginBottom: 16 }} onClick={() => { setEditingTask(null); taskForm.resetFields(); setTaskModalOpen(true); }}>Add Task</Button>
-              <Table columns={taskColumns} dataSource={campaign.tasks || []} rowKey="id" pagination={false} size="small" locale={{ emptyText: 'No tasks' }} />
+              <Button type="primary" style={{ marginBottom: 16 }} onClick={() => { setEditingTask(null); taskForm.resetFields(); setTaskModalOpen(true); }}>新增任务</Button>
+              <div className="admin-campaign-detail-table-wrap admin-campaign-detail-task-table">
+                <Table columns={taskColumns} dataSource={campaign.tasks || []} rowKey="id" pagination={false} size="small" scroll={{ x: 620 }} locale={{ emptyText: '暂无任务' }} />
+              </div>
             </div>
           )},
-          { key: 'claims', label: 'Claims (' + claims.length + ')', children: (
-            <Table dataSource={claims} rowKey='id' size='small' pagination={false}
-              columns={[
-                { title: 'Store', key: 'store', render: (_, r) => {
-                  const st = allStores.find(s => s.id === r.store_id);
-                  return st?.name || r.store_id;
-                }},
-                { title: 'Status', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'completed' ? 'success' : s === 'in_progress' ? 'processing' : 'default'}>{s}</Tag> },
-                { title: 'Delivery', key: 'delivery', render: (_, r) => {
-                  const ds = getDeliveryStatus(r.id);
-                  return <Tag color={ds.color}>{ds.label}</Tag>;
-                }},
-                { title: 'Used', dataIndex: 'materials_used', key: 'mat', render: (v) => v || 0 },
-                { title: 'Effect', dataIndex: 'effect', key: 'effect' },
-                { title: 'Claimed', dataIndex: 'claimed_at', key: 'date', render: (d) => d ? new Date(d).toLocaleDateString() : '-' },
-                { title: 'Action', key: 'action', render: (_, r) => {
-                  const ds = getDeliveryStatus(r.id);
-                  if (ds.status === "none") {
+          { key: 'claims', label: '申领（' + claims.length + '）', children: (
+            <div className="admin-campaign-detail-table-wrap admin-campaign-detail-claims-table">
+              <Table dataSource={claims} rowKey='id' size='small' pagination={false} scroll={{ x: 840 }}
+                columns={[
+                  { title: '门店', key: 'store', render: (_, r) => {
                     const st = allStores.find(s => s.id === r.store_id);
-                    return <Button size="small" type="primary" onClick={() => setDeliveryModal({ open: true, claim: r, storeName: st?.name || r.store_id })}>Assign Materials</Button>;
-                  }
-                  return null;
-                }},
-              ]}
-            />
+                    return st?.name || r.store_id;
+                  }},
+                  { title: '状态', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'completed' ? 'success' : s === 'in_progress' ? 'processing' : 'default'}>{s}</Tag> },
+                  { title: '配送', key: 'delivery', render: (_, r) => {
+                    const ds = getDeliveryStatus(r.id);
+                    return <Tag color={ds.color}>{ds.label}</Tag>;
+                  }},
+                  { title: '已用物料', dataIndex: 'materials_used', key: 'mat', render: (v) => v || 0 },
+                  { title: '效果', dataIndex: 'effect', key: 'effect' },
+                  { title: '申领时间', dataIndex: 'claimed_at', key: 'date', render: (d) => d ? new Date(d).toLocaleDateString('zh-CN') : '-' },
+                  { title: '操作', key: 'action', render: (_, r) => {
+                    const ds = getDeliveryStatus(r.id);
+                    if (ds.status === "none") {
+                      const st = allStores.find(s => s.id === r.store_id);
+                      return <Button size="small" type="primary" onClick={() => setDeliveryModal({ open: true, claim: r, storeName: st?.name || r.store_id })}>分配物料</Button>;
+                    }
+                    return null;
+                  }},
+                ]}
+              />
+            </div>
           )},
-          { key: 'report', label: 'Review Report', children: campaign.report ? (
+          { key: 'report', label: '活动复盘报告', children: campaign.report ? (
             <div>
               <Row gutter={16} style={{ marginBottom: 16 }}>
-                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Sales" value={campaign.report.total_sales || 0} prefix="$" /></Card></Col>
-                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Visits" value={campaign.report.total_visits || 0} /></Card></Col>
-                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Total Scans" value={campaign.report.total_scans || 0} /></Card></Col>
-                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="Achievement" value={campaign.report.achievement_rate || 0} suffix="%" /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="总销售额" value={campaign.report.total_sales || 0} prefix="$" /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="总到店" value={campaign.report.total_visits || 0} /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="总扫码" value={campaign.report.total_scans || 0} /></Card></Col>
+                <Col span={6}><Card className="liquid-glass" size="small"><Statistic title="达成率" value={campaign.report.achievement_rate || 0} suffix="%" /></Card></Col>
               </Row>
-              <Card className="liquid-glass" title="Summary" size="small" style={{ marginBottom: 8 }}><p>{campaign.report.summary}</p></Card>
-              <Card className="liquid-glass" title="Improvements" size="small"><p>{campaign.report.improvements}</p></Card>
-              <Button type="link" onClick={() => { reportForm.setFieldsValue(campaign.report); setReportModalOpen(true); }}>Edit Report</Button>
+              <Card className="liquid-glass" title="总结" size="small" style={{ marginBottom: 8 }}><p>{campaign.report.summary}</p></Card>
+              <Card className="liquid-glass" title="改进项" size="small"><p>{campaign.report.improvements}</p></Card>
+              <Button type="link" onClick={() => { reportForm.setFieldsValue(campaign.report); setReportModalOpen(true); }}>编辑报告</Button>
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: 48 }}>
-              <Empty description="No report yet" />
-              <Button type="primary" style={{ marginTop: 16 }} onClick={() => { reportForm.resetFields(); setReportModalOpen(true); }}>Write Review Report</Button>
+              <Empty description="暂无复盘报告" />
+              <Button type="primary" style={{ marginTop: 16 }} onClick={() => { reportForm.resetFields(); setReportModalOpen(true); }}>填写复盘报告</Button>
             </div>
           )},
         ]} />
       </Card>
 
-      <Modal title={editingTask ? 'Edit Task' : 'Add Task'} open={taskModalOpen} onOk={async () => { const v = await taskForm.validateFields(); taskMut.mutate({ taskId: editingTask?.id, data: { ...v, campaign_id: id, due_date: v.due_date?.format('YYYY-MM-DD') } }); }} onCancel={() => { setTaskModalOpen(false); setEditingTask(null); }}>
+      <Modal title={editingTask ? '编辑任务' : '新增任务'} open={taskModalOpen} onOk={async () => { const v = await taskForm.validateFields(); taskMut.mutate({ taskId: editingTask?.id, data: { ...v, campaign_id: id, due_date: v.due_date?.format('YYYY-MM-DD') } }); }} onCancel={() => { setTaskModalOpen(false); setEditingTask(null); }}>
         <Form form={taskForm} layout="vertical">
-          <Form.Item name="title" label="Task Title" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="due_date" label="Due Date"><DatePicker style={{ width: '100%' }} /></Form.Item>
-          <Form.Item name="status" label="Status"><Select options={[{ label: 'Pending', value: 'pending' }, { label: 'In Progress', value: 'ongoing' }, { label: 'Done', value: 'done' }]} /></Form.Item>
+          <Form.Item name="title" label="任务标题" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item name="due_date" label="截止日期"><DatePicker style={{ width: '100%' }} /></Form.Item>
+          <Form.Item name="status" label="状态"><Select options={[{ label: '待处理', value: 'pending' }, { label: '进行中', value: 'ongoing' }, { label: '已完成', value: 'done' }]} /></Form.Item>
         </Form>
       </Modal>
 
       {/* Delivery Modal */}
       <Modal
-        title={<span style={{color:"#FFD700"}}>Assign Materials</span>}
+        title={<span style={{color:"#FFD700"}}>分配物料发货</span>}
         open={deliveryModal.open}
         onCancel={() => { setDeliveryModal({ open: false, claim: null, storeName: "" }); deliveryForm.resetFields(); }}
         onOk={handleAssignMaterial}
-        okText="Assign for Delivery"
+        okText="分配发货"
       >
         <p style={{marginBottom:16,color:"rgba(255,255,255,0.5)"}}>
-          Assigning materials for: <strong style={{color:"#FFD700"}}>{deliveryModal.storeName}</strong>
+          正在为门店分配物料：<strong style={{color:"#FFD700"}}>{deliveryModal.storeName}</strong>
         </p>
         <Form form={deliveryForm} layout="vertical">
-          <Form.Item name="material_id" label="Material" rules={[{ required: true, message: "Required" }]}>
-            <Select placeholder="Select material" options={materials.map(m => ({ label: m.name + " (" + m.sku + ")", value: m.id }))} />
+          <Form.Item name="material_id" label="物料" rules={[{ required: true, message: "必填" }]}>
+            <Select placeholder="选择物料" options={materials.map(m => ({ label: m.name + " (" + m.sku + ")", value: m.id }))} />
           </Form.Item>
-          <Form.Item name="qty" label="Quantity" rules={[{ required: true, message: "Required" }]}>
+          <Form.Item name="qty" label="数量" rules={[{ required: true, message: "必填" }]}>
             <InputNumber min={1} style={{ width: "100%" }} />
           </Form.Item>
         </Form>
       </Modal>
 
-      <Modal title="Review Report" open={reportModalOpen} width={600} onOk={async () => { const v = await reportForm.validateFields(); reportMut.mutate({ data: { ...v, campaign_id: id, report_date: new Date().toISOString().split('T')[0] }, reportId: campaign.report?.id }); }} onCancel={() => setReportModalOpen(false)}>
+      <Modal title="活动复盘报告" open={reportModalOpen} width={600} onOk={async () => { const v = await reportForm.validateFields(); reportMut.mutate({ data: { ...v, campaign_id: id, report_date: new Date().toISOString().split('T')[0] }, reportId: campaign.report?.id }); }} onCancel={() => setReportModalOpen(false)}>
         <Form form={reportForm} layout="vertical">
           <Row gutter={16}>
-            <Col span={12}><Form.Item name="total_sales" label="Total Sales ($)"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="total_visits" label="Total Visits"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="total_scans" label="Total Scans"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="achievement_rate" label="Achievement Rate (%)"><InputNumber min={0} max={200} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="total_sales" label="总销售额 ($)"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="total_visits" label="总到店"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="total_scans" label="总扫码"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="achievement_rate" label="达成率 (%)"><InputNumber min={0} max={200} style={{ width: '100%' }} /></Form.Item></Col>
           </Row>
-          <Form.Item name="summary" label="Summary"><TextArea rows={3} /></Form.Item>
-          <Form.Item name="improvements" label="Improvements"><TextArea rows={3} /></Form.Item>
+          <Form.Item name="summary" label="总结"><TextArea rows={3} /></Form.Item>
+          <Form.Item name="improvements" label="改进项"><TextArea rows={3} /></Form.Item>
         </Form>
       </Modal>
     </div>

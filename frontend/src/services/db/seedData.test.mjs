@@ -3,6 +3,40 @@ import assert from 'node:assert/strict';
 
 import seedData from './seedData.js';
 
+const chineseOrMojibakePattern = /[\u4e00-\u9fff]|绉|鎵|闂|鍏|绛|姣|娑|鐮|鍒|灞|璇|濂|楂|鏂|涓|攢|洰|惧|煎|€|锛|銆|？/;
+const userVisibleTables = [
+  'profiles',
+  'fan_points_log',
+  'fan_points_rules',
+  'fan_level_rules',
+  'material_inbound',
+  'material_outbound',
+  'campaigns',
+  'campaign_tasks',
+  'campaign_reports',
+  'store_display_uploads',
+  'old_fan_verifications',
+  'fan_complaints',
+];
+const userVisibleFields = [
+  'name',
+  'label',
+  'source',
+  'description',
+  'action_type',
+  'benefits',
+  'notes',
+  'reason',
+  'type',
+  'title',
+  'summary',
+  'improvements',
+  'review_note',
+  'content',
+  'category',
+  'reply',
+];
+
 test('trial seed data includes usable demo accounts', () => {
   const accounts = seedData.trial_accounts || [];
   const accountKeys = accounts.map((account) => account.email || account.store_id || account.fan_id);
@@ -55,4 +89,33 @@ test('trial material requests show pending, approved, and rejected states', () =
   assert.ok(statuses.has('pending'));
   assert.ok(statuses.has('approved'));
   assert.ok(statuses.has('rejected'));
+});
+
+test('trial S Store owner demo store has locked submitted report history', () => {
+  const ownerStoreId = seedData.trial_accounts.find((account) => account.email === 'store.owner@uwell.com')?.store_id;
+  assert.equal(ownerStoreId, 's-real-012');
+
+  const sellThrough = (seedData.s_store_sell_through || []).filter((record) => record.store_id === ownerStoreId);
+  const productInventory = (seedData.s_store_product_inventory_snapshots || []).filter((record) => record.store_id === ownerStoreId);
+  const materialInventory = (seedData.s_store_material_inventory_snapshots || []).filter((record) => record.store_id === ownerStoreId);
+
+  assert.ok(sellThrough.some((record) => record.period_type === 'weekly' && record.locked === true));
+  assert.ok(sellThrough.some((record) => record.period_type === 'monthly' && record.locked === true));
+  assert.ok(productInventory.some((record) => record.locked === true && Number(record.open_system_current_stock) > 0));
+  assert.ok(materialInventory.some((record) => record.locked === true && record.material_type));
+});
+
+test('trial seed user-visible demo data is English-first and free of garbled copy', () => {
+  for (const tableName of userVisibleTables) {
+    for (const row of seedData[tableName] || []) {
+      for (const field of userVisibleFields) {
+        if (typeof row[field] !== 'string' || row[field] === '') continue;
+        assert.doesNotMatch(
+          row[field],
+          chineseOrMojibakePattern,
+          `${tableName}.${row.id || row.email || 'row'}.${field} should be English trial copy`,
+        );
+      }
+    }
+  }
 });

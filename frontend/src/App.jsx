@@ -9,9 +9,8 @@ import './styles/glass-morphism.css';
 import './styles/loading-states.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
-import arEG from 'antd/locale/ar_EG';
+import zhCN from 'antd/locale/zh_CN';
 
 import AppLayout from './components/layout/AppLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -23,6 +22,8 @@ const DashboardPage = React.lazy(() => import('./pages/dashboard/DashboardPage')
 const StoreListPage = React.lazy(() => import('./pages/stores/StoreListPage'));
 const StoreDetailPage = React.lazy(() => import('./pages/stores/StoreDetailPage'));
 const StoreCreatePage = React.lazy(() => import('./pages/stores/StoreCreatePage'));
+const SStoreManagementPage = React.lazy(() => import('./pages/stores/SStoreManagementPage'));
+const SStoreDetailPage = React.lazy(() => import('./pages/stores/SStoreDetailPage'));
 const VisitListPage = React.lazy(() => import('./pages/visits/VisitListPage'));
 const VisitDetailPage = React.lazy(() => import('./pages/visits/VisitDetailPage'));
 const VisitCreatePage = React.lazy(() => import('./pages/visits/VisitCreatePage'));
@@ -45,13 +46,17 @@ const UserManagementPage = React.lazy(() => import('./pages/settings/UserManagem
 const ProductManagementPage = React.lazy(() => import('./pages/settings/ProductManagementPage'));
 const DataManagement = React.lazy(() => import('./pages/settings/DataManagement'));
 const AuditLogPage = React.lazy(() => import('./pages/settings/AuditLogPage'));
-const SettingsPage = React.lazy(() => import('./pages/settings/SettingsPage'));
 const FanGrowthPage = React.lazy(() => import('./pages/fans/FanGrowthPage'));
 const FanEntryPage = React.lazy(() => import('./pages/fan-entry/FanEntryPage'));
 const FanEntryRedirect = React.lazy(() => import('./pages/login/FanEntryRedirect'));
 const FanCenterPage = React.lazy(() => import('./pages/fans/FanCenterPage'));
 const StoreEntryPage = React.lazy(() => import('./pages/store-owner/StoreEntryPage'));
 const StoreOwnerPage = React.lazy(() => import('./pages/store-owner/StoreOwnerPage'));
+const ReviewsPage = React.lazy(() => import('./pages/admin-ops/ReviewsPage'));
+const RiskCenterPage = React.lazy(() => import('./pages/admin-ops/RiskCenterPage'));
+const RewardsOpsPage = React.lazy(() => import('./pages/admin-ops/RewardsOpsPage'));
+const ScanCodesPage = React.lazy(() => import('./pages/admin-ops/ScanCodesPage'));
+const OperationalRulesPage = React.lazy(() => import('./pages/admin-ops/OperationalRulesPage'));
 
 import { ROLES } from './utils/constants';
 
@@ -100,11 +105,11 @@ function RouteErrorFallback() {
         boxShadow: '0 18px 48px rgba(82,62,24,0.12)',
         textAlign: 'center',
       }}>
-        <strong style={{ display: 'block', marginBottom: 8, fontSize: 22 }}>页面需要刷新一下</strong>
+        <strong style={{ display: 'block', marginBottom: 8, fontSize: 22 }}>Page needs a refresh</strong>
         <p style={{ margin: '0 0 18px', color: '#5f5648', lineHeight: 1.6 }}>
           {dynamicImportError
-            ? '刚刚更新过预览构建，当前标签页还在使用旧缓存。页面会自动刷新一次。'
-            : '页面加载时遇到问题，可以刷新后继续。'}
+            ? 'A new preview build is available. This tab may still be using old cached files and will refresh once.'
+            : 'The page hit a loading problem. Refresh to continue.'}
         </p>
         <button type="button" onClick={reload} style={{
           minHeight: 40,
@@ -116,7 +121,7 @@ function RouteErrorFallback() {
           fontWeight: 800,
           cursor: 'pointer',
         }}>
-          重新加载
+          Reload
         </button>
       </div>
     </div>
@@ -135,7 +140,7 @@ const router = createHashRouter([
   { path: "/login", element: <LoginPage />, errorElement: routeErrorElement },
   {
     path: "/app",
-    element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
+    element: <ProtectedRoute requiredRole={ROLES.REP}><AppLayout /></ProtectedRoute>,
     errorElement: routeErrorElement,
     children: [
       { index: true, element: <Navigate to="/app/dashboard" replace /> },
@@ -150,6 +155,8 @@ const router = createHashRouter([
       { path: "audit", element: <Navigate to="/app/settings/audit" replace /> },
       { path: "stores/list", element: <StoreListPage /> },
       { path: "stores/create", element: <StoreCreatePage /> },
+      { path: "stores/s-stores", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><SStoreManagementPage /></ProtectedRoute> },
+      { path: "stores/s-stores/:id", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><SStoreDetailPage /></ProtectedRoute> },
       { path: "stores/:id", element: <StoreDetailPage /> },
       { path: "visits/list", element: <VisitListPage /> },
       { path: "visits/create", element: <VisitCreatePage /> },
@@ -160,8 +167,13 @@ const router = createHashRouter([
       { path: "campaigns", element: <CampaignListPage /> },
       { path: "campaigns/create", element: <CampaignCreatePage /> },
       { path: "campaigns/:id", element: <CampaignDetailPage /> },
+      { path: "rewards", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><RewardsOpsPage /></ProtectedRoute> },
+      { path: "scan-codes", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><ScanCodesPage /></ProtectedRoute> },
+      { path: "rules", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><OperationalRulesPage /></ProtectedRoute> },
+      { path: "reviews", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><ReviewsPage /></ProtectedRoute> },
+      { path: "risk-center", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><RiskCenterPage /></ProtectedRoute> },
       { path: "fans/list", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><FanListPage /></ProtectedRoute> },
-      { path: "fans/complaints", element: <ComplaintReplyPage /> },
+      { path: "fans/complaints", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><ComplaintReplyPage /></ProtectedRoute> },
       { path: "fans/:id", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><FanDetailPage /></ProtectedRoute> },
       { path: "fans/rules", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><FanRulesPage /></ProtectedRoute> },
       { path: "fans/scan", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><ScanCenterPage /></ProtectedRoute> },
@@ -170,11 +182,11 @@ const router = createHashRouter([
       { path: "materials/stocks", element: <MaterialStocksPage /> },
       { path: "materials/inbound", element: <MaterialInboundPage /> },
       { path: "materials/outbound", element: <MaterialOutboundPage /> },
-      { path: "settings", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><SettingsPage /></ProtectedRoute> },
+      { path: "settings", element: <Navigate to="/app/settings/users" replace /> },
       { path: "settings/users", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><UserManagementPage /></ProtectedRoute> },
       { path: "settings/products", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><ProductManagementPage /></ProtectedRoute> },
       { path: "settings/data", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><DataManagement /></ProtectedRoute> },
-      { path: "settings/audit", element: <ProtectedRoute requiredRole={ROLES.ADMIN}><AuditLogPage /></ProtectedRoute> },
+      { path: "settings/audit", element: <ProtectedRoute requiredRole={ROLES.MANAGER}><AuditLogPage /></ProtectedRoute> },
     ]
   },
   { path: "*", element: <Navigate to="/" replace />, errorElement: routeErrorElement }
@@ -187,11 +199,18 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const { lang } = useLanguageStore();
+  const { lang, activatePortalLanguage } = useLanguageStore();
+  useEffect(() => {
+    activatePortalLanguage('admin');
+  }, [activatePortalLanguage]);
+  const localeMap = { zh: zhCN, en: enUS };
+  const locale = localeMap[lang] || zhCN;
+
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider
-        locale={lang === 'ar' ? arEG : lang === 'zh' ? zhCN : enUS}
+        locale={locale}
+        direction="ltr"
         theme={{
           token: {
             colorPrimary: '#FFD700',

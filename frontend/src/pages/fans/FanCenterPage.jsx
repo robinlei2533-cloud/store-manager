@@ -15,7 +15,6 @@ import {
   CheckCircleOutlined,
   CrownOutlined,
   EnvironmentOutlined,
-  FireOutlined,
   GiftOutlined,
   HomeOutlined,
   LogoutOutlined,
@@ -35,11 +34,11 @@ import localDb from '../../services/db/localDb';
 import seedData from '../../services/db/seedData';
 import { addFanPoints, getFans } from '../../services/api';
 import { useRealtimeSubscription } from '../../hooks/useRealtimeSubscription';
-import { IS_LOCAL_MODE } from '../../services/api';
+import { isLocalMode } from '../../services/api';
 import { isLocal } from '../../services/api/helpers';
 import { FAN_LEVELS, MALL_ITEMS } from '../../utils/constants';
 import { FAN_LEVEL_LABELS, readImageAsDataUrl } from '../../utils/uwellClosedLoop';
-import { getStoreExposureScore, sortStoresForFanExposure } from '../../utils/uwellLaunchRules';
+import { getFanFacingStorePresentation, sortStoresForFanExposure } from '../../utils/uwellLaunchRules';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { filterStoresForFanCity } from '../../utils/trialOps';
 
@@ -53,6 +52,37 @@ import MapTab from './tabs/MapTab';
 import CampaignTab from './tabs/CampaignTab';
 
 const FAN_CENTER_BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4';
+const FAN_HOME_OFFICIAL_MEDIA = 'https://files.myuwell.com/uwell/product/caliburn-g5/pc/pic1.webp';
+const FAN_HOME_OFFICIAL_VIDEO = 'https://files.myuwell.com/uwell/product/caliburn-g4/theme.mp4';
+const FAN_HOME_VISUAL_ASSETS = {
+  growth: '/uwell-assets/fan-lifestyle.jpg',
+  tasks: 'https://files.myuwell.com/uwell/product/caliburn-g5-lite/pc/spe3-lite.webp',
+  campaign: 'https://files.myuwell.com/uwell/product/caliburn-g4-pro-koko/pc/p1.webp',
+  reward: 'https://files.myuwell.com/uwell/product/caliburn-g4/pc/1.webp',
+  store: '/uwell-assets/g5-ugc-display.jpg',
+};
+const FAN_PROFILE_VISUALS = {
+  hero: '/uwell-assets/fan-refresh-v2/me-hero.jpg',
+  overview: '/uwell-assets/fan-refresh-v2/me-detail-a.jpg',
+  activity: '/uwell-assets/fan-refresh-v2/me-detail-b.jpg',
+};
+const FAN_OLD_VERIFICATION_VISUAL = '/uwell-assets/fan-refresh-v2/contact-sheet-v2.jpg';
+const FAN_OLD_VERIFICATION_FALLBACK = '/uwell-assets/fan-refresh-v2/official-g5-detail.webp';
+const STORE_PREVIEW_VISUALS = [
+  '/uwell-assets/fan-refresh-v2/store-s.jpg',
+  '/uwell-assets/fan-refresh-v2/store-a.jpg',
+  '/uwell-assets/fan-refresh-v2/store-b.jpg',
+  '/uwell-assets/fan-refresh-v2/store-gallery.jpg',
+];
+const STORE_PREVIEW_HERO_VISUAL = '/uwell-assets/fan-refresh-v2/store-hero.jpg';
+const STORE_FALLBACK_VISUALS = {
+  S: STORE_PREVIEW_VISUALS[0],
+  A: STORE_PREVIEW_VISUALS[1],
+  B: STORE_PREVIEW_VISUALS[2],
+  C: STORE_PREVIEW_VISUALS[3],
+};
+
+// Task-141 ReactBits-inspired fan center effects: high-value brand/action surfaces only.
 
 const getLocalFanFallback = () => {
   if (localDb.needsInit()) localDb.init(seedData);
@@ -86,51 +116,128 @@ const getStorefrontPhoto = (storeId) => {
   }
 };
 
-const getFanStoreCapabilities = (store = {}) => {
+const getStorePreviewVisual = (store, index, fallbackByLevel = STORE_FALLBACK_VISUALS) => {
+  const storefrontPhoto = getStorefrontPhoto(store?.id);
+  if (storefrontPhoto?.image_url) return storefrontPhoto.image_url;
+  const level = store?.level || 'C';
+  return fallbackByLevel[level] || STORE_PREVIEW_VISUALS[Math.min(index, STORE_PREVIEW_VISUALS.length - 1)];
+};
+
+const getFanStoreCapabilities = (store = {}, t) => {
   const exposureControls = store.exposure_controls || {};
   return [
     {
       key: 'activity',
-      label: 'Activity store',
+      label: t('fan_real_activity_store'),
       active: Boolean(exposureControls.store_events_visible || exposureControls.eligible_for_store_events_display),
     },
     {
       key: 'pickup',
-      label: 'Pickup eligible',
+      label: t('fan_real_pickup_eligible'),
       active: Boolean(exposureControls.reward_pickup_recommended || ['S', 'A'].includes(store.level)),
     },
     {
       key: 'display',
-      label: 'Display reviewed',
+      label: t('fan_real_display_reviewed'),
       active: Boolean(exposureControls.fan_map_highlighted || store.display_status === 'approved'),
     },
   ];
 };
 
-const LevelBadge = ({ levelInfo }) => (
-  <Tag className="fan-shell-level-tag" color={levelInfo?.color || 'gold'}>
-    <CrownOutlined /> {FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label || 'Gold'}
-  </Tag>
-);
+const LevelBadge = ({ levelInfo, compact = false }) => {
+  const levelValue = levelInfo?.value || 'gold';
+  const levelLabel = FAN_LEVEL_LABELS[levelValue] || levelInfo?.label || 'Gold';
+  return (
+    <span className={`fan-level-badge is-${levelValue}${compact ? ' is-compact' : ''}`} aria-label={`${levelLabel} level`}>
+      <CrownOutlined />
+      <b>{levelLabel}</b>
+    </span>
+  );
+};
 
 const FanCenterPage = () => {
-  const { t, setLang } = useLanguageStore();
+  const { lang, t } = useLanguageStore();
   const { user, signOut } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState('home');
   const [returnView, setReturnView] = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [navVisibility, setNavVisibility] = useState('visible');
   const bgVideoRef = useRef(null);
+  const settingsRef = useRef(null);
+  const navLastScrollYRef = useRef(0);
+  const navIdleTimerRef = useRef(0);
   const localFallbackFans = useMemo(() => getLocalFanFallback(), []);
+  const navStableViews = new Set(['scan', 'checkin', 'invite', 'oldfan', 'help']);
+  const shouldStabilizeBottomNav = navStableViews.has(activeView);
 
-  const ensureEnglishFirst = () => {
-    setLang('en');
+  const revealBottomNav = () => {
+    window.clearTimeout(navIdleTimerRef.current);
+    setNavVisibility('visible');
   };
 
   useEffect(() => {
-    ensureEnglishFirst();
-  }, []);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+    revealBottomNav();
+  }, [activeView]);
+
+  useEffect(() => {
+    if (shouldStabilizeBottomNav) {
+      revealBottomNav();
+      return undefined;
+    }
+
+    navLastScrollYRef.current = window.scrollY || 0;
+
+    const handleFanNavScroll = () => {
+      const nextScrollY = Math.max(0, window.scrollY || 0);
+      const delta = nextScrollY - navLastScrollYRef.current;
+      navLastScrollYRef.current = nextScrollY;
+
+      window.clearTimeout(navIdleTimerRef.current);
+
+      if (delta > 8 && nextScrollY > 140) {
+        setNavVisibility('hidden');
+      } else if (delta < -6) {
+        setNavVisibility('visible');
+      }
+
+      navIdleTimerRef.current = window.setTimeout(() => {
+        if (!shouldStabilizeBottomNav) setNavVisibility('soft');
+      }, 700);
+    };
+
+    window.addEventListener('scroll', handleFanNavScroll, { passive: true });
+
+    return () => {
+      window.clearTimeout(navIdleTimerRef.current);
+      window.removeEventListener('scroll', handleFanNavScroll);
+    };
+  }, [shouldStabilizeBottomNav]);
+
+  useEffect(() => {
+    if (!settingsOpen) return undefined;
+
+    const handleSettingsPointerDown = (event) => {
+      if (settingsRef.current?.contains(event.target)) return;
+      setSettingsOpen(false);
+    };
+
+    const handleSettingsKeyDown = (event) => {
+      if (event.key === 'Escape') setSettingsOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handleSettingsPointerDown);
+    document.addEventListener('keydown', handleSettingsKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleSettingsPointerDown);
+      document.removeEventListener('keydown', handleSettingsKeyDown);
+    };
+  }, [settingsOpen]);
 
   const { data: fans = [], isLoading } = useQuery({
     queryKey: ['fans', refreshKey],
@@ -150,6 +257,7 @@ const FanCenterPage = () => {
     const video = bgVideoRef.current;
     if (isLoading || !video) return undefined;
 
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     let rafId = 0;
     let resetTimer = 0;
     let isFadingOut = false;
@@ -157,6 +265,11 @@ const FanCenterPage = () => {
 
     const fadeVideo = (targetOpacity, duration = 500) => {
       cancelAnimationFrame(rafId);
+      if (prefersReducedMotion) {
+        video.style.opacity = String(targetOpacity);
+        return;
+      }
+
       const startOpacity = Number.parseFloat(video.style.opacity || '0') || 0;
       const startedAt = performance.now();
 
@@ -171,17 +284,24 @@ const FanCenterPage = () => {
     };
 
     const playVideo = () => {
+      if (prefersReducedMotion) return;
       const playPromise = video.play();
       if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
     };
 
     const handleCanPlay = () => {
+      if (prefersReducedMotion) {
+        video.pause();
+        video.style.opacity = '1';
+        return;
+      }
+
       playVideo();
       fadeVideo(1);
     };
 
     const handleTimeUpdate = () => {
-      if (!video.duration || isFadingOut) return;
+      if (prefersReducedMotion || !video.duration || isFadingOut) return;
       if (video.duration - video.currentTime <= 0.55) {
         isFadingOut = true;
         fadeVideo(0);
@@ -189,6 +309,7 @@ const FanCenterPage = () => {
     };
 
     const handleEnded = () => {
+      if (prefersReducedMotion) return;
       video.style.opacity = '0';
       window.clearTimeout(resetTimer);
       resetTimer = window.setTimeout(() => {
@@ -217,7 +338,7 @@ const FanCenterPage = () => {
 
   const savedFanId = localStorage.getItem('store_manager_current_user');
   const hasSavedLocalFan = savedFanId ? Boolean(localDb.findById('fans', savedFanId)) : false;
-  const canUseLocalFanFallback = IS_LOCAL_MODE || isLocal() || hasSavedLocalFan || localStorage.getItem('fan_logged_in') === 'true';
+  const canUseLocalFanFallback = isLocalMode() || isLocal() || hasSavedLocalFan || localStorage.getItem('fan_logged_in') === 'true';
   const remoteFanByAuthUser = fans.find((f) => f.user_id === user?.id);
   const remoteFanBySavedAuthUser = savedFanId ? fans.find((f) => f.user_id === savedFanId) : null;
   const savedLocalFan = canUseLocalFanFallback && savedFanId ? localDb.findById('fans', savedFanId) : null;
@@ -226,7 +347,7 @@ const FanCenterPage = () => {
 
   useRealtimeSubscription('fan_points_log', { event: 'INSERT' }, (payload) => {
     const newLog = payload.new;
-    if (currentFan && newLog.fan_id === currentFan.id && !IS_LOCAL_MODE) {
+    if (currentFan && newLog.fan_id === currentFan.id && !isLocalMode()) {
       const pts = newLog.points > 0 ? `+${newLog.points}` : String(newLog.points);
       message.success(`${t('fan_points_changed')}: ${pts} - ${newLog.reason || ''}`);
       queryClient.invalidateQueries({ queryKey: ['fans'] });
@@ -242,9 +363,10 @@ const FanCenterPage = () => {
   }
 
   if (!currentFan && canUseLocalFanFallback) {
-    const allFans = localDb.all('fans');
-    if (allFans.length > 0) {
-      currentFan = allFans[0];
+    const demoFanAccount = (localDb.all('auth') || []).find((account) => account.email === 'fan.preview@uwell.com');
+    const demoFan = demoFanAccount?.fan_id ? localDb.findById('fans', demoFanAccount.fan_id) : null;
+    if (demoFan) {
+      currentFan = demoFan;
       localStorage.setItem('store_manager_current_user', currentFan.id);
     }
   }
@@ -262,7 +384,7 @@ const FanCenterPage = () => {
     setActiveView(returnView || 'home');
   };
 
-  const hasCheckedInToday = useMemo(() => {
+  const hasCheckedInToday = (() => {
     if (!currentFan?.id) return false;
     try {
       const today = getTodayDateKey();
@@ -271,7 +393,7 @@ const FanCenterPage = () => {
     } catch {
       return false;
     }
-  }, [currentFan?.id, refreshKey]);
+  })();
 
   const handleTaskCheckIn = async () => {
     if (!currentFan || hasCheckedInToday) {
@@ -385,15 +507,17 @@ const FanCenterPage = () => {
     }
   })();
 
-  const recentActivityRows = (() => {
+  const invitePointRows = (() => {
     try {
-      return (localDb.find('fan_engagement_tasks', (item) => item.fan_id === currentFan?.id) || [])
-        .sort((a, b) => new Date(b.completed_at || b.created_at || 0) - new Date(a.completed_at || a.created_at || 0))
-        .slice(0, 3);
+      return (localDb.find('fan_points_log', (log) => (
+        log.fan_id === currentFan?.id
+        && String(log.source || log.description || '').toLowerCase().includes('invite')
+      )) || []);
     } catch {
       return [];
     }
   })();
+  const invitePointsEarned = invitePointRows.reduce((sum, log) => sum + Math.max(0, Number(log.points || 0)), 0);
 
   const featuredCampaign = (() => {
     try {
@@ -405,26 +529,42 @@ const FanCenterPage = () => {
     }
   })();
 
+  const campaignCopyKeys = {
+    'ca-real-001': {
+      name: 'fan_real_activities_campaign_g5_launch',
+      description: 'fan_real_activities_campaign_g5_launch_desc',
+    },
+    'ca-real-002': {
+      name: 'fan_real_activities_campaign_ramadan',
+      description: 'fan_real_activities_campaign_ramadan_desc',
+    },
+    'ca-real-003': {
+      name: 'fan_real_activities_campaign_display',
+      description: 'fan_real_activities_campaign_display_desc',
+    },
+    'ca-real-004': {
+      name: 'fan_real_activities_campaign_whatsapp',
+      description: 'fan_real_activities_campaign_whatsapp_desc',
+    },
+    'ca-real-005': {
+      name: 'fan_real_activities_campaign_summer',
+      description: 'fan_real_activities_campaign_summer_desc',
+    },
+  };
+  const featuredCampaignKeys = lang === 'ar' ? campaignCopyKeys[featuredCampaign?.id] : null;
   const displayCampaign = featuredCampaign ? {
     ...featuredCampaign,
-    name: featuredCampaign.name_english || 'UWELL Store Display Challenge',
-    description: featuredCampaign.description_english || 'Join the weekly UWELL activity, scan your product code, and use member points for rewards.',
+    name: featuredCampaignKeys ? t(featuredCampaignKeys.name) : (featuredCampaign.name_english || t('fan_real_activities_campaign_display')),
+    description: featuredCampaignKeys ? t(featuredCampaignKeys.description) : (featuredCampaign.description_english || t('fan_real_activities_campaign_display_desc')),
   } : null;
 
   const fanNavItems = [
-    { key: 'home', label: 'Home', icon: <HomeOutlined /> },
-    { key: 'activities', label: 'Activities', icon: <CalendarOutlined /> },
-    { key: 'community', label: 'Community', icon: <MessageOutlined /> },
-    { key: 'rewards', label: 'Rewards', icon: <GiftOutlined /> },
-    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined /> },
-    { key: 'me', label: 'Me', icon: <UserOutlined /> },
-  ];
-
-  const fanFeatureItems = [
-    { key: 'checkin', label: 'Check in', icon: <CalendarOutlined />, tone: 'gold' },
-    { key: 'scan', label: 'Scan', icon: <QrcodeOutlined />, tone: 'blue' },
-    { key: 'activities', label: 'Activities', icon: <FireOutlined />, tone: 'red' },
-    { key: 'stores', label: 'Stores', icon: <EnvironmentOutlined />, tone: 'teal' },
+    { key: 'home', label: t('fan_real_home'), icon: <HomeOutlined /> },
+    { key: 'activities', label: t('fan_real_activities'), icon: <CalendarOutlined /> },
+    { key: 'community', label: t('fan_real_community'), icon: <MessageOutlined /> },
+    { key: 'rewards', label: t('fan_real_rewards'), icon: <GiftOutlined /> },
+    { key: 'stores', label: t('fan_real_stores'), icon: <EnvironmentOutlined /> },
+    { key: 'me', label: t('fan_real_me'), icon: <UserOutlined /> },
   ];
 
   const fanTaskCards = [
@@ -433,31 +573,56 @@ const FanCenterPage = () => {
     { key: 'campaigns', title: "Join this week's activity", desc: 'See the active brand activity and complete the steps for extra rewards.', points: '+50', done: false, action: 'View activity' },
   ];
 
-  const campaignSteps = [
-    { label: 'Step 1', title: 'Join the activity', desc: 'Open the current UWELL activity and read the reward rules.' },
-    { label: 'Step 2', title: 'Scan your product code', desc: 'Scan after purchase so points are recorded in your member center.' },
-    { label: 'Step 3', title: 'Claim rewards', desc: 'Use points for devices, pods, coupons, or campaign gifts.' },
-  ];
-
-  const activityCopy = {
-    '\u6bcf\u65e5\u7b7e\u5230': 'Daily check-in',
-    '\u626b\u7801\u9a8c\u8bc1': 'Product scan',
-    '\u79ef\u5206\u5151\u6362': 'Reward redemption',
-    '\u9650\u91cfUWELL\u5468\u8fb9\u793c\u5305': 'Limited UWELL gift pack',
-    '\u9650\u91cf UWELL \u5468\u8fb9\u793c\u5305': 'Limited UWELL gift pack',
-    '\u7b7e\u5230\u5956\u52b1': 'Daily check-in',
-    '\u63a8\u8350\u65b0\u7c89\u4e1d': 'Referral reward',
-    '\u59e3\u5fd4\u68e9\u7edb\u60e7\u57cc': 'Daily check-in',
-    '\u93b5\ue0a4\u721c\u6960\u5c83\u7609': 'Product scan',
-    '\u7ec9\ue21a\u578e\u934f\u621e\u5d32': 'Reward redemption',
-    '\u95c4\u6130\u567aUWELL\u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'Limited UWELL gift pack',
-    '\u95c4\u6130\u567a UWELL \u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'Limited UWELL gift pack',
+  const activityCopyKeys = {
+    '\u6bcf\u65e5\u7b7e\u5230': 'fan_real_activity_source_checkin',
+    '\u626b\u7801\u9a8c\u8bc1': 'fan_real_activity_source_scan',
+    '\u79ef\u5206\u5151\u6362': 'fan_real_activity_source_redeem',
+    '\u9650\u91cfUWELL\u5468\u8fb9\u793c\u5305': 'fan_reward_sample',
+    '\u9650\u91cf UWELL \u5468\u8fb9\u793c\u5305': 'fan_reward_sample',
+    '\u7b7e\u5230\u5956\u52b1': 'fan_real_activity_desc_checkin',
+    '\u63a8\u8350\u65b0\u7c89\u4e1d': 'fan_real_activity_source_referral',
+    '\u59e3\u5fd4\u68e9\u7edb\u60e7\u57cc': 'fan_real_activity_source_checkin',
+    '\u93b5\ue0a4\u721c\u6960\u5c83\u7609': 'fan_real_activity_source_scan',
+    '\u7ec9\ue21a\u578e\u934f\u621e\u5d32': 'fan_real_activity_source_redeem',
+    '\u95c4\u6130\u567aUWELL\u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'fan_reward_sample',
+    '\u95c4\u6130\u567a UWELL \u935b\u3128\u7adf\u7ec0\u714e\u5bd8': 'fan_reward_sample',
+    'Daily Check-in': 'fan_real_activity_source_checkin',
+    'Daily check-in': 'fan_real_activity_source_checkin',
+    'Daily check-in reward': 'fan_real_activity_desc_checkin',
+    'Daily check-in bonus': 'fan_real_activity_desc_checkin',
+    'Product scan': 'fan_real_activity_source_scan',
+    'Verified G4 Pod unique code scan': 'fan_real_activity_desc_scan_g4',
+    'Reward redemption': 'fan_real_activity_source_redeem',
+    'Redeemed UWELL KOKO device reward': 'fan_real_activity_desc_redeem_koko',
   };
 
   const getFanActivityText = (value, fallback = '-') => {
     if (!value) return fallback;
-    const text = String(value);
-    return activityCopy[text] || text;
+    const text = String(value).trim();
+    if (text.startsWith('Daily check-in reward')) {
+      return text.replace('Daily check-in reward', t('fan_real_activity_desc_checkin'));
+    }
+    return activityCopyKeys[text] ? t(activityCopyKeys[text]) : text;
+  };
+
+  const getLocalizedStorePresentation = (presentation) => {
+    const storeCopyKeys = {
+      'UWELL Brand Store': 'fan_real_store_brand_store',
+      'Official UWELL brand experience and premium reward pickup readiness.': 'fan_real_store_brand_experience',
+      'Premium pickup ready': 'fan_real_store_premium_pickup_ready',
+      'Recommended UWELL partner': 'fan_real_store_recommended_partner',
+      'Reviewed UWELL partner with reward pickup readiness.': 'fan_real_store_reviewed_pickup',
+      'Pickup eligible': 'fan_real_pickup_eligible',
+      'UWELL partner store': 'fan_real_store_partner_store',
+      'Visible UWELL partner for store visits and product support.': 'fan_real_store_visible_partner',
+      'Partner store': 'fan_real_store_partner_pickup',
+    };
+    return {
+      ...presentation,
+      fanLabel: t(storeCopyKeys[presentation.fanLabel], presentation.fanLabel),
+      trustCopy: t(storeCopyKeys[presentation.trustCopy], presentation.trustCopy),
+      pickupLabel: t(storeCopyKeys[presentation.pickupLabel], presentation.pickupLabel),
+    };
   };
 
   const handleOldFanUpload = async (file) => {
@@ -487,7 +652,7 @@ const FanCenterPage = () => {
 
   const renderShellHeader = () => (
     <header className="fan-shell-header">
-      <div className="fan-shell-brand"><strong>UWELL</strong><span>{t('fan_center_label')}</span></div>
+      <div className="fan-shell-brand"><strong>UWELL Club</strong><span>{t('fan_real_member_growth')}</span></div>
       <div className="fan-shell-actions">
         <LanguageSwitcher
           inline
@@ -495,25 +660,27 @@ const FanCenterPage = () => {
           sourceOnly
           anchor="end"
           tone="light"
-          labelOverride="Language"
+          labelOverride={t('fan_real_language')}
           buttonMinWidth={96}
           menuMinWidth={180}
           className="fan-header-language"
         />
-        <div className="store-settings-slot">
+        <div className="store-settings-slot" ref={settingsRef}>
           <button
             type="button"
             className={`store-settings-trigger${settingsOpen ? ' is-open' : ''}`}
             onClick={() => setSettingsOpen((value) => !value)}
-            aria-label="Open fan settings"
+            aria-label={t('fan_real_settings')}
+            aria-haspopup="menu"
+            aria-expanded={settingsOpen}
           >
-            <SettingOutlined /><span className="sr-only">Settings</span>
+            <SettingOutlined /><span className="sr-only">{t('fan_real_settings')}</span>
           </button>
           {settingsOpen && (
             <div className="store-settings-panel liquid-glass">
-              <div className="store-settings-label">Fan settings</div>
+              <div className="store-settings-label">{t('fan_real_fan_settings')}</div>
               <button type="button" className="store-settings-item" onClick={() => openSecondaryView('oldfan', activeView)}>
-                <UploadOutlined /> My verification
+                <UploadOutlined /> {t('fan_real_my_verification')}
               </button>
               <button type="button" className="store-settings-item" onClick={handleLogout}>
                 <LogoutOutlined /> Sign out
@@ -521,7 +688,14 @@ const FanCenterPage = () => {
             </div>
           )}
         </div>
-        <Avatar className="fan-shell-avatar" aria-hidden="true">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+        <button
+          type="button"
+          className="fan-shell-avatar-button uw-reactbits-specular-button"
+          aria-label={t('fan_real_open_me')}
+          onClick={() => setActiveView('me')}
+        >
+          <Avatar className="fan-shell-avatar" aria-hidden="true">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+        </button>
       </div>
     </header>
   );
@@ -548,112 +722,262 @@ const FanCenterPage = () => {
       </div>
       <Progress percent={levelProgress} showInfo={false} strokeColor={{ from: '#ffd60a', to: '#ff9f1a' }} railColor="rgba(255,255,255,0.08)" />
       <div className="fan-level-row">
-        <span>{FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label}</span>
+        <LevelBadge levelInfo={levelInfo} compact />
         <span>{nextLevel ? `${t('fan_next_level')} ${FAN_LEVEL_LABELS[nextLevel.value] || nextLevel.label}` : t('fan_top_level')}</span>
+      </div>
+      <div className="fan-brand-culture-strip" aria-label="UWELL premium member culture">
+        <span>{t('fan_real_uwell_clubhouse')}</span>
+        <span>{t('fan_real_official_drops')}</span>
+        <span>{t('fan_real_brand_store_access')}</span>
+        <span>{t('fan_real_member_only_growth')}</span>
       </div>
     </section>
   );
 
+  const renderHomeBrandClubHero = () => {
+    const primaryActionLabel = hasCheckedInToday ? t('fan_real_scan_now') : t('fan_real_claim_today');
+    const handlePrimaryAction = () => {
+      if (hasCheckedInToday) {
+        openSecondaryView('scan', 'home');
+        return;
+      }
+      handleTaskAction('checkin');
+    };
+
+    return (
+      <section className="fan-home-brand-club-hero fan-home-cinematic-hero">
+        <div className="fan-home-brand-media" aria-label="UWELL brand product and member culture media space">
+          <div className="fan-home-real-media-frame" aria-label="UWELL official video preview">
+            <video
+              className="fan-home-hero-video"
+              src={FAN_HOME_OFFICIAL_VIDEO}
+              poster={FAN_HOME_OFFICIAL_MEDIA}
+              muted
+              autoPlay
+              loop
+              playsInline
+              preload="metadata"
+            />
+          </div>
+          <div className="fan-home-media-storyline">
+            <span>{t('fan_real_official_drops', 'Official drops')}</span>
+            <strong>CALIBURN G5</strong>
+            <em>{t('fan_real_member_only_growth', 'Member growth')}</em>
+          </div>
+          <div className="fan-home-hero-status-pill">
+            <span>{t('fan_real_official_drops', 'Official drops')}</span>
+            <LevelBadge levelInfo={levelInfo} compact />
+          </div>
+        </div>
+        <div className="fan-home-brand-copy">
+          <span className="fan-home-brand-kicker fan-home-hero-kicker uw-reactbits-shiny-text">{t('fan_real_uwell_clubhouse', 'UWELL Club')}</span>
+          <h1 className="fan-home-hero-title uw-reactbits-split-text">UWELL Club</h1>
+          <p className="fan-home-hero-line">Earn points. Unlock rewards. Visit Brand Stores.</p>
+          <div className="fan-home-hero-quickline">
+            <LevelBadge levelInfo={levelInfo} compact />
+            <b className="fan-reactbits-counter">{(currentFan?.points || 0).toLocaleString()} {t('fan_points_unit')}</b>
+          </div>
+          <div className="fan-home-member-snapshot is-layout-locked">
+            <Avatar size={36} className="fan-shell-avatar">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+            <div>
+              <strong>{currentFan?.name || 'UWELL Member'}</strong>
+              <span>{nextLevel ? `${t('fan_real_next_prefix')} ${FAN_LEVEL_LABELS[nextLevel.value] || nextLevel.label}` : t('fan_top_level')}</span>
+            </div>
+          </div>
+          <button type="button" className="fan-home-primary-action fan-reactbits-primary-action uw-reactbits-specular-button uw-reactbits-click-spark" onClick={handlePrimaryAction}>
+            {primaryActionLabel}
+          </button>
+        </div>
+      </section>
+    );
+  };
+
+  const renderHomeClubPath = () => (
+    <section className="fan-home-club-path fan-home-story-path" aria-label="UWELL Club member journey">
+      <button type="button" onClick={() => openSecondaryView('help', 'home')}>
+        <span className="fan-home-path-index">01</span>
+        <span>{t('fan_real_club_path_join')}</span>
+        <strong>UWELL Club</strong>
+      </button>
+      <button type="button" onClick={() => openSecondaryView('scan', 'home')}>
+        <span className="fan-home-path-index">02</span>
+        <span>{t('fan_real_club_path_earn')}</span>
+        <strong>{t('fan_real_scan_now')}</strong>
+      </button>
+      <button type="button" onClick={() => setActiveView('rewards')}>
+        <span className="fan-home-path-index">03</span>
+        <span>{t('fan_real_club_path_redeem')}</span>
+        <strong>{t('fan_real_rewards')}</strong>
+      </button>
+      <button type="button" onClick={() => setActiveView('stores')}>
+        <span className="fan-home-path-index">04</span>
+        <span>{t('fan_real_club_path_visit')}</span>
+        <strong>{t('fan_real_stores')}</strong>
+      </button>
+    </section>
+  );
+
   const renderHome = () => (
-    <section className="fan-home-shell">
-      {renderMemberHero()}
-      <section className="fan-home-mission-control">
-        <div className="fan-home-mission-copy">
-          <span className="fan-mini-label">Today at a glance</span>
-          <h3>Today's power moves</h3>
-          <p>Grow your UWELL level with the two fastest actions today.</p>
+    <section className="fan-home-shell fan-home-brand-editor-lock fan-home-first-screen-lock">
+      {renderHomeBrandClubHero()}
+      {renderHomeClubPath()}
+
+      <section className="fan-home-journey-section is-actions is-today">
+        <span className="fan-home-section-backdrop" aria-hidden="true" />
+        <div className="fan-home-section-copy">
+          <span className="fan-mini-label">{t('fan_real_mission_label')}</span>
+          <h2>{t('fan_real_today_story_title')}</h2>
+          <p>{t('fan_real_mission_desc')}</p>
         </div>
-        <div className="fan-home-mission-score">
-          <strong>{hasCheckedInToday ? '1/2' : '0/2'}</strong>
-          <span>complete</span>
-        </div>
-        <div className="fan-home-action-grid fan-checkin-home-actions">
+        <div className="fan-home-action-showcase fan-home-today-strip fan-home-daily-actions-lock">
+          <div className="fan-home-visual-panel is-tasks fan-home-task-atmosphere">
+            <img src={FAN_HOME_VISUAL_ASSETS.tasks} alt="UWELL product daily mission visual" loading="lazy" />
+          </div>
           <button
             type="button"
-            className={`fan-home-action-card${hasCheckedInToday ? ' is-done' : ''}`}
+            className={`fan-home-action-card fan-reactbits-spotlight-card is-checkin${hasCheckedInToday ? ' is-done' : ''}`}
             onClick={() => handleTaskAction('checkin')}
           >
             <CalendarOutlined />
-            <span>Daily check-in</span>
-            <strong>{hasCheckedInToday ? 'Checked in' : 'Check in'} +5 pts</strong>
+            <span className="fan-home-action-meta">{t('fan_real_daily_checkin')}</span>
+            <strong>{hasCheckedInToday ? t('fan_real_checked_in') : t('fan_real_claim_today')} +5 {t('fan_real_pts_unit')}</strong>
           </button>
-          <button type="button" className="fan-home-action-card is-scan" onClick={() => openSecondaryView('scan', 'home')}>
+          <button type="button" className="fan-home-action-card fan-reactbits-spotlight-card is-scan" onClick={() => openSecondaryView('scan', 'home')}>
             <QrcodeOutlined />
-            <span>Product scan</span>
-            <strong>Scan product</strong>
+            <span className="fan-home-action-meta">{t('fan_real_product_scan')}</span>
+            <strong>{t('fan_real_scan_now')}</strong>
           </button>
           <Button className="fan-checkin-detail-link" onClick={handleOpenCheckInDetails}>
-            View streak
+            {t('fan_real_view_streak')}
           </Button>
         </div>
       </section>
 
-      <section className="fan-home-spotlight-grid">
+      <div className="fan-home-transition-band fan-home-premium-transition" aria-hidden="true" />
+
+      <section className="fan-home-journey-section is-activity">
+        <span className="fan-home-section-backdrop" aria-hidden="true" />
+        <div className="fan-home-section-copy">
+          <span className="fan-mini-label">{t('fan_real_recommended_activity')}</span>
+          <h2>{t('fan_real_activity_story_title')}</h2>
+          <p>{t('fan_real_activity_teaser')}</p>
+        </div>
         {displayCampaign && (
-          <article className="fan-home-activity-card">
-            <span className="fan-mini-label">Recommended activity</span>
-            <h3>{displayCampaign.name}</h3>
-            <p>Join one active UWELL challenge and earn extra points from Activities.</p>
-            <Button type="primary" onClick={() => setActiveView('activities')}>Open activity</Button>
+          <article className="fan-home-activity-card fan-home-feature-showcase fan-home-drop-poster">
+            <div className="fan-home-activity-media fan-home-visual-panel is-campaign fan-home-clean-media">
+              <img src={FAN_HOME_VISUAL_ASSETS.campaign} alt="UWELL campaign product visual" loading="lazy" />
+            </div>
+            <div className="fan-home-card-copy">
+              <span className="fan-mini-label">{t('fan_real_recommended_activity')}</span>
+              <h3>{displayCampaign.name}</h3>
+              <p>{t('fan_real_activity_teaser')}</p>
+              <Button type="primary" className="fan-home-subtle-cta" onClick={() => setActiveView('activities')}>{t('fan_real_join_challenge')}</Button>
+            </div>
           </article>
         )}
+      </section>
 
+      <div className="fan-home-transition-band fan-home-premium-transition is-soft" aria-hidden="true" />
+
+      <section className="fan-home-journey-section is-rewards">
+        <span className="fan-home-section-backdrop" aria-hidden="true" />
+        <div className="fan-home-section-copy">
+          <span className="fan-mini-label">{t('fan_real_reward_goal')}</span>
+          <h2>{t('fan_real_rewards')}</h2>
+          <p>{t('fan_real_shop_reward')}</p>
+        </div>
         {MALL_ITEMS.slice(0, 1).map((item) => (
-          <button type="button" key={item.id} className="fan-home-reward-card" onClick={() => setActiveView('rewards')}>
-            <span className="fan-mini-label">Rewards you can aim for</span>
-            <GiftOutlined />
-            <strong>{item.name}</strong>
-            <small>{item.points_cost.toLocaleString()} points</small>
-            <em>Open rewards shop</em>
-          </button>
-        ))}
-
-        {recommendedStores.slice(0, 1).map((store) => (
-          <button type="button" key={store.id} className="fan-home-store-card" onClick={() => setActiveView('stores')}>
-            <span className="fan-mini-label">Nearby UWELL stores</span>
-            {store.exposure_controls?.fan_home_recommended && <Tag color="lime">Home priority</Tag>}
-            <span className="fan-store-card-head">
-              <strong>{store.name}</strong>
-              <b>{store.level || 'C'}</b>
+          <button type="button" key={item.id} className="fan-home-reward-card fan-reactbits-spotlight-card fan-home-reward-showcase fan-home-reward-shelf" onClick={() => setActiveView('rewards')}>
+            <span className="fan-home-card-visual fan-home-visual-panel is-reward fan-home-clean-media">
+              <img src={FAN_HOME_VISUAL_ASSETS.reward} alt="UWELL reward product visual" loading="lazy" />
+              <GiftOutlined />
+              <span>DROP</span>
             </span>
-            <small>{store.level === 'S' ? 'Featured by UWELL operations' : store.level === 'A' ? 'Recommended UWELL partner' : 'Listed UWELL partner'}</small>
-            <small className="fan-store-trust-note">Exposure score {getStoreExposureScore(store)}</small>
-            <em>Open store map</em>
+            <span className="fan-mini-label">{t('fan_real_reward_goal')}</span>
+            <strong>{item.name}</strong>
+            <small className="fan-home-reward-points fan-reactbits-counter">{item.points_cost.toLocaleString()} {t('fan_real_points_unit')}</small>
+            <em>{t('fan_real_shop_reward')}</em>
           </button>
         ))}
       </section>
 
-      <section className="fan-home-recent-card">
-        <div className="fan-section-heading">
-          <span>{t('fan_recent_activity')}</span>
-          <button type="button" onClick={handleOpenCheckInDetails}>{t('view_all')}</button>
+      <section className="fan-home-journey-section is-stores">
+        <span className="fan-home-section-backdrop" aria-hidden="true" />
+        <div className="fan-home-section-copy">
+          <span className="fan-mini-label">{t('fan_real_nearby_stores')}</span>
+          <h2>{t('fan_real_brand_store_picks')}</h2>
         </div>
-        <div className="fan-home-recent-list">
-          {(pointLogs.length ? pointLogs : [
-            { id: 'demo-1', source: t('fan_task_checkin'), description: t('fan_activity_checkin'), points: 10, created_at: new Date().toISOString() },
-            { id: 'demo-2', source: t('fan_feature_scan'), description: 'CALIBURN AIR', points: 20, created_at: new Date().toISOString() },
-            { id: 'demo-3', source: t('fan_feature_redeem'), description: t('fan_reward_sample'), points: -500, created_at: new Date().toISOString() },
-          ]).slice(0, 2).map((item) => (
-            <div key={item.id} className="fan-home-recent-row">
-              <span className="fan-activity-icon"><CalendarOutlined /></span>
-              <div>
-                <strong>{getFanActivityText(item.source || item.type, t('fan_points_changed'))}</strong>
-                <p>{getFanActivityText(item.description || item.reason)}</p>
-              </div>
-              <b className={item.points >= 0 ? 'is-positive' : 'is-negative'}>{item.points > 0 ? `+${item.points}` : item.points}</b>
+        {recommendedStores.slice(0, 1).map((store) => (
+          (() => {
+            const presentation = getLocalizedStorePresentation(getFanFacingStorePresentation(store));
+            return (
+              <button type="button" key={store.id} className="fan-home-store-card fan-reactbits-spotlight-card fan-home-store-showcase fan-home-store-atmosphere" onClick={() => setActiveView('stores')}>
+                <span className="fan-home-card-visual fan-home-visual-panel is-store fan-home-clean-media">
+                  <img src={FAN_HOME_VISUAL_ASSETS.store} alt="UWELL store display product visual" loading="eager" />
+                  <EnvironmentOutlined />
+                  <span>NEAR</span>
+                </span>
+                <span className="fan-mini-label">{t('fan_real_nearby_stores')}</span>
+                {store.exposure_controls?.fan_home_recommended && <Tag color="lime">{t('fan_real_home_priority')}</Tag>}
+                <span className="fan-store-card-head">
+                  <strong>{store.name}</strong>
+                  <b className="fan-home-store-mark">{store.level || 'C'}</b>
+                </span>
+                <small>{presentation.fanLabel}</small>
+                <small className="fan-store-trust-note">{presentation.trustCopy}</small>
+                <em>{t('fan_real_open_map')}</em>
+              </button>
+            );
+          })()
+        ))}
+      </section>
+
+      <section className="fan-home-journey-section is-progress fan-home-brand-progress-immersive">
+        <span className="fan-home-section-backdrop" aria-hidden="true" />
+        <div className="fan-home-section-copy fan-home-section-media-copy">
+          <span className="fan-mini-label">{t('fan_real_growth_center')}</span>
+          <h2>{t('fan_real_growth_story_title')}</h2>
+          <p>{t('fan_real_mission_desc')}</p>
+        </div>
+          <div className="fan-home-progress-showcase fan-home-growth-status">
+          <div className="fan-home-visual-panel is-growth">
+            <img src={FAN_HOME_VISUAL_ASSETS.growth} alt="UWELL member growth product campaign visual" loading="eager" />
+          </div>
+          <div className="fan-profile-row">
+            <Avatar size={52} className="fan-shell-avatar fan-shell-avatar-lg">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+            <div>
+              <strong>{currentFan?.name || 'UWELL Member'}</strong>
+              <LevelBadge levelInfo={levelInfo} compact />
             </div>
-          ))}
+          </div>
+          <div className="fan-points-number">
+            <span className="fan-reactbits-counter">{(currentFan?.points || 0).toLocaleString()}</span>
+            <em>{t('fan_points_unit')}</em>
+          </div>
+          <div className="fan-progress-label">
+            <span>{t('fan_upgrade_progress')}</span>
+            <span>{(currentFan?.points || 0).toLocaleString()} / {(nextLevel?.min_points || currentFan?.points || 0).toLocaleString()}</span>
+          </div>
+          <Progress percent={levelProgress} showInfo={false} strokeColor={{ from: '#ccff00', to: '#7ee000' }} railColor="rgba(17,22,10,0.10)" />
+          <div className="fan-level-row">
+            <LevelBadge levelInfo={levelInfo} compact />
+            <span>{nextLevel ? `${t('fan_next_level')} ${FAN_LEVEL_LABELS[nextLevel.value] || nextLevel.label}` : t('fan_top_level')}</span>
+          </div>
+          <Button className="fan-checkin-detail-link" onClick={handleOpenCheckInDetails}>
+            {t('fan_real_view_points')}
+          </Button>
         </div>
       </section>
+
     </section>
   );
 
   const renderTasks = () => (
     <>
       <section className="fan-panel fan-task-hero">
-        <span className="fan-mini-label">Today's tasks</span>
-        <h2>Start with the three easiest actions</h2>
-        <p>Check in, scan your product, and view current activities. Points and rewards are recorded automatically in your member center.</p>
+        <span className="fan-mini-label">{t('fan_real_today_tasks')}</span>
+        <h2>{t('fan_real_tasks_start')}</h2>
+        <p>{t('fan_real_tasks_desc')}</p>
       </section>
       <section className="fan-task-card-list">
             {fanTaskCards.map((task) => (
@@ -673,49 +997,56 @@ const FanCenterPage = () => {
 
   const renderStores = () => (
     <>
-      <section className="fan-panel fan-store-hero">
-        <span className="fan-mini-label">Store map</span>
-        <h2>Find nearby UWELL partner stores</h2>
-        <p>Featured and Recommended stores are reviewed UWELL partners. Stores with risk or poor service are not recommended to fans.</p>
+      <section className="fan-panel fan-store-hero fan-store-hero-compact">
+        <div className="fan-store-hero-copy">
+          <span className="fan-mini-label">{t('fan_real_store_map_preview_title')}</span>
+          <h2>{t('fan_real_store_map_preview_heading')}</h2>
+        </div>
+        <div className="fan-store-hero-visual">
+          <img src={STORE_PREVIEW_HERO_VISUAL} alt="UWELL store discovery visual" loading="lazy" />
+          <div className="fan-store-hero-tags">
+            <span>{t('fan_real_store_brand_store')}</span>
+            <span>{t('fan_real_map_highlighted')}</span>
+            <span>{t('fan_real_store_events')}</span>
+          </div>
+        </div>
       </section>
-      <section className="fan-section-block">
+      <section className="fan-section-block fan-stores-preview">
         <div className="fan-section-heading">
-          <span>Featured store picks</span>
-          <button type="button" onClick={() => setActiveView('stores')}>Map highlighted</button>
+          <span>{t('fan_real_brand_store_picks')}</span>
+          <button type="button" onClick={() => setActiveView('stores')}>{t('fan_real_map_highlighted')}</button>
         </div>
         <div className="fan-visible-store-list">
-          {recommendedStores.length ? recommendedStores.slice(0, 3).map((store) => {
+          {recommendedStores.length ? recommendedStores.slice(0, 2).map((store, index) => {
             const storefrontPhoto = getStorefrontPhoto(store.id);
-            const capabilities = getFanStoreCapabilities(store);
+            const capabilities = getFanStoreCapabilities(store, t);
             const exposureControls = store.exposure_controls || {};
+            const presentation = getLocalizedStorePresentation(getFanFacingStorePresentation(store));
+            const previewImage = getStorePreviewVisual(store, index);
+            const visibleCapabilities = capabilities.filter((capability) => capability.active).slice(0, 2);
             return (
-              <article key={store.id} className="fan-visible-store-card">
+              <article key={store.id} className="fan-visible-store-card is-compact">
                 <div className="fan-visible-store-photo">
                   <div className="fan-visible-store-photo-frame">
-                    {storefrontPhoto?.image_url ? (
-                      <img className="fan-visible-store-photo-img" src={storefrontPhoto.image_url} alt={`${store.name} storefront`} />
-                    ) : (
-                      <span>UWELL</span>
-                    )}
+                    <img className="fan-visible-store-photo-img" src={previewImage} alt={`${store.name} storefront`} />
                   </div>
                 </div>
                 <div className="fan-visible-store-copy">
                   <strong>{store.name}</strong>
-                  <p>{store.level || 'C'} level · {store.phone || 'Phone pending'}</p>
+                  <p>{presentation.fanLabel} · {store.phone || t('fan_real_phone_pending')}</p>
                   <small className="fan-store-trust-note">
-                    {storefrontPhoto ? 'Storefront photo helps fans recognize this store' : 'Trust photo pending'}
+                    {storefrontPhoto ? t('fan_real_storefront_trust') : t('fan_real_trust_photo_pending')}
                   </small>
                   <div className="fan-visible-store-capability-grid">
-                    {capabilities.map((capability) => (
-                      <Tag key={capability.key} color={capability.active ? 'lime' : 'default'}>
+                    {visibleCapabilities.map((capability) => (
+                      <span key={capability.key} className={`fan-visible-store-chip ${capability.active ? 'is-active' : 'is-muted'}`}>
                         {capability.label}
-                      </Tag>
+                      </span>
                     ))}
                   </div>
                   <div className="fan-visible-store-capability-grid">
-                    {exposureControls.fan_map_highlighted && <Tag color="green">Map highlighted</Tag>}
-                    {exposureControls.reward_pickup_recommended && <Tag color="gold">Reward pickup</Tag>}
-                    {(exposureControls.store_events_visible || exposureControls.eligible_for_store_events_display) && <Tag color="blue">Store Events</Tag>}
+                    {exposureControls.fan_map_highlighted && <span className="fan-visible-store-chip is-active">{t('fan_real_map_highlighted')}</span>}
+                    {exposureControls.reward_pickup_recommended && <span className="fan-visible-store-chip is-active">{presentation.pickupLabel}</span>}
                   </div>
                 </div>
                 <a
@@ -724,12 +1055,12 @@ const FanCenterPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Navigate
+                  {t('fan_real_navigate')}
                 </a>
               </article>
             );
           }) : (
-            <Empty description="No nearby UWELL partner stores are available right now." />
+            <Empty description={t('fan_real_map_empty')} />
           )}
         </div>
       </section>
@@ -753,7 +1084,7 @@ const FanCenterPage = () => {
                   <p>{level.min_points.toLocaleString()}+ {t('fan_points_unit')}</p>
                   <small>{active ? t('current_level') : t('fan_base_benefits')}</small>
                 </div>
-                {active && <Tag color="gold">{t('current_level')}</Tag>}
+                {active && <LevelBadge levelInfo={level} compact />}
               </div>
             );
           })}
@@ -790,27 +1121,54 @@ const FanCenterPage = () => {
 
   const renderProfile = () => (
     <section className="fan-me-shell">
-      <div className="fan-me-hero">
-        <Avatar size={68} className="fan-shell-avatar fan-shell-avatar-lg">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
-        <div>
-          <span className="fan-mini-label">Member account</span>
+      <div className="fan-me-hero fan-me-growth-hero fan-me-hero-reduced">
+        <span className="fan-me-avatar-ring">
+          <Avatar size={68} className="fan-shell-avatar fan-shell-avatar-lg">{(currentFan?.name || 'U').slice(0, 1).toUpperCase()}</Avatar>
+        </span>
+        <div className="fan-me-hero-copy">
+          <span className="fan-mini-label">{t('fan_real_growth_center')}</span>
           <h2>{currentFan?.name || 'UWELL Fan'}</h2>
           <p>{currentFan?.phone || currentFan?.id}</p>
           <LevelBadge levelInfo={levelInfo} />
+          <div className="fan-me-hero-actions">
+            <button type="button" onClick={() => setActiveView('rewards')}>
+              <GiftOutlined /> {t('fan_real_open_rewards')}
+            </button>
+            <button type="button" onClick={() => openSecondaryView('oldfan', 'me')}>
+              <UploadOutlined /> {t('fan_real_verify_fan_status')}
+            </button>
+          </div>
+        </div>
+        <div className="fan-me-hero-visual is-compact">
+          <img src={FAN_PROFILE_VISUALS.hero} alt="UWELL fan profile visual" loading="lazy" />
+          <div className="fan-me-hero-mini-grid" aria-hidden="true">
+            <img src={FAN_PROFILE_VISUALS.overview} alt="" loading="lazy" />
+            <img src={FAN_PROFILE_VISUALS.activity} alt="" loading="lazy" />
+          </div>
+          <div className="fan-me-hero-visual-chips">
+            <span>{t('fan_real_account_overview')}</span>
+            <span>{t('fan_real_rewards')}</span>
+            <span>{t('fan_real_scan_history')}</span>
+          </div>
         </div>
       </div>
 
       <div className="fan-me-points-card">
-        <div className="fan-me-stat-card">
-          <span>Available points</span>
+        <div className="fan-me-stat-card is-points">
+          <span>{t('fan_real_available_points')}</span>
           <strong>{(currentFan?.points || 0).toLocaleString()}</strong>
         </div>
-        <div className="fan-me-stat-card">
-          <span>Current level</span>
+        <div className="fan-me-stat-card is-level">
+          <span>{t('fan_real_current_level')}</span>
           <strong>{FAN_LEVEL_LABELS[levelInfo?.value] || levelInfo?.label}</strong>
+          <LevelBadge levelInfo={levelInfo} compact />
+        </div>
+        <div className="fan-me-stat-card is-summary">
+          <span>{t('fan_real_account_overview')}</span>
+          <strong>{recentPointRows.length + recentRedemptionRows.length + recentScanRows.length}</strong>
         </div>
         <div className="fan-me-progress-row">
-          <span>{nextLevel ? `Next: ${FAN_LEVEL_LABELS[nextLevel.value] || nextLevel.label}` : 'Top level'}</span>
+          <span>{nextLevel ? `${t('fan_real_next_prefix')} ${FAN_LEVEL_LABELS[nextLevel.value] || nextLevel.label}` : t('fan_top_level')}</span>
           <span>{Math.round(levelProgress)}%</span>
         </div>
         <Progress percent={levelProgress} showInfo={false} strokeColor={{ from: '#ccff00', to: '#7ee000' }} railColor="rgba(17,22,10,0.10)" />
@@ -818,171 +1176,113 @@ const FanCenterPage = () => {
 
       <section className="fan-me-overview-strip">
         <div>
-          <span>Account overview</span>
+          <span>{t('fan_real_account_overview')}</span>
           <strong>{recentPointRows.length}</strong>
-          <small>point records</small>
+          <small>{t('fan_real_point_records')}</small>
         </div>
         <div>
-          <span>Rewards</span>
+          <span>{t('fan_real_rewards')}</span>
           <strong>{recentRedemptionRows.length}</strong>
-          <small>redemptions</small>
+          <small>{t('fan_real_redemptions')}</small>
         </div>
         <div>
-          <span>Scans</span>
+          <span>{t('fan_real_scan_history')}</span>
           <strong>{recentScanRows.length}</strong>
-          <small>product scans</small>
-        </div>
-        <div>
-          <span>Activities</span>
-          <strong>{recentActivityRows.length}</strong>
-          <small>task records</small>
+          <small>{t('fan_real_product_scans')}</small>
         </div>
       </section>
 
-      <section className="fan-me-history-panel">
+      <section className="fan-me-history-panel is-featured">
         <div className="fan-section-heading">
-          <span>Recent activity</span>
-          <button type="button" onClick={() => openSecondaryView('checkin', 'me')}>View points</button>
+          <span>{t('fan_real_recent_activity')}</span>
+          <button type="button" onClick={() => openSecondaryView('checkin', 'me')}>{t('fan_real_view_points')}</button>
         </div>
         {renderMeHistoryList(
           recentPointRows,
-          'No point records yet',
-          (item) => item.source || item.type || 'Point record',
-          (item) => item.description || formatDateTime(item.created_at),
+          t('fan_real_no_point_records'),
+          (item) => getFanActivityText(item.source || item.type, t('fan_real_point_record')),
+          (item) => getFanActivityText(item.description, formatDateTime(item.created_at)),
           (item) => item.points,
         )}
       </section>
 
-      <div className="fan-me-history-grid">
-        <button type="button" onClick={() => openSecondaryView('checkin', 'me')}>
+      <div className="fan-me-history-grid is-compact">
+        <button type="button" className="fan-me-quick-card" onClick={() => openSecondaryView('checkin', 'me')}>
           <StarOutlined />
-          <strong>Points history</strong>
-          <span>{pointLogs.length ? `${pointLogs.length} recent` : 'No recent records'}</span>
+          <strong>{t('fan_real_points_history')}</strong>
+          <span>{pointLogs.length ? `${pointLogs.length} ${t('fan_real_recent_unit')}` : t('fan_real_no_recent_records')}</span>
         </button>
-        <button type="button" onClick={() => setActiveView('rewards')}>
+        <button type="button" className="fan-me-quick-card" onClick={() => setActiveView('rewards')}>
           <GiftOutlined />
-          <strong>Reward history</strong>
-          <span>View redemptions</span>
+          <strong>{t('fan_real_reward_history')}</strong>
+          <span>{t('fan_real_view_redemptions')}</span>
         </button>
-        <button type="button" onClick={() => openSecondaryView('scan', 'me')}>
+        <button type="button" className="fan-me-quick-card" onClick={() => openSecondaryView('scan', 'me')}>
           <QrcodeOutlined />
-          <strong>Scan history</strong>
-          <span>Product scans</span>
-        </button>
-        <button type="button" onClick={() => setActiveView('activities')}>
-          <CalendarOutlined />
-          <strong>Activity history</strong>
-          <span>Campaign records</span>
+          <strong>{t('fan_real_scan_history')}</strong>
+          <span>{t('fan_real_product_scans')}</span>
         </button>
       </div>
-
-      <section className="fan-me-history-panel">
-        <div className="fan-section-heading">
-          <span>Reward history</span>
-          <button type="button" onClick={() => setActiveView('rewards')}>Open rewards</button>
-        </div>
-        {renderMeHistoryList(
-          recentRedemptionRows,
-          'No redemptions yet',
-          (item) => item.item_name || item.item_id || 'Reward redemption',
-          (item) => item.status || item.review_status || formatDateTime(item.created_at || item.redeemed_at),
-          (item) => item.points_cost ? -Number(item.points_cost) : null,
-        )}
-      </section>
-
-      <section className="fan-me-history-panel">
-        <div className="fan-section-heading">
-          <span>Scan history</span>
-          <button type="button" onClick={() => openSecondaryView('scan', 'me')}>Open scan</button>
-        </div>
-        {renderMeHistoryList(
-          recentScanRows,
-          'No scans yet',
-          (item) => item.scan_status || item.qr_code_id || 'Product scan',
-          (item) => formatDateTime(item.scanned_at || item.created_at),
-          (item) => item.points_earned || item.points,
-        )}
-      </section>
-
-      <section className="fan-me-history-panel">
-        <div className="fan-section-heading">
-          <span>Activity history</span>
-          <button type="button" onClick={() => setActiveView('activities')}>Open activities</button>
-        </div>
-        {renderMeHistoryList(
-          recentActivityRows,
-          'No activity records yet',
-          (item) => item.task_type || item.task_key || 'Activity task',
-          (item) => item.status || formatDateTime(item.completed_at || item.created_at),
-          (item) => item.points_awarded || item.points,
-        )}
-      </section>
 
       <div className="fan-me-utility-grid">
-        <button type="button" onClick={() => openSecondaryView('invite', 'me')}>
+        <button type="button" className="fan-me-tool-card fan-me-invite-card" onClick={() => openSecondaryView('invite', 'me')}>
           <TeamOutlined />
-          <strong>Invite friends</strong>
-          <span>Share your link and earn points.</span>
+          <strong>{t('fan_real_invite_friends')}</strong>
+          <span>{invitePointRows.length} {t('fan_real_friends_invited')} · {invitePointsEarned} {t('fan_real_points_earned')}</span>
         </button>
-        <button type="button" onClick={() => openSecondaryView('oldfan', 'me')}>
+        <button type="button" className="fan-me-tool-card" onClick={() => openSecondaryView('oldfan', 'me')}>
           <UploadOutlined />
-          <strong>Existing fan verification</strong>
-          <span>{oldFanVerifications[0] ? 'Review your submission.' : 'Submit proof for bonus points.'}</span>
+          <strong>{t('fan_real_old_fan_title')}</strong>
+          <span>{oldFanVerifications[0] ? t('fan_real_review_submission') : t('fan_real_submit_bonus_proof')}</span>
         </button>
-        <button type="button" onClick={() => openSecondaryView('help', 'me')}>
+        <button type="button" className="fan-me-tool-card" onClick={() => openSecondaryView('help', 'me')}>
           <QuestionCircleOutlined />
-          <strong>New user guide</strong>
-          <span>Scan, check in, activities, community.</span>
+          <strong>{t('fan_real_new_user_guide')}</strong>
+          <span>{t('fan_real_guide_short_desc')}</span>
         </button>
-        <button type="button" onClick={() => setActiveView('community')}>
+        <button type="button" className="fan-me-tool-card" onClick={() => setActiveView('community')}>
           <MessageOutlined />
-          <strong>Community</strong>
-          <span>Posts, likes, comments.</span>
+          <strong>{t('fan_real_community')}</strong>
+          <span>{t('fan_real_community_tool_desc')}</span>
         </button>
-      </div>
-
-      <div className="fan-me-language-card">
-        <div>
-          <strong>Language</strong>
-          <span>English now. Arabic support is planned.</span>
-        </div>
-        <LanguageSwitcher
-          inline
-          showCurrent
-          sourceOnly
-          anchor="end"
-          tone="light"
-          labelOverride="Language"
-          buttonMinWidth={108}
-          menuMinWidth={180}
-          className="fan-me-language-switcher"
-        />
       </div>
 
       <button type="button" className="fan-me-signout" onClick={handleLogout}>
-        <LogoutOutlined /> Sign out
+        <LogoutOutlined /> {t('fan_real_sign_out')}
       </button>
     </section>
   );
 
   const renderOldFanVerification = () => {
     const latest = oldFanVerifications[0];
-    const statusText = latest?.status === 'approved' ? 'Approved' : latest?.status === 'rejected' ? 'Rejected' : latest ? 'Pending review' : 'Not submitted';
+    const statusText = latest?.status === 'approved' ? t('fan_real_status_approved') : latest?.status === 'rejected' ? t('fan_real_status_rejected') : latest ? t('fan_real_status_pending') : t('fan_real_status_not_submitted');
     const statusColor = latest?.status === 'approved' ? 'green' : latest?.status === 'rejected' ? 'red' : 'gold';
     return (
       <section className="fan-verification-page">
         <div className="fan-verification-hero">
           <UploadOutlined />
           <div>
-            <span className="fan-mini-label">Existing fan</span>
-            <h2>Verify older UWELL products</h2>
-            <p>Upload an image showing at least 4 older UWELL products. Approved fans receive 100 bonus points.</p>
+            <span className="fan-mini-label">{t('fan_real_old_fan_title')}</span>
+            <h2>{t('fan_real_old_fan_title')}</h2>
+            <p>{t('fan_real_upload_old_fan_desc')}</p>
+          </div>
+          <div className="fan-verification-hero-visual">
+            <img
+              src={FAN_OLD_VERIFICATION_VISUAL}
+              alt={t('fan_real_verification_alt')}
+              loading="lazy"
+              onError={(event) => {
+                if (event.currentTarget.src.includes(FAN_OLD_VERIFICATION_FALLBACK)) return;
+                event.currentTarget.src = FAN_OLD_VERIFICATION_FALLBACK;
+              }}
+            />
+            <span className="fan-verification-image-fallback">{t('fan_real_upload_old_fan_desc')}</span>
           </div>
         </div>
 
         <section className="fan-verification-status-card">
           <div>
-            <span>Review status</span>
+            <span>{t('fan_real_review_status')}</span>
             <strong>{statusText}</strong>
           </div>
           <Tag color={statusColor}>{statusText}</Tag>
@@ -990,30 +1290,30 @@ const FanCenterPage = () => {
 
         <section className="fan-verification-upload-card">
           <div>
-            <strong>Submit proof image</strong>
-            <span>Clear product photo, one submission at a time.</span>
+            <strong>{t('fan_real_submit_proof_image')}</strong>
+            <span>{t('fan_real_clear_product_photo')}</span>
           </div>
           <Upload accept="image/*" showUploadList={false} beforeUpload={handleOldFanUpload}>
-            <Button type="primary" icon={<UploadOutlined />}>Upload proof image</Button>
+            <Button type="primary" icon={<UploadOutlined />}>{t('fan_real_upload_proof_image')}</Button>
           </Upload>
         </section>
 
         <section className="fan-verification-history-list">
           <div className="fan-section-heading">
-            <span>Submission history</span>
-            <strong>{oldFanVerifications.length} records</strong>
+            <span>{t('fan_real_submission_history')}</span>
+            <strong>{oldFanVerifications.length} {t('fan_real_records_unit')}</strong>
           </div>
           {oldFanVerifications.length ? oldFanVerifications.map((item) => (
             <div key={item.id} className="fan-verification-history-row">
-              <img src={item.image_url} alt="Fan verification" />
+              <img src={item.image_url} alt={t('fan_real_verification_alt')} />
               <div>
-                <strong>Verification image</strong>
-                <p>{item.status === 'approved' ? 'Approved. Points have been added.' : item.status === 'rejected' ? 'Not approved' : 'Waiting for admin review'}</p>
+                <strong>{t('fan_real_verification_image')}</strong>
+                <p>{item.status === 'approved' ? t('fan_real_verification_approved_desc') : item.status === 'rejected' ? t('fan_real_verification_rejected_desc') : t('fan_real_verification_waiting_desc')}</p>
                 <em>{formatDateTime(item.submitted_at || item.created_at)}</em>
               </div>
               <b className={item.status === 'approved' ? 'is-positive' : ''}>{item.status === 'approved' ? '+100' : ''}</b>
             </div>
-          )) : <div className="fan-me-empty-row">No submissions yet</div>}
+          )) : <div className="fan-me-empty-row">{t('fan_real_no_submissions')}</div>}
         </section>
       </section>
     );
@@ -1021,26 +1321,28 @@ const FanCenterPage = () => {
 
   const renderSecondaryView = () => {
     const viewMap = {
-      checkin: { title: 'Daily check-in', content: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} /> },
-      scan: { title: t('fan_scan'), content: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} /> },
-      mall: { title: t('fan_redeem'), content: <MallTab fan={currentFan} onPointsChange={handlePointsChange} /> },
-      invite: { title: t('fan_invite'), content: <InviteTab fan={currentFan} /> },
-      campaigns: { title: t('fan_activities'), content: <CampaignTab fan={currentFan} /> },
-      profile: { title: 'Me', content: renderProfile() },
-      oldfan: { title: 'Fan verification', content: renderOldFanVerification() },
-      map: { title: 'Store recommendations', content: renderStores() },
-      help: { title: t('fan_help'), content: <HowItWorksTab /> },
+      checkin: { title: t('fan_real_checkin_title'), content: <CheckInTab fan={currentFan} onPointsChange={handlePointsChange} /> },
+      scan: { title: t('fan_real_scan_title'), content: <ScanTab fan={currentFan} onPointsChange={handlePointsChange} /> },
+      mall: { title: t('fan_real_rewards_title'), content: <MallTab fan={currentFan} onPointsChange={handlePointsChange} /> },
+      invite: { title: t('fan_real_invite_title'), content: <InviteTab fan={currentFan} /> },
+      campaigns: { title: t('fan_real_activities'), content: <CampaignTab fan={currentFan} /> },
+      profile: { title: t('fan_real_me'), content: renderProfile() },
+      oldfan: { title: t('fan_real_old_fan_title'), content: renderOldFanVerification() },
+      map: { title: t('fan_real_store_map_title'), content: renderStores() },
+      help: { title: t('fan_real_help_title'), content: <HowItWorksTab /> },
     };
     const selected = viewMap[activeView];
     if (!selected) return null;
     return (
       <section className="fan-secondary-view">
         <div className="fan-subpage-bar">
-          <Button type="text" onClick={handleSecondaryBack}>{t('back')}</Button>
-          <strong>{selected.title}</strong>
-          <span />
+          <Button className="fan-subpage-back" type="text" onClick={handleSecondaryBack}>{t('fan_real_back')}</Button>
+          <strong className="fan-subpage-title">{selected.title}</strong>
+          <span className="fan-subpage-spacer" aria-hidden="true" />
         </div>
-        {selected.content}
+        <div className="fan-secondary-content">
+          {selected.content}
+        </div>
       </section>
     );
   };
@@ -1065,8 +1367,8 @@ const FanCenterPage = () => {
     return (
       <div className="fan-shell-loading">
         <Card className="fan-panel">
-          <Empty description="No fan profile found. Please contact support." />
-          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>Back to Home</Button>
+          <Empty description={t('fan_real_no_profile')} />
+          <Button type="primary" onClick={handleLogout} style={{ marginTop: 16 }}>{t('fan_real_back_home')}</Button>
         </Card>
       </div>
     );
@@ -1082,7 +1384,7 @@ const FanCenterPage = () => {
     : navKeyAliases[activeView] || 'home';
 
   return (
-    <div className="fan-shell">
+    <div className="fan-shell fan-premium-member-shell">
       <video
         ref={bgVideoRef}
         className="fan-center-bg-video"
@@ -1097,7 +1399,12 @@ const FanCenterPage = () => {
       <main className="fan-shell-main">
         {renderContent()}
       </main>
-      <nav className="fan-bottom-nav" aria-label="Fan center navigation">
+      <nav
+        className={`fan-bottom-nav ${navVisibility === 'hidden' ? 'is-nav-hidden' : ''} ${navVisibility === 'soft' ? 'is-nav-soft' : ''} ${shouldStabilizeBottomNav ? 'is-nav-stable' : ''}`}
+        aria-label={t('fan_real_fan_nav_label')}
+        onPointerEnter={revealBottomNav}
+        onFocus={revealBottomNav}
+      >
           {fanNavItems.map((item) => (
           <button
             key={item.key}
